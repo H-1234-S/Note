@@ -8,15 +8,17 @@
         "type": "tabs",
         "children": [
           {
-            "id": "f2c5fb66ccecb353",
+            "id": "453a16b62cc4feb4",
             "type": "leaf",
             "state": {
-              "type": "pdf",
+              "type": "markdown",
               "state": {
-                "file": "测试.pdf"
+                "file": "Project notes/React - Firebase.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-file-text",
-              "title": "测试"
+              "icon": "lucide-file",
+              "title": "React - Firebase"
             }
           }
         ]
@@ -179,9 +181,11 @@
       "bases:新建数据库": false
     }
   },
-  "active": "f2c5fb66ccecb353",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
+    "Project notes",
     "测试.md",
+    "Project notes/React - Firebase.md",
     "测试.pdf",
     "新建 文本文档.txt"
   ]
