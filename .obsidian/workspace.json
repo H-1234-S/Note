@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "未命名.md",
+                "file": "Project notes/React-Firebase Chat.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "未命名"
+              "title": "React-Firebase Chat"
             }
           }
         ],
@@ -196,10 +196,10 @@
       "bases:新建数据库": false
     }
   },
-  "active": "4f52ad7867b88466",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
     "Project notes/React - Firebase.md",
-    "未命名.md",
+    "Project notes/React-Firebase Chat.md",
     "Project notes",
     "测试.md",
     "测试.pdf",
