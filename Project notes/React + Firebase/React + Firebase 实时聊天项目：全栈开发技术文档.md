@@ -100,11 +100,11 @@ Firebase Firestore 是一个 NoSQL 文档数据库。理解集合（Collection�
 
 ### 第一阶段：UI 还原 (基础巩固)
 
-- [ ] 使用 React + CSS 还原三栏布局。
+- [x] 使用 React + CSS 还原三栏布局。
     
-- [ ] 练习使用 **Flexbox** 处理聊天气泡的左右对齐。
+- [x] 练习使用 **Flexbox** 处理聊天气泡的左右对齐。
     
-- [ ] 学习 `useRef` 实现新消息到来时自动滚动到底部。
+- [x] 学习 `useRef` 实现新消息到来时自动滚动到底部。
     
 
 ### 第二阶段：Firebase 基础集成
