@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "测试.md",
-                "mode": "source",
+                "file": "Project notes/React - Firebase.md",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "测试"
+              "title": "React - Firebase"
             }
           }
         ]
@@ -171,8 +171,12 @@
   },
   "active": "6f6c886fb53dccab",
   "lastOpenFiles": [
+    "测试.md",
+    "Project notes/React - Firebase.md",
+    "Project notes",
+    "/Project notes/React - Firebase.md",
+    "/Project notes",
     "手机测试2.md",
-    "手机测试.md",
-    "测试.md"
+    "手机测试.md"
   ]
 }
