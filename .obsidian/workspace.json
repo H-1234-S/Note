@@ -11,11 +11,13 @@
             "id": "e9f1cbab3bc9c379",
             "type": "leaf",
             "state": {
-              "type": "pdf",
+              "type": "markdown",
               "state": {
-                "file": "React + Firebase 实时聊天项目：全栈开发技术文档.pdf"
+                "file": "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
+                "mode": "preview",
+                "source": false
               },
-              "icon": "lucide-file-text",
+              "icon": "lucide-file",
               "title": "React + Firebase 实时聊天项目：全栈开发技术文档"
             }
           }
@@ -179,8 +181,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "e9f1cbab3bc9c379",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
+    "Front-end notes",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "React + Firebase 实时聊天项目：全栈开发技术文档.pdf",
     "Project notes/React + Firebase/React + Firebase数据流向 Mermaid 流程图.md",
