@@ -11,13 +11,11 @@
             "id": "e9f1cbab3bc9c379",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "pdf",
               "state": {
-                "file": "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
-                "mode": "preview",
-                "source": false
+                "file": "React + Firebase 实时聊天项目：全栈开发技术文档.pdf"
               },
-              "icon": "lucide-file",
+              "icon": "lucide-file-text",
               "title": "React + Firebase 实时聊天项目：全栈开发技术文档"
             }
           }
@@ -183,9 +181,10 @@
   },
   "active": "e9f1cbab3bc9c379",
   "lastOpenFiles": [
+    "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
+    "React + Firebase 实时聊天项目：全栈开发技术文档.pdf",
     "Project notes/React + Firebase/React + Firebase数据流向 Mermaid 流程图.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
-    "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "Project notes/React + Firebase",
     "Pasted image 20260228185140.png",
     "数据流.canvas",
