@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
+                "file": "Front-end notes/React.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "React + Firebase 实时聊天项目：全栈开发技术文档"
+              "title": "React"
             }
           },
           {
@@ -35,8 +35,7 @@
               "title": "Firebase Web SDK 实战手册 (本项目专用)"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -109,7 +108,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
+                "file": "Front-end notes/React.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +118,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Firebase Web SDK 实战手册 (本项目专用) 的反向链接列表"
+              "title": "React 的反向链接列表"
             }
           },
           {
@@ -128,12 +127,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
+                "file": "Front-end notes/React.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Firebase Web SDK 实战手册 (本项目专用) 的出链列表"
+              "title": "React 的出链列表"
             }
           },
           {
@@ -171,13 +170,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
+                "file": "Front-end notes/React.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Firebase Web SDK 实战手册 (本项目专用) 的大纲"
+              "title": "React 的大纲"
             }
           }
         ],
@@ -185,7 +184,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -199,18 +199,18 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "e9f1cbab3bc9c379",
   "lastOpenFiles": [
     "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
+    "Front-end notes/React.md",
+    "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
+    "Project notes/React + Firebase/React + Firebase数据流向 Mermaid 流程图.md",
     "Front-end notes/React Router.md",
     "Front-end notes/TypeScript.md",
     "Front-end notes/Zustand.md",
-    "Front-end notes/React.md",
     "React + Firebase 实时聊天项目：全栈开发技术文档.pdf",
     "Front-end notes",
-    "Project notes/React + Firebase/React + Firebase数据流向 Mermaid 流程图.md",
-    "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
     "Project notes/React + Firebase",
     "Pasted image 20260228185140.png",
     "数据流.canvas",
