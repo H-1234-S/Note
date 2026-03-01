@@ -112,7 +112,7 @@
         "state": {
           "type": "backlink",
           "state": {
-            "file": "未命名.md",
+            "file": "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
             "collapseAll": false,
             "extraContext": false,
             "sortOrder": "alphabetical",
@@ -145,7 +145,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "测试.md",
+            "file": "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -155,7 +155,7 @@
         }
       }
     ],
-    "currentTab": 0
+    "currentTab": 2
   },
   "left-ribbon": {
     "hiddenItems": {
