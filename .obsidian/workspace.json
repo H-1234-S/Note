@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/React.md",
+                "file": "Front-end notes/React Router.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "React"
+              "title": "React Router"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -95,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Front-end notes/React.md",
+                "file": "Front-end notes/React Router.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "React 的反向链接列表"
+              "title": "React Router 的反向链接列表"
             }
           },
           {
@@ -114,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Front-end notes/React.md",
+                "file": "Front-end notes/React Router.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "React 的出链列表"
+              "title": "React Router 的出链列表"
             }
           },
           {
@@ -157,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React.md",
+                "file": "Front-end notes/React Router.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "React 的大纲"
+              "title": "React Router 的大纲"
             }
           }
         ],
@@ -185,11 +184,12 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "ed4e7f2d0b9f101c",
+  "active": "e9f1cbab3bc9c379",
   "lastOpenFiles": [
-    "React + Firebase 实时聊天项目：全栈开发技术文档.pdf",
+    "Front-end notes/TypeScript.md",
     "Front-end notes/Zustand.md",
     "Front-end notes/React.md",
+    "React + Firebase 实时聊天项目：全栈开发技术文档.pdf",
     "Front-end notes/React Router.md",
     "Front-end notes",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
