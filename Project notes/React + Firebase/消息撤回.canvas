@@ -1,6 +1,9 @@
 {
 	"nodes":[
-		{"id":"6cd84ce479ad2770","type":"text","text":"消息撤回功能","x":-760,"y":-420,"width":250,"height":60}
+		{"id":"7eaf36cf0ddbd8d1","x":-980,"y":-320,"width":140,"height":60,"type":"text","text":"数据一致性"},
+		{"id":"6cd84ce479ad2770","type":"text","text":"消息撤回功能","x":-680,"y":-460,"width":160,"height":60},
+		{"id":"221394da25c8f97c","x":-980,"y":-180,"width":120,"height":60,"type":"text","text":"权限控制"},
+		{"id":"50e055130a2bb10d","x":-645,"y":-320,"width":250,"height":60,"type":"text","text":"给每条message添加id，便于定位哪一条消息"}
 	],
 	"edges":[]
 }
