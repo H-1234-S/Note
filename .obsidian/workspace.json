@@ -25,17 +25,14 @@
             "id": "c4563e83f914e553",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "消息同步.canvas",
-                "viewState": {
-                  "x": -197.6402877697841,
-                  "y": 320.76940555709723,
-                  "zoom": -0.05014879408426085
-                }
+                "file": "Project notes/React + Firebase/项目复盘.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "消息同步"
+              "icon": "lucide-file",
+              "title": "项目复盘"
             }
           },
           {
@@ -110,8 +107,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -189,13 +185,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "消息同步.canvas",
+                "file": "Project notes/React + Firebase/项目复盘.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "消息同步 的大纲"
+              "title": "项目复盘 的大纲"
             }
           }
         ],
@@ -220,12 +216,12 @@
   },
   "active": "c4563e83f914e553",
   "lastOpenFiles": [
-    "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
-    "消息同步.canvas",
-    "Project notes/React + Firebase/项目复盘.md",
-    "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
+    "Project notes/React + Firebase/消息同步.canvas",
     "Project notes/React + Firebase/数据流向 Mermaid 流程图.md",
+    "Project notes/React + Firebase/项目复盘.md",
+    "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
+    "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
     "Front-end notes/React.md",
     "Front-end notes/React Router.md",
     "Front-end notes/TypeScript.md",
