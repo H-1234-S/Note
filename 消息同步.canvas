@@ -1,13 +1,17 @@
 {
 	"nodes":[
-		{"id":"d2b1295d5b6dd287","x":-460,"y":-200,"width":250,"height":60,"type":"text","text":"调用异步handleSend函数"},
-		{"id":"54f5fd8a48eff85d","x":-180,"y":-20,"width":250,"height":60,"type":"text","text":"连接firebase数据库，查找chats集合"},
-		{"id":"342bc7215e7de4a1","x":-500,"y":-400,"width":250,"height":60,"type":"text","text":"点击发送按钮"},
-		{"id":"423395983ff59ab1","x":-560,"y":-20,"width":250,"height":60,"type":"text","text":"获取当前chatId"}
+		{"id":"6be95865ce7d0534","x":-1070,"y":-20,"width":170,"height":60,"type":"text","text":"用户点击聊天项"},
+		{"id":"8e9120c061e42604","x":-504,"y":-19,"width":184,"height":60,"type":"text","text":"存到zustand创建的chatStore"},
+		{"id":"423395983ff59ab1","type":"text","text":"changeChat获取当前chatId","x":-840,"y":-19,"width":250,"height":60},
+		{"id":"54f5fd8a48eff85d","type":"text","text":"连接firebase数据库，查找chats集合","x":-210,"y":-19,"width":250,"height":60},
+		{"id":"342bc7215e7de4a1","type":"text","text":"点击发送按钮","x":-840,"y":-140,"width":250,"height":60},
+		{"id":"d2b1295d5b6dd287","type":"text","text":"调用异步handleSend函数","x":-504,"y":-140,"width":250,"height":60}
 	],
 	"edges":[
 		{"id":"302d1da77c2f60a5","fromNode":"342bc7215e7de4a1","fromSide":"bottom","toNode":"d2b1295d5b6dd287","toSide":"top"},
 		{"id":"512a679ec817f8b9","fromNode":"d2b1295d5b6dd287","fromSide":"bottom","toNode":"54f5fd8a48eff85d","toSide":"top"},
-		{"id":"8394ce8b7ad1e4a5","fromNode":"423395983ff59ab1","fromSide":"right","toNode":"54f5fd8a48eff85d","toSide":"left"}
+		{"id":"a50048cc68f2d58c","fromNode":"6be95865ce7d0534","fromSide":"right","toNode":"423395983ff59ab1","toSide":"left"},
+		{"id":"32a254b9d635b73a","fromNode":"423395983ff59ab1","fromSide":"right","toNode":"8e9120c061e42604","toSide":"left"},
+		{"id":"25185c1d96dd4673","fromNode":"8e9120c061e42604","fromSide":"right","toNode":"54f5fd8a48eff85d","toSide":"left"}
 	]
 }
