@@ -1,7 +1,7 @@
 {
 	"nodes":[
 		{"id":"129334b028c808d4","x":-995,"y":-568,"width":250,"height":60,"type":"text","text":"用户点击注册，调用handleRegister函数"},
-		{"id":"8b87ada833591f61","x":-689,"y":-579,"width":250,"height":60,"type":"text","text":"handleRegister函数"}
+		{"id":"8b87ada833591f61","x":-640,"y":-582,"width":280,"height":88,"type":"text","text":"handleRegister函数在databasse中创建对应用户信息、创建属于该用户的聊天列表"}
 	],
 	"edges":[]
 }
