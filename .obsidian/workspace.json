@@ -41,15 +41,15 @@
             "state": {
               "type": "canvas",
               "state": {
-                "file": "Project notes/React + Firebase/消息同步.canvas",
+                "file": "Project notes/React + Firebase/拉黑.canvas",
                 "viewState": {
-                  "x": -553.8847610423376,
-                  "y": 27.759213710574414,
-                  "zoom": -0.05014879408426085
+                  "x": 0,
+                  "y": 0,
+                  "zoom": 0
                 }
               },
               "icon": "lucide-layout-dashboard",
-              "title": "消息同步"
+              "title": "拉黑"
             }
           }
         ],
@@ -110,8 +110,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -189,13 +188,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/React + Firebase/消息同步.canvas",
+                "file": "Project notes/React + Firebase/拉黑.canvas",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "消息同步 的大纲"
+              "title": "拉黑 的大纲"
             }
           },
           {
@@ -230,11 +229,12 @@
   },
   "active": "8760734674b0ebab",
   "lastOpenFiles": [
+    "Project notes/React + Firebase/消息同步.canvas",
+    "Project notes/React + Firebase/注册、登录.canvas",
+    "Project notes/React + Firebase/拉黑.canvas",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目复盘.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
-    "Project notes/React + Firebase/消息同步.canvas",
-    "Project notes/React + Firebase/注册、登录.canvas",
     "Project notes/React + Firebase/数据流向 Mermaid 流程图.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
     "Front-end notes/React.md",
