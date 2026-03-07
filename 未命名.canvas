@@ -1,9 +1,0 @@
-{
-	"nodes":[
-		{"id":"342bc7215e7de4a1","x":-543,"y":-302,"width":250,"height":60,"type":"text","text":"点击发送按钮"},
-		{"id":"d2b1295d5b6dd287","x":-480,"y":-120,"width":250,"height":60,"type":"text","text":"调用异步handleSend函数"}
-	],
-	"edges":[
-		{"id":"302d1da77c2f60a5","fromNode":"342bc7215e7de4a1","fromSide":"bottom","toNode":"d2b1295d5b6dd287","toSide":"top"}
-	]
-}
