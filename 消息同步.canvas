@@ -7,11 +7,11 @@
 		{"id":"8e9120c061e42604","type":"text","text":"存到zustand创建的chatStore","x":-767,"y":40,"width":184,"height":60},
 		{"id":"54f5fd8a48eff85d","type":"text","text":"连接firebase数据库，查找chats集合下chatId文档","x":-480,"y":40,"width":250,"height":60},
 		{"id":"3830f9ba2c230491","type":"text","text":"将message添加到对应chatId文档中","x":-504,"y":190,"width":250,"height":50},
-		{"id":"810f42251f7b0f60","x":-892,"y":308,"width":250,"height":54,"type":"text","text":"通过userStore获得currentUser状态"},
-		{"id":"2b53789850e43d30","x":-892,"y":160,"width":250,"height":60,"type":"text","text":"通过chatStore获得user状态"},
-		{"id":"f085a66a54bd6f86","x":-1320,"y":308,"width":250,"height":60,"type":"text","text":"onAuthStateChanged的回调函数，调用fetchUserInfo传入uid"},
 		{"id":"526a8fa02232d56f","x":-504,"y":308,"width":250,"height":60,"type":"text","text":"并发更新双方的聊天记录\n更新双方最后一条聊天消息"},
-		{"id":"19e99135a6358165","x":-504,"y":460,"width":250,"height":60,"type":"text","text":"userchats集合中的userId文档中chats字段存储的是该用用户所有的聊天会话"}
+		{"id":"19e99135a6358165","x":-504,"y":460,"width":250,"height":60,"type":"text","text":"userchats集合中的userId文档中chats字段存储的是该用用户所有的聊天会话"},
+		{"id":"810f42251f7b0f60","x":-1017,"y":358,"width":250,"height":54,"type":"text","text":"通过userStore获得currentUser状态"},
+		{"id":"2b53789850e43d30","x":-1017,"y":210,"width":250,"height":60,"type":"text","text":"通过chatStore获得user状态"},
+		{"id":"f085a66a54bd6f86","x":-1445,"y":358,"width":250,"height":60,"type":"text","text":"onAuthStateChanged的回调函数，调用fetchUserInfo传入uid"}
 	],
 	"edges":[
 		{"id":"302d1da77c2f60a5","fromNode":"342bc7215e7de4a1","fromSide":"bottom","toNode":"d2b1295d5b6dd287","toSide":"top"},
