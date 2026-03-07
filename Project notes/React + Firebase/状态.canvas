@@ -1,0 +1,11 @@
+{
+	"nodes":[
+		{"id":"77dcb93b7644bcd1","type":"text","text":"通过userStore获得currentUser状态","x":-132,"y":-152,"width":250,"height":54},
+		{"id":"8b0ce354d2fad68c","type":"text","text":"通过chatStore获得user状态","x":-132,"y":-300,"width":250,"height":60},
+		{"id":"d42bad5a611ced6f","type":"text","text":"onAuthStateChanged的回调函数，调用fetchUserInfo传入uid","x":-560,"y":-152,"width":250,"height":60},
+		{"id":"3892da89be5aa171","x":-580,"y":-300,"width":250,"height":60,"type":"text","text":"点击聊天项的聊天项"}
+	],
+	"edges":[
+		{"id":"6017ffc5887d278f","fromNode":"d42bad5a611ced6f","fromSide":"right","toNode":"77dcb93b7644bcd1","toSide":"left"}
+	]
+}

@@ -9,10 +9,7 @@
 		{"id":"3830f9ba2c230491","type":"text","text":"将message添加到对应chatId文档中","x":-504,"y":190,"width":250,"height":50},
 		{"id":"526a8fa02232d56f","type":"text","text":"并发更新双方的聊天记录\n更新双方最后一条聊天消息","x":-504,"y":308,"width":250,"height":60},
 		{"id":"19e99135a6358165","type":"text","text":"userchats集合中的userId文档中chats字段存储的是该用用户所有的聊天会话","x":-504,"y":460,"width":250,"height":60},
-		{"id":"1781b49c9275628e","type":"text","text":"onSnapshot监听到对应chatId发生变化时调用setChat更新ui","x":-892,"y":210,"width":250,"height":60},
-		{"id":"2d214de420427462","type":"text","text":"通过userStore获得currentUser状态","x":348,"y":358,"width":250,"height":54},
-		{"id":"c355d3380d05fbc1","type":"text","text":"通过chatStore获得user状态","x":348,"y":210,"width":250,"height":60},
-		{"id":"51083d4f82315c63","type":"text","text":"onAuthStateChanged的回调函数，调用fetchUserInfo传入uid","x":-80,"y":358,"width":250,"height":60}
+		{"id":"1781b49c9275628e","type":"text","text":"onSnapshot监听到对应chatId发生变化时调用setChat更新ui","x":-892,"y":210,"width":250,"height":60}
 	],
 	"edges":[
 		{"id":"302d1da77c2f60a5","fromNode":"342bc7215e7de4a1","fromSide":"bottom","toNode":"d2b1295d5b6dd287","toSide":"top"},
@@ -23,7 +20,6 @@
 		{"id":"87b4f3b01e4aadee","fromNode":"54f5fd8a48eff85d","fromSide":"bottom","toNode":"3830f9ba2c230491","toSide":"top"},
 		{"id":"2639625ff87f8869","fromNode":"3830f9ba2c230491","fromSide":"bottom","toNode":"526a8fa02232d56f","toSide":"top"},
 		{"id":"afe24501c715d7fb","fromNode":"526a8fa02232d56f","fromSide":"bottom","toNode":"19e99135a6358165","toSide":"top"},
-		{"id":"f97ab6da84e84743","fromNode":"3830f9ba2c230491","fromSide":"left","toNode":"1781b49c9275628e","toSide":"right"},
-		{"id":"30d8028d4b1a2721","fromNode":"51083d4f82315c63","fromSide":"right","toNode":"2d214de420427462","toSide":"left"}
+		{"id":"f97ab6da84e84743","fromNode":"3830f9ba2c230491","fromSide":"left","toNode":"1781b49c9275628e","toSide":"right"}
 	]
 }
