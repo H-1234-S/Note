@@ -1,0 +1,7 @@
+{
+	"nodes":[
+		{"id":"129334b028c808d4","x":-995,"y":-568,"width":250,"height":60,"type":"text","text":"用户点击注册，调用handleRegister函数"},
+		{"id":"8b87ada833591f61","x":-689,"y":-579,"width":250,"height":60,"type":"text","text":"handleRegister函数"}
+	],
+	"edges":[]
+}
