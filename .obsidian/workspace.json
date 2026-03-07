@@ -58,12 +58,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "前端全栈实习冲刺计划.md",
+                "file": "学习计划.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "前端全栈实习冲刺计划"
+              "title": "学习计划"
             }
           }
         ],
@@ -202,13 +202,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "前端全栈实习冲刺计划.md",
+                "file": "学习计划.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "前端全栈实习冲刺计划 的大纲"
+              "title": "学习计划 的大纲"
             }
           },
           {
@@ -244,7 +244,7 @@
   "active": "8f4fe9277c27b6f9",
   "lastOpenFiles": [
     "Project notes/React + Firebase/拉黑.canvas",
-    "前端全栈实习冲刺计划.md",
+    "学习计划.md",
     "Project notes/React + Firebase/消息同步.canvas",
     "Project notes/React + Firebase/注册、登录.canvas",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目复盘.md",
