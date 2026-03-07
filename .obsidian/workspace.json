@@ -29,9 +29,9 @@
               "state": {
                 "file": "消息同步.canvas",
                 "viewState": {
-                  "x": -892,
-                  "y": 240,
-                  "zoom": 0
+                  "x": -197.6402877697841,
+                  "y": 320.76940555709723,
+                  "zoom": -0.05014879408426085
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -110,7 +110,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
