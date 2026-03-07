@@ -1,5 +1,6 @@
 {
 	"nodes":[
+		{"id":"beac6efb7a3535aa","x":-855,"y":187,"width":250,"height":60,"type":"text","text":""},
 		{"id":"d2b1295d5b6dd287","type":"text","text":"调用异步handleSend函数","x":-504,"y":-140,"width":250,"height":60},
 		{"id":"342bc7215e7de4a1","type":"text","text":"点击发送按钮","x":-485,"y":-260,"width":250,"height":50},
 		{"id":"54f5fd8a48eff85d","type":"text","text":"连接firebase数据库，查找chats集合下chatId文档","x":-460,"y":-20,"width":250,"height":60},
