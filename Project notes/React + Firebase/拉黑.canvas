@@ -1,10 +1,12 @@
 {
 	"nodes":[
-		{"id":"da80bcdaa4f81f28","x":-733,"y":-161,"width":250,"height":60,"type":"text","text":""},
 		{"id":"44f9017b62da1378","type":"text","text":"用户点击拉黑按钮，调用handleBlock函数","x":-720,"y":-440,"width":250,"height":60},
-		{"id":"13ae46f34c7d1147","x":-720,"y":-280,"width":250,"height":60,"type":"text","text":"通过isReceiverBlocked判断拉黑还是取消拉黑"}
+		{"id":"13ae46f34c7d1147","x":-720,"y":-280,"width":250,"height":60,"type":"text","text":"通过isReceiverBlocked判断拉黑还是取消拉黑"},
+		{"id":"da80bcdaa4f81f28","x":-720,"y":-120,"width":250,"height":60,"type":"text","text":"调用changeBlock更改isReceiverBlocked状态"},
+		{"id":"910a1d4400b8bdf5","x":-1207,"y":-18,"width":250,"height":60,"type":"text","text":"当isReceiverBlocked为"}
 	],
 	"edges":[
-		{"id":"8eb1865cef2cb2d9","fromNode":"44f9017b62da1378","fromSide":"bottom","toNode":"13ae46f34c7d1147","toSide":"top"}
+		{"id":"8eb1865cef2cb2d9","fromNode":"44f9017b62da1378","fromSide":"bottom","toNode":"13ae46f34c7d1147","toSide":"top"},
+		{"id":"f8b14ec0fecbbdf9","fromNode":"13ae46f34c7d1147","fromSide":"bottom","toNode":"da80bcdaa4f81f28","toSide":"top"}
 	]
 }
