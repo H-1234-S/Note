@@ -30,7 +30,7 @@
                 "file": "消息同步.canvas",
                 "viewState": {
                   "x": -815,
-                  "y": 333,
+                  "y": 240,
                   "zoom": 0
                 }
               },
@@ -202,7 +202,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {

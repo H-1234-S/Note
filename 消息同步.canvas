@@ -2,14 +2,13 @@
 	"nodes":[
 		{"id":"d2b1295d5b6dd287","type":"text","text":"调用异步handleSend函数","x":-504,"y":-140,"width":250,"height":60},
 		{"id":"342bc7215e7de4a1","type":"text","text":"点击发送按钮","x":-485,"y":-260,"width":250,"height":50},
-		{"id":"54f5fd8a48eff85d","type":"text","text":"连接firebase数据库，查找chats集合下chatId文档","x":-460,"y":-20,"width":250,"height":60},
 		{"id":"6be95865ce7d0534","type":"text","text":"用户点击聊天项","x":-760,"y":-265,"width":170,"height":60},
 		{"id":"423395983ff59ab1","type":"text","text":"changeChat获取当前chatId","x":-800,"y":-110,"width":250,"height":60},
 		{"id":"8e9120c061e42604","type":"text","text":"存到zustand创建的chatStore","x":-767,"y":40,"width":184,"height":60},
-		{"id":"3830f9ba2c230491","type":"text","text":"将message添加到对应chatId文档中","x":-504,"y":160,"width":250,"height":50},
-		{"id":"beac6efb7a3535aa","type":"text","text":"更新双方的聊天记录","x":-940,"y":210,"width":250,"height":60},
 		{"id":"2b53789850e43d30","x":-1271,"y":130,"width":250,"height":60,"type":"text","text":"通过chatStore获得user状态"},
-		{"id":"810f42251f7b0f60","x":-1271,"y":320,"width":250,"height":54,"type":"text","text":"通过userStore获得currentUser状态"}
+		{"id":"810f42251f7b0f60","x":-1271,"y":320,"width":250,"height":54,"type":"text","text":"通过userStore获得currentUser状态"},
+		{"id":"54f5fd8a48eff85d","type":"text","text":"连接firebase数据库，查找chats集合下chatId文档","x":-480,"y":40,"width":250,"height":60},
+		{"id":"3830f9ba2c230491","type":"text","text":"将message添加到对应chatId文档中","x":-504,"y":190,"width":250,"height":50}
 	],
 	"edges":[
 		{"id":"302d1da77c2f60a5","fromNode":"342bc7215e7de4a1","fromSide":"bottom","toNode":"d2b1295d5b6dd287","toSide":"top"},
