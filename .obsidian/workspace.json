@@ -27,15 +27,15 @@
             "state": {
               "type": "canvas",
               "state": {
-                "file": "Project notes/React + Firebase/搜索.canvas",
+                "file": "Project notes/React + Firebase/消息撤回.canvas",
                 "viewState": {
-                  "x": 0,
-                  "y": -93,
+                  "x": -337,
+                  "y": -103,
                   "zoom": 0
                 }
               },
               "icon": "lucide-layout-dashboard",
-              "title": "搜索"
+              "title": "消息撤回"
             }
           }
         ],
@@ -215,11 +215,12 @@
   },
   "active": "10ac602fd800acce",
   "lastOpenFiles": [
-    "2026-03-07.md",
+    "Project notes/React + Firebase/消息同步.canvas",
+    "Project notes/React + Firebase/消息撤回.canvas",
     "Project notes/React + Firebase/搜索.canvas",
+    "2026-03-07.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "Project notes/React + Firebase/注册、登录.canvas",
-    "Project notes/React + Firebase/消息同步.canvas",
     "Project notes/React + Firebase/拉黑.canvas",
     "学习计划.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目复盘.md",
