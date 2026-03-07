@@ -1,10 +1,10 @@
 {
 	"nodes":[
-		{"id":"7eaf36cf0ddbd8d1","x":-980,"y":-320,"width":140,"height":60,"type":"text","text":"数据一致性"},
 		{"id":"6cd84ce479ad2770","type":"text","text":"消息撤回功能","x":-680,"y":-460,"width":160,"height":60},
-		{"id":"221394da25c8f97c","x":-980,"y":-180,"width":120,"height":60,"type":"text","text":"权限控制"},
 		{"id":"50e055130a2bb10d","x":-520,"y":-240,"width":250,"height":60,"type":"text","text":"给每条message添加id，便于定位哪一条消息"},
-		{"id":"f8b471bad763fd2b","x":-360,"y":-460,"width":250,"height":60,"type":"text","text":"鼠标悬停(hover)在消息上，撤回按钮显示"}
+		{"id":"f8b471bad763fd2b","x":-360,"y":-460,"width":250,"height":60,"type":"text","text":"鼠标悬停(hover)在消息上，撤回按钮显示"},
+		{"id":"221394da25c8f97c","x":-1000,"y":-180,"width":260,"height":60,"type":"text","text":"权限控制message.senderId = currentUser?.id"},
+		{"id":"7eaf36cf0ddbd8d1","x":-980,"y":-340,"width":140,"height":60,"type":"text","text":"数据一致性"}
 	],
 	"edges":[
 		{"id":"558ade987d4493cb","fromNode":"6cd84ce479ad2770","fromSide":"right","toNode":"f8b471bad763fd2b","toSide":"left"}
