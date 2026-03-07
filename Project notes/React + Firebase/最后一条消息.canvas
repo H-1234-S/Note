@@ -1,8 +1,14 @@
 {
 	"nodes":[
-		{"id":"8a688c6e33788771","type":"text","text":"聊天项中显示最后一条消息","x":-440,"y":-860,"width":250,"height":50},
-		{"id":"6bcfad6faa963325","x":-450,"y":-695,"width":250,"height":60,"type":"text","text":"通过Promise.all并发更新"},
-		{"id":"38e567d77b5ae76e","x":-840,"y":-780,"width":250,"height":60,"type":"text","text":"为什么要用Promise.all并发更新？"}
+		{"id":"38e567d77b5ae76e","x":-860,"y":-780,"width":250,"height":60,"type":"text","text":"为什么要用Promise.all并发更新？"},
+		{"id":"6bcfad6faa963325","x":-820,"y":-600,"width":250,"height":60,"type":"text","text":"通过Promise.all并发更新双方的聊天记录"},
+		{"id":"8a688c6e33788771","type":"text","text":"聊天项中显示最后一条消息","x":-420,"y":-880,"width":250,"height":50},
+		{"id":"f49b1a3ae843eee4","x":-400,"y":-720,"width":250,"height":60,"type":"text","text":"查找到当前聊天在用户列表中的索引"},
+		{"id":"b92c2341e6ba0667","x":-340,"y":-570,"width":250,"height":60,"type":"text","text":"点击发送按钮后，调用"}
 	],
-	"edges":[]
+	"edges":[
+		{"id":"976b6dd8b3ae2864","fromNode":"38e567d77b5ae76e","fromSide":"bottom","toNode":"6bcfad6faa963325","toSide":"top"},
+		{"id":"93cca14dc623705c","fromNode":"8a688c6e33788771","fromSide":"bottom","toNode":"f49b1a3ae843eee4","toSide":"top"},
+		{"id":"6823f0ac51cd970b","fromNode":"f49b1a3ae843eee4","fromSide":"bottom","toNode":"b92c2341e6ba0667","toSide":"top"}
+	]
 }
