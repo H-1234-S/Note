@@ -1,0 +1,6 @@
+{
+	"nodes":[
+		{"id":"ab72da5dc613a9bf","x":-340,"y":-360,"width":250,"height":60,"type":"text","text":"用户点击搜索按钮，调用handleSearch函数"}
+	],
+	"edges":[]
+}
