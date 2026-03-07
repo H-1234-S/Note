@@ -1,6 +1,7 @@
 {
 	"nodes":[
-		{"id":"8a688c6e33788771","type":"text","text":"聊天项中显示最后一条消息","x":-360,"y":-560,"width":250,"height":60}
+		{"id":"8a688c6e33788771","type":"text","text":"聊天项中显示最后一条消息","x":-440,"y":-860,"width":250,"height":50},
+		{"id":"6bcfad6faa963325","x":-450,"y":-695,"width":250,"height":60,"type":"text","text":"拿到聊天双方的"}
 	],
 	"edges":[]
 }
