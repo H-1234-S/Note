@@ -5,15 +5,15 @@
 		{"id":"8e9120c061e42604","type":"text","text":"存到zustand创建的chatStore","x":-734,"y":40,"width":184,"height":60},
 		{"id":"423395983ff59ab1","type":"text","text":"changeChat获取当前chatId","x":-1045,"y":40,"width":250,"height":60},
 		{"id":"6be95865ce7d0534","type":"text","text":"用户点击聊天项","x":-1280,"y":40,"width":170,"height":60},
-		{"id":"d2b1295d5b6dd287","type":"text","text":"调用异步handleSend函数，调用updateDoc","x":-504,"y":-100,"width":250,"height":60},
-		{"id":"342bc7215e7de4a1","type":"text","text":"点击发送按钮","x":-795,"y":-90,"width":159,"height":50},
 		{"id":"54f5fd8a48eff85d","type":"text","text":"连接firebase数据库，查找chats集合下chatId文档","x":-480,"y":40,"width":250,"height":60},
-		{"id":"1781b49c9275628e","type":"text","text":"onSnapshot监听到对应chatId发生变化时调用setChat更新ui","x":-920,"y":190,"width":278,"height":70},
-		{"id":"19e99135a6358165","type":"text","text":"userchats集合中的userId文档中chats字段存储的是该用用户所有的聊天会话","x":-541,"y":440,"width":324,"height":60}
+		{"id":"19e99135a6358165","type":"text","text":"userchats集合中的userId文档中chats字段存储的是该用用户所有的聊天会话","x":-541,"y":440,"width":324,"height":60},
+		{"id":"d2b1295d5b6dd287","type":"text","text":"调用异步handleSend函数，调用updateDoc","x":-666,"y":-70,"width":250,"height":55},
+		{"id":"342bc7215e7de4a1","type":"text","text":"点击发送按钮","x":-954,"y":-70,"width":159,"height":50},
+		{"id":"1781b49c9275628e","type":"text","text":"onSnapshot监听到对应chatId发生变化时调用setChat更新ui","x":-874,"y":180,"width":278,"height":70}
 	],
 	"edges":[
 		{"id":"302d1da77c2f60a5","fromNode":"342bc7215e7de4a1","fromSide":"right","toNode":"d2b1295d5b6dd287","toSide":"left"},
-		{"id":"512a679ec817f8b9","fromNode":"d2b1295d5b6dd287","fromSide":"bottom","toNode":"54f5fd8a48eff85d","toSide":"top"},
+		{"id":"512a679ec817f8b9","fromNode":"d2b1295d5b6dd287","fromSide":"right","toNode":"54f5fd8a48eff85d","toSide":"top"},
 		{"id":"a50048cc68f2d58c","fromNode":"6be95865ce7d0534","fromSide":"right","toNode":"423395983ff59ab1","toSide":"left"},
 		{"id":"32a254b9d635b73a","fromNode":"423395983ff59ab1","fromSide":"right","toNode":"8e9120c061e42604","toSide":"left"},
 		{"id":"25185c1d96dd4673","fromNode":"8e9120c061e42604","fromSide":"right","toNode":"54f5fd8a48eff85d","toSide":"left"},

@@ -41,15 +41,15 @@
             "state": {
               "type": "canvas",
               "state": {
-                "file": "Project notes/React + Firebase/拉黑.canvas",
+                "file": "Project notes/React + Firebase/注册、登录.canvas",
                 "viewState": {
-                  "x": -515,
-                  "y": -60,
+                  "x": -617.5,
+                  "y": -363.5,
                   "zoom": 0
                 }
               },
               "icon": "lucide-layout-dashboard",
-              "title": "拉黑"
+              "title": "注册、登录"
             }
           }
         ],
@@ -229,10 +229,10 @@
   },
   "active": "8760734674b0ebab",
   "lastOpenFiles": [
-    "学习计划.md",
-    "Project notes/React + Firebase/拉黑.canvas",
     "Project notes/React + Firebase/消息同步.canvas",
     "Project notes/React + Firebase/注册、登录.canvas",
+    "Project notes/React + Firebase/拉黑.canvas",
+    "学习计划.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目复盘.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
