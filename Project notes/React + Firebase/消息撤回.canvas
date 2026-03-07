@@ -6,13 +6,15 @@
 		{"id":"6cd84ce479ad2770","type":"text","text":"消息撤回需求","x":-347,"y":-640,"width":160,"height":60},
 		{"id":"50e055130a2bb10d","x":-680,"y":-150,"width":250,"height":60,"type":"text","text":"给每条message添加id，便于定位哪一条消息"},
 		{"id":"221394da25c8f97c","x":-760,"y":-460,"width":260,"height":60,"type":"text","text":"权限控制message.senderId = currentUser?.id"},
-		{"id":"86b52b2d1e00723b","x":-860,"y":40,"width":250,"height":60,"type":"text","text":"message.id怎么添加？\nmessage.id在哪添加？"}
+		{"id":"86b52b2d1e00723b","x":-860,"y":40,"width":250,"height":60,"type":"text","text":"message.id怎么添加？\nmessage.id在哪添加？"},
+		{"id":"c9a4b6f887265f86","x":-312,"y":10,"width":250,"height":60,"type":"text","text":"连接远程数据库，利用filter过滤掉该消息"}
 	],
 	"edges":[
 		{"id":"558ade987d4493cb","fromNode":"6cd84ce479ad2770","fromSide":"bottom","toNode":"f8b471bad763fd2b","toSide":"top"},
 		{"id":"2e799694011b64cd","fromNode":"f8b471bad763fd2b","fromSide":"bottom","toNode":"d49e5786b6e158c0","toSide":"top"},
 		{"id":"2d7bca93151c78a0","fromNode":"d49e5786b6e158c0","fromSide":"bottom","toNode":"cfb610a6fc418cd1","toSide":"top"},
 		{"id":"f1beae11884904d2","fromNode":"221394da25c8f97c","fromSide":"right","toNode":"f8b471bad763fd2b","toSide":"left"},
-		{"id":"f2fee22ce2be501e","fromNode":"50e055130a2bb10d","fromSide":"right","toNode":"cfb610a6fc418cd1","toSide":"left"}
+		{"id":"f2fee22ce2be501e","fromNode":"50e055130a2bb10d","fromSide":"right","toNode":"cfb610a6fc418cd1","toSide":"left"},
+		{"id":"827b0c2a0ea3a8b3","fromNode":"cfb610a6fc418cd1","fromSide":"bottom","toNode":"c9a4b6f887265f86","toSide":"top"}
 	]
 }
