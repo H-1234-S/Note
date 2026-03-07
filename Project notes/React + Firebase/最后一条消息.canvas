@@ -5,7 +5,7 @@
 		{"id":"f49b1a3ae843eee4","x":-340,"y":-570,"width":250,"height":60,"type":"text","text":"查找到当前聊天在用户列表中的索引"},
 		{"id":"da448ef95578df24","x":-280,"y":-400,"width":250,"height":60,"type":"text","text":"把发送的消息作为lastmessage渲染"},
 		{"id":"38e567d77b5ae76e","x":-760,"y":-780,"width":250,"height":60,"type":"text","text":"为什么要用Promise.all并发更新？"},
-		{"id":"6bcfad6faa963325","x":-720,"y":-600,"width":250,"height":60,"type":"text","text":"通过Promise.all并发更新双方的聊天记录"},
+		{"id":"6bcfad6faa963325","x":-720,"y":-600,"width":250,"height":60,"type":"text","text":"聊天记录都是shuan通过Promise.all并发更新双方的聊天记录"},
 		{"id":"0f88569913190c15","x":20,"y":-880,"width":250,"height":60,"type":"text","text":"点击撤回按钮后，怎么更改最后一条消息？"}
 	],
 	"edges":[
