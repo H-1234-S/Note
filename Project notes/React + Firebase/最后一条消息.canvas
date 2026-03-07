@@ -1,7 +1,8 @@
 {
 	"nodes":[
 		{"id":"8a688c6e33788771","type":"text","text":"聊天项中显示最后一条消息","x":-440,"y":-860,"width":250,"height":50},
-		{"id":"6bcfad6faa963325","x":-450,"y":-695,"width":250,"height":60,"type":"text","text":"通过Promise.all并发更新所有id"}
+		{"id":"6bcfad6faa963325","x":-450,"y":-695,"width":250,"height":60,"type":"text","text":"通过Promise.all并发更新"},
+		{"id":"38e567d77b5ae76e","x":-840,"y":-780,"width":250,"height":60,"type":"text","text":"为什么要用Promise.all并发更新？"}
 	],
 	"edges":[]
 }
