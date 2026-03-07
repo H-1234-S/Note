@@ -1,0 +1,12 @@
+{
+	"nodes":[
+		{"id":"129334b028c808d4","x":-995,"y":-568,"width":250,"height":60,"type":"text","text":"用户点击注册，调用handleRegister函数"},
+		{"id":"8b87ada833591f61","x":-520,"y":-538,"width":280,"height":88,"type":"text","text":"handleRegister函数在databasse中创建对应用户信息、创建属于该用户的聊天列表"},
+		{"id":"daa3c003568e9f37","x":-995,"y":-80,"width":250,"height":60,"type":"text","text":"用户点击登录时，调用handleLogin函数"},
+		{"id":"939a5ce3d6a05d3b","x":-540,"y":-60,"width":250,"height":81,"type":"text","text":"handleLogin函数使用firebase的用户验证，验证账号密码"}
+	],
+	"edges":[
+		{"id":"ba544f008bd3fdfc","fromNode":"129334b028c808d4","fromSide":"right","toNode":"8b87ada833591f61","toSide":"left"},
+		{"id":"22e5d0bac8224679","fromNode":"daa3c003568e9f37","fromSide":"right","toNode":"939a5ce3d6a05d3b","toSide":"left"}
+	]
+}
