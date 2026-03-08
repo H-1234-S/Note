@@ -1,7 +1,17 @@
 {
 	"nodes":[
-		{"id":"8a688c6e33788771","type":"text","text":"聊天项中显示最后一条消息","x":-440,"y":-860,"width":250,"height":50},
-		{"id":"6bcfad6faa963325","x":-450,"y":-695,"width":250,"height":60,"type":"text","text":"拿到聊天双方的"}
+		{"id":"8a688c6e33788771","type":"text","text":"聊天项中显示最后一条消息","x":-420,"y":-880,"width":250,"height":50},
+		{"id":"b92c2341e6ba0667","x":-380,"y":-720,"width":250,"height":60,"type":"text","text":"点击发送按钮后，调用handleSend函数"},
+		{"id":"f49b1a3ae843eee4","x":-340,"y":-570,"width":250,"height":60,"type":"text","text":"查找到当前聊天在用户列表中的索引"},
+		{"id":"da448ef95578df24","x":-280,"y":-400,"width":250,"height":60,"type":"text","text":"把发送的消息作为lastmessage渲染"},
+		{"id":"38e567d77b5ae76e","x":-760,"y":-780,"width":250,"height":60,"type":"text","text":"为什么要用Promise.all并发更新？"},
+		{"id":"6bcfad6faa963325","x":-720,"y":-600,"width":320,"height":60,"type":"text","text":"聊天记录都是双向的，通过Promise.all并发更新双方的聊天记录"},
+		{"id":"0f88569913190c15","x":20,"y":-880,"width":250,"height":60,"type":"text","text":"点击撤回按钮后，怎么更改最后一条消息？"}
 	],
-	"edges":[]
+	"edges":[
+		{"id":"976b6dd8b3ae2864","fromNode":"38e567d77b5ae76e","fromSide":"bottom","toNode":"6bcfad6faa963325","toSide":"top"},
+		{"id":"93cca14dc623705c","fromNode":"8a688c6e33788771","fromSide":"bottom","toNode":"b92c2341e6ba0667","toSide":"top"},
+		{"id":"1c8ab19da4881fa7","fromNode":"b92c2341e6ba0667","fromSide":"bottom","toNode":"f49b1a3ae843eee4","toSide":"top"},
+		{"id":"a4b1e5d88fbb43b7","fromNode":"f49b1a3ae843eee4","fromSide":"bottom","toNode":"da448ef95578df24","toSide":"top"}
+	]
 }
