@@ -25,17 +25,14 @@
             "id": "da3b15aa258e9357",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "未命名.canvas",
-                "viewState": {
-                  "x": 346.5,
-                  "y": 590.5,
-                  "zoom": 0
-                }
+                "file": "思考.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "未命名"
+              "icon": "lucide-file",
+              "title": "思考"
             }
           }
         ],
@@ -187,10 +184,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "da3b15aa258e9357",
+  "active": "66cdfe62b8e41325",
   "lastOpenFiles": [
+    "思考.canvas",
     "思考.md",
-    "未命名.canvas",
     "学习计划.md",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "Project notes/React + Firebase/消息同步.canvas",
