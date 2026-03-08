@@ -8,35 +8,20 @@
         "type": "tabs",
         "children": [
           {
-            "id": "084bab556ccea5d5",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "学习计划.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "学习计划"
-            }
-          },
-          {
             "id": "da3b15aa258e9357",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "思考.md",
-                "mode": "source",
+                "file": "Front-end notes/Tailwind CSS/核心概念.md",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "思考"
+              "title": "核心概念"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -160,7 +145,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
+            "file": "Front-end notes/Tailwind CSS/核心概念.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -184,10 +169,21 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "66cdfe62b8e41325",
+  "active": "da3b15aa258e9357",
   "lastOpenFiles": [
-    "思考.canvas",
+    "Front-end notes/Zustand.md",
     "思考.md",
+    "Front-end notes/Tailwind CSS/全指令.md",
+    "Front-end notes/Tailwind CSS/核心概念.md",
+    "/Front-end notes/Tailwind CSS/全指令.md",
+    "/Project notes/React + Firebase/最后一条消息.canvas",
+    "/Project notes/React + Firebase",
+    "/Project notes",
+    "/Front-end notes/Tailwind CSS/核心概念.md",
+    "/Front-end notes/Tailwind CSS",
+    "Front-end notes/Tailwind CSS",
+    "/Front-end notes",
+    "思考.canvas",
     "学习计划.md",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "Project notes/React + Firebase/消息同步.canvas",
@@ -197,10 +193,7 @@
     "Project notes/React + Firebase/消息撤回.canvas",
     "/Project notes/React + Firebase/消息撤回.canvas",
     "/Project notes/React + Firebase/消息同步.canvas",
-    "/Project notes/React + Firebase/最后一条消息.canvas",
     "/Project notes/React + Firebase/搜索.canvas",
-    "/Project notes/React + Firebase",
-    "/Project notes",
     "/学习计划.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
     "Project notes/React + Firebase/数据流向 Mermaid 流程图.md",
@@ -215,17 +208,12 @@
     "Front-end notes/React Router.md",
     "Front-end notes/React.md",
     "Front-end notes/TypeScript.md",
-    "Front-end notes/Zustand.md",
     "Front-end notes",
     "/Front-end notes/Zustand.md",
     "/Front-end notes/TypeScript.md",
     "/Front-end notes/React.md",
     "/Front-end notes/React Router.md",
-    "/Front-end notes",
-    "Project notes/React + Firebase 实时聊天项目实战指南.md",
     "Project notes/React + Firebase",
-    "/Project notes/React + Firebase/React + Firebase数据流向 Mermaid 流程图.md",
-    "/Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "Project notes"
   ]
 }
