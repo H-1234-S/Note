@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Tailwind CSS/核心概念.md",
+                "file": "学习计划.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "核心概念"
+              "title": "学习计划"
             }
           }
         ]
@@ -145,7 +145,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "Front-end notes/Tailwind CSS/核心概念.md",
+            "file": "学习计划.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -171,10 +171,10 @@
   },
   "active": "da3b15aa258e9357",
   "lastOpenFiles": [
-    "Front-end notes/Zustand.md",
-    "思考.md",
     "Front-end notes/Tailwind CSS/全指令.md",
     "Front-end notes/Tailwind CSS/核心概念.md",
+    "Front-end notes/Zustand.md",
+    "思考.md",
     "/Front-end notes/Tailwind CSS/全指令.md",
     "/Project notes/React + Firebase/最后一条消息.canvas",
     "/Project notes/React + Firebase",
