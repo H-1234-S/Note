@@ -25,14 +25,17 @@
             "id": "da3b15aa258e9357",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "思考.md",
-                "mode": "source",
-                "source": false
+                "file": "未命名.canvas",
+                "viewState": {
+                  "x": 346.5,
+                  "y": 590.5,
+                  "zoom": 0
+                }
               },
-              "icon": "lucide-file",
-              "title": "思考"
+              "icon": "lucide-layout-dashboard",
+              "title": "未命名"
             }
           }
         ],
@@ -186,8 +189,9 @@
   },
   "active": "da3b15aa258e9357",
   "lastOpenFiles": [
-    "学习计划.md",
     "思考.md",
+    "未命名.canvas",
+    "学习计划.md",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "Project notes/React + Firebase/消息同步.canvas",
     "Project notes/React + Firebase/注册、登录.canvas",
@@ -198,7 +202,6 @@
     "/Project notes/React + Firebase/消息同步.canvas",
     "/Project notes/React + Firebase/最后一条消息.canvas",
     "/Project notes/React + Firebase/搜索.canvas",
-    "/Project notes/React + Firebase/拉黑.canvas",
     "/Project notes/React + Firebase",
     "/Project notes",
     "/学习计划.md",
@@ -226,7 +229,6 @@
     "Project notes/React + Firebase",
     "/Project notes/React + Firebase/React + Firebase数据流向 Mermaid 流程图.md",
     "/Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
-    "/Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
     "Project notes"
   ]
 }

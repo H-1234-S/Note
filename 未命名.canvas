@@ -1,0 +1,9 @@
+{
+	"nodes":[
+		{"id":"da9c374b37af334a","x":273,"y":687,"width":250,"height":60,"type":"text","text":""},
+		{"id":"d8d4810cafe97f27","x":17,"y":209,"width":250,"height":60,"type":"text","text":"学语法"},
+		{"id":"190a011fc04e0643","x":132,"y":361,"width":250,"height":60,"type":"text","text":"看源码"},
+		{"id":"3c3a659e2017ee1b","x":69,"y":493,"width":250,"height":60,"type":"text","text":"实现思路"}
+	],
+	"edges":[]
+}
