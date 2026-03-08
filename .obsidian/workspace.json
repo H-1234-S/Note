@@ -25,17 +25,14 @@
             "id": "10ac602fd800acce",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/React + Firebase/最后一条消息.canvas",
-                "viewState": {
-                  "x": -133,
-                  "y": -578,
-                  "zoom": 0
-                }
+                "file": "学习计划.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "最后一条消息"
+              "icon": "lucide-file",
+              "title": "学习计划"
             }
           }
         ],
@@ -215,12 +212,12 @@
   },
   "active": "10ac602fd800acce",
   "lastOpenFiles": [
+    "Project notes/React + Firebase/最后一条消息.canvas",
     "Project notes/React + Firebase/注册、登录.canvas",
     "Project notes/React + Firebase/消息同步.canvas",
     "Project notes/React + Firebase/消息撤回.canvas",
     "Project notes/React + Firebase/搜索.canvas",
     "Project notes/React + Firebase/拉黑.canvas",
-    "Project notes/React + Firebase/最后一条消息.canvas",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目复盘.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
