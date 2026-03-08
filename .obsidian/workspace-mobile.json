@@ -11,17 +11,14 @@
             "id": "084bab556ccea5d5",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/React + Firebase/状态.canvas",
-                "viewState": {
-                  "x": -489.53825275657334,
-                  "y": -321.68736217133176,
-                  "zoom": -0.9662012477009809
-                }
+                "file": "学习计划.md",
+                "mode": "preview",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "状态"
+              "icon": "lucide-file",
+              "title": "学习计划"
             }
           }
         ]
@@ -174,16 +171,22 @@
   },
   "active": "084bab556ccea5d5",
   "lastOpenFiles": [
+    "Project notes/React + Firebase/状态.canvas",
+    "Project notes/React + Firebase/拉黑.canvas",
+    "Project notes/React + Firebase/注册、登录.canvas",
+    "学习计划.md",
+    "/学习计划.md",
+    "/Project notes/React + Firebase/消息同步.canvas",
+    "/Project notes/React + Firebase/注册、登录.canvas",
+    "/Project notes/React + Firebase/拉黑.canvas",
+    "/Project notes/React + Firebase",
+    "/Project notes",
     "Project notes/React + Firebase/消息同步.canvas",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
     "Project notes/React + Firebase/数据流向 Mermaid 流程图.md",
-    "Project notes/React + Firebase/状态.canvas",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目复盘.md",
     "/Project notes/React + Firebase/React + Firebase 实时聊天项目复盘.md",
     "/Project notes/React + Firebase/状态.canvas",
-    "/Project notes/React + Firebase/消息同步.canvas",
-    "/Project notes/React + Firebase",
-    "/Project notes",
     "Project notes/React + Firebase/项目复盘.md",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
@@ -206,8 +209,6 @@
     "/Project notes/React + Firebase/React + Firebase数据流向 Mermaid 流程图.md",
     "/Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "/Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
-    "未命名.md",
-    "/Project notes/React + Firebase数据流向 Mermaid 流程图.md",
     "Project notes"
   ]
 }
