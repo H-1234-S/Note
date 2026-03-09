@@ -55,12 +55,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Tailwind CSS/全指令.md",
+                "file": "Front-end notes/React Router.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "全指令"
+              "title": "React Router"
             }
           }
         ],
@@ -121,7 +121,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -240,8 +241,8 @@
   },
   "active": "9595c0166994f5f3",
   "lastOpenFiles": [
-    "Front-end notes/Tailwind CSS/核心概念.md",
     "Front-end notes/Tailwind CSS/全指令.md",
+    "Front-end notes/Tailwind CSS/核心概念.md",
     "Front-end notes/Tailwind CSS",
     "学习计划.md",
     "Project notes/React + Firebase/最后一条消息.canvas",
