@@ -22,13 +22,13 @@
             }
           },
           {
-            "id": "728c5a567aa799f4",
+            "id": "088883e4fcb413b0",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
                 "file": "未命名.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
@@ -184,11 +184,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "728c5a567aa799f4",
+  "active": "66cdfe62b8e41325",
   "lastOpenFiles": [
-    "学习路线.md",
-    "未命名.md",
     "学习计划.md",
+    "未命名.md",
+    "学习路线.md",
     "Front-end notes/Tailwind CSS/全指令.md",
     "Front-end notes/Tailwind CSS/核心概念.md",
     "Front-end notes/Zustand.md",
