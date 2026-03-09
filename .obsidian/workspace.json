@@ -4,53 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "61976032f3c123b4",
+        "id": "8af382b734c71296",
         "type": "tabs",
         "children": [
           {
-            "id": "f628f67232f0e108",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Firebase Web SDK 实战手册 (本项目专用)"
-            }
-          },
-          {
-            "id": "10ac602fd800acce",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "学习计划.md",
-                "mode": "preview",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "学习计划"
-            }
-          },
-          {
-            "id": "7c43d9a9eb1467c2",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/Tailwind CSS/核心概念.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "核心概念"
-            }
-          },
-          {
-            "id": "9595c0166994f5f3",
+            "id": "13e69428221b92da",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -63,8 +21,7 @@
               "title": "React Router"
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "vertical"
@@ -157,12 +114,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Front-end notes/React.md",
+                "file": "Front-end notes/React Router.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "React 的出链列表"
+              "title": "React Router 的出链列表"
             }
           },
           {
@@ -200,13 +157,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "学习计划.md",
+                "file": "Front-end notes/React Router.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "学习计划 的大纲"
+              "title": "React Router 的大纲"
             }
           },
           {
@@ -220,7 +177,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
@@ -239,12 +196,17 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "9595c0166994f5f3",
+  "active": "13e69428221b92da",
   "lastOpenFiles": [
-    "Front-end notes/Tailwind CSS/全指令.md",
-    "Front-end notes/Tailwind CSS/核心概念.md",
-    "Front-end notes/Tailwind CSS",
+    "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "学习计划.md",
+    "Front-end notes/Tailwind CSS/核心概念.md",
+    "Front-end notes/React Router.md",
+    "未命名.md",
+    "思考.md",
+    "思考.canvas",
+    "Front-end notes/Tailwind CSS/全指令.md",
+    "Front-end notes/Tailwind CSS",
     "Project notes/React + Firebase/最后一条消息.canvas",
     "Project notes/React + Firebase/注册、登录.canvas",
     "Project notes/React + Firebase/消息同步.canvas",
@@ -253,12 +215,10 @@
     "Project notes/React + Firebase/拉黑.canvas",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目复盘.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
-    "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "2026-03-07.md",
     "Project notes/React + Firebase/数据流向 Mermaid 流程图.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
     "Front-end notes/React.md",
-    "Front-end notes/React Router.md",
     "Front-end notes/TypeScript.md",
     "Front-end notes/Zustand.md",
     "React + Firebase 实时聊天项目：全栈开发技术文档.pdf",
