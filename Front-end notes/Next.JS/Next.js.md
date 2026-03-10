@@ -28,3 +28,14 @@
 | **生命周期** | 不会触发 `useEffect` 的重新执行。                  | 每次跳转都会重新触发 `useEffect`。                           |
 | **典型用途** | 导航栏、侧边栏、搜索框（跨页面共享且不需要重置的 UI）。            | 页面切换动画（如 CSS 过渡）、依赖页面挂载的统计脚本（如 Google Analytics）。 |
 ### loading
+
+- Next.js的loading是借助了`Suspense`实现的
+### error
+
+- Next.js的error是借助了`Error Boundary`实现的。
+	
+- 'use client' **错误组件必须是客户端组件**
+### not-found
+
+- Next.js 默认会生成一个404页面，但我们可能自定义404页面，只需要在app目录下创建一个not-found.tsx文件即可
+	
