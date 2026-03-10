@@ -289,7 +289,7 @@ export default async function Page() {
 
 ## useSearchParams
 
-- 用于获取`Link组件`传递的参数
+- 用于获取`url`传递的参数
 ### 基本语法
 
 ``` ts
