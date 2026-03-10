@@ -79,7 +79,6 @@ export default function Page() {
         <button onClick={() => router.replace("/page")}>替换当前页面</button>
         <button onClick={() => router.back()}>返回上一页</button>
         <button onClick={() => router.forward()}>跳转下一页</button>
-        // 
         <button onClick={() => router.refresh()}>刷新当前页面</button>
         <button onClick={() => router.prefetch("/about")}>预获取about页面</button>
         </>
