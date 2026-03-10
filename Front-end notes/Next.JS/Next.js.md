@@ -30,6 +30,8 @@
 ### loading
 
 - Next.js的loading是借助了`Suspense`实现的
+	
+- 触发异步自动跳转到loading页面，页面结束后自动跳转
 ### error
 
 - Next.js的error是借助了`Error Boundary`实现的。
