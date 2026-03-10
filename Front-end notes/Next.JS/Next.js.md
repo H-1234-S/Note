@@ -214,7 +214,9 @@ export default async function Page() {
 - **条件渲染**： 你可以根据用户角色（如管理员 vs 普通用户）在 Layout 中决定渲染哪个插槽。
     
 - **支持 URL 导航 (子路由)**： 插槽内部也可以有自己的文件夹。例如访问 `/dashboard/settings`，`@analytics` 可以显示 `/@analytics/settings/page.tsx` 的内容，而其他插槽保持不变。
+### default.tsx
 
+- 当 Next.js 在当前 URL 下找不到某个插槽（Slot）的具体页面时，用来渲染一个默认的占位 UI，防止页面报错或显示 404。
 
 
 
