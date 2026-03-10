@@ -56,6 +56,7 @@ export default function Home() {
         <div>
             <Link href="/about">跳转About页面</Link>
             <Link href={{pathname: "/about", query: {name: "张三"}}}>跳转About并且传入参数</Link>
+            // prefetch预获取意思是：在生产环境下，这个Link组件出现在可视区域时，后台自动加载所对应的资源
             <Link href="/page" prefetch={true}>预获取page页面</Link>
             <Link href="/xm" scroll={true}>保持滚动位置</Link>
             <Link href="/daman" replace={true}>替换当前页面</Link>
@@ -91,9 +92,7 @@ const id = searchParams.get('id')
 #### 返回值
 
 - `useSearchParams`  返回一个只读的 `URLSearchParams` 实例
-#### 核心属性与方法
-
-既然它是一个 `URLSearchParams` 对象，最重要且最常用的并不是“属性”，而是以下几个**方法**：
+#### 核心方法
 
 - **`get(key)`**: 获取指定键的第一个值。这是最常用的。
     
