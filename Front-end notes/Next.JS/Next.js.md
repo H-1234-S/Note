@@ -67,3 +67,9 @@ export default function Home() {
 
 - 在next.js中，只有客户端组件才可以使用hook
 ### usePathname
+
+- 用于获取跳转后页面的url路径
+
+### useSearchParams
+
+- 用于获取`Linkzu'jian`
