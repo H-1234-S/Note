@@ -169,7 +169,7 @@ export default async function Page() {
 ## useSearchParams
 
 - 用于获取`Link组件`传递的参数
-### 语法
+### 基本语法
 
 ``` ts
 import Link from 'next/link
@@ -178,6 +178,8 @@ import Link from 'next/link
 ```
 
 ``` ts
+'use client'
+
 import { useSearchParams } from 'next/navigation'
 
 const searchParams = useSearchParams()；
@@ -198,3 +200,37 @@ const id = searchParams.get('id')
     
 - **`keys()` / `values()` / `entries()`**: 用于遍历所有的参数。
 ## useParams
+
+- 用于获取**动态路由参数**
+#### 基本语法
+
+``` ts
+'use client'
+
+import { useParams } from 'next/navigation'
+
+export default function PostClientComponent() {
+  const params = useParams()
+
+  // 假设当前路径是 /shop/electronics/iphone
+  // 对应的文件夹是 /shop/[category]/[item]
+  
+  console.log(params) // 输出: { category: 'electronics', item: 'iphone' }
+
+  return (
+    <div className="p-4 border rounded">
+      <h3>当前分类：{params.category}</h3>
+      <p>正在查看：{params.item}</p>
+    </div>
+  )
+}
+```
+#### 返回值
+
+- `useParams` 返回一个包含当前路由所有动态参数的**对象**。
+	
+- **URL 示例**：`/blog/123`
+    
+- **文件夹结构**：`app/blog/[id]/page.tsx`
+    
+- **返回值**：`{ id: '123' }`
