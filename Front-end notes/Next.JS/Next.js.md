@@ -40,4 +40,25 @@
 ### not-found
 
 - Next.js 默认会生成一个404页面，但我们可能自定义404页面，只需要在app目录下创建一个not-found.tsx文件即可
-	
+## 路由导航
+
+### Link组件
+
+`<Link>`是一个内置组件，在a标签的基础上扩展了功能，并且还能用来实现预获取(prefetch)，以及保持滚动位置(scroll)等。
+
+#### 基本用法
+
+``` ts
+import Link from "next/link" //引入Link组件
+export default function Home() {
+    return (
+        <div>
+            <Link href="/about">跳转About页面</Link>
+            <Link href={{pathname: "/about", query: {name: "张三"}}}>跳转About并且传入参数</Link>
+            <Link href="/page" prefetch={true}>预获取page页面</Link>
+            <Link href="/xm" scroll={true}>保持滚动位置</Link>
+            <Link href="/daman" replace={true}>替换当前页面</Link>
+        </div>
+    )
+}
+```
