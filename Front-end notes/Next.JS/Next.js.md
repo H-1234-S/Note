@@ -97,9 +97,9 @@ export default function Page() {
 |**`prefetch`**|`router.prefetch('/path')`|**预加载**目标页面的代码和数据。|无变化|在用户点击按钮前提前下载资源。|
 ### redirect 函数
 
-redirect 函数可以用于服务端组件/客户端组件中跳转页面，例如根据用户权限跳转不同的页面。
+- redirect 函数可以用于服务端组件/客户端组件中跳转页面，例如根据用户权限跳转不同的页面。
 
-**在Next.js中 redirect的状态是：307临时重定向**
+- **在Next.js中 redirect的状态是：307临时重定向，permanentRedirect状态是：308永久重定向**
 
 ``` ts
 import { redirect,permanentRedirect } from "next/navigation"
