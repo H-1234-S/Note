@@ -186,6 +186,7 @@ export default async function Page() {
 3. 用户访问 `/shop/clothes/men/shoes`：显示男装鞋子。
 
 如果你使用 `[[...slug]]`，你只需要创建一个文件：`app/shop/[[...slug]]/page.tsx`。
+## 平行路由
 
 
 
