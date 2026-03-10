@@ -95,7 +95,27 @@ export default function Page() {
 |**`forward`**|`router.forward()`|前进到**下一个**页面。|栈指针前移|点击“前进”按钮（需先执行过 back）。|
 |**`refresh`**|`router.refresh()`|**刷新数据**，不丢失 React 状态。|无变化|提交数据后同步服务器最新状态。|
 |**`prefetch`**|`router.prefetch('/path')`|**预加载**目标页面的代码和数据。|无变化|在用户点击按钮前提前下载资源。|
+### redirect 函数
 
+redirect 函数可以用于服务端组件/客户端组件中跳转页面，例如根据用户权限跳转不同的页面。
+
+**在Next.js中 redirect的状态是：307临时重定向**
+
+``` ts
+import { redirect,permanentRedirect } from "next/navigation"
+export default async function Page() {
+   const checkLogin = await checkLogin()
+   //如果用户未登录，则跳转到登录页面
+   if (!checkLogin) {
+    redirect("/login")
+   }
+   return (
+    <div>
+        <h1>Page</h1>
+    </div>
+   )
+}
+```
 
 
 
