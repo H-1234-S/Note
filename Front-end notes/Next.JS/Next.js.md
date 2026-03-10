@@ -65,5 +65,5 @@ export default function Home() {
 
 ## Hook
 
-
+- 在next.js中，只有客户端组件才可以使用hook
 ### usePathname
