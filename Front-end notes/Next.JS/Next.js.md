@@ -72,4 +72,10 @@ export default function Home() {
 
 ### useSearchParams
 
-- 用于获取`Linkzu'jian`
+- 用于获取`Link组件`传递的参数
+``` ts
+import { useSearchParams } from 'next/navigation'
+
+const searchParams = useSearchParams()；
+
+```
