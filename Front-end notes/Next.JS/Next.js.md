@@ -181,6 +181,34 @@ export default async function Page() {
 ### 基本用法
 
 - 使用动态路由只需要在**文件夹名**加上**方括号`[]`**即可，例如`[id]`,`[params]`等，名字可以自定义。
+	
+- 在**服务端组件**中，Next.js 会自动将 `params` 作为 props 传递给页面。
+
+``` js
+// app/blog/[slug]/page.js
+
+export default async function Page({ params }) {
+  // 注意：在最新版本的 Next.js 中，params 是一个 Promise，建议 await 它
+  const { slug } = await params; 
+
+  return <h1>正在阅读文章：{slug}</h1>;
+}
+```
+
+- **客户端组件中**，需要在页面顶部加 `"use client"`，需要使用 `useParams` Hook。
+
+``` js
+"use client";
+
+import { useParams } from 'next/navigation';
+
+export default function BlogClientPage() {
+  const params = useParams();
+  
+  // 如果路径是 /blog/123，那么 params.slug 就是 "123"
+  return <div>客户端渲染的文章 ID: {params.slug}</div>;
+}
+```
 ### 全捕获路由
 
 |**文件夹命名**|**路由类型**|**访问 URL**|**params 的结果**|**解释**|
