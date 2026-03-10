@@ -186,6 +186,93 @@ export default async function Page() {
 3. 用户访问 `/shop/clothes/men/shoes`：显示男装鞋子。
 
 如果你使用 `[[...slug]]`，你只需要创建一个文件：`app/shop/[[...slug]]/page.tsx`。
+## 平行路由
+
+- 平行路由指的是在**同一个布局 (Layout)** 中，**同时且独立地**显示多个页面
+### 基本用法
+
+- 通过 **`@` 文件夹** 命名约定来定义。这些文件夹被称为“插槽”。插槽**不会**影响 URL 路径。
+	
+	- 例如，文件结构如下：
+		
+		- `app/dashboard/@analytics/page.tsx`
+		    
+		- `app/dashboard/@team/page.tsx`
+		    
+		- `app/dashboard/layout.tsx`
+		    
+		- `app/dashboard/page.tsx`
+		
+    - 此时，访问 `/dashboard` 时，`layout.tsx` 会同时接收到 `analytics` 和 `team` 作为 **Props**。
+	
+- 在 `layout.tsx` 中，可以像使用普通的 React Props 一样渲染这些插槽
+
+### 优势与特点
+
+- **独立的状态与加载**： 每个插槽可以拥有自己的 `loading.tsx` 和 `error.tsx`。如果 `@analytics` 加载很慢，主页面和 `@team` 依然可以先显示出来。
+    
+- **条件渲染**： 你可以根据用户角色（如管理员 vs 普通用户）在 Layout 中决定渲染哪个插槽。
+    
+- **支持 URL 导航 (子路由)**： 插槽内部也可以有自己的文件夹。例如访问 `/dashboard/settings`，`@analytics` 可以显示 `/@analytics/settings/page.tsx` 的内容，而其他插槽保持不变。
+### default.tsx
+
+- `default.tsx` 的存在是为了解决**硬导航时的匹配逻辑问题**。
+	
+- 当 Next.js 在当前 URL 下找不到某个插槽（Slot）的具体页面时，用来渲染一个默认的占位 UI，防止页面报错或显示 404。
+	
+- 例如：当你直接刷新 URL `http://localhost:3000/dashboard/settings` 时：
+	
+	-  浏览器是“从零开始”构建页面的。Next.js 必须为**每一个插槽**（`children`、`@analytics`、`@team`）在 `/settings` 路径下找到对应的内容。
+	    
+	-  **问题**：如果你的 `@team` 文件夹里没有 `settings` 文件夹，也没有 `page.tsx`，Next.js 就不知道该画什么。
+	    
+	- **结果**：如果没有 `default.tsx` 救场，Next.js 会认为这是一个无效路由，直接报 **404**。
+### 软导航 vs 硬导航
+
+#### 软导航 (Soft Navigation)
+
+当你使用 Next.js 的 `<Link>` 组件或 `router.push()` 跳转时，触发的是软导航。
+
+- **机制**：Next.js 只通过 JavaScript 抓取新页面所需的**差异化数据**，并更新 URL，而不会重新加载整个网页。
+    
+- **状态保持**：因为页面没刷新，React 的状态（如 `useState`、全局 Store）都会被**保留**。
+    
+- **布局持久化**：如果两个页面共享同一个 `layout.tsx`，该布局**不会重新渲染**，只有中间的内容部分会变化。
+#### 硬导航 (Hard Navigation)
+
+当你按下 **F5 刷新**、在地址栏输入 URL 后回车，或者点击传统的 `<a>` 标签时，触发的是硬导航。
+
+- **机制**：浏览器会彻底放弃当前页面的所有资源，重新向服务器发送请求，下载完整的 HTML、JS 和 CSS。
+    
+- **状态丢失**：所有的 React 状态和内存变量都会被**全部重置**。
+    
+- **性能**：由于需要完整重载，速度比软导航慢，且会出现短暂白屏。
+## 路由组
+
+- **路由组 (Route Groups)** 是一种特殊的文件夹结构，它允许你将路由逻辑进行分组，而**不影响 URL 的路径结构**。
+### 用法
+
+- **文件夹名称必须包裹在圆括号内**，例如 `(auth)` 或 `(dashboard)`。
+
+如果你想让不同的页面完全彻底地拥有不同的 HTML 结构（比如去掉 `<html>` 或 `<body>` 里的某些全局脚本），你可以删除 `app/layout.tsx`，并在不同的路由组里创建各自的 `layout.tsx`。
+
+- **注意**：每个根布局都必须包含 `<html>` 和 `<body>` 标签。
+### 特性
+
+- **URL 隐身**：圆括号里的文件夹名称不会出现在浏览器的地址栏中。
+	
+	- 路径：`app/(auth)/login/page.tsx` $\rightarrow$ URL: `/login` (没有 `/auth`)
+	    
+	- 路径：`app/(marketing)/about/page.tsx` $\rightarrow$ URL: `/about`
+	
+- **组织代码**：纯粹为了让开发者更好地分类文件（如把所有登录相关的逻辑放在一起）。
+## Route Handler
+
+
+
+
+
+
 
 
 
@@ -202,7 +289,7 @@ export default async function Page() {
 
 ## useSearchParams
 
-- 用于获取`Link组件`传递的参数
+- 用于获取`url`传递的参数
 ### 基本语法
 
 ``` ts
