@@ -77,7 +77,7 @@ export default function Home() {
 ``` ts
 import Link from 'next/link
 
-<l
+<Link href={{pathname:'',query:{id:1}}} />
 ```
 
 ``` ts
