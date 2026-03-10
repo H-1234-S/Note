@@ -74,6 +74,7 @@ export default function Home() {
 ### useSearchParams
 
 - 用于获取`Link组件`传递的参数
+#### 语法
 
 ``` ts
 import Link from 'next/link
@@ -87,3 +88,19 @@ import { useSearchParams } from 'next/navigation'
 const searchParams = useSearchParams()；
 const id = searchParams.get('id')
 ```
+#### 返回值
+
+- `useSearchParams`  返回一个只读的 `URLSearchParams` 实例
+#### 核心属性与方法
+
+既然它是一个 `URLSearchParams` 对象，最重要且最常用的并不是“属性”，而是以下几个**方法**：
+
+- **`get(key)`**: 获取指定键的第一个值。这是最常用的。
+    
+    - 例如：`searchParams.get('id')`
+        
+- **`getAll(key)`**: 如果一个键对应多个值（如 `?tags=red&tags=blue`），它会返回一个数组。
+    
+- **`has(key)`**: 检查 URL 中是否存在某个参数，返回布尔值。
+    
+- **`keys()` / `values()` / `entries()`**: 用于遍历所有的参数。
