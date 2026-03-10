@@ -68,6 +68,7 @@ export default function Home() {
 
 - useRouter 可以在代码中根据逻辑跳转页面
 #### 基本用法
+
 ``` ts
 'use client'
 import { useRouter } from "next/navigation"
@@ -94,6 +95,31 @@ export default function Page() {
 |**`forward`**|`router.forward()`|前进到**下一个**页面。|栈指针前移|点击“前进”按钮（需先执行过 back）。|
 |**`refresh`**|`router.refresh()`|**刷新数据**，不丢失 React 状态。|无变化|提交数据后同步服务器最新状态。|
 |**`prefetch`**|`router.prefetch('/path')`|**预加载**目标页面的代码和数据。|无变化|在用户点击按钮前提前下载资源。|
+
+#### 通过 `useRouter` 携带参数
+
+``` ts
+"use client";
+
+import { useRouter } from 'next/navigation';
+
+export default function MyComponent() {
+  const router = useRouter();
+
+  const handleNavigation = () => {
+    // 1. 使用查询参数 (Query Params)
+    router.push('/dashboard?user=123&role=admin');
+
+    // 2. 使用动态路由参数 (Dynamic Segments)
+    // 假设你有 app/blog/[slug]/page.js 这样的结构
+    const slug = 'hello-world';
+    router.push(`/blog/${slug}`);
+  };
+
+  return <button onClick={handleNavigation}>跳转</button>;
+}
+```
+
 ### redirect 函数
 
 - redirect 函数可以用于服务端组件/客户端组件中跳转页面，例如根据用户权限跳转不同的页面。

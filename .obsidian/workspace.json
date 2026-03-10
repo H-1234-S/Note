@@ -14,7 +14,7 @@
               "type": "markdown",
               "state": {
                 "file": "Front-end notes/Next.JS/Next.js.md",
-                "mode": "preview",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
@@ -74,7 +74,8 @@
               "title": "书签"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
