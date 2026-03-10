@@ -98,19 +98,60 @@ export default function Home() {
 
 ## 5. 重定向 (Server Side)
 
-主要用于 Server Components、Server Actions 和 Route Handlers。
+## redirect 函数
 
-> [!IMPORTANT]
-> 
-> **307/308 vs 301/302**: Next.js 默认使用 307/308，因为它们能确保重定向时**请求方法 (GET/POST) 不变**。
+redirect 函数可以用于服务端组件/客户端组件中跳转页面，例如根据用户权限跳转不同的页面。
 
-|**特性**|**redirect() (临时)**|**permanentRedirect() (永久)**|
-|---|---|---|
-|**HTTP 状态码**|**307**|**308**|
-|**SEO**|搜索引擎不更新索引，保留原地址权重。|搜索引擎**更新索引**，权重转移到新地址。|
-|**浏览器缓存**|不缓存。|**强缓存**。下次访问原地址浏览器直接本地跳转。|
-|**场景**|登录拦截、临时活动页、表单成功跳转。|网站永久搬家、URL 结构大规模重构。|
+**在Next.js中 redirect的状态是：307临时重定向**
 
+``` ts
+import { redirect } from "next/navigation"
+export default async function Page() {
+   const checkLogin = await checkLogin()
+   //如果用户未登录，则跳转到登录页面
+   if (!checkLogin) {
+    redirect("/login")
+   }
+   return (
+    <div>
+        <h1>Page</h1>
+    </div>
+   )
+}
+```
+
+## permanentRedirect 函数
+
+permanentRedirect 跟上面的redirect的区别是：permanentRedirect是永久重定向，而redirect是临时重定向。
+
+**在Next.js中 permanentRedirect的状态是：308永久重定向**
+
+``` ts
+//用法跟redirect一样，只是状态码不同
+import { permanentRedirect } from "next/navigation"
+export default async function Page() {
+   const checkLogin = await checkLogin()
+   if (!checkLogin) {
+    permanentRedirect("/login")
+   }
+}
+```
+
+### permanentRedirect / redirect 参数说明
+
+这两个函数都接受以下参数：
+
+- `path`：字符串类型，表示重定向的目标 URL（支持相对路径和绝对路径）
+- `type`：可选参数，值为 `replace` 或 `push`，用于控制重定向的行为
+
+**关于 `type` 参数的默认行为：**
+
+- 在 **Server Actions** 中：默认使用 `push`，会将新页面添加到浏览器历史记录
+- 在 **其他场景** 中：默认使用 `replace`，会替换当前的浏览器历史记录
+
+你可以通过显式指定 `type` 参数来覆盖默认行为。
+
+> ⚠️ **注意**：`type` 参数在服务端组件中无效，仅在客户端组件和 Server Actions 中生效。
 ---
 
 ## 6. 路由钩子 (Navigation Hooks)
