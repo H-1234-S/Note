@@ -1,187 +1,172 @@
-# Next.js 路由基础
-## App Router
+这份文档已经针对 **Obsidian** 和 **Typora** 等 Markdown 编辑器进行了排版优化，增加了视觉层级、警告提示（Callouts）以及核心概念的补充，确保内容既适合快速查阅，也适合深入学习。
 
-- Next.js 采用基于文件系统的路由机制，只需创建文件和文件夹，框架就会自动生成对应的路由结构。
+---
 
-- 在 Next.js 中，app 目录下的每个文件夹都代表一个路由段（route segment），并直接映射到 URL 路径
-### page
+# 📘 Next.js 15+ 路由基础全家桶 (App Router)
 
-- app目录下每个文件夹都应该有page.tsx/page.jsx文件，作为当前路由的页面
-### layout与template
+## 1. 核心路由机制
 
-- **布局嵌套**：支持多层布局嵌套，构建复杂的页面结构
-	
-- **状态管理**：布局会在页面切换时保持状态，而模板会重新渲染
-	
-- **根布局**：app/layout.tsx 是必须存在的根布局文件
-	
-- **渲染顺序**：当layout与template同时存在时，渲染顺序为 layout → template → page
-#### 相同点
+Next.js 采用**基于文件系统**的路由。`app` 目录下的每个文件夹代表一个 **路由段 (Route Segment)**，直接映射到 URL 路径。
 
-- layout与template可以看作多个页面共享的ui，例如导航栏、侧边栏、底部等；并把文件夹下的page作为children渲染
-#### 不同点
+- **`page.tsx`**: 路由的叶子节点，定义该路径最终渲染的 UI。
+    
+- **`not-found.tsx`**: 自定义 404 页面。
+    
 
-| **特性**   | **Layout (布局)**                          | **Template (模板)**                                 |
-| -------- | ---------------------------------------- | ------------------------------------------------- |
-| **渲染频率** | **只渲染一次**。在子路由间切换时，Layout 不会重新挂载（Mount）。 | **每次切换都会重新渲染**。每次导航到使用该模板的页面时，都会创建一个新实例。          |
-| **状态保持** | **保持状态**。例如：输入框里的文字、展开的菜单状态在跳转时不会消失。     | **重置状态**。每次跳转，组件内的 `useState`、动画等都会重新初始化。         |
-| **生命周期** | 不会触发 `useEffect` 的重新执行。                  | 每次跳转都会重新触发 `useEffect`。                           |
-| **典型用途** | 导航栏、侧边栏、搜索框（跨页面共享且不需要重置的 UI）。            | 页面切换动画（如 CSS 过渡）、依赖页面挂载的统计脚本（如 Google Analytics）。 |
-### loading
+---
 
-- Next.js的loading是借助了`Suspense`实现的
-	
-- 触发异步自动跳转到loading页面，页面结束后自动跳转
-### error
+## 2. 布局与模板 (Layout vs Template)
 
-- Next.js的error是借助了`Error Boundary`实现的。
-	
-- 'use client' **错误组件必须是客户端组件**
-### not-found
+### 2.1 渲染顺序
 
-- Next.js 默认会生成一个404页面，但我们可能自定义404页面，只需要在app目录下创建一个not-found.tsx文件即可
-## 路由跳转
+当两者同时存在时，嵌套顺序为：`Layout` → `Template` → `ErrorBoundary` → `Suspense` → `Page`。
 
-### Link组件
+### 2.2 核心区别对比
 
-- `<Link>`是一个内置组件，在a标签的基础上扩展了功能，并且还能用来实现预获取(prefetch)，以及保持滚动位置(scroll)等。
-	
-- 携带的参数在url路径可见
-#### 基本用法
+|**特性**|**Layout (布局)**|**Template (模板)**|
+|---|---|---|
+|**挂载频率**|**只渲染一次**。子路由切换时不重新挂载。|**每次导航都重新渲染**。创建一个新实例。|
+|**状态保持**|**保持状态**。如输入框文字、滚动位置。|**重置状态**。`useState`、动画等会重新初始化。|
+|**生命周期**|不会重新触发 `useEffect`。|每次跳转都会重新触发 `useEffect`。|
+|**典型用途**|导航栏、侧边栏、搜索框。|页面切换动画、依赖挂载的统计脚本（GA）。|
 
-``` ts
-import Link from "next/link" //引入Link组件
+---
+
+## 3. 特殊功能组件
+
+### 3.1 Loading (加载中)
+
+- **机制**：基于 React `Suspense` 实现。
+    
+- **行为**：在异步数据请求时自动显示 `loading.tsx` 内容，完成后自动切回 `page`。
+    
+
+### 3.2 Error (错误处理)
+
+- **机制**：基于 React `Error Boundary` 实现。
+    
+- **限制**：必须是 **客户端组件** (`'use client'`)。
+    
+
+---
+
+## 4. 路由跳转
+
+### 4.1 `<Link>` 组件
+
+推荐的导航方式。在 `<a>` 标签基础上扩展了增强功能。
+
+TypeScript
+
+```
+import Link from "next/link"
+
 export default function Home() {
     return (
-        <div>
-            <Link href="/about">跳转About页面</Link>
-            <Link href={{pathname: "/about", query: {name: "张三"}}}>跳转About并且传入参数</Link>
-            // prefetch预获取意思是：在生产环境下，这个Link组件出现在可视区域时，后台自动加载所对应的资源
-            <Link href="/page" prefetch={true}>预获取page页面</Link>
-            <Link href="/xm" scroll={true}>保持滚动位置</Link>
-            <Link href="/daman" replace={true}>替换当前页面</Link>
-        </div>
-    )
-}
-```
-### useRouter Hook
-
-- useRouter 可以在代码中根据逻辑跳转页面
-#### 基本用法
-``` ts
-'use client'
-import { useRouter } from "next/navigation"
-export default function Page() {
-    const router = useRouter()
-    return (
-        <>
-        <button onClick={() => router.push("/page")}>跳转page页面</button>
-        <button onClick={() => router.replace("/page")}>替换当前页面</button>
-        <button onClick={() => router.back()}>返回上一页</button>
-        <button onClick={() => router.forward()}>跳转下一页</button>
-        // 
-        <button onClick={() => router.refresh()}>刷新当前页面</button>
-        <button onClick={() => router.prefetch("/about")}>预获取about页面</button>
-        </>
+        <nav>
+            {/* 1. 基本跳转 */}
+            <Link href="/about">关于我们</Link>
+            
+            {/* 2. 对象传参 (URL 变为: /about?name=张三) */}
+            <Link href={{ pathname: "/about", query: { name: "张三" } }}>带参跳转</Link>
+            
+            {/* 3. 性能优化 */}
+            <Link href="/page" prefetch={true}>手动预获取资源</Link>
+            
+            {/* 4. 行为控制 */}
+            <Link href="/settings" scroll={false}>跳转但不改变滚动位置</Link>
+            <Link href="/login" replace={true}>替换当前历史记录</Link>
+        </nav>
     )
 }
 ```
 
-|**方法**|**语法**|**行为描述**|**历史堆栈变化**|**典型使用场景**|
-|---|---|---|---|---|
-|**`push`**|`router.push('/path')`|**新增**一个历史记录并跳转。|栈长度 +1|普通页面导航（如：点击查看详情）。|
-|**`replace`**|`router.replace('/path')`|**替换**当前历史记录并跳转。|栈长度不变|登录重定向、表单提交后防止回退。|
-|**`back`**|`router.back()`|返回到**上一个**页面。|栈指针后移|点击“返回”按钮。|
-|**`forward`**|`router.forward()`|前进到**下一个**页面。|栈指针前移|点击“前进”按钮（需先执行过 back）。|
-|**`refresh`**|`router.refresh()`|**刷新数据**，不丢失 React 状态。|无变化|提交数据后同步服务器最新状态。|
-|**`prefetch`**|`router.prefetch('/path')`|**预加载**目标页面的代码和数据。|无变化|在用户点击按钮前提前下载资源。|
-### redirect 函数
+### 4.2 `useRouter` Hook (Client Side)
 
-- redirect 函数可以用于服务端组件/客户端组件中跳转页面，例如根据用户权限跳转不同的页面。
+用于处理需要逻辑判断后再跳转的场景。
 
-- **在Next.js中 redirect的状态是：307临时重定向，permanentRedirect状态是：308永久重定向**
+|**方法**|**语法**|**行为描述**|**堆栈变化**|
+|---|---|---|---|
+|**`push`**|`router.push(url)`|跳转到新页面|`+1`|
+|**`replace`**|`router.replace(url)`|替换当前记录|不变|
+|**`back`**|`router.back()`|返回上一页|指针后移|
+|**`forward`**|`router.forward()`|前进下一页|指针前移|
+|**`refresh`**|`router.refresh()`|**刷新数据**，保留 React 状态|无|
+|**`prefetch`**|`router.prefetch(url)`|提前加载目标页面资源|无|
 
-``` ts
-import { redirect,permanentRedirect } from "next/navigation"
-export default async function Page() {
-   const checkLogin = await checkLogin()
-   //如果用户未登录，则跳转到登录页面
-   if (!checkLogin) {
-    redirect("/login")
-   }
-   return (
-    <div>
-        <h1>Page</h1>
-    </div>
-   )
-}
-```
+---
 
-|**特性**|**redirect(url)**|**permanentRedirect(url)**|
+## 5. 重定向 (Server Side)
+
+主要用于 Server Components、Server Actions 和 Route Handlers。
+
+> [!IMPORTANT]
+> 
+> **307/308 vs 301/302**: Next.js 默认使用 307/308，因为它们能确保重定向时**请求方法 (GET/POST) 不变**。
+
+|**特性**|**redirect() (临时)**|**permanentRedirect() (永久)**|
 |---|---|---|
-|**HTTP 状态码**|**307** (Temporary Redirect)|**308** (Permanent Redirect)|
-|**语义**|**临时**重定向。|**永久**重定向。|
-|**搜索引擎 (SEO)**|不会更新索引。搜索引擎认为原 URL 依然有效。|**会更新索引**。搜索引擎会将旧页面的权重（PageRank）转移到新页面。|
-|**浏览器缓存**|默认**不缓存**。每次访问原地址都会重新请求跳转。|**会被缓存**。浏览器记住跳转后，下次访问原地址可能不经过服务器直接跳。|
-|**典型场景**|登录拦截、表单提交后的跳转、临时活动页。|网站改版（域名或路径永久变更）、旧文章迁移到新地址。|
-#### 临时 vs 永久
+|**HTTP 状态码**|**307**|**308**|
+|**SEO**|搜索引擎不更新索引，保留原地址权重。|搜索引擎**更新索引**，权重转移到新地址。|
+|**浏览器缓存**|不缓存。|**强缓存**。下次访问原地址浏览器直接本地跳转。|
+|**场景**|登录拦截、临时活动页、表单成功跳转。|网站永久搬家、URL 结构大规模重构。|
 
-##### 临时重定向 (307)
+---
 
-- **本质**：告诉搜索引擎和浏览器，当前的跳转只是暂时的。
+## 6. 路由钩子 (Navigation Hooks)
+
+在 Next.js 中，这些钩子只能在 **客户端组件** (`'use client'`) 中使用。
+
+### 6.1 `usePathname()`
+
+获取当前的 URL 路径名（不含参数）。
+
+- 示例：访问 `/dashboard?id=1` -> 返回 `/dashboard`
     
-- **SEO**：搜索引擎会继续抓取旧地址，旧地址的搜索排名保持不变。
-    
-- **为什么是 307 而不是 302？** * 307 保证了重定向时 **请求方法（GET/POST）不变**。如果用户 POST 了一个表单，307 重定向后依然是 POST。
-##### 永久重定向 (308)
 
-- **本质**：告诉搜索引擎和浏览器，旧地址已经作废，请以后直接访问新地址。
-    
-- **SEO**：极其重要！它会将旧地址积攒的“搜索权重”转移到新地址。
-    
-- **缓存特性**：一旦浏览器收到 308，它会把这个映射存在本地。下次用户输入旧网址，浏览器**不会请求服务器**，直接在本地跳转到新网址。
+### 6.2 `useSearchParams()`
 
+返回一个只读的 `URLSearchParams` 实例。
 
+TypeScript
 
-
-
-
-
-# Hook
-
-- 在next.js中，只有客户端组件才可以使用hook
-## usePathname
-
-- 用于获取跳转后页面的url路径
-
-## useSearchParams
-
-- 用于获取`Link组件`传递的参数
-### 语法
-
-``` ts
-import Link from 'next/link
-
-<Link href={{pathname:'',query:{id:1}}} />
 ```
-
-``` ts
+'use client'
 import { useSearchParams } from 'next/navigation'
 
-const searchParams = useSearchParams()；
-const id = searchParams.get('id')
+export default function SearchPage() {
+    const searchParams = useSearchParams()
+    
+    // 常用方法：
+    const id = searchParams.get('id')         // 获取单个值
+    const tags = searchParams.getAll('tags')  // 获取数组 (如 ?tags=a&tags=b)
+    const hasId = searchParams.has('id')      // 检查键是否存在
+    
+    return <div>ID: {id}</div>
+}
 ```
-### 返回值
 
-- `useSearchParams`  返回一个只读的 `URLSearchParams` 实例
-### 核心方法
+---
 
-- **`get(key)`**: 获取指定键的第一个值。这是最常用的。
-    
-    - 例如：`searchParams.get('id')`
-        
-- **`getAll(key)`**: 如果一个键对应多个值（如 `?tags=red&tags=blue`），它会返回一个数组。
-    
-- **`has(key)`**: 检查 URL 中是否存在某个参数，返回布尔值。
-    
-- **`keys()` / `values()` / `entries()`**: 用于遍历所有的参数。
+## 💡 进阶避境指南 (Obsidian 必记)
+
+> [!CAUTION] **1. 导入路径错误**
+> 
+> 必须从 `next/navigation` 导入 `useRouter`。从 `next/router` 导入会报错（那是旧版 Pages Router 的）。
+
+> [!WARNING] **2. Redirect 异常**
+> 
+> `redirect()` 的原理是抛出错误。**不要**将其放在 `try...catch` 块中，否则跳转会被捕获从而失效。
+
+> [!TIP] **3. 如何在服务端获取参数？**
+> 
+> `useSearchParams` 仅限客户端。在 **服务端组件 (Server Page)** 中，请直接从 `props` 中获取：
+> 
+> TypeScript
+> 
+> ```
+> export default function Page({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+>    const id = searchParams.id
+>    // ...
+> }
+> ```
