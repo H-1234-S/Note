@@ -56,7 +56,7 @@ export default function Home() {
         <div>
             <Link href="/about">跳转About页面</Link>
             <Link href={{pathname: "/about", query: {name: "张三"}}}>跳转About并且传入参数</Link>
-            // prefetch预获取意思是：在生产环境下，这个Link组件出现在可视区域时，后台自动加载所对应的资源
+            // prefetch预获取意思是：在生产环境下，该Link组件出现在可视区域时，后台自动加载所对应的资源  默认开启
             <Link href="/page" prefetch={true}>预获取page页面</Link>
             <Link href="/xm" scroll={true}>保持滚动位置</Link>
             <Link href="/daman" replace={true}>替换当前页面</Link>
