@@ -27,16 +27,30 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "未命名.md",
-                "mode": "preview",
+                "file": "Front-end notes/Tailwind CSS/全指令.md",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "未命名"
+              "title": "全指令"
+            }
+          },
+          {
+            "id": "42f7af0b60f30406",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "conflict-files-obsidian-git.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "conflict-files-obsidian-git"
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -184,12 +198,14 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "66cdfe62b8e41325",
+  "active": "42f7af0b60f30406",
   "lastOpenFiles": [
-    "学习计划.md",
-    "未命名.md",
-    "学习路线.md",
     "Front-end notes/Tailwind CSS/全指令.md",
+    "conflict-files-obsidian-git.md",
+    "Project notes/React + Firebase/消息同步.canvas",
+    "未命名.md",
+    "学习计划.md",
+    "学习路线.md",
     "Front-end notes/Tailwind CSS/核心概念.md",
     "Front-end notes/Zustand.md",
     "思考.md",
@@ -203,7 +219,6 @@
     "/Front-end notes",
     "思考.canvas",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
-    "Project notes/React + Firebase/消息同步.canvas",
     "Project notes/React + Firebase/注册、登录.canvas",
     "Project notes/React + Firebase/最后一条消息.canvas",
     "Project notes/React + Firebase/搜索.canvas",
@@ -227,7 +242,6 @@
     "Front-end notes/TypeScript.md",
     "Front-end notes",
     "/Front-end notes/Zustand.md",
-    "/Front-end notes/TypeScript.md",
     "Project notes/React + Firebase",
     "Project notes"
   ]
