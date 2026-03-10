@@ -216,8 +216,17 @@ export default async function Page() {
 - **支持 URL 导航 (子路由)**： 插槽内部也可以有自己的文件夹。例如访问 `/dashboard/settings`，`@analytics` 可以显示 `/@analytics/settings/page.tsx` 的内容，而其他插槽保持不变。
 ### default.tsx
 
+- `default.tsx` 的存在是为了解决**硬导航时的匹配逻辑问题**。
+	
 - 当 Next.js 在当前 URL 下找不到某个插槽（Slot）的具体页面时，用来渲染一个默认的占位 UI，防止页面报错或显示 404。
-
+	
+- 例如：当你直接刷新 URL `http://localhost:3000/dashboard/settings` 时：
+	
+	-  浏览器是“从零开始”构建页面的。Next.js 必须为**每一个插槽**（`children`、`@analytics`、`@team`）在 `/settings` 路径下找到对应的内容。
+	    
+	-  **问题**：如果你的 `@team` 文件夹里没有 `settings` 文件夹，也没有 `page.tsx`，Next.js 就不知道该画什么。
+	    
+	- **结果**：如果没有 `default.tsx` 救场，Next.js 会认为这是一个无效路由，直接报 **404**。
 
 
 
