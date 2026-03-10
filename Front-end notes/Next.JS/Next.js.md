@@ -76,7 +76,6 @@ export default function Page() {
     return (
         <>
         <button onClick={() => router.push("/page")}>跳转page页面</button>
-        // 
         <button onClick={() => router.replace("/page")}>替换当前页面</button>
         <button onClick={() => router.back()}>返回上一页</button>
         <button onClick={() => router.forward()}>跳转下一页</button>
@@ -86,8 +85,13 @@ export default function Page() {
     )
 }
 ```
+#### push与replace区别
 
-
+| **特性**   | **router.push()**     | **router.replace()**            |
+| -------- | --------------------- | ------------------------------- |
+| **行为**   | 向历史堆栈**添加**一个新记录。     | **替换**当前的历史记录。                  |
+| **后退按钮** | 点击“后退”会回到**跳转前**的页面。  | 点击“后退”会回到**上上个**页面（跳过当前页）。      |
+| **使用场景** | 普通的页面导航（如：从列表页进入详情页）。 | 登录重定向、表单提交后防止重复提交、不希望用户回退到的中间页。 |
 
 
 
