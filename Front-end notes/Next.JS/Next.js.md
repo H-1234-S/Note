@@ -73,9 +73,16 @@ export default function Home() {
 ### useSearchParams
 
 - 用于获取`Link组件`传递的参数
+
+``` ts
+import Link from 'next/link
+
+<l
+```
+
 ``` ts
 import { useSearchParams } from 'next/navigation'
 
 const searchParams = useSearchParams()；
-
+const id = searchParams.get('id')
 ```
