@@ -266,6 +266,7 @@ export default async function Page() {
 	- 路径：`app/(marketing)/about/page.tsx` $\rightarrow$ URL: `/about`
 	
 - **组织代码**：纯粹为了让开发者更好地分类文件（如把所有登录相关的逻辑放在一起）。
+## Route Handler
 
 
 
