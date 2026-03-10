@@ -40,7 +40,7 @@
 ### not-found
 
 - Next.js 默认会生成一个404页面，但我们可能自定义404页面，只需要在app目录下创建一个not-found.tsx文件即可
-## 路由导航
+## 路由跳转
 
 ### Link组件
 
@@ -67,7 +67,24 @@ export default function Home() {
 ### useRouter Hook
 
 - useRouter 可以在代码中根据逻辑跳转页面
-
+#### 基本用法
+``` ts
+'use client'
+import { useRouter } from "next/navigation"
+export default function Page() {
+    const router = useRouter()
+    return (
+        <>
+        <button onClick={() => router.push("/page")}>跳转page页面</button>
+        <button onClick={() => router.replace("/page")}>替换当前页面</button>
+        <button onClick={() => router.back()}>返回上一页</button>
+        <button onClick={() => router.forward()}>跳转下一页</button>
+        <button onClick={() => router.refresh()}>刷新当前页面</button>
+        <button onClick={() => router.prefetch("/about")}>预获取about页面</button>
+        </>
+    )
+}
+```
 
 
 
