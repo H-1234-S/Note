@@ -122,23 +122,25 @@ export default function MyComponent() {
 
 ### redirect 函数
 
-- redirect 函数可以用于服务端组件/客户端组件中跳转页面，例如根据用户权限跳转不同的页面。
+- redirect 函数用于服务端跳转
+	
+- 原理：当它被调用时，它会抛出一个内部错误，Next.js 会捕获这个错误并告诉浏览器：“别加载这个页面了，直接去另一个 URL”。
 	
 - **在Next.js中 redirect的状态是：307临时重定向，permanentRedirect状态是：308永久重定向**
 
 ``` ts
-import { redirect,permanentRedirect } from "next/navigation"
-export default async function Page() {
-   const checkLogin = await checkLogin()
-   //如果用户未登录，则跳转到登录页面
-   if (!checkLogin) {
-    redirect("/login")
-   }
-   return (
-    <div>
-        <h1>Page</h1>
-    </div>
-   )
+// app/profile/page.js (Server Component)
+import { redirect } from 'next/navigation';
+
+export default async function ProfilePage() {
+  const session = await getSession();
+
+  if (!session) {
+    // 如果没登录，直接在服务端拦截并跳转
+    redirect('/login');
+  }
+
+  return <div>用户信息</div>;
 }
 ```
 ##### 临时重定向 (307)
