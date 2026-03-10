@@ -250,8 +250,13 @@ export default async function Page() {
 ## 路由组
 
 - **路由组 (Route Groups)** 是一种特殊的文件夹结构，它允许你将路由逻辑进行分组，而**不影响 URL 的路径结构**。
-	
+### 用法
+
 - **文件夹名称必须包裹在圆括号内**，例如 `(auth)` 或 `(dashboard)`。
+
+如果你想让不同的页面完全彻底地拥有不同的 HTML 结构（比如去掉 `<html>` 或 `<body>` 里的某些全局脚本），你可以删除 `app/layout.tsx`，并在不同的路由组里创建各自的 `layout.tsx`。
+
+- **注意**：每个根布局都必须包含 `<html>` 和 `<body>` 标签。
 ### 特性
 
 - **URL 隐身**：圆括号里的文件夹名称不会出现在浏览器的地址栏中。
@@ -261,6 +266,7 @@ export default async function Page() {
 	- 路径：`app/(marketing)/about/page.tsx` $\rightarrow$ URL: `/about`
 	
 - **组织代码**：纯粹为了让开发者更好地分类文件（如把所有登录相关的逻辑放在一起）。
+
 
 
 
