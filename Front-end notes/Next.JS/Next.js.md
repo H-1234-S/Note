@@ -252,8 +252,13 @@ export default async function Page() {
 - **路由组 (Route Groups)** 是一种特殊的文件夹结构，它允许你将路由逻辑进行分组，而**不影响 URL 的路径结构**。
 	
 - **文件夹名称必须包裹在圆括号内**，例如 `(auth)` 或 `(dashboard)`。
+### 特性
 
-- 
+- **URL 隐身**：圆括号里的文件夹名称不会出现在浏览器的地址栏中。
+	
+	- 路径：`app/(auth)/login/page.tsx` $\rightarrow$ URL: `/login` (没有 `/auth`)
+	    
+	- 路径：`app/(marketing)/about/page.tsx` $\rightarrow$ URL: `/about`
 
 
 
