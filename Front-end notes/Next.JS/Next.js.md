@@ -188,6 +188,44 @@ export default async function Page() {
 如果你使用 `[[...slug]]`，你只需要创建一个文件：`app/shop/[[...slug]]/page.tsx`。
 ## 平行路由
 
+- 平行路由指的是在**同一个布局 (Layout)** 中，**同时且独立地**显示多个页面
+### 基本用法
+
+- 通过 **`@` 文件夹** 命名约定来定义。这些文件夹被称为“插槽”。插槽**不会**影响 URL 路径。
+	
+	- 例如，文件结构如下：
+		
+		- `app/dashboard/@analytics/page.tsx`
+		    
+		- `app/dashboard/@team/page.tsx`
+		    
+		- `app/dashboard/layout.tsx`
+		    
+		- `app/dashboard/page.tsx`
+		
+    - 此时，访问 `/dashboard` 时，`layout.tsx` 会同时接收到 `analytics` 和 `team` 作为 **Props**。
+	
+- 在 `layout.tsx` 中，可以像使用普通的 React Props 一样渲染这些插槽
+
+### 优势与特点
+
+- **独立的状态与加载**： 每个插槽可以拥有自己的 `loading.tsx` 和 `error.tsx`。如果 `@analytics` 加载很慢，主页面和 `@team` 依然可以先显示出来。
+    
+- **条件渲染**： 你可以根据用户角色（如管理员 vs 普通用户）在 Layout 中决定渲染哪个插槽。
+    
+- **支持 URL 导航 (子路由)**： 插槽内部也可以有自己的文件夹。例如访问 `/dashboard/settings`，`@analytics` 可以显示 `/@analytics/settings/page.tsx` 的内容，而其他插槽保持不变。
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
