@@ -64,18 +64,36 @@ export default function Home() {
     )
 }
 ```
+### useRouter Hook
 
-## Hook
+- useRouter 可以在代码中根据逻辑跳转页面
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Hook
 
 - 在next.js中，只有客户端组件才可以使用hook
-### usePathname
+## usePathname
 
 - 用于获取跳转后页面的url路径
 
-### useSearchParams
+## useSearchParams
 
 - 用于获取`Link组件`传递的参数
-#### 语法
+### 语法
 
 ``` ts
 import Link from 'next/link
@@ -89,10 +107,10 @@ import { useSearchParams } from 'next/navigation'
 const searchParams = useSearchParams()；
 const id = searchParams.get('id')
 ```
-#### 返回值
+### 返回值
 
 - `useSearchParams`  返回一个只读的 `URLSearchParams` 实例
-#### 核心方法
+### 核心方法
 
 - **`get(key)`**: 获取指定键的第一个值。这是最常用的。
     
