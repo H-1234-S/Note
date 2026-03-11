@@ -984,7 +984,7 @@ add(1,2)
 
 
 
-~~~typescript
+~~~ typescript
 //定义了一种结构
 interface LengthInterface {
   length: number
