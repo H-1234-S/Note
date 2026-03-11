@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "Front-end notes/TypeScript.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Next.js"
+              "title": "TypeScript"
             }
           }
         ],
@@ -172,13 +172,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "Front-end notes/TypeScript.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Next.js 的大纲"
+              "title": "TypeScript 的大纲"
             }
           },
           {
@@ -212,9 +212,9 @@
   },
   "active": "cf67ed26a1bd25b3",
   "lastOpenFiles": [
+    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/官方实战教程.md",
     "Front-end notes/Next.JS/核心知识.md",
-    "Front-end notes/Next.JS/Next.js.md",
     "思考.md",
     "未命名.canvas",
     "学习计划.md",
