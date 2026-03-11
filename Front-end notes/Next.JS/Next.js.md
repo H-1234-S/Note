@@ -368,7 +368,7 @@ export async function GET(request: NextRequest) {  const url = request.nextUrl}
 
 - `context`是Route Handler的第二个参数，是一个对象
 
-- **`params`**: context里的一个属性，一个解析为包含当前路由的[动态路由参数](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes)的对象的 Promise。
+- **`params`**: context里的一个属性，一个解析为包含当前路由的[动态路由参数](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes)的**对象**的 Promise。
 
 app/dashboard/[team]/route.ts
 
@@ -383,6 +383,8 @@ export async function GET(
 
 }
 ```
+
+#### 定义GET请求
 
 
 
