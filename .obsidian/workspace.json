@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
-                "mode": "source",
+                "file": "思考.md",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Next.js"
+              "title": "思考"
             }
           }
         ]
@@ -74,13 +74,11 @@
               "title": "书签"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -158,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "思考.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Next.js 的大纲"
+              "title": "思考 的大纲"
             }
           },
           {
@@ -198,9 +196,9 @@
   },
   "active": "cca157790ad46146",
   "lastOpenFiles": [
+    "Front-end notes/Next.JS/Next.js.md",
     "conflict-files-obsidian-git.md",
     "Front-end notes/Tailwind CSS/全指令.md",
-    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/Next.js 官方实战教程：全栈仪表盘 (Dashboard) 开发笔记.md",
     "未命名.md",
     "Front-end notes/Tailwind CSS/核心概念.md",
