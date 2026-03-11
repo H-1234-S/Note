@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "思考.md",
-                "mode": "preview",
+                "file": "学习计划.md",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "思考"
+              "title": "学习计划"
             }
           }
         ]
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "思考.md",
+                "file": "学习计划.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "思考 的大纲"
+              "title": "学习计划 的大纲"
             }
           },
           {
@@ -196,6 +196,8 @@
   },
   "active": "cca157790ad46146",
   "lastOpenFiles": [
+    "思考.canvas",
+    "思考.md",
     "Front-end notes/Next.JS/Next.js.md",
     "conflict-files-obsidian-git.md",
     "Front-end notes/Tailwind CSS/全指令.md",
@@ -207,8 +209,6 @@
     "Front-end notes/React.md",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "学习计划.md",
-    "思考.md",
-    "思考.canvas",
     "Front-end notes/Tailwind CSS",
     "Project notes/React + Firebase/最后一条消息.canvas",
     "Project notes/React + Firebase/注册、登录.canvas",
