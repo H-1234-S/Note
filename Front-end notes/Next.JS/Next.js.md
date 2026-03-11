@@ -630,9 +630,9 @@ HTML他是静态的，需要通过JS才能变成动态的，不然HTML是没有�
 ## 服务端组件(Server Components)
 
 
+--- 
 
-
-
+## 客户端组件(Client Components)
 
 ---
 # Hook
