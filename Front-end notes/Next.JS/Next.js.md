@@ -1,4 +1,4 @@
-# Next.js 路由基础
+# 路由系统
 ## App Router
 
 - Next.js 采用基于文件系统的路由机制，只需创建文件和文件夹，框架就会自动生成对应的路由结构。
@@ -324,6 +324,7 @@ export default function BlogClientPage() {
 ## Route Handler
 
 [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
+
 
 
 
