@@ -386,7 +386,9 @@ export async function GET(
 
 #### 定义GET请求
 
+``` ts
 
+```
 
 
 
