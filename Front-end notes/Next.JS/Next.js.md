@@ -546,6 +546,34 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 - **比喻**：你给餐厅打电话订餐，厨师现做，你到店里时饭菜已经摆好在桌子上了。
     
 
+#### 服务端渲染流程
+##### 1. 服务器端 (Server Side)
+
+- **接收请求**：浏览器发起 HTTP 请求。
+    
+- **数据预取 (Data Fetching)**：服务器内部调用 API 或直接查数据库。
+    
+- **渲染 HTML (Render to String)**：React 将组件树转换成纯 HTML 字符串。
+    
+- **响应流 (Response)**：将 HTML 发送给浏览器。
+    
+
+##### 2. 浏览器端 (Client Side) —— 分为两个关键时刻
+
+- **时刻 A：FCP (First Contentful Paint)**
+    
+    - 浏览器解析 HTML 并绘制 UI。
+        
+    - **状态**：用户**看到了**内容，但点击按钮没反应（因为 JS 还没运行）。
+        
+- **时刻 B：TTI (Time to Interactive)**
+    
+    - 浏览器下载、解析并执行 JS 文件。
+        
+    - **执行 Hydration (水合)**：React 扫描现有的 DOM 节点，绑定事件监听器，同步内部状态。
+        
+    - **状态**：页面**激活**，用户可以进行交互。
+
 ---
 
 ### 3. SSG (Static Site Generation) - 静态网站生成
