@@ -494,7 +494,25 @@ Content-Type: application/json
 
 #### 动态路由参数
 
+``` ts
+import { NextRequest, NextResponse } from 'next/server';
 
+export async function POST(request: NextRequest,
+
+    { params }: { params: Promise<{ id: number }> }) {
+
+    const { id } = await params
+
+    return NextResponse.json({ message: `${id}` })
+
+}
+```
+
+REST client测试:
+
+```
+
+```
 
 ---
 # Hook
