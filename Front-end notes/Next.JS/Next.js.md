@@ -1,3 +1,4 @@
+--- 
 # 路由系统
 ## App Router
 
@@ -40,6 +41,8 @@
 ### not-found
 
 - Next.js 默认会生成一个404页面，但我们可能自定义404页面，只需要在app目录下创建一个not-found.tsx文件即可
+
+--- 
 ## 路由跳转
 
 ### Link组件
@@ -173,6 +176,7 @@ export default async function Page() {
 - **SEO**：极其重要！它会将旧地址积攒的“搜索权重”转移到新地址。
     
 - **缓存特性**：一旦浏览器收到 308，它会把这个映射存在本地。下次用户输入旧网址，浏览器**不会请求服务器**，直接在本地跳转到新网址。
+---
 ## 动态路由
 
 - **动态路由（Dynamic Routes）** 是指 URL 中的某一部分不是固定的字符，而是一个**变量（参数）**。
@@ -241,6 +245,8 @@ export default function BlogClientPage() {
 3. 用户访问 `/shop/clothes/men/shoes`：显示男装鞋子。
 
 如果你使用 `[[...slug]]`，你只需要创建一个文件：`app/shop/[[...slug]]/page.tsx`。
+
+---
 ## 平行路由
 
 - 平行路由指的是在**同一个布局 (Layout)** 中，**同时且独立地**显示多个页面
@@ -302,6 +308,7 @@ export default function BlogClientPage() {
 - **状态丢失**：所有的 React 状态和内存变量都会被**全部重置**。
     
 - **性能**：由于需要完整重载，速度比软导航慢，且会出现短暂白屏。
+---
 ## 路由组
 
 - **路由组 (Route Groups)** 是一种特殊的文件夹结构，它允许你将路由逻辑进行分组，而**不影响 URL 的路径结构**。
@@ -321,6 +328,7 @@ export default function BlogClientPage() {
 	- 路径：`app/(marketing)/about/page.tsx` $\rightarrow$ URL: `/about`
 	
 - **组织代码**：纯粹为了让开发者更好地分类文件（如把所有登录相关的逻辑放在一起）。
+---
 ## Route Handler
 
 [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
@@ -335,7 +343,7 @@ export default function BlogClientPage() {
 
 
 
-
+---
 # Hook
 
 - 在next.js中，只有客户端组件才可以使用hook
