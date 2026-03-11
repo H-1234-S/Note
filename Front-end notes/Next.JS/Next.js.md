@@ -518,6 +518,8 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 --- 
 # 渲染方式
 
+## CSR、SSR、SSG、Hydration
+
 ### 1. CSR (Client-Side Rendering) - 客户端渲染
 
 这是最传统的 React 应用（如 `create-react-app`）的渲染方式。
@@ -619,11 +621,13 @@ HTML他是静态的，需要通过JS才能变成动态的，不然HTML是没有�
 
 --- 
 
-### [5.RSC(React Server Components) - 服务器组件](https://nextjs.org/docs/app/getting-started/server-and-client-components)
+## [RSC(React Server Components) - 服务器组件](https://nextjs.org/docs/app/getting-started/server-and-client-components)
 
 **RSC** 是专门在**服务端运行**的组件。其代码永远不会发送到浏览器，仅将渲染后的 UI 描述（非 HTML，而是一种特殊的流式数据）传给客户端。
 
+--- 
 
+## 服务端组件(Server Components)
 
 
 
