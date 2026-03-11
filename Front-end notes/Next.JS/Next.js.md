@@ -601,7 +601,7 @@ HTML他是静态的，需要通过JS才能变成动态的，不然HTML是没有�
 
 ### [5.RSC(React Server Components) - 服务器](https://nextjs.org/docs/app/getting-started/server-and-client-components)
 
-
+**RSC** 是专门在**服务端运行**的组件。其代码永远不会发送到浏览器，仅将渲染后的 UI 描述（非 HTML，而是一种特殊的流式数据）传给客户端。
 
 
 
