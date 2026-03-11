@@ -11,17 +11,14 @@
             "id": "cca157790ad46146",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "未命名.canvas",
-                "viewState": {
-                  "x": 177,
-                  "y": 263,
-                  "zoom": 0
-                }
+                "file": "Front-end notes/Next.JS/Next.js.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "未命名"
+              "icon": "lucide-file",
+              "title": "Next.js"
             }
           }
         ]
@@ -81,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -159,13 +157,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "未命名.canvas",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "未命名 的大纲"
+              "title": "Next.js 的大纲"
             }
           },
           {
@@ -200,6 +198,7 @@
   "active": "cca157790ad46146",
   "lastOpenFiles": [
     "思考.md",
+    "未命名.canvas",
     "学习计划.md",
     "思考.canvas",
     "Front-end notes/Next.JS/Next.js.md",
