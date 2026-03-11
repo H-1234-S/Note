@@ -25,14 +25,17 @@
             "id": "088883e4fcb413b0",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
-                "mode": "preview",
-                "source": false
+                "file": "思考.canvas",
+                "viewState": {
+                  "x": -99.15606446140809,
+                  "y": 480.28922815945714,
+                  "zoom": -0.03087067525870815
+                }
               },
-              "icon": "lucide-file",
-              "title": "Next.js"
+              "icon": "lucide-layout-dashboard",
+              "title": "思考"
             }
           }
         ],
@@ -160,7 +163,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "未命名.md",
+            "file": "思考.canvas",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -186,13 +189,13 @@
   },
   "active": "088883e4fcb413b0",
   "lastOpenFiles": [
+    "Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS",
     "/Front-end notes",
     "学习计划.md",
     "conflict-files-obsidian-git.md",
     "Front-end notes/Next.JS/Next.js 官方实战教程：全栈仪表盘 (Dashboard) 开发笔记.md",
-    "Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/React.md",
     "/Front-end notes/Next.JS/Next.js 官方实战教程：全栈仪表盘 (Dashboard) 开发笔记.md",
     "Front-end notes/Next.JS",
