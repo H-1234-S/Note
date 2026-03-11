@@ -399,7 +399,7 @@ export default function GET( request:NextRequest ) {
 
 }
 ```
-##### nextUrl的属性
+##### nextUrl的属性 #nextUrl
 
 原生的 `request.url` 只是一个简单的**字符串**（例如 `"/api/search?q=js&page=1"`）。 如果你用原生字符串，你需要手动用正则或者 `new URL()` 去解析它，非常麻烦。
 
