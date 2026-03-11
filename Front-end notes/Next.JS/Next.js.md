@@ -331,9 +331,28 @@ export default function BlogClientPage() {
 ---
 ## [Route Handler](https://nextjs.org/docs/app/getting-started/route-handlers#route-handlers)
 
-[router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
+### [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
 
+#### http方法
 
+``` ts
+export async function GET(request: Request) {}
+ 
+export async function HEAD(request: Request) {}
+ 
+export async function POST(request: Request) {}
+ 
+export async function PUT(request: Request) {}
+ 
+export async function DELETE(request: Request) {}
+ 
+export async function PATCH(request: Request) {}
+ 
+// If `OPTIONS` is not defined, Next.js will automatically implement `OPTIONS` and set the appropriate Response `Allow` header depending on the other methods defined in the Route Handler.
+export async function OPTIONS(request: Request) {}
+```
+
+#### 参数
 
 
 
