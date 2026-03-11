@@ -408,7 +408,9 @@ export default function GET( request:NextRequest ) {
 - **`pathname`**: 获取路径（例如 `/api/search`）。
     
 - **`searchParams`**: 获取问号后面的参数（例如 `q=js`）。
-    
+		
+	- `request.nextUrl.searchParams` 返回的正是一个标准的 **`URLSearchParams`** 实例对象。
+	    
 - **`origin`**: 获取域名部分（例如 `https://localhost:3000`）。
 
 
