@@ -387,10 +387,29 @@ export async function GET(
 #### 定义GET请求
 
 ``` ts
+import { NextRequest,NextResponse } from "next/server";
 
+export default function GET( request:NextRequest ) {
+
+    const query = request.nextUrl.searchParams
+
+    console.log(query.get('id'))
+
+    return NextResponse
+
+}
 ```
+##### nextUrl的属性
 
+原生的 `request.url` 只是一个简单的**字符串**（例如 `"/api/search?q=js&page=1"`）。 如果你用原生字符串，你需要手动用正则或者 `new URL()` 去解析它，非常麻烦。
 
+`request.nextUrl` 直接给你提供了一个**解析好的对象**，你可以直接点出你想要的部分：
+
+- **`pathname`**: 获取路径（例如 `/api/search`）。
+    
+- **`searchParams`**: 获取问号后面的参数（例如 `q=js`）。
+    
+- **`origin`**: 获取域名部分（例如 `https://localhost:3000`）。
 
 
 
