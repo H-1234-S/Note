@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "e56b4a7d86fd905b",
+        "id": "9739a4d9bcc3cd2a",
         "type": "tabs",
         "children": [
           {
-            "id": "cca157790ad46146",
+            "id": "eab0d02b5a1a7fd7",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -195,11 +195,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "cca157790ad46146",
+  "active": "eab0d02b5a1a7fd7",
   "lastOpenFiles": [
+    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/核心知识.md",
     "Front-end notes/Next.JS/官方实战教程.md",
-    "Front-end notes/Next.JS/Next.js.md",
     "未命名.canvas",
     "未命名 1.canvas",
     "Front-end notes/TypeScript.md",
