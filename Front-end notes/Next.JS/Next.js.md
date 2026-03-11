@@ -599,7 +599,7 @@ HTML他是静态的，需要通过JS才能变成动态的，不然HTML是没有�
 
 --- 
 
-### RSC(React Server Components) - 服务器组件
+### [5.RSC(React Server Components) - 服务器](https://nextjs.org/docs/app/getting-started/server-and-client-components)
 
 
 
