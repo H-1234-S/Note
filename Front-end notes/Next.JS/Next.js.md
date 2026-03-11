@@ -354,6 +354,31 @@ export async function OPTIONS(request: Request) {}
 
 #### 参数
 
+#### `request` (可选)[](https://nextjs.org/docs/app/api-reference/file-conventions/route#request-optional)
+
+`request` 对象是一个 [NextRequest](https://nextjs.org/docs/app/api-reference/functions/next-request) 对象，它是 Web [Request](https://developer.mozilla.org/docs/Web/API/Request) API 的扩展。 `NextRequest` 让你对传入的请求有更精细的控制，包括轻松访问 `cookies` 和一个扩展的、解析的 URL 对象 `nextUrl`。
+
+``` ts
+import type { NextRequest } from 'next/server' 
+
+export async function GET(request: NextRequest) {  const url = request.nextUrl}
+```
+
+#### `context` (可选)[](https://nextjs.org/docs/app/api-reference/file-conventions/route#context-optional)
+
+- **`params`**: 一个解析为包含当前路由的[动态路由参数](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes)的对象的 Promise。
+
+app/dashboard/[team]/route.ts
+
+TypeScript
+
+JavaScriptTypeScript
+
+``` ts
+export async function GET(  
+request: Request,
+  { params }: { params: Promise<{ team: string }> }) {  const { team } = await params}
+```
 
 
 
