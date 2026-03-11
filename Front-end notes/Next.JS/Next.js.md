@@ -515,6 +515,30 @@ REST client测试:
 POST http://localhost:3000/api/home/123141 HTTP/1.1
 ```
 
+--- 
+# 渲染方式
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---
 # Hook
 
