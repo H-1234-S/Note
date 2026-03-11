@@ -370,7 +370,7 @@ const id = searchParams.get('id')
     
     - 例如：`searchParams.get('id')`
         
-- **`getAll(key)`**: 如果一个键对应多个值（如 `?tags=red&tags=blue`），它会返回一个数组。
+- **`getAll(key)`**: 如果一个键对应多个值（如 `?tags=red&tags=blue`），它会返回一个字符串数组。
     
 - **`has(key)`**: 检查 URL 中是否存在某个参数，返回布尔值。
     

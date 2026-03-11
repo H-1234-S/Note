@@ -25,17 +25,14 @@
             "id": "088883e4fcb413b0",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "思考.canvas",
-                "viewState": {
-                  "x": -99.15606446140809,
-                  "y": 480.28922815945714,
-                  "zoom": -0.03087067525870815
-                }
+                "file": "Front-end notes/Next.JS/Next.js.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "思考"
+              "icon": "lucide-file",
+              "title": "Next.js"
             }
           }
         ],
@@ -163,7 +160,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "思考.canvas",
+            "file": "Front-end notes/Next.JS/Next.js.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -189,6 +186,7 @@
   },
   "active": "088883e4fcb413b0",
   "lastOpenFiles": [
+    "思考.canvas",
     "Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS",
@@ -213,7 +211,6 @@
     "/Front-end notes/Tailwind CSS/核心概念.md",
     "/Front-end notes/Tailwind CSS",
     "Front-end notes/Tailwind CSS",
-    "思考.canvas",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "Project notes/React + Firebase/注册、登录.canvas",
     "Project notes/React + Firebase/最后一条消息.canvas",
