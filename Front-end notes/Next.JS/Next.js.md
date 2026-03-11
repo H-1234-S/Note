@@ -634,6 +634,13 @@ HTML他是静态的，需要通过JS才能变成动态的，不然HTML是没有�
 
 ## 客户端组件(Client Components)
 
+[`"use client"`](https://react.dev/reference/react/use-client)在文件顶部，导入语句上方添加指令。
+
+一旦文件被标记为客户端组件，**它的所有导入项和子组件都会被视为客户端包的一部分**。
+
+
+
+
 ---
 # Hook
 
