@@ -494,12 +494,14 @@ Content-Type: application/json
 
 #### 动态路由参数
 
+
+
 ``` ts
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest,
-
-    { params }: { params: Promise<{ id: number }> }) {
+	// { params }: { params: Promise<{ id: string }> } 这里参数的类型只能是string
+    { params }: { params: Promise<{ id: string }> }) {
 
     const { id } = await params
 
@@ -510,8 +512,8 @@ export async function POST(request: NextRequest,
 
 REST client测试:
 
-```
-
+``` http
+POST http://localhost:3000/api/home/123141 HTTP/1.1
 ```
 
 ---
