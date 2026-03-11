@@ -407,6 +407,12 @@ export default function GET( request:NextRequest ) {
 
 }
 ```
+
+REST client测试:
+
+``` http
+GET http://localhost:3000/api/user?id=123 HTTP/1.1
+```
 ##### nextUrl的属性 #nextUrl
 
 原生的 `request.url` 只是一个简单的**字符串**（例如 `"/api/search?q=js&page=1"`）。 如果你用原生字符串，你需要手动用正则或者 `new URL()` 去解析它，非常麻烦。
@@ -423,9 +429,70 @@ export default function GET( request:NextRequest ) {
 
 #### 定义POST请求
 
+``` ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(request: NextRequest) {
+
+  try {
+
+    // 1. 解析请求体 (必须 await)
+
+    const body = await request.json();
+
+    // 2. 解构数据
+
+    const { username, email } = body;
+
+    // 3. 模拟逻辑处理（如存入数据库）
+
+    console.log(`正在创建用户: ${username}, 邮箱: ${email}`);
+
+    // 4. 返回成功响应，通常使用 201 状态码表示“已创建”
+
+    return NextResponse.json(
+
+      { message: "用户创建成功", data: body },
+
+      { status: 201 }
+
+    );
+
+  } catch (error) {
+
+    // 5. 错误处理（如 JSON 格式错误）
+
+    return NextResponse.json(
+
+      { error: "无效的请求数据" },
+
+      { status: 400 }
+
+    );
+
+  }
+
+}
 ```
 
+REST client测试:
+
+``` http
+POST http://localhost:3000/api/home HTTP/1.1
+
+# 设置请求头；告诉服务器接收什么类型的参数
+Content-Type: application/json 
+
+{
+
+    "username":"HU",
+
+    "email":"123@email"
+
+}
 ```
+
+
 
 
 ---
