@@ -634,12 +634,32 @@ HTML他是静态的，需要通过JS才能变成动态的，不然HTML是没有�
 
 ## 客户端组件(Client Components)
 
-[`"use client"`](https://react.dev/reference/react/use-client)在文件顶部，导入语句上方添加指令。
+声明客户端组件需要在文件的顶部编写 `'use client'` 声明这是客户端组件，但是注意客户端组件会在服务端进行一次`预渲染`，所以访问`document` `window` 等API需要在`useEffect`中访问。
 
 一旦文件被标记为客户端组件，**它的所有导入项和子组件都会被视为客户端包的一部分**。
 
+### 预渲染
 
+1. **生成初始 HTML**： React 会尝试在服务端执行一遍客户端组件。虽然它不能执行 `useEffect` 或处理点击事件，但它能运行组件的主体函数，获取渲染出的 DOM 结构。
+    
+    - **内容包括**：静态文本、标签结构（`div`, `button`, `span`）、初始状态下的数据。
+        
+    - **不包括**：事件监听器、由 `useEffect` 触发的二次渲染内容、浏览器特有的 API 结果（如 `window.innerWidth`）。
+        
+2. **生成序列化指令 (Instruction)**： 服务器还会发送一段特殊的 JSON 数据（通常在 Next.js 的 Payload 中），告诉浏览器：“这里有一个客户端组件，它需要的 JS 文件在某某路径，它的初始 Props 是这些。”
 
+### 预渲染产生的问题
+
+ **无法直接访问浏览器 API**
+
+如果你在组件顶层直接写 `window.localStorage`，预渲染阶段（在 Node.js 环境）会直接报错。
+
+- **解决方案**：将其放入 `useEffect` 中，因为 `useEffect` 只会在浏览器端水合后执行，不会在预渲染阶段执行。
+    
+
+**水合不一致 (Hydration Mismatch)**
+
+如果你的预渲染 HTML 里写的是 `<div>上午好</div>`（服务端时间），但浏览器水合时发现应该是 `<div>下午好</div>`（客户端时间），React 就会报错，因为它发现“骨架”对不上了。
 
 ---
 # Hook
