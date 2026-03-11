@@ -329,7 +329,7 @@ export default function BlogClientPage() {
 	
 - **组织代码**：纯粹为了让开发者更好地分类文件（如把所有登录相关的逻辑放在一起）。
 ---
-## Route Handler
+## [Route Handler](https://nextjs.org/docs/app/getting-started/route-handlers#route-handlers)
 
 [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
 
