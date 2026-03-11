@@ -25,14 +25,17 @@
             "id": "088883e4fcb413b0",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
-                "mode": "source",
-                "source": false
+                "file": "未命名.canvas",
+                "viewState": {
+                  "x": 133.6459601793449,
+                  "y": 207.8851174068154,
+                  "zoom": -0.36984123631052074
+                }
               },
-              "icon": "lucide-file",
-              "title": "Next.js"
+              "icon": "lucide-layout-dashboard",
+              "title": "未命名"
             }
           }
         ],
@@ -186,8 +189,9 @@
   },
   "active": "088883e4fcb413b0",
   "lastOpenFiles": [
-    "思考.canvas",
     "Front-end notes/Next.JS/Next.js.md",
+    "未命名.canvas",
+    "思考.canvas",
     "/Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS",
     "/Front-end notes",
@@ -218,7 +222,6 @@
     "Project notes/React + Firebase/消息撤回.canvas",
     "/Project notes/React + Firebase/消息撤回.canvas",
     "/Project notes/React + Firebase/消息同步.canvas",
-    "/Project notes/React + Firebase/搜索.canvas",
     "/学习计划.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
     "Project notes/React + Firebase/数据流向 Mermaid 流程图.md",
