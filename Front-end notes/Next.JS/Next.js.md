@@ -495,7 +495,6 @@ Content-Type: application/json
 #### 动态路由参数
 
 
-
 ``` ts
 import { NextRequest, NextResponse } from 'next/server';
 
