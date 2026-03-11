@@ -413,7 +413,11 @@ export default function GET( request:NextRequest ) {
 	    
 - **`origin`**: 获取域名部分（例如 `https://localhost:3000`）。
 
+#### 定义POST请求
 
+```
+
+```
 
 
 ---
