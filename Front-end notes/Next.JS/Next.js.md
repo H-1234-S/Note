@@ -371,10 +371,14 @@ export async function GET(request: NextRequest) {  const url = request.nextUrl}
 app/dashboard/[team]/route.ts
 
 ``` ts
-export async function GET(  
-request: Request,
-{ params }: { params: Promise<{ team: string }> }) {  
-const { team } = await params
+export async function GET(
+
+    request: Request,
+
+    { params }: { params: Promise<{ team: string }> }) {
+
+    const { team } = await params
+
 }
 ```
 
