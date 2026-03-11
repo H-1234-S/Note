@@ -25,17 +25,14 @@
             "id": "088883e4fcb413b0",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "未命名.canvas",
-                "viewState": {
-                  "x": 133.6459601793449,
-                  "y": 207.8851174068154,
-                  "zoom": -0.36984123631052074
-                }
+                "file": "学习计划.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "未命名"
+              "icon": "lucide-file",
+              "title": "学习计划"
             }
           }
         ],
@@ -189,9 +186,10 @@
   },
   "active": "088883e4fcb413b0",
   "lastOpenFiles": [
-    "Front-end notes/Next.JS/Next.js.md",
-    "未命名.canvas",
     "思考.canvas",
+    "思考.md",
+    "未命名.canvas",
+    "Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS",
     "/Front-end notes",
@@ -207,7 +205,6 @@
     "学习路线.md",
     "Front-end notes/Tailwind CSS/核心概念.md",
     "Front-end notes/Zustand.md",
-    "思考.md",
     "/Front-end notes/Tailwind CSS/全指令.md",
     "/Project notes/React + Firebase/最后一条消息.canvas",
     "/Project notes/React + Firebase",
