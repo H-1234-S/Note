@@ -25,17 +25,14 @@
             "id": "088883e4fcb413b0",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "未命名.canvas",
-                "viewState": {
-                  "x": 135,
-                  "y": 314.66666666666674,
-                  "zoom": 0
-                }
+                "file": "学习计划.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "未命名"
+              "icon": "lucide-file",
+              "title": "学习计划"
             }
           }
         ],
@@ -189,10 +186,10 @@
   },
   "active": "088883e4fcb413b0",
   "lastOpenFiles": [
+    "未命名.canvas",
     "学习计划.md",
     "思考.canvas",
     "思考.md",
-    "未命名.canvas",
     "Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS",
