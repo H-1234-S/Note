@@ -947,7 +947,22 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 
 ## [Image组件](https://nextjs.org/docs/app/api-reference/components/image)
 
+Next.js Image 组件扩展了 HTML`<img>`元素，实现了自动图像优化。
 
+``` ts
+import Image from 'next/image'
+ 
+export default function Page() {
+  return (
+    <Image
+      src="/profile.png"
+      width={500}
+      height={500}
+      alt="Picture of the author"
+    />
+  )
+}
+```
 
 
 
