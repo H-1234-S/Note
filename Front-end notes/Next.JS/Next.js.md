@@ -788,6 +788,8 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
 
 #### PPR(**Partial Prerendering**)-部分预渲染
 
+原理：生成了一个**静态外壳**，让用户能瞬间看到导航和布局(静态数据)，而那些慢速的动态接口被隔离在 `Suspense` 占位符中通过 **HTTP 流** 传输。
+
 ##### 静态外壳 (Static Shell)
 
 在**构建阶段 (Build Time)**，Next.js 会渲染组件树。
