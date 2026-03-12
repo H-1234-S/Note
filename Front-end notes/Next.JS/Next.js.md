@@ -518,7 +518,7 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 --- 
 # 渲染方式
 
-## CSR、SSR、SSG、Hydration
+## 1.CSR、SSR、SSG、Hydration
 
 ### 1. CSR (Client-Side Rendering) - 客户端渲染
 
@@ -621,7 +621,7 @@ HTML他是静态的，需要通过JS才能变成动态的，不然HTML是没有�
 
 --- 
 
-## [RSC(React Server Components) - 服务器组件](https://nextjs.org/docs/app/getting-started/server-and-client-components)
+## [2.RSC(React Server Components) - 服务器组件](https://nextjs.org/docs/app/getting-started/server-and-client-components)
 
 RSC(服务器组件)是React19`正式引入`的一种新的组件类型，它可以在服务器端渲染，也可以在客户端渲染。
 
@@ -665,7 +665,7 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
 
 --- 
 
-## 服务端组件(Server Components)
+## 3.服务端组件(Server Components)
 
 ### 定义
 
@@ -695,7 +695,7 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
 
 --- 
 
-## 客户端组件(Client Components)
+## 4.客户端组件(Client Components)
 
 声明客户端组件需要在文件的顶部编写 `'use client'` 声明这是客户端组件，但是注意客户端组件会在服务端进行一次`预渲染`，所以访问`document` `window` 等API需要在`useEffect`中访问。
 
@@ -736,7 +736,7 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
 
 如果你的预渲染 HTML 里写的是 `<div>上午好</div>`（服务端时间），但浏览器水合时发现应该是 `<div>下午好</div>`（客户端时间），React 就会报错，因为它发现“骨架”对不上了。
 
-## 渲染流程
+## 5.渲染流程
 
 ### 首次页面加载
 
@@ -774,7 +774,7 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
 
 - 在这个过程中，没有新的 HTML 被返回，只有 RSC Payload。
 --- 
-## [缓存组件(Cache Components)](https://nextjs.org/docs/app/getting-started/cache-components)
+## [6.缓存组件(Cache Components)](https://nextjs.org/docs/app/getting-started/cache-components)
 
 缓存组件允许您在单个路由中**混合静态、缓存和动态内容**，从而兼具静态网站的速度和动态渲染的灵活性。
 
@@ -846,9 +846,60 @@ Next.js 允许在同一个路由（页面）中灵活组合不同的内容形态
 |**纯静态内容**|默认组件|构建阶段 (Build)|导航栏、页脚、静态文章|
 |**已缓存组件**|`use cache`|构建阶段 (Build)|推荐商品列表、非实时的配置|
 |**动态交互内容**|`<Suspense>`|请求阶段 (Stream)|个人资料、购物车、实时评论|
-## 缓存策略
+# 缓存策略
 
+## 1. 请求记忆化 (Request Memoization)
 
+- **层级**：服务器端（组件树级）。
+    
+- **原理**：在同一个渲染请求周期内，如果你在不同的组件里调用了同一个 `fetch`（相同的 URL 和参数），Next.js 只会真正发送**一次**网络请求。
+    
+- **存活时间**：仅在一次服务器请求期间有效，渲染完即销毁。
+    
+- **目的**：让你在组件树中自由地 `fetch` 数据，不必担心重复请求。
+    
+
+---
+
+## 2. 数据缓存 (Data Cache)
+
+- **层级**：服务器端（跨请求/持久化）。
+    
+- **原理**：这是 Next.js 对原生 `fetch` 的扩展。它会将获取到的数据存在服务器的磁盘或内存中。
+    
+- **存活时间**：持久存在，除非你手动设置 `revalidate`（重新校验）或使用 `{cache:no-store}`。
+    
+- **配置方式**：
+    
+    - `fetch(url, { next: { revalidate: 3600 } })`：每小时更新一次。
+        
+    - `fetch(url, { cache: 'force-cache' })`：永久缓存（默认行为）。
+        
+
+---
+
+## 3. 全路由缓存 (Full Route Cache)
+
+- **层级**：服务器端（构建时/重新校验时）。
+    
+- **原理**：在构建（build）时，Next.js 会自动将**静态路由**渲染成 HTML 和 RSC Payload 并存储。
+    
+- **触发条件**：路由必须是静态的。如果你使用了 `cookies()`、`headers()` 或非缓存的 `fetch`，这一层就会失效。
+    
+- **目的**：减少服务器计算压力，实现类似静态网站的瞬间响应。
+    
+
+---
+
+## 4. 路由器缓存 (Router Cache)
+
+- **层级**：**客户端 (浏览器)**。
+    
+- **原理**：当你使用 `<Link>` 导航时，Next.js 会在浏览器内存中缓存已经访问过或“预取 (Prefetch)”到的页面片段（RSC Payload）。
+    
+- **表现**：当你点击“后退”或“前进”时，页面是瞬间切换的，甚至不需要再次请求服务器。
+    
+- **存活时间**：会话级（刷新页面即消失），静态内容缓存 5 分钟，动态内容 30 秒。
 
 
 
