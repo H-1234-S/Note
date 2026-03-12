@@ -15,7 +15,7 @@
               "state": {
                 "file": "Front-end notes/Next.JS/Next.js.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
               "title": "Next.js"
