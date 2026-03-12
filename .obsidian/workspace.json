@@ -4,21 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "69ba4beda4e7734c",
+        "id": "a6e9590ed6d033e3",
         "type": "tabs",
         "children": [
           {
-            "id": "ad821a43446d7ea4",
+            "id": "5f40e9ea3255d16c",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
-                "mode": "source",
-                "source": false
+                "file": "Search组件设置.canvas",
+                "viewState": {
+                  "x": 0,
+                  "y": 154.99999384085362,
+                  "zoom": 0
+                }
               },
-              "icon": "lucide-file",
-              "title": "Next.js"
+              "icon": "lucide-layout-dashboard",
+              "title": "Search组件设置"
             }
           }
         ]
@@ -78,8 +81,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -138,13 +140,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "Search组件设置.canvas",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Next.js 的大纲"
+              "title": "Search组件设置 的大纲"
             }
           },
           {
@@ -163,7 +165,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "Search组件设置.canvas",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -173,7 +175,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Next.js 的反向链接列表"
+              "title": "Search组件设置 的反向链接列表"
             }
           }
         ],
@@ -195,16 +197,17 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "ad821a43446d7ea4",
+  "active": "5f40e9ea3255d16c",
   "lastOpenFiles": [
-    "Front-end notes/Next.JS/官方实战教程.md",
+    "Search组件设置.canvas",
+    "Project notes/nextjs-dashboard/官方实战教程.md",
+    "学习计划.md",
+    "未命名.canvas",
+    "Project notes/nextjs-dashboard",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/核心知识.md",
-    "未命名.canvas",
-    "未命名 1.canvas",
     "Front-end notes/TypeScript.md",
     "思考.md",
-    "学习计划.md",
     "思考.canvas",
     "conflict-files-obsidian-git.md",
     "Front-end notes/Tailwind CSS/全指令.md",
