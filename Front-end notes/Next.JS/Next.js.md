@@ -1421,7 +1421,10 @@ export default function ExampleClientComponent() {
 
 ## useSearchParams
 
-- 用于获取`url`传递的参数
+`useSearchParams` 是一个 **客户端组件** 钩子，允许你读取当前 URL 的 **查询字符串** 。
+
+`useSearchParams` 返回 [`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams) 接口的一个 只读 版本。
+
 ### 基本语法
 
 ``` ts
