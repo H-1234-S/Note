@@ -158,7 +158,7 @@
               "type": "outline",
               "state": {
                 "file": "Front-end notes/Next.JS/Next.js.md",
-                "followCursor": false,
+                "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
@@ -195,7 +195,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "eab0d02b5a1a7fd7",
+  "active": "ed4e7f2d0b9f101c",
   "lastOpenFiles": [
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/核心知识.md",
