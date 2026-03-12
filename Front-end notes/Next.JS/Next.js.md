@@ -1061,22 +1061,53 @@ const nextConfig: NextConfig = {
 ```
 
 ### 3.属性
-| **属性**            | **类型**            | **默认值** | **允许值**                  | **作用说明**                                  |
-| ----------------- | ----------------- | ------- | ------------------------ | ----------------------------------------- |
-| **`src`**         | `String / Object` | **必填**  | 路径字符串或 `import` 对象       | 图片的来源。远程图片需在 `next.config.js` 配置域名。       |
-| **`alt`**         | `String`          | **必填**  | 描述文字                     | 图片的替代文本，用于 SEO 和辅助功能。                     |
-| **`width`**       | `Number`          | 静态导入可选  | 整数 (像素)                  | 渲染宽度。在使用 `fill` 时不需要设置。                   |
-| **`height`**      | `Number`          | 静态导入可选  | 整数 (像素)                  | 渲染高度。在使用 `fill` 时不需要设置。                   |
-| **`fill`**        | `Boolean`         | `false` | `true / false`           | 使图片填充父容器。父容器必须设为 `position: relative`。    |
-| **`sizes`**       | `String`          | `100vw` | 媒体查询字符串                  | 核心优化属性。告诉浏览器在不同屏幕宽度下图片占多大。                |
-| **`priority`**    | `Boolean`         | `false` | `true / false`           | **性能关键**。若设为 `true`，图片将预加载，适用于首屏 LCP 元素。  |
-| **`placeholder`** | `String`          | `empty` | `blur / empty`           | 图片加载时的占位状态。设为 `blur` 时会有模糊过渡。             |
-| **`blurDataURL`** | `String`          | -       | Base64 编码图片              | 当 `placeholder="blur"` 且为远程图片时，需手动提供此模糊图。 |
-| **`quality`**     | `Number`          | `75`    | `1 - 100`                | 图片压缩质量。数值越高图片越清晰但体积越大。                    |
-| **`loading`**     | `String`          | `lazy`  | `lazy / eager`           | 图片加载策略。一般保持默认 `lazy`（懒加载）即可。              |
-| **`unoptimized`** | `Boolean`         | `false` | `true / false`           | 设为 `true` 则禁用 Next.js 的图片优化服务，直接拉取原图。     |
-| **`objectFit`**   | `String`          | -       | `cover / contain / fill` | 配合 `fill` 使用，控制图片在容器内的缩放模式 (CSS 属性)。      |
+#### 必需属性
 
+|属性|类型|示例|说明|
+|---|---|---|---|
+|src|String|`src="/profile.png"`|图片源路径，支持本地路径或远程 URL|
+|alt|String|`alt="Picture of the author"`|图片替代文本，用于无障碍访问和 SEO|
+
+#### 尺寸相关
+
+|属性|类型|示例|说明|
+|---|---|---|---|
+|width|Integer (px)|`width={500}`|图片宽度，静态导入时可选|
+|height|Integer (px)|`height={500}`|图片高度，静态导入时可选|
+|fill|Boolean|`fill={true}`|填充父容器，替代 width 和 height|
+|sizes|String|`sizes="(max-width: 768px) 100vw"`|响应式图片尺寸|
+
+#### 优化相关
+
+|属性|类型|示例|说明|
+|---|---|---|---|
+|quality|Integer (1-100)|`quality={80}`|图片压缩质量，默认为 75|
+|loader|Function|`loader={imageLoader}`|自定义图片加载器函数|
+|unoptimized|Boolean|`unoptimized={true}`|禁用图片优化，使用原图|
+
+#### 加载相关
+
+|属性|类型|示例|说明|
+|---|---|---|---|
+|loading|String|`loading="lazy"`|加载策略，“lazy” 或 “eager”|
+|preload|Boolean|`preload={true}`|是否预加载，用于 LCP 元素|
+|placeholder|String|`placeholder="blur"`|占位符类型，“blur” 或 “empty”|
+|blurDataURL|String|`blurDataURL="data:image/jpeg..."`|模糊占位符的 Data URL|
+
+#### 事件回调
+
+|属性|类型|示例|说明|
+|---|---|---|---|
+|onLoad|Function|`onLoad={e => done()}`|图片加载完成时的回调|
+|onError|Function|`onError={e => fail()}`|图片加载失败时的回调|
+
+#### 其他属性
+
+|属性|类型|示例|说明|
+|---|---|---|---|
+|style|Object|`style={{objectFit: "contain"}}`|内联样式对象|
+|overrideSrc|String|`overrideSrc="/seo.png"`|覆盖 src，用于 SEO 优化|
+|decoding|String|`decoding="async"`|解码方式，“async”/“sync”/“auto”|
 
 
 
