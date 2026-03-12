@@ -13,15 +13,15 @@
             "state": {
               "type": "canvas",
               "state": {
-                "file": "Project notes/nextjs-dashboard/Search组件设置.canvas",
+                "file": "Project notes/nextjs-dashboard/添加搜索功能.canvas",
                 "viewState": {
                   "x": 88.54821059509737,
-                  "y": 17.23311186853664,
-                  "zoom": 0
+                  "y": 216.46770382736253,
+                  "zoom": -1.267876242966729
                 }
               },
               "icon": "lucide-layout-dashboard",
-              "title": "Search组件设置"
+              "title": "添加搜索功能"
             }
           }
         ]
@@ -141,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/nextjs-dashboard/Search组件设置.canvas",
+                "file": "Project notes/nextjs-dashboard/添加搜索功能.canvas",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Search组件设置 的大纲"
+              "title": "添加搜索功能 的大纲"
             }
           },
           {
@@ -166,7 +166,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Project notes/nextjs-dashboard/Search组件设置.canvas",
+                "file": "Project notes/nextjs-dashboard/添加搜索功能.canvas",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -176,7 +176,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Search组件设置 的反向链接列表"
+              "title": "添加搜索功能 的反向链接列表"
             }
           }
         ],
@@ -201,7 +201,7 @@
   },
   "active": "5f40e9ea3255d16c",
   "lastOpenFiles": [
-    "Project notes/nextjs-dashboard/Search组件设置.canvas",
+    "Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "Project notes/nextjs-dashboard/官方实战教程.md",
     "学习计划.md",
     "未命名.canvas",

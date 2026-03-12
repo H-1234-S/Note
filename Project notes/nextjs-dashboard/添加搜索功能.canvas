@@ -7,7 +7,8 @@
 		{"id":"7cdb8aff866140bc","x":-140,"y":340,"width":440,"height":60,"type":"text","text":"调用params的set方法，将Input值设置为查询参数"},
 		{"id":"57a7dd0aa4b33b33","x":-140,"y":694,"width":520,"height":52,"type":"text","text":"        defaultValue={searchParams.get('query')?.toString()}"},
 		{"id":"0d53d9b4d8495208","x":-20,"y":500,"width":425,"height":60,"type":"text","text":"replace(`${pathname}?${params.toString()}`);"},
-		{"id":"d89ec09d0e167225","x":-500,"y":664,"width":250,"height":60,"type":"text","text":"与URL状态同步，浏览器原生管理表单状态"}
+		{"id":"d89ec09d0e167225","x":-500,"y":664,"width":250,"height":60,"type":"text","text":"与URL状态同步，浏览器原生管理表单状态"},
+		{"id":"4f53a5c274c9f7f7","x":-1120,"y":-200,"width":385,"height":200,"type":"text","text":"实现步骤的简要概述：\n\n1. 捕获用户的输入。\n2. 使用搜索参数更新 URL。\n3. 保持 URL 与输入字段同步。\n4. 更新表格以反映搜索查询。"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
