@@ -773,7 +773,7 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
 - 浏览器收到 Payload 后，React 会根据它更新 DOM，而无需重新加载页面或下载重复的 JavaScript。
 
 - 在这个过程中，没有新的 HTML 被返回，只有 RSC Payload。
-
+--- 
 ## [缓存组件(Cache Components)](https://nextjs.org/docs/app/getting-started/cache-components)
 
 缓存组件允许您在单个路由中**混合静态、缓存和动态内容**，从而兼具静态网站的速度和动态渲染的灵活性。
@@ -802,11 +802,9 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
     
 - **减少服务器负担**：大部分 UI 已经是静态的，不需要在每个请求时重新计算。
 	
-
 ### 对于动态内容
 
 如果一个组件在构建阶段无法完成渲染（例如：需要获取实时用户信息或查询实时数据库），Next.js 要求开发者必须进行**显式处理**。
-
 ##### 使用 `<Suspense>`（推迟渲染）
 
 - **逻辑**：将该组件标记为“动态子树”，推迟到**请求时间 (Request Time)** 渲染。
