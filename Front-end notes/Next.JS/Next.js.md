@@ -1392,7 +1392,32 @@ export default function RootLayout({
 - 在next.js中，只有客户端组件才可以使用hook
 ## usePathname
 
-- 用于获取跳转后页面的url路径
+`usePathname` 是一个 **客户端组件** 钩子，允许你读取当前 URL 的 **路径名** 。
+
+``` ts
+'use client'
+ 
+import { usePathname } from 'next/navigation'
+ 
+export default function ExampleClientComponent() {
+  const pathname = usePathname()
+  return <p>Current pathname: {pathname}</p>
+}
+```
+### 1.参数
+
+``usePathname``不接受任何参数。
+
+### 2. 返回值
+
+`usePathname` 返回当前 URL 的路径名。例如：
+
+|URL|返回值|
+|---|---|
+|`/`|`'/'`|
+|`/dashboard`|`'/dashboard'`|
+|`/dashboard?v=2`|`'/dashboard'`|
+|`/blog/hello-world`|`'/blog/hello-world'`|
 
 ## useSearchParams
 
