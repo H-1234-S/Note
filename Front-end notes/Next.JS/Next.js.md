@@ -997,6 +997,25 @@ export default function Home() {
 }
 ```
 
+#### 2.import静态引入
+
+使用静态`import`引入图片，**无需填写宽度和高度**，Next.js会自动确定图片的尺寸。
+
+``` ts
+import Image from "next/image"
+import test from '@/public/1.png'
+export default function Home() {
+    return (
+        <div>
+            <h1>Home</h1>
+            <Image
+                src={test}
+                alt="1"
+            />
+        </div>
+    )
+}
+```
 
 ### 3.属性
 |**属性**|**类型**|**默认值**|**允许值**|**作用说明**|
