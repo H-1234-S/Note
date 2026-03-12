@@ -829,6 +829,8 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
     // 定义在函数或组件顶部
     async function getRecommendations() {
       "use cache"; 
+      cacheLife("hours") //使用预设参数
+      //cacheLife({stale: 30, revalidate: 1, expire: 1}) //使用自定义参数
       return await db.query(...);
     }
     ```
