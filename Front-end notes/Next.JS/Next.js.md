@@ -1425,7 +1425,7 @@ export default function ExampleClientComponent() {
 
 `useSearchParams` 返回 [`URLSearchParams`](https://developer.mozilla.org/docs/Web/API/URLSearchParams) 接口的一个 只读 版本。
 
-### 基本语法
+### 1.基本语法
 
 ``` ts
 import Link from 'next/link
@@ -1439,12 +1439,13 @@ import Link from 'next/link
 import { useSearchParams } from 'next/navigation'
 
 const searchParams = useSearchParams()；
+
 const id = searchParams.get('id')
 ```
-### 返回值
+### 2.返回值
 
 - `useSearchParams`  返回一个只读的 `URLSearchParams` 实例
-### 核心方法
+### 3.核心方法
 
 - **`get(key)`**: 获取指定键的第一个值。这是最常用的。
     
