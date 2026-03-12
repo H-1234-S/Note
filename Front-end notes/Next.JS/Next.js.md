@@ -1188,6 +1188,91 @@ export function ContentImage() {
 |decoding|String|`decoding="async"`|解码方式，“async”/“sync”/“auto”|
 
 ---
+## [2.font字体](https://nextjs.org/docs/app/api-reference/components/font)
+
+在 Next.js 中，[字体优化（Font Optimization）](https://nextjs.org/docs/app/getting-started/fonts)是提升 **LCP (最大内容绘制)** 和 **CLS (累积布局偏移)** 的关键。Next.js 通过 `next/font` 模块实现了字体的自动自托管（Self-hosting）和零布局偏移。
+
+### 1.Google Fonts 优化
+
+使用 `next/font/google` 可以自动将字体打包在本地资源中。
+
+**步骤：**
+
+1. **导入字体**：在 `layout.tsx` 或 `_app.tsx` 中定义。
+    
+2. **配置子集**：通常使用 `latin` 以减小文件体积。
+    
+3. **应用类名**：将生成的 `className` 应用于 HTML 根节点。
+
+``` ts
+import { Inter } from 'next/font/google'
+
+// 1. 配置字体对象
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap', // 关键：加载时先显示系统字体，加载完再替换
+  variable: '--font-inter', // 可选：定义为 CSS 变量
+})
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" className={inter.className}>
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+### 2.本地字体优化
+
+``` ts
+import localFont from 'next/font/local'
+const local = localFont({
+  src:'./font/zydtt.ttf', //本地字体文件路径
+  display: 'swap', //字体显示方式
+})
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en">
+      <body className={local.className}>
+        {children}
+        sdsadasdjsalkdjasl
+        你好
+      </body>
+    </html>
+  );
+}
+```
+
+### 3.可变字体
+
+可变字体是一种可以适应不同字重和样式的字体，它可以在不同的设备上自动调整字体大小和样式，以适应不同的屏幕大小和分辨率。
+
+
+``` ts
+import { Roboto } from 'next/font/google'
+const roboto = Roboto({
+  weight: ['400', '700'], //字体粗细 (不是所有字体都支持可变字体)
+  style: ['normal', 'italic'], //字体样式   
+  subsets: ['latin'],
+  display: 'swap',
+})
+```
+
+### 4.属性
+
+|**属性**|**类型**|**说明**|**最佳实践**|
+|---|---|---|---|
+|**`subsets`**|`Array`|指定字体字符集（如 `['latin']`）。|只包含页面用到的字符集，减小体积。|
+|**`display`**|`String`|控制 CSS `font-display` 行为。|推荐使用 **`swap`**，防止文字加载时不可见。|
+|**`weight`**|`String/Array`|字体重量。如果是 Variable Font（可变字体）则不需要。|尽量固定字重，避免下载全量字体。|
+|**`variable`**|`String`|定义 CSS 变量名。|配合 Tailwind CSS 时非常有用。|
+|**`preload`**|`Boolean`|是否预加载。|默认 `true`，关键字体应保持开启。|
+
+--- 
+
+
+
 
 
 
