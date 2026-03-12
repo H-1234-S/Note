@@ -945,9 +945,20 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 ---
 # 内置组件
 
-## [Image组件](https://nextjs.org/docs/app/api-reference/components/image)
+## [1.Image组件](https://nextjs.org/docs/app/api-reference/components/image)
 
-Next.js Image 组件扩展了 HTML`<img>`元素，实现了自动图像优化。
+Next.js Image 组件扩展了 HTML`<img>`元素，实现了自动图像优化。相比于原生的 `<img>` 标签，它自带了懒加载、占位图和尺寸优化等功能。
+
+### 1.优势
+
+- 尺寸优化：支持使用现代化图片格式，如`webp`，`avif`，`apng`等,并自动根据设备提供正确的尺寸。
+	
+- 视觉稳定性：防止图片加载时发生布局偏移，具体参考[CLS](https://web.dev/articles/cls?hl=zh-cn)
+	
+- 懒加载：在图片进入视口才会加载，使用浏览器原生懒加载，并可选择添加模糊显示占位符。
+	
+- 灵活性：可按需调整图像大小，即使是存储在远程服务器上的图像也可以调整。
+	
 
 ``` ts
 import Image from 'next/image'
@@ -963,8 +974,7 @@ export default function Page() {
   )
 }
 ```
-
-
+### 2.属性
 
 
 
