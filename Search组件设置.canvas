@@ -6,7 +6,7 @@
 		{"id":"8519b36aa9c3a6ff","x":-140,"y":170,"width":338,"height":60,"type":"text","text":"const params = new URLSearchParams(searchParams)"},
 		{"id":"57a7dd0aa4b33b33","x":-140,"y":500,"width":520,"height":52,"type":"text","text":"        defaultValue={searchParams.get('query')?.toString()}"},
 		{"id":"d89ec09d0e167225","x":-520,"y":500,"width":250,"height":60,"type":"text","text":"从url获取Input输入值"},
-		{"id":"7cdb8aff866140bc","x":-100,"y":340,"width":382,"height":60,"type":"text","text":"调用params，将Input值同步到URL中"}
+		{"id":"7cdb8aff866140bc","x":-100,"y":340,"width":440,"height":60,"type":"text","text":"调用params的set方法，将Input值设置为查询参数"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
