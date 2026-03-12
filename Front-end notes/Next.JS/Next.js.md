@@ -1061,21 +1061,21 @@ const nextConfig: NextConfig = {
 ```
 
 ### 3.属性
-|**属性**|**类型**|**默认值**|**允许值**|**作用说明**|
-|---|---|---|---|---|
-|**`src`**|`String / Object`|**必填**|路径字符串或 `import` 对象|图片的来源。远程图片需在 `next.config.js` 配置域名。|
-|**`alt`**|`String`|**必填**|描述文字|图片的替代文本，用于 SEO 和辅助功能。|
-|**`width`**|`Number`|静态导入可选|整数 (像素)|渲染宽度。在使用 `fill` 时不需要设置。|
-|**`height`**|`Number`|静态导入可选|整数 (像素)|渲染高度。在使用 `fill` 时不需要设置。|
-|**`fill`**|`Boolean`|`false`|`true / false`|使图片填充父容器。父容器必须设为 `position: relative`。|
-|**`sizes`**|`String`|`100vw`|媒体查询字符串|核心优化属性。告诉浏览器在不同屏幕宽度下图片占多大。|
-|**`priority`**|`Boolean`|`false`|`true / false`|**性能关键**。若设为 `true`，图片将预加载，适用于首屏 LCP 元素。|
-|**`placeholder`**|`String`|`empty`|`blur / empty`|图片加载时的占位状态。设为 `blur` 时会有模糊过渡。|
-|**`blurDataURL`**|`String`|-|Base64 编码图片|当 `placeholder="blur"` 且为远程图片时，需手动提供此模糊图。|
-|**`quality`**|`Number`|`75`|`1 - 100`|图片压缩质量。数值越高图片越清晰但体积越大。|
-|**`loading`**|`String`|`lazy`|`lazy / eager`|图片加载策略。一般保持默认 `lazy`（懒加载）即可。|
-|**`unoptimized`**|`Boolean`|`false`|`true / false`|设为 `true` 则禁用 Next.js 的图片优化服务，直接拉取原图。|
-|**`objectFit`**|`String`|-|`cover / contain / fill`|配合 `fill` 使用，控制图片在容器内的缩放模式 (CSS 属性)。|
+| **属性**            | **类型**            | **默认值** | **允许值**                  | **作用说明**                                  |
+| ----------------- | ----------------- | ------- | ------------------------ | ----------------------------------------- |
+| **`src`**         | `String / Object` | **必填**  | 路径字符串或 `import` 对象       | 图片的来源。远程图片需在 `next.config.js` 配置域名。       |
+| **`alt`**         | `String`          | **必填**  | 描述文字                     | 图片的替代文本，用于 SEO 和辅助功能。                     |
+| **`width`**       | `Number`          | 静态导入可选  | 整数 (像素)                  | 渲染宽度。在使用 `fill` 时不需要设置。                   |
+| **`height`**      | `Number`          | 静态导入可选  | 整数 (像素)                  | 渲染高度。在使用 `fill` 时不需要设置。                   |
+| **`fill`**        | `Boolean`         | `false` | `true / false`           | 使图片填充父容器。父容器必须设为 `position: relative`。    |
+| **`sizes`**       | `String`          | `100vw` | 媒体查询字符串                  | 核心优化属性。告诉浏览器在不同屏幕宽度下图片占多大。                |
+| **`priority`**    | `Boolean`         | `false` | `true / false`           | **性能关键**。若设为 `true`，图片将预加载，适用于首屏 LCP 元素。  |
+| **`placeholder`** | `String`          | `empty` | `blur / empty`           | 图片加载时的占位状态。设为 `blur` 时会有模糊过渡。             |
+| **`blurDataURL`** | `String`          | -       | Base64 编码图片              | 当 `placeholder="blur"` 且为远程图片时，需手动提供此模糊图。 |
+| **`quality`**     | `Number`          | `75`    | `1 - 100`                | 图片压缩质量。数值越高图片越清晰但体积越大。                    |
+| **`loading`**     | `String`          | `lazy`  | `lazy / eager`           | 图片加载策略。一般保持默认 `lazy`（懒加载）即可。              |
+| **`unoptimized`** | `Boolean`         | `false` | `true / false`           | 设为 `true` 则禁用 Next.js 的图片优化服务，直接拉取原图。     |
+| **`objectFit`**   | `String`          | -       | `cover / contain / fill` | 配合 `fill` 使用，控制图片在容器内的缩放模式 (CSS 属性)。      |
 
 
 
