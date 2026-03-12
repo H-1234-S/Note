@@ -976,7 +976,26 @@ export default function Page() {
 ```
 ### 2.引入
 
+#### 1.src本地引入
 
+Next.js建议我们把图片放在根目录下的`public`文件夹中，然后使用`/`开头访问。
+
+``` ts
+import Image from "next/image"
+export default function Home() {
+    return (
+        <div>
+            <h1>Home</h1>
+            <Image
+                src="/1.png"
+                width={100}
+                height={100}
+                alt="1"
+            />
+        </div>
+    )
+}
+```
 
 
 ### 3.属性
