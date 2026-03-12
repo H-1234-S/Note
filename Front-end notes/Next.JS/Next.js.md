@@ -1060,7 +1060,23 @@ const nextConfig: NextConfig = {
 };
 ```
 
-### 3.属性
+### 3.适配
+
+可以使用`deviceSizes`和`imageSizes`属性来进行设备适配。
+
+``` ts
+const nextConfig: NextConfig = {
+  /* config options here */
+  images: {
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840], // 设备尺寸
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // 图片尺寸
+  },
+};
+```
+
+
+
+### 5.属性
 #### 必需属性
 
 |属性|类型|示例|说明|
