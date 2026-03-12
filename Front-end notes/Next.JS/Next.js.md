@@ -853,16 +853,19 @@ Next.js 允许在同一个路由（页面）中灵活组合不同的内容形态
 
 只要页面中没有显式的“动态信号”，Next.js 默认将其视为**静态（Static）**。一旦检测到动态操作，整个页面都会变成**动态（Dynamic）**。
 
+例如：
+
+- 如果**只调feach(url)**，不加 **{ cache: 'no-store' }** ”动态信号“
 
 
 ##### 退出缓存的四种方案
 
-|**方案**|**代码实现**|**颗粒度**|
-|---|---|---|
-|**重新验证**|`export const revalidate = 5`|路由级 (时间驱动)|
-|**强制动态**|`export const dynamic = 'force-dynamic'`|路由级 (全页动态)|
-|**禁用 fetch 缓存**|`fetch(url, { cache: 'no-store' })`|请求级|
-|**动态 API 调用**|使用 `cookies()`, `headers()`, `connection()`|自动识别
+| **方案**          | **代码实现**                                    | **颗粒度**    |
+| --------------- | ------------------------------------------- | ---------- |
+| **重新验证**        | `export const revalidate = 5`               | 路由级 (时间驱动) |
+| **强制动态**        | `export const dynamic = 'force-dynamic'`    | 路由级 (全页动态) |
+| **禁用 fetch 缓存** | `fetch(url, { cache: 'no-store' })`         | 请求级        |
+| **动态 API 调用**   | 使用 `cookies()`, `headers()`, `connection()` | 自动识别       |
 
 #### 启用缓存组件 (`cacheComponents: true`)
 
