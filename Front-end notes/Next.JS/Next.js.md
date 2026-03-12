@@ -1284,6 +1284,42 @@ const roboto = Roboto({
 |**`afterInteractive`** (默认)|在页面可交互（hydration）后立即加载。|**大多数情况**：Google Analytics、Tag Manager。|
 |**`lazyOnload`**|在浏览器空闲时间加载。|优先级低的脚本：客服聊天插件、反馈表单。|
 |**`worker`** (实验性)|将脚本放在 Web Worker 中运行。|极度耗能且不依赖 DOM 的脚本。|
+### 2.事件监听
+
+Script组件只有在导入客户端的时候才会生效，所以需要使用`'use client'`声明这是一个客户端组件。
+
+- onload: 脚本加载完成时触发。
+	
+- onReady: 脚本加载完成后，且组件每次挂载的时候都会触发。
+	
+- onError: 脚本加载失败时触发。
+	
+
+``` ts
+'use client'
+ 
+import Script from 'next/script'
+ 
+export default function Page() {
+  return (
+    <>
+      <Script
+        src="https://example.com/script.js"
+        onLoad={() => {
+          console.log('Script has loaded')
+        }}
+      />
+    </>
+  )
+}
+```
+
+### 3. 内联脚本
+
+如果你的脚本不是外部 URL，而是直接写的代码块，`next/script` 同样支持。
+
+**注意：** 必须提供 `id` 属性，以便 Next.js 跟踪和优化该脚本。
+
 
 
 ---
