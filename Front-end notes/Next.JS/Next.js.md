@@ -1270,11 +1270,20 @@ const roboto = Roboto({
 |**`preload`**|`Boolean`|是否预加载。|默认 `true`，关键字体应保持开启。|
 
 --- 
+## 3.Script组件
 
+`next/script` 允许你优化第三方脚本的加载顺序，避免阻塞主线程渲染。
 
+核心存在意义是：**解决第三方脚本（如 Google Analytics、广告、客服插件）拖慢网页加载速度的问题。**
 
+### 1.加载策略
 
-
+|**策略值**|**行为说明**|**适用场景**|
+|---|---|---|
+|**`beforeInteractive`**|在 Next.js 代码和 hydration 之前加载。|核心库（如：检测脚本、Polyfills）。|
+|**`afterInteractive`** (默认)|在页面可交互（hydration）后立即加载。|**大多数情况**：Google Analytics、Tag Manager。|
+|**`lazyOnload`**|在浏览器空闲时间加载。|优先级低的脚本：客服聊天插件、反馈表单。|
+|**`worker`** (实验性)|将脚本放在 Web Worker 中运行。|极度耗能且不依赖 DOM 的脚本。|
 
 
 ---
