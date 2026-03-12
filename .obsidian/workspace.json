@@ -158,7 +158,7 @@
               "type": "outline",
               "state": {
                 "file": "Front-end notes/Next.JS/Next.js.md",
-                "followCursor": true,
+                "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },

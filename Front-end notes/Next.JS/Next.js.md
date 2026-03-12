@@ -945,7 +945,7 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 ---
 # 内置组件
 
-## Image组件
+## [Image组件](https://nextjs.org/docs/app/api-reference/components/image)
 
 
 
