@@ -1410,7 +1410,7 @@ export default function ExampleClientComponent() {
 
 ### 2. 返回值
 
-`usePathname` 返回当前 URL 的路径名。例如：
+`usePathname` 返回当前 URL 的路径名（**URL 中除去域名和参数后的“路径”部分**）。例如：
 
 |URL|返回值|
 |---|---|
