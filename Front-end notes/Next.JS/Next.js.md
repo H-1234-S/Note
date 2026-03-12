@@ -1062,18 +1062,20 @@ const nextConfig: NextConfig = {
 
 ### 3.适配
 
-可以使用`deviceSizes`和`imageSizes`属性来进行设备适配。
+#### 2.自定义断点
+
+可以使用`deviceSizes`和`imageSizes`属性来进行自定义断点。
 
 `imageSizes`用于生成小图片尺寸例如(缩略图，头像等)，而`deviceSizes`用于生成大图片尺寸例如(横幅图、背景图、全屏展示图)。
 
 ``` ts
-const nextConfig: NextConfig = {
-  /* config options here */
+// next.config.js
+module.exports = {
   images: {
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840], // 设备尺寸
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // 图片尺寸
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-};
+}
 ```
 
 
