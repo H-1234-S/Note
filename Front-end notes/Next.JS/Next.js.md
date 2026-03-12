@@ -1064,6 +1064,8 @@ const nextConfig: NextConfig = {
 
 可以使用`deviceSizes`和`imageSizes`属性来进行设备适配。
 
+`imageSizes`用于生成小图片尺寸例如(缩略图，头像等)，而`deviceSizes`用于生成大图片尺寸例如(横幅图、背景图、全屏展示图)。
+
 ``` ts
 const nextConfig: NextConfig = {
   /* config options here */
