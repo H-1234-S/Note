@@ -33,6 +33,8 @@
 - Next.js的loading是借助了`Suspense`实现的
 	
 - 触发异步自动跳转到loading页面，页面结束后自动跳转
+	
+- `loading.tsx` 中添加的任何 UI 都将嵌入为静态文件的一部分，并首先发送。然后，其余的动态内容将从服务器流式传输到客户端。
 ### error
 
 - Next.js的error是借助了`Error Boundary`实现的。
