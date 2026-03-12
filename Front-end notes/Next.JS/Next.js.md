@@ -763,13 +763,11 @@ RSC(服务器组件)是React19`正式引入`的一种新的组件类型，它可
 
 当用户在应用内通过link跳转或使用路由导航时，Next.js 不会重新请求整个 HTML，而是只向服务器请求新的 RSC Payload：
 
-· 服务器重新执行对应页面的组件，生成新的 RSC Payload。
+- 服务器重新执行对应页面的组件，生成新的 RSC Payload。
 
-· 浏览器收到 Payload 后，React 会根据它更新 DOM，而无需重新加载页面或下载重复的 JavaScript。
-· 在这个过程中，没有新的 HTML 被返回，只有 RSC Payload。
+- 浏览器收到 Payload 后，React 会根据它更新 DOM，而无需重新加载页面或下载重复的 JavaScript。
 
-
-
+- 在这个过程中，没有新的 HTML 被返回，只有 RSC Payload。
 
 ---
 # Hook
