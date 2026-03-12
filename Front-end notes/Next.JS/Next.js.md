@@ -1,4 +1,5 @@
-# Next.js 路由基础
+--- 
+# 路由系统
 ## App Router
 
 - Next.js 采用基于文件系统的路由机制，只需创建文件和文件夹，框架就会自动生成对应的路由结构。
@@ -40,6 +41,8 @@
 ### not-found
 
 - Next.js 默认会生成一个404页面，但我们可能自定义404页面，只需要在app目录下创建一个not-found.tsx文件即可
+
+--- 
 ## 路由跳转
 
 ### Link组件
@@ -173,6 +176,7 @@ export default async function Page() {
 - **SEO**：极其重要！它会将旧地址积攒的“搜索权重”转移到新地址。
     
 - **缓存特性**：一旦浏览器收到 308，它会把这个映射存在本地。下次用户输入旧网址，浏览器**不会请求服务器**，直接在本地跳转到新网址。
+---
 ## 动态路由
 
 - **动态路由（Dynamic Routes）** 是指 URL 中的某一部分不是固定的字符，而是一个**变量（参数）**。
@@ -241,6 +245,8 @@ export default function BlogClientPage() {
 3. 用户访问 `/shop/clothes/men/shoes`：显示男装鞋子。
 
 如果你使用 `[[...slug]]`，你只需要创建一个文件：`app/shop/[[...slug]]/page.tsx`。
+
+---
 ## 平行路由
 
 - 平行路由指的是在**同一个布局 (Layout)** 中，**同时且独立地**显示多个页面
@@ -302,6 +308,7 @@ export default function BlogClientPage() {
 - **状态丢失**：所有的 React 状态和内存变量都会被**全部重置**。
     
 - **性能**：由于需要完整重载，速度比软导航慢，且会出现短暂白屏。
+---
 ## 路由组
 
 - **路由组 (Route Groups)** 是一种特殊的文件夹结构，它允许你将路由逻辑进行分组，而**不影响 URL 的路径结构**。
@@ -321,20 +328,368 @@ export default function BlogClientPage() {
 	- 路径：`app/(marketing)/about/page.tsx` $\rightarrow$ URL: `/about`
 	
 - **组织代码**：纯粹为了让开发者更好地分类文件（如把所有登录相关的逻辑放在一起）。
-## Route Handler
+---
+## [Route Handler](https://nextjs.org/docs/app/getting-started/route-handlers#route-handlers)
+
+### 支持的 HTTP 方法[](https://nextjs.org/docs/app/getting-started/route-handlers#supported-http-methods)
+
+- 以下 [HTTP 方法](https://developer.mozilla.org/docs/Web/HTTP/Methods)  受支持： `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, 和 `OPTIONS`。如果调用不受支持的方法，Next.js 将返回一个 `405 Method Not Allowed` 响应。
+
+### 扩展的 `NextRequest` 和 `NextResponse` API[](https://nextjs.org/docs/app/getting-started/route-handlers#extended-nextrequest-and-nextresponse-apis)
+
+- 除了支持原生的 [Request](https://developer.mozilla.org/docs/Web/API/Request) 和 [Response](https://developer.mozilla.org/docs/Web/API/Response) API，Next.js 通过 [`NextRequest`](https://nextjs.org/docs/app/api-reference/functions/next-request) 和 [`NextResponse`](https://nextjs.org/docs/app/api-reference/functions/next-response) 扩展它们，以提供方便的高级用例辅助工具。
+
+### [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
+
+#### http方法
+
+``` ts
+export async function GET(request: Request) {}
+ 
+export async function HEAD(request: Request) {}
+ 
+export async function POST(request: Request) {}
+ 
+export async function PUT(request: Request) {}
+ 
+export async function DELETE(request: Request) {}
+ 
+export async function PATCH(request: Request) {}
+ 
+// If `OPTIONS` is not defined, Next.js will automatically implement `OPTIONS` and set the appropriate Response `Allow` header depending on the other methods defined in the Route Handler.
+export async function OPTIONS(request: Request) {}
+```
+
+#### 参数
+
+##### `request` (可选)[](https://nextjs.org/docs/app/api-reference/file-conventions/route#request-optional)
+
+`request` 对象是一个 [NextRequest](https://nextjs.org/docs/app/api-reference/functions/next-request) 对象，它是 Web [Request](https://developer.mozilla.org/docs/Web/API/Request) API 的扩展。 `NextRequest` 让你对传入的请求有更精细的控制，包括轻松访问 `cookies` 和一个扩展的、解析的 URL 对象 `nextUrl`。
+
+``` ts
+import type { NextRequest } from 'next/server' 
+
+export async function GET(request: NextRequest) {  const url = request.nextUrl}
+```
+
+##### `context` (可选)[](https://nextjs.org/docs/app/api-reference/file-conventions/route#context-optional)
+
+- `context`是Route Handler的第二个参数，**是一个对象**
+
+- **`params`**: context里的一个属性，一个解析为包含当前路由的[动态路由参数](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes)的**对象**的 Promise。
+
+app/dashboard/[team]/route.ts
+
+``` ts
+export async function GET(
+
+    request: Request,
+
+    { params }: { params: Promise<{ team: string }> }) {
+
+    const { team } = await params
+
+}
+```
+
+#### 定义GET请求
+
+``` ts
+import { NextRequest,NextResponse } from "next/server";
+
+export default function GET( request:NextRequest ) {
+
+    const query = request.nextUrl.searchParams
+
+    console.log(query.get('id'))
+
+    return NextResponse
+
+}
+```
+
+REST client测试:
+
+``` http
+GET http://localhost:3000/api/user?id=123 HTTP/1.1
+```
+##### nextUrl的属性 #nextUrl
+
+原生的 `request.url` 只是一个简单的**字符串**（例如 `"/api/search?q=js&page=1"`）。 如果你用原生字符串，你需要手动用正则或者 `new URL()` 去解析它，非常麻烦。
+
+`request.nextUrl` 直接给你提供了一个**解析好的对象**，你可以直接点出你想要的部分：
+
+- **`pathname`**: 获取路径（例如 `/api/search`）。
+    
+- **`searchParams`**: 获取问号后面的参数（例如 `q=js`）。
+		
+	- `request.nextUrl.searchParams` 返回的正是一个标准的 **`URLSearchParams`** 实例对象。
+	    
+- **`origin`**: 获取域名部分（例如 `https://localhost:3000`）。
+
+#### 定义POST请求
+
+``` ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(request: NextRequest) {
+
+  try {
+
+    // 1. 解析请求体 (必须 await)
+
+    const body = await request.json();
+
+    // 2. 解构数据
+
+    const { username, email } = body;
+
+    // 3. 模拟逻辑处理（如存入数据库）
+
+    console.log(`正在创建用户: ${username}, 邮箱: ${email}`);
+
+    // 4. 返回成功响应，通常使用 201 状态码表示“已创建”
+
+    return NextResponse.json(
+
+      { message: "用户创建成功", data: body },
+
+      { status: 201 }
+
+    );
+
+  } catch (error) {
+
+    // 5. 错误处理（如 JSON 格式错误）
+
+    return NextResponse.json(
+
+      { error: "无效的请求数据" },
+
+      { status: 400 }
+
+    );
+
+  }
+
+}
+```
+
+REST client测试:
+
+``` http
+POST http://localhost:3000/api/home HTTP/1.1
+
+# 设置请求头；告诉服务器接收什么类型的参数
+Content-Type: application/json 
+
+{
+
+    "username":"HU",
+
+    "email":"123@email"
+
+}
+```
+
+#### 动态路由参数
+
+
+``` ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(request: NextRequest,
+	// { params }: { params: Promise<{ id: string }> } 这里参数的类型只能是string
+    { params }: { params: Promise<{ id: string }> }) {
+
+    const { id } = await params
+
+    return NextResponse.json({ message: `${id}` })
+
+}
+```
+
+REST client测试:
+
+``` http
+POST http://localhost:3000/api/home/123141 HTTP/1.1
+```
+
+--- 
+# 渲染方式
+
+## CSR、SSR、SSG、Hydration
+
+### 1. CSR (Client-Side Rendering) - 客户端渲染
+
+这是最传统的 React 应用（如 `create-react-app`）的渲染方式。
+
+- **过程**：服务器只给浏览器发一个几乎空白的 HTML（只有一个 `<div id="root"></div>`）和一大堆 JS 文件。浏览器下载并执行 JS，然后在客户端生成 DOM 节点。
+    
+- **优点**：页面切换快（SPA 体验），减轻服务器负担。
+    
+- **缺点**：**SEO 极差**（爬虫看到的是空白页），**首屏加载慢**（白屏时间长，因为要等 JS 下载完）。
+    
+- **比喻**：你买了一套宜家家具，商家只给了你一堆零件和说明书，你自己回家拼装。
+    
+
+---
+
+### 2. SSR (Server-Side Rendering) - 服务端渲染
+
+这是 Next.js 最出名的特性之一。
+
+渲染流程：
+
+**服务器端 (Server Side)**
+
+- **接收请求**：浏览器发起 HTTP 请求。
+    
+- **数据预取 (Data Fetching)**：服务器内部调用 API 或直接查数据库。
+    
+- **渲染 HTML (Render to String)**：React 将组件树转换成纯 HTML 字符串。
+    
+- **响应流 (Response)**：将 HTML 发送给浏览器。
+    
+
+**浏览器端 (Client Side)** —— 分为两个关键时刻
+
+- **时刻 A：FCP (First Contentful Paint)**
+    
+    - 浏览器解析 HTML 并绘制 UI。
+        
+    - **状态**：用户**看到了**内容，但点击按钮没反应（因为 JS 还没运行）。
+        
+- **时刻 B：TTI (Time to Interactive)**
+    
+    - 浏览器下载、解析并执行 JS 文件。
+        
+    - **执行 Hydration (水合)**：React 扫描现有的 DOM 节点，绑定事件监听器，同步内部状态。
+        
+    - **状态**：页面**激活**，用户可以进行交互。
+
+---
+
+### 3. SSG (Static Site Generation) - 静态网站生成
+
+这是 Next.js 性能最高的方式。
+
+- **过程**：在**执行打包命令（Build Time）**时，就把所有可能的页面都生成好 HTML 文件。用户请求时，服务器直接把现成的文件扔过去（通常配合 CDN）。
+    
+- **优点**：速度快到极致，服务器压力最小，SEO 极佳。
+    
+- **缺点**：数据不具备实时性。如果数据变了，通常需要重新 Build。
+    
+- **比喻**：你去超市买罐头，它是早就生产好摆在那里的，你拿走就能吃。
+	
+
+---
+
+### 4.Hydration - 水合
+
+HTML他是静态的，需要通过JS才能变成动态的，不然HTML是没有任何交互效果的，当JS下载完成在赋予HTML**交互效果**的阶段称之为`水合`。
+
+以Next.js水合为例(详细版本):
+
+**服务端操作:**
+
+- Next.js 服务器接收到用户请求。
+	
+- 服务器执行 React 组件代码，获取数据（比如从 API 接口请求文章列表）。
+	
+- 服务器将 React 组件渲染成静态 HTML 字符串（包含了文章列表的所有内容）。
+	
+- 服务器将这个 HTML 字符串返回给浏览器。
+	
+
+**客户端操作:**
+
+- 浏览器接收到 HTML，立即解析并展示给用户（此时用户能看到文章列表，但点击 “查看详情” 按钮没有反应）
+	
+- 浏览器开始下载页面所需的 JS 文件（包括 React 核心库、组件代码等）
+	
+- JS 下载完成后，React 会执行 ReactDOM.hydrateRoot() 方法（在 React 18+ 中）
+	
+- hydrateRoot() 会对比浏览器中的真实 DOM 和 React 组件的虚拟 DOM：
+	
+    - 如果结构一致，React 会给真实 DOM 绑定事件监听器。
+		
+    - 如果发现差异（比如服务器和客户端数据不一致），React 会发出警告，并以客户端渲染的结果为准。
+		
+- 水合完成后，页面变成可交互的动态页面（用户可以点击按钮、滚动加载更多内容等）
+	
+
+--- 
+
+## [RSC(React Server Components) - 服务器组件](https://nextjs.org/docs/app/getting-started/server-and-client-components)
+
+RSC(服务器组件)是React19`正式引入`的一种新的组件类型，它可以在服务器端渲染，也可以在客户端渲染。
+
+像传统的`SSR`他是在服务器提前把页面渲染好，然后返回给浏览器，然后进行水合，`CSR`则是在客户端渲染，而`RSC`则是吸取两方优势，分为`服务器组件`和`客户端组件`。
+
+**RSC**其代码永远不会发送到浏览器，仅将渲染后的 UI 描述（非 HTML，而是一种特殊的流式数据）传给客户端。
+
+### 优点
+
+- 将组件拆分成客户端组件和服务器组件，可以有效的减少`bundle`体积，因为`服务器组件`已经在服务器渲染好了，所以没必要打入`bundle`中,也就是说服务器组件所依赖的包都不会打进去，大大减少了`bundle`体积。
+    
+- 局部水合，像传统的SSR同构模式, 所有的页面都要在客户端进行水合，而`RSC`将组件拆分出来，只会把客户端组件进行水合，避免了全量水合带来的性能损耗。
+    
+- 流式加载，我们的HTML页面本来就支持流式加载，所以服务器组件可以边渲染边返回，提高了FCP(首次内容绘制)性能。
 
 
 
 
+--- 
+
+## 服务端组件(Server Components)
+
+### 优点
+
+- 安全性: 我们在服务端组件中访问一些API秘钥，令牌等其他机密，不会暴露给客户端。
+	
+- 体积: 因为服务端组件在服务器渲染，所以不会被打包到客户端，所以体积更小。
+	
+- 全栈：可以在服务端组件访问数据库，文件系统等其他API，实现全栈开发。
+	
+- FCP(首次内容绘制): 因为服务端组件是流式传输，所以边渲染边返回，提高了FCP(首次内容绘制)性能。
+	
 
 
+--- 
 
+## 客户端组件(Client Components)
 
+声明客户端组件需要在文件的顶部编写 `'use client'` 声明这是客户端组件，但是注意客户端组件会在服务端进行一次`预渲染`，所以访问`document` `window` 等API需要在`useEffect`中访问。
 
+一旦文件被标记为客户端组件，**它的所有导入项和子组件都会被视为客户端包的一部分**。
 
+**客户端组件不能嵌套服务端组件，但服务端组件可以嵌套客户端组件**
 
+### 预渲染
 
+1. **生成初始 HTML**： React 会尝试在服务端执行一遍客户端组件。虽然它不能执行 `useEffect` 或处理点击事件，但它能运行组件的主体函数，获取渲染出的 DOM 结构。
+    
+    - **内容包括**：静态文本、标签结构（`div`, `button`, `span`）、初始状态下的数据。
+        
+    - **不包括**：事件监听器、由 `useEffect` 触发的二次渲染内容、浏览器特有的 API 结果（如 `window.innerWidth`）。
+        
+2. **生成序列化指令 (Instruction)**： 服务器还会发送一段特殊的 JSON 数据（通常在 Next.js 的 Payload 中），告诉浏览器：“这里有一个客户端组件，它需要的 JS 文件在某某路径，它的初始 Props 是这些。”
 
+### 预渲染产生的问题
+
+ **无法直接访问浏览器 API**
+
+如果你在组件顶层直接写 `window.localStorage`，预渲染阶段（在 Node.js 环境）会直接报错。
+
+- **解决方案**：将其放入 `useEffect` 中，因为 `useEffect` 只会在浏览器端水合后执行，不会在预渲染阶段执行。
+    
+
+**水合不一致 (Hydration Mismatch)**
+
+如果你的预渲染 HTML 里写的是 `<div>上午好</div>`（服务端时间），但浏览器水合时发现应该是 `<div>下午好</div>`（客户端时间），React 就会报错，因为它发现“骨架”对不上了。
+
+---
 # Hook
 
 - 在next.js中，只有客户端组件才可以使用hook
