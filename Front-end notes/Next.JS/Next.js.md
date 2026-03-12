@@ -5,6 +5,33 @@
 - Next.js 采用基于文件系统的路由机制，只需创建文件和文件夹，框架就会自动生成对应的路由结构。
 
 - 在 Next.js 中，app 目录下的每个文件夹都代表一个路由段（route segment），并直接映射到 URL 路径
+
+### 递归嵌套机制
+
+App Router 的路由本质上是由一个个**特定文件（Layout, Template, Error, Loading, Page）**按照严格的层级顺序嵌套而成的。
+
+在 App Router 中，当你访问一个路由（如 `/dashboard/invoices`）时，Next.js 会从根目录 `/app` 开始，逐层向下查找这些特定文件，并将它们包装在一起。
+
+``` ts
+<Layout>
+  <Template>
+    <ErrorBoundary fallback={<Error />}>
+      <Suspense fallback={<Loading />}>
+        <Page />
+      </Suspense>
+    </ErrorBoundary>
+  </Template>
+</Layout>
+```
+
+**核心规则：**
+
+- **Layout（布局）先入：** 最外层的 `layout.tsx` 永远包裹着内层的所有内容。
+    
+- **Loading（加载态）紧随：** `loading.tsx` 会自动把同级的 `page.tsx` 以及其下所有的子路由组件包裹在 `Suspense` 边界内。
+    
+- **Page（页面）在最内：** `page.tsx` 是叶子节点，承载最终的业务内容。
+
 ### page
 
 - app目录下每个文件夹都应该有page.tsx/page.jsx文件，作为当前路由的页面
