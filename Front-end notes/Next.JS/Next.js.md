@@ -813,8 +813,6 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
 - **表现**：静态外壳先发送，动态内容位置显示 `fallback`（如骨架屏），数据准备好后再“流式”注入。
     
 - **代码示例**：
-
-
     ``` ts
     <Suspense fallback={<Skeleton />}>
       <DynamicComponent /> {/* 请求时才加载 */}
@@ -829,10 +827,7 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
 - **表现**：该组件的结果会被包含在**静态外壳**中，不再在请求时动态获取。
     
 - **代码示例**：
-    
-    TypeScript
-    
-    ```
+    ``` ts
     // 定义在函数或组件顶部
     async function getRecommendations() {
       "use cache"; 
