@@ -1040,6 +1040,25 @@ export default async function Home() {
 }
 ```
 
+当我们直接使用远程图片引入的时候Next.js会报错，因为Next.js默认**只允许加载本地图片**，如果需要加载远程图片，需要配置`next.config.js`文件。
+
+``` ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https', // 协议
+        hostname: 'eo-img.521799.xyz', // 主机名
+        pathname: '/i/pc/**', // 路径
+        port: '', // 端口
+      },
+    ],
+  },
+};
+```
 
 ### 3.属性
 |**属性**|**类型**|**默认值**|**允许值**|**作用说明**|
