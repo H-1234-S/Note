@@ -1286,7 +1286,7 @@ const roboto = Roboto({
 |**`worker`** (实验性)|将脚本放在 Web Worker 中运行。|极度耗能且不依赖 DOM 的脚本。|
 ### 2.事件监听
 
-Script组件只有在导入客户端的时候才会生效，所以需要使用`'use client'`声明这是一个客户端组件。
+这些钩子**只能在客户端代码中定义**。所以需要使用`'use client'`声明这是一个客户端组件。
 
 - onload: 脚本加载完成时触发。
 	
@@ -1320,7 +1320,42 @@ export default function Page() {
 
 **注意：** 必须提供 `id` 属性，以便 Next.js 跟踪和优化该脚本。
 
-
+``` ts
+import Script from "next/script";
+export default function RootLayout({
+  children
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <head>
+        <Script id="VGUBHJMK5" strategy="beforeInteractive" src="https://unpkg.com/vue@3/dist/vue.global.js">            </Script>
+      </head>
+      <body>
+        {children}
+        <div id="app"></div>
+        <Script id="VGUBHJMK6"
+         strategy="afterInteractive">
+        {
+           `
+            const {createApp} = Vue
+            createApp({
+              template: '<h1>{{ message }}</h1>',
+              setup() {
+                return {
+                  message: 'Next.js + Vue.js'
+                }
+              }
+            }).mount('#app')
+          `
+        }
+        </Script>
+      </body>
+    </html>
+  );
+}
+```
 
 ---
 # Hook
