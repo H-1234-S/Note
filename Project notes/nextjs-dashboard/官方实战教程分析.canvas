@@ -25,8 +25,8 @@
 		{"id":"e3741dfe4f1353d8","type":"text","text":"page的props发生变化，重新渲染和执行；将最新的currentPage传递给Table组件","x":-1115,"y":1560,"width":383,"height":78},
 		{"id":"c717aac8e39075c3","type":"text","text":"Table组件的props发生变化，重新执行并发送请求渲染数据，驱动表格更新","x":-568,"y":1680,"width":352,"height":80},
 		{"id":"3075ee43da225fea","type":"text","text":"在nextjs中，页面的url发生变化会被nextjs捕捉，整合为SearchParams对象，作为props传递","x":-500,"y":1440,"width":330,"height":100},
-		{"id":"f403c2bb24a27220","type":"text","text":"当页数更改时，调用createPageURL函数","x":-1057,"y":1288,"width":325,"height":72},
-		{"id":"ac8b7fb64009e57d","x":-1097,"y":1430,"width":406,"height":60,"type":"text","text":"params.set('page', pageNumber.toString());\n驱动页面url page参数变化"}
+		{"id":"f403c2bb24a27220","type":"text","text":"当Pagination组件渲染时执行createPageURL函数","x":-1044,"y":1288,"width":325,"height":72},
+		{"id":"ac8b7fb64009e57d","x":-1086,"y":1430,"width":406,"height":60,"type":"text","text":"params.set('page', pageNumber.toString());\n驱动页面url page参数变化"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
@@ -47,6 +47,7 @@
 		{"id":"fe5a4300578e20b9","fromNode":"0eaa55c4a18895c5","fromSide":"left","toNode":"f403c2bb24a27220","toSide":"top"},
 		{"id":"27f1765cd2895741","fromNode":"ac8b7fb64009e57d","fromSide":"right","toNode":"3075ee43da225fea","toSide":"top"},
 		{"id":"1354e4b83d18e942","fromNode":"3075ee43da225fea","fromSide":"left","toNode":"e3741dfe4f1353d8","toSide":"right"},
-		{"id":"f8d53002343b6619","fromNode":"e3741dfe4f1353d8","fromSide":"bottom","toNode":"c717aac8e39075c3","toSide":"top"}
+		{"id":"f8d53002343b6619","fromNode":"e3741dfe4f1353d8","fromSide":"bottom","toNode":"c717aac8e39075c3","toSide":"top"},
+		{"id":"8b5aab2cfec4b445","fromNode":"f403c2bb24a27220","fromSide":"left","toNode":"ac8b7fb64009e57d","toSide":"left"}
 	]
 }
