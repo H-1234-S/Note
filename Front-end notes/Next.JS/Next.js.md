@@ -983,7 +983,7 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 - **存活时间**：会话级（刷新页面即消失），静态内容缓存 5 分钟，动态内容 30 秒。
 
 --- 
-# 服务器函数(Server Actions)
+# [服务器函数(Server Actions)](https://nextjs.org/docs/app/guides/forms#passing-additional-arguments)
 
 服务器函数指的是可以是服务器组件处理表单的提交，无需手动编写API接口，并且还支持数据的验证，以及状态管理等。
 
@@ -1022,9 +1022,29 @@ export default function Page() {
 }
 ```
 
+**注意：** 当处理具有多个字段的表单时，请使用 JavaScript 的 [`Object.fromEntries()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries)。例如： `const rawFormData = Object.fromEntries(formData)` 。请注意，此对象将包含以 `$ACTION_` 为前缀的额外属性。
 
+## 传递额外参数
 
+在表单字段之外，你可以使用 JavaScript 的 [`bind`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind) 方法向服务器函数传递额外的参数。
 
+例如，要将 `userId` 参数传递给 `updateUser` 服务器函数：
+``` ts
+'use client'
+ 
+import { updateUser } from './actions'
+ 
+export function UserProfile({ userId }: { userId: string }) {
+  const updateUserWithId = updateUser.bind(null, userId)
+ 
+  return (
+    <form action={updateUserWithId}>
+      <input type="text" name="name" />
+      <button type="submit">Update User Name</button>
+    </form>
+  )
+}
+```
 
 
 ---
