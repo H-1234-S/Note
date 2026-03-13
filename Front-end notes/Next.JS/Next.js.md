@@ -987,9 +987,13 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 
 服务器函数指的是可以是服务器组件处理表单的提交，无需手动编写API接口，并且还支持数据的验证，以及状态管理等。
 
-## 1.原理
+## 1.如何工作的
 
-Server Actions 是基于 React **"Actions"** 模型构建的，允许通过form的`action`属性直接绑定`server action`函数，当表单提交后，函数会自动接受原生的`FormData`数据。它在底层通过 HTTP POST 请求与服务器通信。
+React 扩展了 HTML [`<form>`](https://developer.mozilla.org/docs/Web/HTML/Element/form) 元素，允许使用 [`action`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#action) 属性来调用服务器操作。
+
+当在表单中使用时，该函数会自动接收 [`FormData`](https://developer.mozilla.org/docs/Web/API/FormData/FormData) 对象。
+
+它在底层通过 HTTP POST 请求与服务器通信。
 
 ## 2.语法
 
