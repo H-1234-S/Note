@@ -1,0 +1,36 @@
+{
+	"nodes":[
+		{"id":"08ebd09ebed9b2b5","type":"group","x":-1600,"y":0,"width":1435,"height":986,"label":"添加搜索功能"},
+		{"id":"8519b36aa9c3a6ff","type":"text","text":"const params = new URLSearchParams(searchParams)","x":-705,"y":330,"width":380,"height":70},
+		{"id":"7cdb8aff866140bc","type":"text","text":"调用params的set方法，将Input值设置为查询参数","x":-705,"y":500,"width":440,"height":60},
+		{"id":"57a7dd0aa4b33b33","type":"text","text":"        defaultValue={searchParams.get('query')?.toString()}","x":-705,"y":854,"width":520,"height":52},
+		{"id":"220de045b865544c","type":"text","text":"克隆当前的url，将它变成一个可修改的对象","x":-1085,"y":300,"width":250,"height":80},
+		{"id":"99138b543fb9be86","type":"text","text":"更新URL","x":-1085,"y":680,"width":250,"height":60},
+		{"id":"d89ec09d0e167225","type":"text","text":"与URL状态同步，浏览器原生管理表单状态","x":-1085,"y":906,"width":250,"height":60},
+		{"id":"1a1ab36489092360","type":"text","text":"Change事件触发调用handleSearch函数","x":-745,"y":160,"width":361,"height":60},
+		{"id":"273ef229978513de","type":"text","text":"用户在Input中输入内容","x":-725,"y":20,"width":250,"height":60},
+		{"id":"0d53d9b4d8495208","type":"text","text":"replace(`${pathname}?${params.toString()}`);","x":-657,"y":680,"width":425,"height":60},
+		{"id":"571bf36ea1f5490a","x":-1520,"y":150,"width":250,"height":60,"type":"text","text":"为什么在Search组件输入，下方表格自动更新？"},
+		{"id":"43832f73ba334265","x":-1520,"y":267,"width":250,"height":60,"type":"text","text":"Search组件输入，replace更新url的查询参数"},
+		{"id":"f03579a5368eebc1","x":-1520,"y":389,"width":288,"height":83,"type":"text","text":"nextjs自动抓取变化的url，打包为searchParams新对象"},
+		{"id":"24dce419c76b7a8a","x":-1520,"y":530,"width":250,"height":60,"type":"text","text":"将打包后的SearchParams作为props传递给page"},
+		{"id":"e5437385c8688487","x":-1520,"y":660,"width":250,"height":60,"type":"text","text":"page路由对数据处理传递给表格组件"},
+		{"id":"58f5482ff991c367","x":-1520,"y":780,"width":250,"height":60,"type":"text","text":"表格组件获取到对应数据，发送请求，组件更新"},
+		{"id":"4f53a5c274c9f7f7","type":"text","text":"实现步骤的简要概述：\n\n1. 捕获用户的输入。\n2. 使用搜索参数更新 URL。\n3. 保持 URL 与输入字段同步。\n4. 更新表格以反映搜索查询。","x":-1195,"y":10,"width":360,"height":200}
+	],
+	"edges":[
+		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
+		{"id":"e4156195865819cf","fromNode":"220de045b865544c","fromSide":"right","toNode":"8519b36aa9c3a6ff","toSide":"left"},
+		{"id":"f5d8c5a17f1b1f59","fromNode":"1a1ab36489092360","fromSide":"bottom","toNode":"8519b36aa9c3a6ff","toSide":"top"},
+		{"id":"683e3b7b4386bae9","fromNode":"8519b36aa9c3a6ff","fromSide":"bottom","toNode":"7cdb8aff866140bc","toSide":"top"},
+		{"id":"777d659d3a5fcd82","fromNode":"d89ec09d0e167225","fromSide":"right","toNode":"57a7dd0aa4b33b33","toSide":"left"},
+		{"id":"2bdf24045ace073e","fromNode":"7cdb8aff866140bc","fromSide":"bottom","toNode":"0d53d9b4d8495208","toSide":"top"},
+		{"id":"e051708efd56b29e","fromNode":"99138b543fb9be86","fromSide":"right","toNode":"0d53d9b4d8495208","toSide":"left"},
+		{"id":"a20d87c26bbc5449","fromNode":"43832f73ba334265","fromSide":"bottom","toNode":"f03579a5368eebc1","toSide":"top"},
+		{"id":"5d99e91da4d2d01a","fromNode":"f03579a5368eebc1","fromSide":"bottom","toNode":"24dce419c76b7a8a","toSide":"top"},
+		{"id":"287f557560d5b0ad","fromNode":"24dce419c76b7a8a","fromSide":"bottom","toNode":"e5437385c8688487","toSide":"top"},
+		{"id":"35660df5d9cf3b1c","fromNode":"e5437385c8688487","fromSide":"bottom","toNode":"58f5482ff991c367","toSide":"top"},
+		{"id":"a200bb5a98a64e86","fromNode":"4f53a5c274c9f7f7","fromSide":"left","toNode":"571bf36ea1f5490a","toSide":"right"},
+		{"id":"ff9e439b2b79536c","fromNode":"571bf36ea1f5490a","fromSide":"bottom","toNode":"43832f73ba334265","toSide":"top"}
+	]
+}
