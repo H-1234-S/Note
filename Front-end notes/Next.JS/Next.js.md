@@ -1003,49 +1003,30 @@ React 扩展了 HTML [`<form>`](https://developer.mozilla.org/docs/Web/HTML/Ele
 export default function Login() {
 
     async function handleLogin(formData: FormData) {
-
         'use server'
-
         const username = formData.get('username') //接受单个参数
-
         const password = formData.get('password') //接受单个数据
-
         const form = Object.fromEntries(formData) //接受所有数据 {username: '张三', password: '123456'}
-
         //可以直接操作数据库，这样就无需编写API接口了 哇哦太方便了
-
     }
-
     return (
-
         <div>
-
             <h1>登录页面</h1>
-
             <div className="flex flex-col gap-2 w-[300px] mx-auto mt-30">
-
                 <form action={handleLogin} className="flex flex-col gap-2">
-
                     <input className="border border-gray-300 rounded-md p-2" type="text" name="username" placeholder="用户名" />
-
                     <input className="border border-gray-300 rounded-md p-2" type="password" name="password" placeholder="密码" />
-
                     <button type="submit" className="bg-blue-500 text-white p-2 rounded-md">登录</button>
-
                 </form>
-
             </div>
-
         </div>
-
     )
-
 }
 ```
 
 **注意：** 当处理具有多个字段的表单时，请使用 JavaScript 的 [`Object.fromEntries()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries)。例如： `const rawFormData = Object.fromEntries(formData)` 。请注意，此对象将包含以 `$ACTION_` 为前缀的额外属性。
 
-## 传递额外参数
+## 3.传递额外参数
 
 在表单字段之外，你可以使用 JavaScript 的 [`bind`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind) 方法向服务器函数传递额外的参数。
 
