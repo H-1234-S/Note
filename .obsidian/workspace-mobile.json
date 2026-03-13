@@ -73,7 +73,7 @@
               "type": "markdown",
               "state": {
                 "file": "学习/技术栈.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
@@ -231,6 +231,9 @@
   },
   "active": "e52409333862e07a",
   "lastOpenFiles": [
+    "未命名.md",
+    "未命名.base",
+    "学习/技术栈.md",
     "学习",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "/Front-end notes/Next.JS/Next.js.md",
@@ -240,7 +243,6 @@
     "/Project notes/nextjs-dashboard",
     "/Project notes",
     "学习/学习计划.md",
-    "学习/技术栈.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/核心知识.md",
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
@@ -271,11 +273,8 @@
     "/Project notes/React + Firebase",
     "/Front-end notes/Tailwind CSS/核心概念.md",
     "/Front-end notes/Tailwind CSS",
-    "Front-end notes/Tailwind CSS",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "/学习计划.md",
-    "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
-    "Project notes/React + Firebase/数据流向 Mermaid 流程图.md",
-    "Front-end notes"
+    "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md"
   ]
 }
