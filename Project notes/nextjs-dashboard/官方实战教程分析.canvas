@@ -16,7 +16,8 @@
 		{"id":"24dce419c76b7a8a","x":-1520,"y":530,"width":250,"height":60,"type":"text","text":"将打包后的SearchParams作为props传递给page"},
 		{"id":"e5437385c8688487","x":-1520,"y":660,"width":250,"height":60,"type":"text","text":"page路由对数据处理传递给表格组件"},
 		{"id":"58f5482ff991c367","x":-1520,"y":780,"width":250,"height":60,"type":"text","text":"表格组件获取到对应数据，发送请求，组件更新"},
-		{"id":"4f53a5c274c9f7f7","type":"text","text":"实现步骤的简要概述：\n\n1. 捕获用户的输入。\n2. 使用搜索参数更新 URL。\n3. 保持 URL 与输入字段同步。\n4. 更新表格以反映搜索查询。","x":-1195,"y":10,"width":360,"height":200}
+		{"id":"4f53a5c274c9f7f7","type":"text","text":"实现步骤的简要概述：\n\n1. 捕获用户的输入。\n2. 使用搜索参数更新 URL。\n3. 保持 URL 与输入字段同步。\n4. 更新表格以反映搜索查询。","x":-1195,"y":10,"width":360,"height":200},
+		{"id":"a534fa824c49e28e","x":-1580,"y":1060,"width":420,"height":220,"type":"text","text":"表格分页功能实现步骤概述：\n\n1.捕获url中page参数变化\n"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
