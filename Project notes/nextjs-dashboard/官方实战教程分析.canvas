@@ -22,7 +22,7 @@
 		{"id":"589dab46ddbd28ee","x":-560,"y":1120,"width":280,"height":80,"type":"text","text":"传递query参数，查询特定数据，返回查询结果（页数）"},
 		{"id":"0eaa55c4a18895c5","x":-982,"y":1300,"width":322,"height":80,"type":"text","text":"将totalPages传递给Pagination组件，用于渲染PaginationNumber"},
 		{"id":"f403c2bb24a27220","x":-982,"y":1480,"width":325,"height":72,"type":"text","text":"当页数更改时，调用createPageURL函数，驱动页面url page参数变化"},
-		{"id":"3075ee43da225fea","x":-563,"y":1481,"width":250,"height":60,"type":"text","text":"在nextjs中，页面的url发生变化会被nextjs捕捉，作为"}
+		{"id":"3075ee43da225fea","x":-990,"y":1660,"width":330,"height":100,"type":"text","text":"在nextjs中，页面的url发生变化会被nextjs捕捉，整合为SearchParams对象，作为props传递"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
@@ -40,6 +40,7 @@
 		{"id":"ff9e439b2b79536c","fromNode":"571bf36ea1f5490a","fromSide":"bottom","toNode":"43832f73ba334265","toSide":"top"},
 		{"id":"7f79ab7abf01f55f","fromNode":"589dab46ddbd28ee","fromSide":"left","toNode":"50190e3b875ca765","toSide":"right"},
 		{"id":"260ef938e50a6046","fromNode":"50190e3b875ca765","fromSide":"bottom","toNode":"0eaa55c4a18895c5","toSide":"top"},
-		{"id":"fe5a4300578e20b9","fromNode":"0eaa55c4a18895c5","fromSide":"bottom","toNode":"f403c2bb24a27220","toSide":"top"}
+		{"id":"fe5a4300578e20b9","fromNode":"0eaa55c4a18895c5","fromSide":"bottom","toNode":"f403c2bb24a27220","toSide":"top"},
+		{"id":"27f1765cd2895741","fromNode":"f403c2bb24a27220","fromSide":"bottom","toNode":"3075ee43da225fea","toSide":"top"}
 	]
 }
