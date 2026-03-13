@@ -1046,6 +1046,12 @@ export function UserProfile({ userId }: { userId: string }) {
 }
 ```
 
+``` ts
+'use server'
+ 
+export async function updateUser(userId: string, formData: FormData) {}
+```
+
 
 ---
 # 内置组件
