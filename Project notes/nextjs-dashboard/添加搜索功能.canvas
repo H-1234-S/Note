@@ -9,8 +9,8 @@
 		{"id":"8519b36aa9c3a6ff","type":"text","text":"const params = new URLSearchParams(searchParams)","x":-140,"y":170,"width":380,"height":70},
 		{"id":"7cdb8aff866140bc","type":"text","text":"调用params的set方法，将Input值设置为查询参数","x":-140,"y":340,"width":440,"height":60},
 		{"id":"57a7dd0aa4b33b33","type":"text","text":"        defaultValue={searchParams.get('query')?.toString()}","x":-140,"y":694,"width":520,"height":52},
-		{"id":"0d53d9b4d8495208","type":"text","text":"replace(`${pathname}?${params.toString()}`);","x":-92,"y":520,"width":425,"height":60},
-		{"id":"4f53a5c274c9f7f7","type":"text","text":"实现步骤的简要概述：\n\n1. 捕获用户的输入。\n2. 使用搜索参数更新 URL。\n3. 保持 URL 与输入字段同步。\n4. 更新表格以反映搜索查询。","x":-575,"y":-120,"width":360,"height":175}
+		{"id":"4f53a5c274c9f7f7","type":"text","text":"实现步骤的简要概述：\n\n1. 捕获用户的输入。\n2. 使用搜索参数更新 URL。\n3. 保持 URL 与输入字段同步。\n4. 更新表格以反映搜索查询。","x":-575,"y":-120,"width":360,"height":175},
+		{"id":"0d53d9b4d8495208","type":"text","text":"replace(`${pathname}?${params.toString()}`);","x":-92,"y":520,"width":425,"height":60}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
