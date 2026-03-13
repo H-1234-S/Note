@@ -96,8 +96,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -216,6 +215,10 @@
   },
   "active": "0de29edb47646321",
   "lastOpenFiles": [
+    "学习/技术栈.md",
+    "学习/思考.md",
+    "学习/学习计划.md",
+    "学习",
     "Front-end notes/Next.JS/Next.js.md",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Project notes/nextjs-dashboard/官方实战教程.md",
