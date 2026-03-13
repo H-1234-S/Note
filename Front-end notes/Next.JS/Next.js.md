@@ -661,7 +661,7 @@ HTML他是静态的，需要通过JS才能变成动态的，不然HTML是没有�
 
 --- 
 
-## [2.RSC(React Server Components) - 服务器组件](https://nextjs.org/docs/app/getting-started/server-and-client-components)****
+## [2.RSC(React Server Components) - 服务器组件](https://nextjs.org/docs/app/getting-started/server-and-client-components)
 
 RSC(服务器组件)是React19`正式引入`的一种新的组件类型，它可以在服务器端渲染，也可以在客户端渲染。
 
@@ -981,6 +981,13 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 - **表现**：当你点击“后退”或“前进”时，页面是瞬间切换的，甚至不需要再次请求服务器。
     
 - **存活时间**：会话级（刷新页面即消失），静态内容缓存 5 分钟，动态内容 30 秒。
+
+--- 
+# 服务器函数
+
+
+
+
 
 ---
 # 内置组件
