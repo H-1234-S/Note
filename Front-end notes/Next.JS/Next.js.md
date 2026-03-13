@@ -1467,6 +1467,18 @@ const id = searchParams.get('id')
 - **`has(key)`**: 检查 URL 中是否存在某个参数，返回布尔值。
     
 - **`keys()` / `values()` / `entries()`**: 用于遍历所有的参数。
+
+### 4.useSearchParams() 钩子与 searchParams属性
+
+**何时使用 `useSearchParams()` 钩子与 `searchParams` 属性？**
+
+你可能已经注意到你使用了两种不同的方法来提取搜索参数。你使用哪一种方法取决于你是在客户端还是服务器端工作。
+
+- `<Search>` 是一个客户端组件，所以你使用了 `useSearchParams()` 钩子来从客户端访问参数。
+	
+- `<Table>` 是一个服务器组件，它获取自己的数据，所以你可以将页面中的 `searchParams` 属性传递给组件。
+
+通常情况下，如果你需要从客户端读取参数，应使用 `useSearchParams()` 钩子，这样可以避免返回服务器。
 ## useParams
 
 - 用于获取**动态路由参数**

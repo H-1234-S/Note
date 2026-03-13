@@ -38,8 +38,7 @@
               "title": "官方实战教程分析"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -156,13 +155,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "官方实战教程分析 的大纲"
+              "title": "Next.js 的大纲"
             }
           },
           {
@@ -213,10 +212,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "0de29edb47646321",
+  "active": "ed4e7f2d0b9f101c",
   "lastOpenFiles": [
-    "Front-end notes/Next.JS/Next.js.md",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
+    "Front-end notes/Next.JS/Next.js.md",
     "Project notes/nextjs-dashboard/官方实战教程.md",
     "学习计划.md",
     "未命名.canvas",
