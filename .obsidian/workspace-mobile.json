@@ -58,7 +58,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "学习计划.md",
+                "file": "学习/学习计划.md",
                 "mode": "source",
                 "source": false
               },
@@ -72,7 +72,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "技术栈.md",
+                "file": "学习/技术栈.md",
                 "mode": "source",
                 "source": false
               },
@@ -205,7 +205,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "技术栈.md",
+            "file": "学习/技术栈.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -231,6 +231,7 @@
   },
   "active": "e52409333862e07a",
   "lastOpenFiles": [
+    "学习",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "/Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS",
@@ -238,8 +239,8 @@
     "/Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "/Project notes/nextjs-dashboard",
     "/Project notes",
-    "学习计划.md",
-    "技术栈.md",
+    "学习/学习计划.md",
+    "学习/技术栈.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/核心知识.md",
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
@@ -254,7 +255,7 @@
     "/未命名.canvas",
     "/Front-end notes/Next.JS/核心知识.md",
     "思考.canvas",
-    "思考.md",
+    "学习/思考.md",
     "conflict-files-obsidian-git.md",
     "Front-end notes/Next.JS/Next.js 官方实战教程：全栈仪表盘 (Dashboard) 开发笔记.md",
     "/Front-end notes/React.md",
@@ -272,7 +273,6 @@
     "/Front-end notes/Tailwind CSS",
     "Front-end notes/Tailwind CSS",
     "Project notes/React + Firebase/Firebase Web SDK 实战手册 (本项目专用).md",
-    "Project notes/React + Firebase/注册、登录.canvas",
     "/学习计划.md",
     "Project notes/React + Firebase/React + Firebase 实时聊天项目实战指南.md",
     "Project notes/React + Firebase/数据流向 Mermaid 流程图.md",
