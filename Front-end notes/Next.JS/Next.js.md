@@ -985,6 +985,40 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 --- 
 # 服务器函数(Server Actions)
 
+服务器函数指的是可以是服务器组件处理表单的提交，无需手动编写API接口，并且还支持数据的验证，以及状态管理等。
+
+## 1.原理
+
+Server Actions 是基于 React **"Actions"** 模型构建的，允许通过form的`action`属性直接绑定`server action`函数，当表单提交后，函数会自动接受原生的`FormData`数据。它在底层通过 HTTP POST 请求与服务器通信。
+
+## 2.语法
+
+你可以通过 `'use server'` 指令来定义一个 Server Action。
+
+``` ts
+// app/add-post/page.tsx
+export default function Page() {
+  // 这是一个 Server Action
+  async function createPost(formData: FormData) {
+    'use server'; // 关键指令：告诉 Next.js 在服务器上运行此函数
+    
+    const title = formData.get('title');
+    // 直接在这里操作数据库（例如使用 Prisma 或 Drizzle）
+    // await db.post.create({ data: { title } });
+    
+    console.log('文章已在数据库创建');
+  }
+
+  return (
+    <form action={createPost}>
+      <input type="text" name="title" />
+      <button type="submit">提交文章</button>
+    </form>
+  );
+}
+```
+
+
 
 
 
