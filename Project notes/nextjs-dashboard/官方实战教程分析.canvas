@@ -17,7 +17,7 @@
 		{"id":"e5437385c8688487","x":-1520,"y":660,"width":250,"height":60,"type":"text","text":"page路由对数据处理传递给表格组件"},
 		{"id":"58f5482ff991c367","x":-1520,"y":780,"width":250,"height":60,"type":"text","text":"表格组件获取到对应数据，发送请求，组件更新"},
 		{"id":"4f53a5c274c9f7f7","type":"text","text":"实现步骤的简要概述：\n\n1. 捕获用户的输入。\n2. 使用搜索参数更新 URL。\n3. 保持 URL 与输入字段同步。\n4. 更新表格以反映搜索查询。","x":-1195,"y":10,"width":360,"height":200},
-		{"id":"a534fa824c49e28e","x":-1580,"y":1060,"width":420,"height":220,"type":"text","text":"表格分页功能实现步骤概述：\n\n1.捕获url中page参数变化\n"},
+		{"id":"a534fa824c49e28e","x":-1580,"y":1060,"width":420,"height":220,"type":"text","text":"使用 URL 参数实现分页功能：\n\n1.捕获url中page参数变化\n"},
 		{"id":"50190e3b875ca765","x":-982,"y":1120,"width":295,"height":80,"type":"text","text":"  const totalPages = await fetchInvoicesPages(query);"},
 		{"id":"589dab46ddbd28ee","x":-560,"y":1120,"width":280,"height":80,"type":"text","text":"传递query参数，查询特定数据，返回查询结果（页数）"},
 		{"id":"0eaa55c4a18895c5","x":-982,"y":1300,"width":322,"height":80,"type":"text","text":"将totalPages传递给Pagination组件，用于渲染PaginationNumber"},
