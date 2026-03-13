@@ -25,17 +25,14 @@
             "id": "088883e4fcb413b0",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/nextjs-dashboard/添加搜索功能.canvas",
-                "viewState": {
-                  "x": -739.9215633082937,
-                  "y": 21.252912115765298,
-                  "zoom": -1.0822899426145252
-                }
+                "file": "Front-end notes/Next.JS/Next.js.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "添加搜索功能"
+              "icon": "lucide-file",
+              "title": "Next.js"
             }
           },
           {
@@ -53,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -201,7 +198,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "3b89ad1b819dd498",
+  "active": "102de034f2482a52",
   "lastOpenFiles": [
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "Front-end notes/Next.JS/Next.js.md",
