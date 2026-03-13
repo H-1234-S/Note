@@ -35,6 +35,17 @@ App Router 的路由本质上是由一个个**特定文件（Layout, Template, E
 ### page
 
 - app目录下每个文件夹都应该有page.tsx/page.jsx文件，作为当前路由的页面
+
+#### props
+
+对于 `page.tsx` 来说，`props` 对象通常包含两个固定的“大件”：
+
+1. **`params` (Promise)：** 用于动态路由。例如路径是 `/invoices/[id]`，那么 `params` 就包含那个 `id`。
+    
+2. **`searchParams` (Promise)：** 用于 URL 问号后面的参数。
+		
+	- 在 Next.js 15 及更高版本（也就是你现在教程里的代码）中，`searchParams` 被定义为一个 **Promise**。
+	
 ### layout与template
 
 - **布局嵌套**：支持多层布局嵌套，构建复杂的页面结构

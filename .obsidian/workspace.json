@@ -11,17 +11,14 @@
             "id": "5f40e9ea3255d16c",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/nextjs-dashboard/添加搜索功能.canvas",
-                "viewState": {
-                  "x": -70,
-                  "y": 333,
-                  "zoom": -0.8161608194329454
-                }
+                "file": "Front-end notes/Next.JS/Next.js.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "添加搜索功能"
+              "icon": "lucide-file",
+              "title": "Next.js"
             }
           }
         ]
@@ -141,13 +138,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/nextjs-dashboard/添加搜索功能.canvas",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "添加搜索功能 的大纲"
+              "title": "Next.js 的大纲"
             }
           },
           {
@@ -184,8 +181,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "left-ribbon": {
     "hiddenItems": {

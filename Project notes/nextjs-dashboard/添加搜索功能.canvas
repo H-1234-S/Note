@@ -1,7 +1,6 @@
 {
 	"nodes":[
-		{"id":"4879467a1e5db340","type":"group","x":-600,"y":-160,"width":1000,"height":986,"label":"添加搜索功能"},
-		{"id":"08ebd09ebed9b2b5","x":-1160,"y":0,"width":995,"height":986,"type":"group","label":"未命名组"},
+		{"id":"08ebd09ebed9b2b5","x":-1160,"y":0,"width":995,"height":986,"type":"group","label":"添加搜索功能"},
 		{"id":"8519b36aa9c3a6ff","type":"text","text":"const params = new URLSearchParams(searchParams)","x":-705,"y":330,"width":380,"height":70},
 		{"id":"7cdb8aff866140bc","type":"text","text":"调用params的set方法，将Input值设置为查询参数","x":-705,"y":500,"width":440,"height":60},
 		{"id":"57a7dd0aa4b33b33","type":"text","text":"        defaultValue={searchParams.get('query')?.toString()}","x":-705,"y":854,"width":520,"height":52},
