@@ -1000,25 +1000,46 @@ React 扩展了 HTML [`<form>`](https://developer.mozilla.org/docs/Web/HTML/Ele
 你可以通过 `'use server'` 指令来定义一个 Server Action。
 
 ``` ts
-// app/add-post/page.tsx
-export default function Page() {
-  // 这是一个 Server Action
-  async function createPost(formData: FormData) {
-    'use server'; // 关键指令：告诉 Next.js 在服务器上运行此函数
-    
-    const title = formData.get('title');
-    // 直接在这里操作数据库（例如使用 Prisma 或 Drizzle）
-    // await db.post.create({ data: { title } });
-    
-    console.log('文章已在数据库创建');
-  }
+export default function Login() {
 
-  return (
-    <form action={createPost}>
-      <input type="text" name="title" />
-      <button type="submit">提交文章</button>
-    </form>
-  );
+    async function handleLogin(formData: FormData) {
+
+        'use server'
+
+        const username = formData.get('username') //接受单个参数
+
+        const password = formData.get('password') //接受单个数据
+
+        const form = Object.fromEntries(formData) //接受所有数据 {username: '张三', password: '123456'}
+
+        //可以直接操作数据库，这样就无需编写API接口了 哇哦太方便了
+
+    }
+
+    return (
+
+        <div>
+
+            <h1>登录页面</h1>
+
+            <div className="flex flex-col gap-2 w-[300px] mx-auto mt-30">
+
+                <form action={handleLogin} className="flex flex-col gap-2">
+
+                    <input className="border border-gray-300 rounded-md p-2" type="text" name="username" placeholder="用户名" />
+
+                    <input className="border border-gray-300 rounded-md p-2" type="password" name="password" placeholder="密码" />
+
+                    <button type="submit" className="bg-blue-500 text-white p-2 rounded-md">登录</button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    )
+
 }
 ```
 
