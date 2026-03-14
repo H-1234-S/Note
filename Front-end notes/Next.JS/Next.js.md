@@ -598,7 +598,13 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 
 ## 作用
 
+### 解决开发环境跨域
 
+- **痛点**：你的 Next.js 运行在 `http://localhost:3000`，而你的后端 API 运行在 `http://api.example.com`。由于浏览器的**同源策略**，前端直接请求后端会报错。
+    
+- **Proxy 的作用**：你可以在 `next.config.ts` 中配置 `rewrites`。让前端请求 `/api/users`，Next.js 服务器作为代理，悄悄去后台请求数据再返回给前端。
+    
+- **结果**：浏览器认为请求发往同源的 `localhost:3000`，跨域限制被绕过。
 
 
 
