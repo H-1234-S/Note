@@ -2217,7 +2217,7 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 
 - `initialState`: 你希望状态初始时的值。在 `dispatchAction` 第一次被调用后，React 会忽略这个参数。
 
-- **可选** `permalink`: 包含这个表单修改的唯一页面 URL 的字符串。
+- **可选** `permalink`: 表单提交后跳转的URL路径。
 	
     - 用于带有 [React Server Components](https://react.dev/reference/rsc/server-components) 且具有渐进增强功能的页面。
 	
