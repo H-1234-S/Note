@@ -1054,6 +1054,47 @@ export function UserProfile({ userId }: { userId: string }) {
 export async function updateUser(userId: string, formData: FormData) {}
 ```
 
+## 4.表单校验
+
+表单可以在客户端或服务器端进行验证。
+
+- 对于**客户端验证** ，您可以使用 HTML 属性如 `required` 和 `type="email"` 进行基本验证。
+	
+- 对于**服务器端验证** ，您可以使用像 [zod](https://zod.dev/) 这样的库来验证表单字段。例如：
+
+``` ts [app/actions.ts]
+'use server'
+ 
+import { z } from 'zod'
+ 
+const schema = z.object({
+  email: z.string({
+    invalid_type_error: 'Invalid Email',
+  }),
+})
+ 
+export default async function createUser(formData: FormData) {
+  const validatedFields = schema.safeParse({
+    email: formData.get('email'),
+  })
+ 
+  // Return early if the form data is invalid
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    }
+  }
+ 
+  // Mutate data
+}
+```
+
+
+
+
+
+
+
 
 ---
 # 内置组件
