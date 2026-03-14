@@ -67,7 +67,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -184,13 +184,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "官方实战教程分析 的大纲"
+              "title": "Next.js 的大纲"
             }
           },
           {
@@ -241,10 +241,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "d98837a1778ca0e3",
+  "active": "dbbe38f78027d970",
   "lastOpenFiles": [
-    "Front-end notes/Next.JS/Next.js.md",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
+    "Front-end notes/Next.JS/Next.js.md",
     "学习/技术栈.md",
     "Front-end notes/Next.JS/核心知识.md",
     "Front-end notes/React/React.md",

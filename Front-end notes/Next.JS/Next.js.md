@@ -1056,6 +1056,16 @@ export function UserProfile({ userId }: { userId: string }) {
 export async function updateUser(userId: string, formData: FormData) {}
 ```
 
+利用 `useActionState` 的闭包能力传递参数
+
+``` ts
+// 在客户端组件中
+const [state, formAction] = useActionState(
+  (prevState, formData) => updateInvoice(id, prevState, formData), // 这里的 id 来自组件 Props
+  initialState
+);
+```
+
 ## 4.表单校验
 
 表单可以在客户端或服务器端进行验证。
