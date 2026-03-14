@@ -66,8 +66,7 @@
               "title": "官方实战教程分析"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -184,13 +183,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "学习/技术栈.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Next.js 的大纲"
+              "title": "技术栈 的大纲"
             }
           },
           {
@@ -241,10 +240,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "dbbe38f78027d970",
+  "active": "5f40e9ea3255d16c",
   "lastOpenFiles": [
-    "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Front-end notes/Next.JS/Next.js.md",
+    "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "学习/技术栈.md",
     "Front-end notes/Next.JS/核心知识.md",
     "Front-end notes/React/React.md",
