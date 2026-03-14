@@ -395,7 +395,7 @@ export default function BlogClientPage() {
 
 - 除了支持原生的 [Request](https://developer.mozilla.org/docs/Web/API/Request) 和 [Response](https://developer.mozilla.org/docs/Web/API/Response) API，Next.js 通过 [`NextRequest`](https://nextjs.org/docs/app/api-reference/functions/next-request) 和 [`NextResponse`](https://nextjs.org/docs/app/api-reference/functions/next-response) 扩展它们，以提供方便的高级用例辅助工具。
 
-#### `NextRequest` (增强版请求)
+#### `NextRequest` 
 
 - **`cookies`**: 在标准 Request 中，你要自己解析字符串格式的 `Cookie` 头部。Next.js 帮你封装好了，可以直接 `request.cookies.get('session')`。
     
@@ -403,13 +403,27 @@ export default function BlogClientPage() {
     
 - **`ip` / `geo`**: 只有在 Vercel 等平台部署时有效，能直接获取访问者的 IP 地址和地理位置（国家、城市）。
     
-#### `NextResponse` (增强版响应)
+#### `NextResponse`
 
 - **`NextResponse.json()`**: 标准 Response 需要写 `new Response(JSON.stringify(data), { headers: { 'content-type': 'application/json' } })`，而 Next 直接一行搞定。
     
 - **`NextResponse.redirect()`**: 专门用于在代理或路由中执行重定向。
     
 - **`NextResponse.rewrite()`**: 它允许你改变 URL 显示的内容，但**不改变浏览器地址栏的地址**（类似于代理）。
+
+##### nextUrl的属性
+
+原生的 `request.url` 只是一个简单的**字符串**（例如 `"/api/search?q=js&page=1"`）。 如果你用原生字符串，你需要手动用正则或者 `new URL()` 去解析它，非常麻烦。
+
+`request.nextUrl` 直接给你提供了一个**解析好的对象**，你可以直接点出你想要的部分：
+
+- **`pathname`**: 获取路径（例如 `/api/search`）。
+    
+- **`searchParams`**: 获取问号后面的参数（例如 `q=js`）。
+		
+	- `request.nextUrl.searchParams` 返回的正是一个标准的 **`URLSearchParams`** 实例对象。
+	    
+- **`origin`**: 获取域名部分（例如 `https://localhost:3000`）。
 
 ### [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
 
@@ -485,19 +499,7 @@ REST client测试:
 ``` http
 GET http://localhost:3000/api/user?id=123 HTTP/1.1
 ```
-##### nextUrl的属性 #nextUrl
 
-原生的 `request.url` 只是一个简单的**字符串**（例如 `"/api/search?q=js&page=1"`）。 如果你用原生字符串，你需要手动用正则或者 `new URL()` 去解析它，非常麻烦。
-
-`request.nextUrl` 直接给你提供了一个**解析好的对象**，你可以直接点出你想要的部分：
-
-- **`pathname`**: 获取路径（例如 `/api/search`）。
-    
-- **`searchParams`**: 获取问号后面的参数（例如 `q=js`）。
-		
-	- `request.nextUrl.searchParams` 返回的正是一个标准的 **`URLSearchParams`** 实例对象。
-	    
-- **`origin`**: 获取域名部分（例如 `https://localhost:3000`）。
 
 #### 定义POST请求
 
