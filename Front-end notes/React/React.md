@@ -2173,8 +2173,31 @@ export const App = () => {
 
 `useActionState` 是一个 React Hook，它允许你使用 [Actions](https://react.dev/reference/react/useTransition#functions-called-in-starttransition-are-called-actions) 来更新带有副作用的 state。
 
+### 1.Actions是什么
 
+**Action** 指的是一个特定的**异步函数**，它专门用于处理数据提交并返回处理结果。
 
+Action 实际上就是传给 `useActionState` 的那个函数。例如：
+
+``` ts
+// 1. 这就是一个标准的 Action 函数
+// 它接收两个参数：上一次的状态 (prevState) 和 传入的数据 (formData)
+async function updateUsernameAction(prevState: any, formData: FormData) {
+  const name = formData.get("username");
+  
+  if (name === "admin") {
+    return { error: "用户名已存在", status: "fail" }; // 返回新 State
+  }
+  
+  // 模拟数据库操作
+  await db.update(name);
+  
+  return { error: null, status: "success" }; // 返回新 State
+}
+
+// 2. 在组件中使用
+const [state, formAction, isPending] = useActionState(updateUsernameAction, { error: null });
+```
 
 
 
