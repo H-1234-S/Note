@@ -591,15 +591,16 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 ```
 
 --- 
-# Proxy
+# [Proxy](https://nextjs.org/docs/app/api-reference/file-conventions/proxy)
 
 代理允许你在**请求完成之前运行代码**。然后，根据传入的请求，你可以通过重写、重定向、修改请求或响应头，或直接响应来修改响应。
 
 相当于网络请求中转站 **客户端** ➔ **代理服务器** ➔ **服务器**
 
+一个项目里只允许存在**一个proxy**，并且proxy与app同级
 ## 作用
 
-### 解决开发环境跨域
+### 1.解决开发环境跨域
 
 - **痛点**：你的 Next.js 运行在 `http://localhost:3000`，而你的后端 API 运行在 `http://api.example.com`。由于浏览器的**同源策略**，前端直接请求后端会报错。
     
@@ -607,7 +608,9 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
     
 - **结果**：浏览器认为请求发往同源的 `localhost:3000`，跨域限制被绕过。
 
+## 配置对象
 
+可选，可以与代理函数一同导出一个配置对象。该对象包含[匹配器](https://nextjs.org/docs/app/api-reference/file-conventions/proxy#matcher)以指定代理适用的路径。
 
 
 
