@@ -92,6 +92,12 @@ export default function Error({ error, reset,}: { error: Error & { digest?: stri
 
 - Next.js 默认会生成一个404页面，但我们可能自定义404页面，只需要在app目录下创建一个not-found.tsx文件即可
 
+#### 如果想在路由段内渲染not-found
+
+`notFound` 函数允许你在路由段中渲染 [`not-found 文件`](https://nextjs.org/docs/app/api-reference/file-conventions/not-found)
+
+调用 `notFound()` 函数会抛出 `NEXT_HTTP_ERROR_FALLBACK;404` 错误，并终止抛出该错误的路由段的渲染。指定一个 [**not-found** 文件](https://nextjs.org/docs/app/api-reference/file-conventions/not-found) 允许你在段内优雅地处理此类错误，通过渲染一个“未找到”的 UI。
+
 --- 
 ## 路由跳转
 
