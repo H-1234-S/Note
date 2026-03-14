@@ -425,8 +425,6 @@ export default function BlogClientPage() {
     
 - **`NextResponse.rewrite()`**: 它允许你改变 URL 显示的内容，但**不改变浏览器地址栏的地址**（类似于代理）。
 
-
-
 ### [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
 
 #### http方法
