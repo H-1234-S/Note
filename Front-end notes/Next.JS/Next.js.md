@@ -983,9 +983,9 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 - **存活时间**：会话级（刷新页面即消失），静态内容缓存 5 分钟，动态内容 30 秒。
 
 --- 
-# [服务器函数(Server Actions)](https://nextjs.org/docs/app/guides/forms#passing-additional-arguments)
+# [服务器函数](https://nextjs.org/docs/app/guides/forms#passing-additional-arguments)
 
-服务器函数指的是可以是服务器组件处理表单的提交，无需手动编写API接口，并且还支持数据的验证，以及状态管理等。
+服务器函数(Server Actions)指的是可以是服务器组件处理表单的提交，无需手动编写API接口，并且还支持数据的验证，以及状态管理等。
 
 ## 1.如何工作的
 
