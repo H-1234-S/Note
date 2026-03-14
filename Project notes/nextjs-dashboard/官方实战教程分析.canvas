@@ -31,7 +31,7 @@
 		{"id":"1b068f55157d503d","x":40,"y":320,"width":242,"height":220,"type":"text","text":"用到的知识点：\n\n1. Server Action\n2. redirct函数\n3. zod校验数据"},
 		{"id":"3bcc65401e843cf9","x":640,"y":40,"width":250,"height":60,"type":"text","text":"用户在表单输入数据，点击保存"},
 		{"id":"843f114a5bc8ffc1","x":660,"y":180,"width":260,"height":81,"type":"text","text":"form表单调用action属性里传入的server action操作"},
-		{"id":"a8f550d45da1656f","x":640,"y":320,"width":250,"height":60,"type":"text","text":"接收表单传入的dormData数据，并且利用zodjia"}
+		{"id":"a8f550d45da1656f","x":640,"y":320,"width":300,"height":80,"type":"text","text":"接收表单传入的dormData数据，并且利用zod校验数据是否合法"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
