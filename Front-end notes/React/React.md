@@ -2205,9 +2205,23 @@ async function updateUsernameAction(prevState: any, formData: FormData) {
 const [state, formAction, isPending] = useActionState(updateUsernameAction, { error: null });
 ```
 
+### 2.语法
 
+``` ts
+const [state, dispatchAction, isPending] = useActionState(reducerAction, initialState, permalink?);
+```
 
+### 3.参数
 
+- `reducerAction`: 触发 Action 时调用的函数。调用时，它接收前一个状态（最初是你提供的 `initialState`，然后是其前一个返回值）作为第一个参数，接着是传递给 `dispatchAction` 的 `actionPayload`。
+
+- `initialState`: 你希望状态初始时的值。在 `dispatchAction` 第一次被调用后，React 会忽略这个参数。
+
+- **可选** `permalink`: 包含这个表单修改的唯一页面 URL 的字符串。
+	
+    - 用于带有 [React Server Components](https://react.dev/reference/rsc/server-components) 且具有渐进增强功能的页面。
+	
+    - 如果 `reducerAction` 是一个 [服务器函数](https://react.dev/reference/rsc/server-functions) ，并且表单在 JavaScript 打包文件加载之前提交，浏览器将导航到指定的永久链接 URL，而不是当前页面的 URL。
 
 
 
