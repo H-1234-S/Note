@@ -402,14 +402,6 @@ export default function BlogClientPage() {
 - **`nextUrl`**: 这是一个增强版的 URL 对象，它能直接识别出当前的 **`pathname`**、**`searchParams`**，甚至连 Next.js 的 **`locale`（多语言设置）** 都能直接拿到。
     
 - **`ip` / `geo`**: 只有在 Vercel 等平台部署时有效，能直接获取访问者的 IP 地址和地理位置（国家、城市）。
-    
-#### `NextResponse`
-
-- **`NextResponse.json()`**: 标准 Response 需要写 `new Response(JSON.stringify(data), { headers: { 'content-type': 'application/json' } })`，而 Next 直接一行搞定。
-    
-- **`NextResponse.redirect()`**: 专门用于在代理或路由中执行重定向。
-    
-- **`NextResponse.rewrite()`**: 它允许你改变 URL 显示的内容，但**不改变浏览器地址栏的地址**（类似于代理）。
 
 ##### nextUrl的属性
 
@@ -424,6 +416,16 @@ export default function BlogClientPage() {
 	- `request.nextUrl.searchParams` 返回的正是一个标准的 **`URLSearchParams`** 实例对象。
 	    
 - **`origin`**: 获取域名部分（例如 `https://localhost:3000`）。
+
+#### `NextResponse`
+
+- **`NextResponse.json()`**: 标准 Response 需要写 `new Response(JSON.stringify(data), { headers: { 'content-type': 'application/json' } })`，而 Next 直接一行搞定。
+    
+- **`NextResponse.redirect()`**: 专门用于在代理或路由中执行重定向。
+    
+- **`NextResponse.rewrite()`**: 它允许你改变 URL 显示的内容，但**不改变浏览器地址栏的地址**（类似于代理）。
+
+
 
 ### [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
 
