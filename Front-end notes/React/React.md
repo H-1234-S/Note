@@ -2124,7 +2124,7 @@ export default App;
 
 ### 语法
 
-~~~react
+~~~ ts
 const id = useId()
 // 返回值: :r0: 多次调用值递增
 ~~~
@@ -2136,7 +2136,7 @@ const id = useId()
 
 * 表单元素，**label 需要和 input 绑定**，如果使用 id 属性，需要手动生成唯一 ID，使用 useId 可以自动生成唯一 ID，这就非常方便。
 
-~~~react
+~~~ ts
 export const App = () => {
   const id = useId()
   return <>
@@ -2153,7 +2153,7 @@ export const App = () => {
   2. 然后会读出通过 `aria-describedby` 关联的描述文本
   3. 用户就能知道这个输入框需要输入什么内容，有什么要求
 
-~~~react
+~~~ ts
 export const App = () => {
   const id = useId()
   return (
@@ -2169,7 +2169,13 @@ export const App = () => {
   )
 }
 ~~~
+## useActionState
 
+
+
+
+
+--- 
 # API
 
 ## memo
