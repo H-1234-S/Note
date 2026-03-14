@@ -985,7 +985,9 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 --- 
 # [服务器函数](https://nextjs.org/docs/app/guides/forms#passing-additional-arguments)
 
-服务器函数(Server Actions)指的是可以是服务器组件处理表单的提交，无需手动编写API接口，并且还支持数据的验证，以及状态管理等。
+服务器函数(Server Actions)指的是可以是**服务器组件处理表单的提交**，无需手动编写API接口，并且还支持数据的验证，以及状态管理等。
+
+服务器组件渲染时不会将js代码传递给浏览器，
 
 ## 1.如何工作的
 
