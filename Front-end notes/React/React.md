@@ -2173,7 +2173,7 @@ export const App = () => {
 
 `useActionState` 是一个 React Hook，它允许你使用 [Actions](https://react.dev/reference/react/useTransition#functions-called-in-starttransition-are-called-actions) 来更新带有副作用的 state。
 
-### 1.Actions是什么
+### 1.Action是什么
 
 **Action** 指的是一个特定的**异步函数**，它专门用于处理数据提交并返回处理结果。
 

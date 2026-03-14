@@ -35,7 +35,8 @@
               "title": "React"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -152,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "Front-end notes/React/React.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Next.js 的大纲"
+              "title": "React 的大纲"
             }
           },
           {
@@ -209,10 +210,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "5f40e9ea3255d16c",
+  "active": "af3d97608c76def3",
   "lastOpenFiles": [
-    "Front-end notes/React/React.md",
     "Front-end notes/Next.JS/Next.js.md",
+    "Front-end notes/React/React.md",
     "Front-end notes/React/深入学习React.md",
     "Front-end notes/React",
     "学习/技术栈.md",
