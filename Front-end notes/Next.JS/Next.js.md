@@ -83,7 +83,7 @@ App Router 的路由本质上是由一个个**特定文件（Layout, Template, E
 	
     - `error`: 这个对象是 JavaScript 原生的 [`Error`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) 对象的实例。
 		
-    - `reset`: 这是一个用于重置错误边界的函数。当执行时，该函数将尝试重新渲染路由片段。
+    - `reset`: 这是一个用于重置错误边界的函数。当执行时，该函数将尝试重新渲染该路由片段。
 
 ``` ts
 export default function Error({ error, reset,}: { error: Error & { digest?: string }; reset: () => void;}) {}
