@@ -2229,7 +2229,7 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 
 1. 当前状态。在第一次渲染时，它将匹配你传递的 `initialState`。在 `dispatchAction` 被调用后，它将匹配由 `reducerAction` 返回的值
 
-2. 一个你可以在 [Actions](https://react.dev/reference/react/useTransition#functions-called-in-starttransition-are-called-actions) 内部调用的 dispatchAction 函数。
+2. 一个你可以在 [Actions](https://react.dev/reference/react/useTransition#functions-called-in-starttransition-are-called-actions) 内部调用的 dispatchAction 函数。丢给form表单的函数
 
 3. 一个 `isPending` 标志，用来告诉你这个 Hook 的已派发 Actions 是否还有待处理。
 
