@@ -387,13 +387,44 @@ export default function BlogClientPage() {
 ---
 ## [Route Handler](https://nextjs.org/docs/app/getting-started/route-handlers#route-handlers)
 
+路由处理器仅在 `app` 目录内可用。
 ### 支持的 HTTP 方法[](https://nextjs.org/docs/app/getting-started/route-handlers#supported-http-methods)
 
 - 以下 [HTTP 方法](https://developer.mozilla.org/docs/Web/HTTP/Methods)  受支持： `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, 和 `OPTIONS`。如果调用不受支持的方法，Next.js 将返回一个 `405 Method Not Allowed` 响应。
 
-### 扩展的 `NextRequest` 和 `NextResponse` API[](https://nextjs.org/docs/app/getting-started/route-handlers#extended-nextrequest-and-nextresponse-apis)
+###  `NextRequest` 和 `NextResponse` API[](https://nextjs.org/docs/app/getting-started/route-handlers#extended-nextrequest-and-nextresponse-apis)
 
 - 除了支持原生的 [Request](https://developer.mozilla.org/docs/Web/API/Request) 和 [Response](https://developer.mozilla.org/docs/Web/API/Response) API，Next.js 通过 [`NextRequest`](https://nextjs.org/docs/app/api-reference/functions/next-request) 和 [`NextResponse`](https://nextjs.org/docs/app/api-reference/functions/next-response) 扩展它们，以提供方便的高级用例辅助工具。
+
+#### `NextRequest` 
+
+- **`cookies`**: 在标准 Request 中，你要自己解析字符串格式的 `Cookie` 头部。Next.js 帮你封装好了，可以直接 `request.cookies.get('session')`。
+    
+- **`nextUrl`**: 这是一个增强版的 URL 对象，它能直接识别出当前的 **`pathname`**、**`searchParams`**，甚至连 Next.js 的 **`locale`（多语言设置）** 都能直接拿到。
+    
+- **`ip` / `geo`**: 只有在 Vercel 等平台部署时有效，能直接获取访问者的 IP 地址和地理位置（国家、城市）。
+
+##### nextUrl的属性
+
+原生的 `request.url` 只是一个简单的**字符串**（例如 `"/api/search?q=js&page=1"`）。 如果你用原生字符串，你需要手动用正则或者 `new URL()` 去解析它，非常麻烦。
+
+`request.nextUrl` 直接给你提供了一个**解析好的对象**，你可以直接点出你想要的部分：
+
+- **`pathname`**: 获取路径（例如 `/api/search`）。
+    
+- **`searchParams`**: 获取问号后面的参数（例如 `q=js`）。
+		
+	- `request.nextUrl.searchParams` 返回的正是一个标准的 **`URLSearchParams`** 实例对象。
+	    
+- **`origin`**: 获取域名部分（例如 `https://localhost:3000`）。
+
+#### `NextResponse`
+
+- **`NextResponse.json()`**: 标准 Response 需要写 `new Response(JSON.stringify(data), { headers: { 'content-type': 'application/json' } })`，而 Next 直接一行搞定。
+    
+- **`NextResponse.redirect()`**: 专门用于在代理或路由中执行重定向。
+    
+- **`NextResponse.rewrite()`**: 它允许你改变 URL 显示的内容，但**不改变浏览器地址栏的地址**（类似于代理）。
 
 ### [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
 
@@ -469,19 +500,7 @@ REST client测试:
 ``` http
 GET http://localhost:3000/api/user?id=123 HTTP/1.1
 ```
-##### nextUrl的属性 #nextUrl
 
-原生的 `request.url` 只是一个简单的**字符串**（例如 `"/api/search?q=js&page=1"`）。 如果你用原生字符串，你需要手动用正则或者 `new URL()` 去解析它，非常麻烦。
-
-`request.nextUrl` 直接给你提供了一个**解析好的对象**，你可以直接点出你想要的部分：
-
-- **`pathname`**: 获取路径（例如 `/api/search`）。
-    
-- **`searchParams`**: 获取问号后面的参数（例如 `q=js`）。
-		
-	- `request.nextUrl.searchParams` 返回的正是一个标准的 **`URLSearchParams`** 实例对象。
-	    
-- **`origin`**: 获取域名部分（例如 `https://localhost:3000`）。
 
 #### 定义POST请求
 
@@ -570,6 +589,39 @@ REST client测试:
 ``` http
 POST http://localhost:3000/api/home/123141 HTTP/1.1
 ```
+
+--- 
+# [Proxy](https://nextjs.org/docs/app/api-reference/file-conventions/proxy)
+
+代理允许你在**请求完成之前运行代码**。然后，根据传入的请求，你可以通过重写、重定向、修改请求或响应头，或直接响应来修改响应。
+
+相当于网络请求中转站 **客户端** ➔ **代理服务器** ➔ **服务器**
+
+一个项目里只允许存在**一个proxy**，并且proxy与app同级
+## 作用
+
+### 1.解决开发环境跨域
+
+- **痛点**：你的 Next.js 运行在 `http://localhost:3000`，而你的后端 API 运行在 `http://api.example.com`。由于浏览器的**同源策略**，前端直接请求后端会报错。
+    
+- **Proxy 的作用**：你可以在 `next.config.ts` 中配置 `rewrites`。让前端请求 `/api/users`，Next.js 服务器作为代理，悄悄去后台请求数据再返回给前端。
+    
+- **结果**：浏览器认为请求发往同源的 `localhost:3000`，跨域限制被绕过。
+
+## 配置对象
+
+可选，可以与代理函数一同导出一个配置对象。该对象包含[匹配器](https://nextjs.org/docs/app/api-reference/file-conventions/proxy#matcher)以指定代理适用的路径。
+
+
+
+
+
+
+
+
+
+
+
 
 --- 
 # 渲染方式
@@ -1658,3 +1710,13 @@ export default function PostClientComponent() {
 - **文件夹结构**：`app/blog/[id]/page.tsx`
     
 - **返回值**：`{ id: '123' }`
+
+--- 
+# 可访问性
+
+可访问性是指设计和实现所有人都能使用的网络应用程序，包括残障人士。这是一个涵盖许多领域的广泛主题，例如键盘导航、语义 HTML、图像、颜色、视频等。
+
+
+--- 
+
+# Proxy

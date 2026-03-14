@@ -48,25 +48,9 @@
               "icon": "lucide-file",
               "title": "Next.js"
             }
-          },
-          {
-            "id": "d98837a1778ca0e3",
-            "type": "leaf",
-            "state": {
-              "type": "canvas",
-              "state": {
-                "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
-                "viewState": {
-                  "x": 273.09318880606384,
-                  "y": 1445.6982222232705,
-                  "zoom": -0.9076527631287565
-                }
-              },
-              "icon": "lucide-layout-dashboard",
-              "title": "官方实战教程分析"
-            }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -183,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "学习/技术栈.md",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "技术栈 的大纲"
+              "title": "Next.js 的大纲"
             }
           },
           {
@@ -226,7 +210,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 257.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -240,13 +224,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "5f40e9ea3255d16c",
+  "active": "dbbe38f78027d970",
   "lastOpenFiles": [
+    "Front-end notes/React/React.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "学习/技术栈.md",
     "Front-end notes/Next.JS/核心知识.md",
-    "Front-end notes/React/React.md",
     "Front-end notes/React/深入学习React.md",
     "Front-end notes/React",
     "学习/思考.md",
