@@ -2,7 +2,6 @@
 	"nodes":[
 		{"id":"08ebd09ebed9b2b5","type":"group","x":-1600,"y":0,"width":1435,"height":986,"label":"添加搜索功能"},
 		{"id":"495e376cd5d1c752","type":"group","x":-1600,"y":1040,"width":1435,"height":740,"label":"使用 URL 参数实现分页功能"},
-		{"id":"66aca06429eec9c2","x":599,"y":39,"width":250,"height":60,"type":"text","text":""},
 		{"id":"8519b36aa9c3a6ff","type":"text","text":"const params = new URLSearchParams(searchParams)","x":-705,"y":330,"width":380,"height":70},
 		{"id":"7cdb8aff866140bc","type":"text","text":"调用params的set方法，将Input值设置为查询参数","x":-705,"y":500,"width":440,"height":60},
 		{"id":"57a7dd0aa4b33b33","type":"text","text":"        defaultValue={searchParams.get('query')?.toString()}","x":-705,"y":854,"width":520,"height":52},
@@ -29,7 +28,9 @@
 		{"id":"f403c2bb24a27220","type":"text","text":"当Pagination组件渲染时执行createPageURL函数","x":-1044,"y":1288,"width":325,"height":72},
 		{"id":"ac8b7fb64009e57d","type":"text","text":"params.set('page', pageNumber.toString());\n驱动页面url page参数变化","x":-1086,"y":1430,"width":406,"height":60},
 		{"id":"4f1fdcd3a86479b2","x":40,"y":40,"width":484,"height":257,"type":"text","text":"创建新发票的步骤：\n\n1. 创建一个表单以捕获用户输入。\n2. 创建一个服务器操作，并从表单中调用它。\n3. 在您的服务器操作中，从``formData``对象中提取数据。\n4. 验证并准备要插入到您数据库中的数据。\n5. 插入数据并处理任何错误。\n6. 重新验证缓存并将用户重定向回发票页面。"},
-		{"id":"1b068f55157d503d","x":40,"y":320,"width":242,"height":220,"type":"text","text":"用到的知识点：\n\n1. Server Action\n2. redirct函数\n3. zod校验数据"}
+		{"id":"1b068f55157d503d","x":40,"y":320,"width":242,"height":220,"type":"text","text":"用到的知识点：\n\n1. Server Action\n2. redirct函数\n3. zod校验数据"},
+		{"id":"3bcc65401e843cf9","x":640,"y":40,"width":250,"height":60,"type":"text","text":"用户在表单输入数据，点击保存"},
+		{"id":"843f114a5bc8ffc1","x":640,"y":139,"width":250,"height":60,"type":"text","text":"form表单调用a"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
