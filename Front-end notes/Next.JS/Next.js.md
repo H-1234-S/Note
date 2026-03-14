@@ -1087,7 +1087,11 @@ export default async function createUser(formData: FormData) {
 }
 ```
 
+## 5.验证错误
 
+要显示验证错误或消息，将定义 `<form>` 的组件转换为客户端组件，并使用 React 的 [`useActionState`](https://react.dev/reference/react/useActionState)。
+
+在使用`useActionState`时，服务器端函数的签名将改变，以接收一个新的`prevState`或`initialState`参数作为其第一个参数。
 
 
 
