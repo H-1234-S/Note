@@ -2223,7 +2223,15 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 	
     - 如果 `reducerAction` 是一个 [服务器函数](https://react.dev/reference/rsc/server-functions) ，并且表单在 JavaScript 打包文件加载之前提交，浏览器将导航到指定的永久链接 URL，而不是当前页面的 URL。
 
+### 4.返回值
 
+`useActionState` 返回一个包含正好三个值的数组：
+
+1. 当前状态。在第一次渲染时，它将匹配你传递的 `initialState`。在 `dispatchAction` 被调用后，它将匹配由 `reducerAction` 返回的值
+
+2. 一个你可以在 [Actions](https://react.dev/reference/react/useTransition#functions-called-in-starttransition-are-called-actions) 内部调用的 dispatchAction 函数。
+
+3. 一个 `isPending` 标志，用来告诉你这个 Hook 的已派发 Actions 是否还有待处理。
 
 
 
