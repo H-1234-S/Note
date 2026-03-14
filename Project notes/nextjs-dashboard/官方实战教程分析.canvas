@@ -31,7 +31,10 @@
 		{"id":"1b068f55157d503d","x":40,"y":320,"width":320,"height":220,"type":"text","text":"用到的知识点：\n\n1. Server Action\n2. redirct函数\n3. zod校验数据\n4. revalidatePath(URL)清除缓存"},
 		{"id":"3bcc65401e843cf9","x":640,"y":40,"width":250,"height":60,"type":"text","text":"用户在表单输入数据，点击保存"},
 		{"id":"843f114a5bc8ffc1","x":660,"y":180,"width":260,"height":81,"type":"text","text":"form表单调用action属性里传入的server action操作"},
-		{"id":"a8f550d45da1656f","x":640,"y":340,"width":300,"height":80,"type":"text","text":"接收表单传入的dormData数据，并且利用zod校验数据是否合法"}
+		{"id":"a8f550d45da1656f","x":640,"y":340,"width":300,"height":80,"type":"text","text":"接收表单传入的dormData数据，并且利用zod校验数据是否合法"},
+		{"id":"b869e0e01b4a0771","x":640,"y":500,"width":300,"height":60,"type":"text","text":"操作数据库存储数据"},
+		{"id":"76a2dda6bd6d8c9f","x":641,"y":622,"width":299,"height":60,"type":"text","text":"重新验证缓存并将用户重定向回发票页面。"},
+		{"id":"890477430a743d34","x":1028,"y":488,"width":312,"height":164,"type":"text","text":"为什么要重新验证缓存？\n\n"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
@@ -55,6 +58,8 @@
 		{"id":"f8d53002343b6619","fromNode":"e3741dfe4f1353d8","fromSide":"bottom","toNode":"c717aac8e39075c3","toSide":"top"},
 		{"id":"8b5aab2cfec4b445","fromNode":"f403c2bb24a27220","fromSide":"left","toNode":"ac8b7fb64009e57d","toSide":"left"},
 		{"id":"aee20bbfa2f2b78b","fromNode":"3bcc65401e843cf9","fromSide":"bottom","toNode":"843f114a5bc8ffc1","toSide":"top"},
-		{"id":"3985a2c0f78b4bcd","fromNode":"843f114a5bc8ffc1","fromSide":"bottom","toNode":"a8f550d45da1656f","toSide":"top"}
+		{"id":"3985a2c0f78b4bcd","fromNode":"843f114a5bc8ffc1","fromSide":"bottom","toNode":"a8f550d45da1656f","toSide":"top"},
+		{"id":"14d622d5a0c6f354","fromNode":"a8f550d45da1656f","fromSide":"bottom","toNode":"b869e0e01b4a0771","toSide":"top"},
+		{"id":"ce4753a229366417","fromNode":"b869e0e01b4a0771","fromSide":"bottom","toNode":"76a2dda6bd6d8c9f","toSide":"top"}
 	]
 }
