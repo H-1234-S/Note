@@ -2233,7 +2233,13 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 
 3. 一个 `isPending` 标志，用来告诉你这个 Hook 的已派发 Actions 是否还有待处理。
 
+### 5.reducerAction函数
 
+#### [参数](https://react.dev/reference/react/useActionState#reduceraction-parameters "Link for Parameters")
+
+- `previousState`: 最后的状态。最初它等于 `initialState`。在第一次调用 `dispatchAction` 后，它等于返回的最后一个状态。
+    
+- **可选** `actionPayload`: 传递给 `dispatchAction` 的参数。它可以任何类型的值。类似于 `useReducer` 的约定，它通常是一个带有 `type` 属性的对象，用于标识它，并且可选地包含其他带有额外信息的属性。
 
 
 
