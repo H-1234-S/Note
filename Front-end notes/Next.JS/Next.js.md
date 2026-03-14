@@ -387,6 +387,7 @@ export default function BlogClientPage() {
 ---
 ## [Route Handler](https://nextjs.org/docs/app/getting-started/route-handlers#route-handlers)
 
+路由处理器仅在 `app` 目录内可用。
 ### 支持的 HTTP 方法[](https://nextjs.org/docs/app/getting-started/route-handlers#supported-http-methods)
 
 - 以下 [HTTP 方法](https://developer.mozilla.org/docs/Web/HTTP/Methods)  受支持： `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, 和 `OPTIONS`。如果调用不受支持的方法，Next.js 将返回一个 `405 Method Not Allowed` 响应。
