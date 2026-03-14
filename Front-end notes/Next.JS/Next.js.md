@@ -78,9 +78,25 @@ App Router 的路由本质上是由一个个**特定文件（Layout, Template, E
 - Next.js的error是借助了`Error Boundary`实现的。
 	
 - 'use client' **错误组件必须是客户端组件**
+
+- 它接受两个属性：
+	
+    - `error`: 这个对象是 JavaScript 原生的 [`Error`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) 对象的实例。
+		
+    - `reset`: 这是一个用于重置错误边界的函数。当执行时，该函数将尝试重新渲染该路由片段。
+
+``` ts
+export default function Error({ error, reset,}: { error: Error & { digest?: string }; reset: () => void;}) {}
+```
 ### not-found
 
 - Next.js 默认会生成一个404页面，但我们可能自定义404页面，只需要在app目录下创建一个not-found.tsx文件即可
+
+#### 如果想在路由段内渲染not-found
+
+`notFound` 函数允许你在路由段中渲染 [`not-found 文件`](https://nextjs.org/docs/app/api-reference/file-conventions/not-found)
+
+调用 `notFound()` 函数会抛出 `NEXT_HTTP_ERROR_FALLBACK;404` 错误，并终止抛出该错误的路由段的渲染。指定一个 [**not-found** 文件](https://nextjs.org/docs/app/api-reference/file-conventions/not-found) 允许你在段内优雅地处理此类错误，通过渲染一个“未找到”的 UI。
 
 --- 
 ## 路由跳转
@@ -661,7 +677,7 @@ HTML他是静态的，需要通过JS才能变成动态的，不然HTML是没有�
 
 --- 
 
-## [2.RSC(React Server Components) - 服务器组件](https://nextjs.org/docs/app/getting-started/server-and-client-components)****
+## [2.RSC(React Server Components) - 服务器组件](https://nextjs.org/docs/app/getting-started/server-and-client-components)
 
 RSC(服务器组件)是React19`正式引入`的一种新的组件类型，它可以在服务器端渲染，也可以在客户端渲染。
 
@@ -981,6 +997,134 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 - **表现**：当你点击“后退”或“前进”时，页面是瞬间切换的，甚至不需要再次请求服务器。
     
 - **存活时间**：会话级（刷新页面即消失），静态内容缓存 5 分钟，动态内容 30 秒。
+
+--- 
+# [服务器函数](https://nextjs.org/docs/app/guides/forms#passing-additional-arguments)
+
+服务器函数(Server Actions)指的是可以是**服务器组件处理表单的提交**，无需手动编写API接口，并且还支持数据的验证，以及状态管理等。
+
+服务器组件渲染时不会将js代码传递给浏览器，因此浏览器执行不了服务端组件；而加了‘use server’之后，相当于开启了一个隐藏API接口，点击后浏览器才知道调用服务器上这个函数
+
+## 1.如何工作的
+
+React 扩展了 HTML [`<form>`](https://developer.mozilla.org/docs/Web/HTML/Element/form) 元素，允许使用 [`action`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/form#action) 属性来调用服务器操作。
+
+当在表单中使用时，该函数会自动接收 [`FormData`](https://developer.mozilla.org/docs/Web/API/FormData/FormData) 对象。
+
+它在底层通过 HTTP POST 请求与服务器通信。
+
+## 2.语法
+
+你可以通过 `'use server'` 指令来定义一个 Server Action。
+
+``` ts
+export default function Login() {
+
+    async function handleLogin(formData: FormData) {
+        'use server'
+        const username = formData.get('username') //接受单个参数
+        const password = formData.get('password') //接受单个数据
+        const form = Object.fromEntries(formData) //接受所有数据 {username: '张三', password: '123456'}
+        //可以直接操作数据库，这样就无需编写API接口了 哇哦太方便了
+    }
+    return (
+        <div>
+            <h1>登录页面</h1>
+            <div className="flex flex-col gap-2 w-[300px] mx-auto mt-30">
+                <form action={handleLogin} className="flex flex-col gap-2">
+                    <input className="border border-gray-300 rounded-md p-2" type="text" name="username" placeholder="用户名" />
+                    <input className="border border-gray-300 rounded-md p-2" type="password" name="password" placeholder="密码" />
+                    <button type="submit" className="bg-blue-500 text-white p-2 rounded-md">登录</button>
+                </form>
+            </div>
+        </div>
+    )
+}
+```
+
+**注意：** 当处理具有多个字段的表单时，请使用 JavaScript 的 [`Object.fromEntries()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries)。例如： `const rawFormData = Object.fromEntries(formData)` 。请注意，此对象将包含以 `$ACTION_` 为前缀的额外属性。
+
+## 3.传递额外参数
+
+在表单字段之外，你可以使用 JavaScript 的 [`bind`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind) 方法向服务器函数传递额外的参数。
+
+例如，要将 `userId` 参数传递给 `updateUser` 服务器函数：
+``` ts
+'use client'
+ 
+import { updateUser } from './actions'
+ 
+export function UserProfile({ userId }: { userId: string }) {
+  const updateUserWithId = updateUser.bind(null, userId)
+ 
+  return (
+    <form action={updateUserWithId}>
+      <input type="text" name="name" />
+      <button type="submit">Update User Name</button>
+    </form>
+  )
+}
+```
+
+``` ts
+'use server'
+ 
+export async function updateUser(userId: string, formData: FormData) {}
+```
+
+利用 `useActionState` 的闭包能力传递参数
+
+``` ts
+// 在客户端组件中
+const [state, formAction] = useActionState(
+  (prevState, formData) => updateInvoice(id, prevState, formData), // 这里的 id 来自组件 Props
+  initialState
+);
+```
+
+## 4.表单校验
+
+表单可以在客户端或服务器端进行验证。
+
+- 对于**客户端验证** ，您可以使用 HTML 属性如 `required` 和 `type="email"` 进行基本验证。
+	
+- 对于**服务器端验证** ，您可以使用像 [zod](https://zod.dev/) 这样的库来验证表单字段。例如：
+
+``` ts 
+'use server'
+ 
+import { z } from 'zod'
+ 
+const schema = z.object({
+  email: z.string({
+    invalid_type_error: 'Invalid Email',
+  }),
+})
+ 
+export default async function createUser(formData: FormData) {
+  const validatedFields = schema.safeParse({
+    email: formData.get('email'),
+  })
+ 
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    }
+  }
+ 
+}
+```
+
+## 5.验证错误
+
+要显示验证错误或消息，将定义 `<form>` 的组件转换为客户端组件，并使用 React 的 [`useActionState`](https://react.dev/reference/react/useActionState)。
+
+在使用`useActionState`时，服务器端函数的签名将改变，以接收一个新的`prevState`或`initialState`参数作为其第一个参数。
+
+
+
+
+
 
 ---
 # 内置组件

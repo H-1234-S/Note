@@ -2124,7 +2124,7 @@ export default App;
 
 ### 语法
 
-~~~react
+~~~ ts
 const id = useId()
 // 返回值: :r0: 多次调用值递增
 ~~~
@@ -2136,7 +2136,7 @@ const id = useId()
 
 * 表单元素，**label 需要和 input 绑定**，如果使用 id 属性，需要手动生成唯一 ID，使用 useId 可以自动生成唯一 ID，这就非常方便。
 
-~~~react
+~~~ ts
 export const App = () => {
   const id = useId()
   return <>
@@ -2153,7 +2153,7 @@ export const App = () => {
   2. 然后会读出通过 `aria-describedby` 关联的描述文本
   3. 用户就能知道这个输入框需要输入什么内容，有什么要求
 
-~~~react
+~~~ ts
 export const App = () => {
   const id = useId()
   return (
@@ -2169,7 +2169,88 @@ export const App = () => {
   )
 }
 ~~~
+## useActionState
 
+`useActionState` 是一个 React Hook，它允许你使用 [Actions](https://react.dev/reference/react/useTransition#functions-called-in-starttransition-are-called-actions) 来更新带有副作用的 state。
+
+### 1.Action是什么
+
+**Action** 指的是一个特定的**异步函数**，它专门用于处理数据提交并返回处理结果。
+
+- **输入 (Payload)**：通常是表单数据（`FormData`）或普通参数。
+    
+- **副作用 (Side Effects)**：函数内部会执行诸如请求 API、写入数据库、清除缓存等操作。
+    
+- **输出 (Result)**：执行完后，它会返回一个新的 **State**（比如错误消息、成功提示或新数据）。
+
+Action 实际上就是传给 `useActionState` 的那个函数。例如：
+
+``` ts
+// 1. 这就是一个标准的 Action 函数
+// 它接收两个参数：上一次的状态 (prevState) 和 传入的数据 (formData)
+async function updateUsernameAction(prevState: any, formData: FormData) {
+  const name = formData.get("username");
+  
+  if (name === "admin") {
+    return { error: "用户名已存在", status: "fail" }; // 返回新 State
+  }
+  
+  // 模拟数据库操作
+  await db.update(name);
+  
+  return { error: null, status: "success" }; // 返回新 State
+}
+
+// 2. 在组件中使用
+const [state, formAction, isPending] = useActionState(updateUsernameAction, { error: null });
+```
+
+### 2.语法
+
+``` ts
+const [state, dispatchAction, isPending] = useActionState(reducerAction, initialState, permalink?);
+```
+
+### 3.参数
+
+- `reducerAction`: 触发 Action 时调用的函数。调用时，它接收前一个状态（最初是你提供的 `initialState`，然后是其前一个返回值）作为第一个参数，接着是传递给 `dispatchAction` 的 `actionPayload`。
+
+- `initialState`: 你希望状态初始时的值。在 `dispatchAction` 第一次被调用后，React 会忽略这个参数。
+
+- **可选** `permalink`: 表单提交后跳转的URL路径。
+	
+    - 用于带有 [React Server Components](https://react.dev/reference/rsc/server-components) 且具有渐进增强功能的页面。
+	
+    - 如果 `reducerAction` 是一个 [服务器函数](https://react.dev/reference/rsc/server-functions) ，并且表单在 JavaScript 打包文件加载之前提交，浏览器将导航到指定的永久链接 URL，而不是当前页面的 URL。
+
+### 4.返回值
+
+`useActionState` 返回一个包含正好三个值的数组：
+
+1. 当前状态。在第一次渲染时，它将匹配你传递的 `initialState`。在 `dispatchAction` 被调用后，它将匹配由 `reducerAction` 返回的值
+
+2. 一个你可以在 [Actions](https://react.dev/reference/react/useTransition#functions-called-in-starttransition-are-called-actions) 内部调用的 dispatchAction 函数。丢给form表单的函数
+
+3. 一个 `isPending` 标志，用来告诉你这个 Hook 的已派发 Actions 是否还有待处理。
+
+### 5.reducerAction
+
+#### 参数
+
+- `previousState`: 最后的状态。最初它等于 `initialState`。在第一次调用 `dispatchAction` 后，它等于返回的最后一个状态。
+    
+- **可选** `actionPayload`: 传递给 `dispatchAction` 的参数。它可以任何类型的值。类似于 `useReducer` 的约定，它通常是一个带有 `type` 属性的对象，用于标识它，并且可选地包含其他带有额外信息的属性。
+
+#### 返回
+
+`reducerAction` 返回新的状态，并触发一个使用该状态的组件的重新渲染。
+
+#### 注意
+
+- `reducerAction` 的返回类型必须与 `initialState` 的类型相匹配。如果 TypeScript 推断出不匹配，您可能需要显式地标注您的状态类型。
+
+
+--- 
 # API
 
 ## memo
