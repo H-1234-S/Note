@@ -395,6 +395,22 @@ export default function BlogClientPage() {
 
 - 除了支持原生的 [Request](https://developer.mozilla.org/docs/Web/API/Request) 和 [Response](https://developer.mozilla.org/docs/Web/API/Response) API，Next.js 通过 [`NextRequest`](https://nextjs.org/docs/app/api-reference/functions/next-request) 和 [`NextResponse`](https://nextjs.org/docs/app/api-reference/functions/next-response) 扩展它们，以提供方便的高级用例辅助工具。
 
+#### `NextRequest` (增强版请求)
+
+- **`cookies`**: 在标准 Request 中，你要自己解析字符串格式的 `Cookie` 头部。Next.js 帮你封装好了，可以直接 `request.cookies.get('session')`。
+    
+- **`nextUrl`**: 这是一个增强版的 URL 对象，它能直接识别出当前的 **`pathname`**、**`searchParams`**，甚至连 Next.js 的 **`locale`（多语言设置）** 都能直接拿到。
+    
+- **`ip` / `geo`**: 只有在 Vercel 等平台部署时有效，能直接获取访问者的 IP 地址和地理位置（国家、城市）。
+    
+#### `NextResponse` (增强版响应)
+
+- **`NextResponse.json()`**: 标准 Response 需要写 `new Response(JSON.stringify(data), { headers: { 'content-type': 'application/json' } })`，而 Next 直接一行搞定。
+    
+- **`NextResponse.redirect()`**: 专门用于在代理或路由中执行重定向。
+    
+- **`NextResponse.rewrite()`**: 它允许你改变 URL 显示的内容，但**不改变浏览器地址栏的地址**（类似于代理）。
+
 ### [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
 
 #### http方法
