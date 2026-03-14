@@ -1062,7 +1062,7 @@ export async function updateUser(userId: string, formData: FormData) {}
 	
 - 对于**服务器端验证** ，您可以使用像 [zod](https://zod.dev/) 这样的库来验证表单字段。例如：
 
-``` ts [app/actions.ts]
+``` ts 
 'use server'
  
 import { z } from 'zod'
@@ -1078,14 +1078,12 @@ export default async function createUser(formData: FormData) {
     email: formData.get('email'),
   })
  
-  // Return early if the form data is invalid
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
     }
   }
  
-  // Mutate data
 }
 ```
 
