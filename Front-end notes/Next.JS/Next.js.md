@@ -614,11 +614,33 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 
 ### 匹配器
 
-`matcher` 选项允许你指定代理运行的目标路径。你可以通过多种方式指定这些路径：
+`matcher` 选项允许你**指定代理运行的目标路径**。你可以通过多种方式指定这些路径：
 
 - 对于单个路径：直接使用字符串定义路径，例如 `'/about'`。
 	
 - 对于多个路径：使用数组列出多个路径，例如 `matcher: ['/about', '/contact']` ，它将代理应用于 `/about` 和 `/contact`。
+
+``` ts
+export const config = {
+  matcher: ['/about/:path*', '/dashboard/:path*'],
+}
+```
+
+此外，`matcher` 选项支持使用正则表达式进行复杂的路径指定。例如，你可以使用**正则表达式**匹配器排除某些路径：
+
+``` ts
+export const config = {
+  matcher: [
+    // 排除 API 路由、静态文件、图像优化和 .png 文件
+    '/((?!api|_next/static|_next/image|.*\\.png$).*)',
+  ],
+}
+```
+
+
+
+
+
 
 
 
