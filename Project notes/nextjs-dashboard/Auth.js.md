@@ -27,8 +27,10 @@ export const authConfig = {
         if (isLoggedIn) return true;
         return false;           // → 会触发重定向到 signIn 页
       } else if (isLoggedIn) {
+      // 已经登录过再次登录被重定向到 dashboard 页面
         return Response.redirect(new URL('/dashboard', nextUrl));
       }
+      
       return true;
     },
   },
