@@ -55,12 +55,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Next.JS/NextAuth.js.md",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "NextAuth.js"
+              "title": "Next.js"
             }
           }
         ],
@@ -180,13 +180,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/NextAuth.js.md",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "NextAuth.js 的大纲"
+              "title": "Next.js 的大纲"
             }
           },
           {
@@ -239,8 +239,8 @@
   },
   "active": "e626b1ecac5ac74f",
   "lastOpenFiles": [
-    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/NextAuth.js.md",
+    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/核心知识.md",
     "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/库",

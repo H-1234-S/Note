@@ -648,6 +648,8 @@ export const config: ProxyConfig = {
    matcher:'/api/:path*',
 }
 ```
+
+### 重写
 ## 配置对象
 
 可选，可以与代理函数一同导出一个**配置对象**。该对象包含**匹配器**以指定代理适用的路径。
