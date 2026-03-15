@@ -67,7 +67,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -184,13 +184,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
+                "file": "Project notes/nextjs-dashboard/Auth.js.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "官方实战教程分析 的大纲"
+              "title": "Auth.js 的大纲"
             }
           },
           {
@@ -241,10 +241,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "26c26a2eb1f6b045",
+  "active": "3c4087371e33e82f",
   "lastOpenFiles": [
-    "Project notes/nextjs-dashboard/Auth.js.md",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
+    "Project notes/nextjs-dashboard/Auth.js.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/React/React.md",
     "学习/技术栈.md",

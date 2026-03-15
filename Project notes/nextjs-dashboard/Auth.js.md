@@ -266,10 +266,14 @@ providers.Credentials：最灵活的“用户名/密码”方式
     
 - **场景**：在 **Server Components** 里调用 `const session = await auth()`，判断用户是否登录。
     
-`signIn` (函数)
-
-- **用途**：发起登录流程。
-    
+`signIn` (函数)用来发起登录流程。
+	
+- **代码**：`await signIn('credentials', formData)`
+	
+	- **`credentials`**：这告诉 Auth.js，我们要使用的是 **“账号密码”** 这种登录方式
+		
+	-  **`formData`**：这是从前端表单（`<form>`）传过来的原始数据，里面包含了用户输入的邮箱和密码。
+	
 - **场景**：在 **Server Actions** 中调用，用户点击登录按钮后，触发认证逻辑。
     
 `signOut` (函数)
