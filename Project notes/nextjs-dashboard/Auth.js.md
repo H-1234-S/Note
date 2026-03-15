@@ -287,7 +287,11 @@ providers.Credentials：最灵活的“用户名/密码”方式
 ## authorized
 
 
+### 参数
 
+credentials（最重要） 类型大致是：{ email: string, password: string }（或你自己定义的其他字段） 
+内容来源：用户在<form>里提交的字段名（name="email", name="password"）
+就是你在 Server Action 或 formData 里传给 signIn('credentials', { email, password }) 的那个对象
 
 
 
