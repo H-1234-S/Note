@@ -614,18 +614,22 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 ``` ts
 import { NextRequest, NextResponse } from "next/server";
 import { ProxyConfig } from "next/server";
+
+const corsHeaders = {
+	// `*` 是通配符，意味着**任何域名**都可以访问这个 API。
+    'Access-Control-Allow-Origin': '*',
+    // 允许的 HTTP 方法。
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    // 允许的请求头字段。
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
 export async function proxy(request: NextRequest) {
     const response = NextResponse.next();
     Object.entries(corsHeaders).forEach(([key, value]) => {
         response.headers.set(key, value);
     })
     return response;
-}
-
-const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 }
 
 export const config: ProxyConfig = {
