@@ -638,10 +638,45 @@ export const config = {
 }
 ```
 
+`matcher` 选项接受一个具有以下键的对象数组，用于精细化控制：
 
+- `source`: 用于匹配请求路径的路径或模式。它可以是用于直接路径匹配的字符串，也可以是用于更复杂匹配的模式。
+	
+- `locale` (可选): 当设置为 `false` 时，代理在匹配路径时会**忽略前面的语言代码**。。
+		
+	- Next.js 支持内置的国际化路由（如 `/en/about`, `/zh/about`）。
+		
+- `has` (可选): 指定基于特定请求元素（如请求头、查询参数或 Cookie）存在才会执行。
+	
+- `missing` (可选): 关注于某些请求元素缺失的条件，例如缺失的请求头或 Cookie，只有当请求中**没有**这些元素时，才触发。
+	
+``` ts
+export const config = {
+  matcher: [
+    {
+      source: '/api/:path*',
+      locale: false,
+      // 必须有这个请求头 
+      // URL 必须带 ?admin=true ]
+      has: [ { type: 'header', key: 'x-prerender' },{ type: 'query', key: 'admin', value: 'true' } 
+      // cookie 没有 session=active 时才会触发
+      missing: [{ type: 'cookie', key: 'session', value: 'active' }],
+    },
+  ],
+}
+```
 
+`source` 路径模式：
 
+1. 必须以 `/ 开头`
 
+2. 可以包含命名参数：`/about/:path` 匹配 `/about/a` 和 `/about/b`，但不匹配 `/about/a/c`
+
+3. 命名参数可以带有修饰符（以 `：` 开头）：`/about/:path*` 匹配 `/about/a/b/c`，因为 `*` 表示 _零个或多个_ 。`?` 表示 _零个或一个_ ，而 `+` _一个或多个_
+
+4. 可以使用括号内的正则表达式：`/about/(.*)` 与 `/about/:path* 相同`
+
+5. 锚定在路径的起始位置：``/about`` 匹配 ``/about`` 和 ``/about/team``，但不匹配 ``` /blog/about` ``
 
 
 
