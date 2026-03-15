@@ -1,5 +1,6 @@
 {
 	"nodes":[
+		{"id":"0291013c15883e69","x":-60,"y":1520,"width":1486,"height":980,"type":"group","label":"添加登录认证功能"},
 		{"id":"08ebd09ebed9b2b5","type":"group","x":-1600,"y":0,"width":1435,"height":986,"label":"添加搜索功能"},
 		{"id":"d68ae41b32fa4b46","type":"group","x":20,"y":20,"width":1217,"height":900,"label":"创建新发票"},
 		{"id":"495e376cd5d1c752","type":"group","x":-1600,"y":1040,"width":1435,"height":740,"label":"使用 URL 参数实现分页功能"},
@@ -46,8 +47,7 @@
 		{"id":"c3fc53509750a235","x":871,"y":2080,"width":250,"height":60,"type":"text","text":"配置auth.ts文件"},
 		{"id":"21a97de20e4149a0","x":1121,"y":1910,"width":285,"height":77,"type":"text","text":"核心配置文件，与数据库通信、配置providers、进行密码加密"},
 		{"id":"3642bf6494515dd0","x":-14,"y":1640,"width":428,"height":220,"color":"1","type":"text","text":"为什么会有两个auth配置文件？\n\n因为auth.config.ts文件在proxy中被引用，prxoy文件运行在运行在 Edge Runtime环境，这个环境不支持node库，也不支持某些数据库驱动，因此只支持轻量的 auth.config.ts文件，但还需要配置providers和与数据库通信的auth.ts文件       "},
-		{"id":"82e1475c92541bc7","x":481,"y":1540,"width":250,"height":60,"type":"text","text":"添加登录认证功能"},
-		{"id":"1af74dca30ddf673","x":465,"y":2257,"width":250,"height":60,"type":"text","text":"server actions将认证逻辑与你的登录表单连接"}
+		{"id":"1af74dca30ddf673","x":429,"y":2280,"width":435,"height":63,"type":"text","text":"server actions里`await signIn('credentials', formData)`将认证逻辑与你的登录表单连接"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
