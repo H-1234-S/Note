@@ -301,23 +301,3 @@ providers.Credentials：最灵活的“用户名/密码”方式
 ---
 # 登录页面（/app/login/page.tsx）中使用 Server Action
 
-``` ts
-// app/login/page.tsx
-'use client'
-
-import { authenticate } from '@/app/lib/actions';   // Server Action
-import { useFormState, useFormStatus } from 'react-dom';
-
-export default function LoginPage() {
-  const [errorMessage, dispatch] = useFormState(authenticate, undefined);
-
-  return (
-    <form action={dispatch}>
-      <input type="email" name="email" required />
-      <input type="password" name="password" required />
-      <button type="submit">登录</button>
-      {errorMessage && <p>{errorMessage}</p>}
-    </form>
-  );
-}
-```
