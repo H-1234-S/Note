@@ -20,6 +20,7 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
 	  // 双取反，还原逻辑；例如auth?.user为对象，!auth?.user = false；!!auth?.user = true
       const isLoggedIn = !!auth?.user;
+      // startsWith方法用来判断当前字符串是否以给定字符串开头
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
 
       if (isOnDashboard) {
