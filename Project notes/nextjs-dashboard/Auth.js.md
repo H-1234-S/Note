@@ -8,6 +8,8 @@ npm install authjs            # 但教程里还是用 next-auth@beta
 ```
 # 创建 auth.config.ts(基础配置 + pages 重定向)
 
+添加保护路由的逻辑。阻止用户在未登录的情况下访问仪表板页面。
+
 ``` ts
 // auth.config.ts
 import type { NextAuthConfig } from "next-auth";
