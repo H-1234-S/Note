@@ -43,9 +43,9 @@
               "state": {
                 "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
                 "viewState": {
-                  "x": 524.885422222594,
-                  "y": 2250.6490371535447,
-                  "zoom": -0.01652470073318202
+                  "x": 644.4127600946156,
+                  "y": 2095.3253960197985,
+                  "zoom": -1.0308256951065653
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -243,11 +243,11 @@
   },
   "active": "26c26a2eb1f6b045",
   "lastOpenFiles": [
+    "Front-end notes/Next.JS/Next.js.md",
     "Project notes/nextjs-dashboard/Auth.js.md",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Front-end notes/React/React.md",
     "学习/技术栈.md",
-    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/NextAuth.js.md",
     "Front-end notes/Next.JS/核心知识.md",
     "Front-end notes/库/use-debounce防抖.md",

@@ -38,7 +38,6 @@
 		{"id":"76a2dda6bd6d8c9f","type":"text","text":"重新验证缓存并将用户重定向回发票页面。","x":380,"y":680,"width":299,"height":60},
 		{"id":"890477430a743d34","type":"text","text":"为什么要重新验证缓存？\n\n因为nextjs的缓存机制，例如：当Link组件出现在浏览器的视口时，nextjs会在后台下载对应页面所需要的数据，这样跳转时，浏览器从缓存里拿数据，页面时秒开的，不需要获取数据了；\n\n但这样会导致一个问题，页面渲染是从缓存里拿数据，并不是重新发送请求，这样数据库更新并不会反映在视图上，因此需要手动清除对应页面缓存","x":870,"y":680,"width":325,"height":180},
 		{"id":"2698adaf50cc1706","x":521,"y":2080,"width":250,"height":60,"type":"text","text":"创建proxy代理文件"},
-		{"id":"273ab824eacdc230","x":450,"y":2240,"width":392,"height":60,"type":"text","text":"export default NextAuth(authConfig).auth"},
 		{"id":"9d7d0870c7f8be2c","x":450,"y":1910,"width":312,"height":60,"type":"text","text":"生成密钥，密钥用来加密cookie"},
 		{"id":"96bd234f8c0b34fa","x":200,"y":2080,"width":250,"height":60,"type":"text","text":"配置auth.config.ts文件"},
 		{"id":"56bc71e248e6249f","x":-40,"y":1940,"width":314,"height":69,"type":"text","text":"基础配置文件，只判断用户是否存在、是否登录过，和执行重定向"},
@@ -46,8 +45,8 @@
 		{"id":"7f17bd9fda209b46","x":871,"y":1740,"width":461,"height":140,"color":"1","type":"text","text":"Session是什么？\n\n服务器用来**识别和记住特定用户**的一种机制。Session 就像是服务器给每个访问者发的一张**临时通行证**。\n\n Session 的核心作用\n\nSession 的主要目的是在**多次请求之间保持状态**。\n\n- **保持登录状态**：这是最常见的用途。你登录一次后，Session 让你在点击“个人中心”、“购物车”或“设置”时，不需要重复输入账号密码。\n    \n- **存储临时数据**：比如你在电商网站没登录时往购物车里加了商品，这些信息通常存在 Session 中。\n    \n- **安全性**：将敏感信息（如用户权限、VIP 等级）存储在服务器端，只给客户端发一个加密的 ID，防止用户篡改。\n    \n\n---\n\nSession 是如何工作的？（流程拆解）\n\nSession 的运行通常依赖于我们在上一个问题中提到的 **Cookie**：\n\n1. **用户登录**：你输入账号密码并提交。\n    \n2. **服务器验证**：服务器确认你的账号密码正确。\n    \n3. **创建会话**：服务器在内存或数据库里开辟一块空间，存入你的用户信息，并生成一个唯一的 **Session ID**（就像是一串随机的钥匙编号）。\n    \n4. **下发“钥匙”**：服务器通过响应头，把这个 Session ID 存入你浏览器的 **Cookie** 中。\n    \n5. **后续访问**：当你访问其他页面（如 `/dashboard`）时，浏览器自动在请求头里带上这个含有 Session ID 的 Cookie。\n    \n6. **匹配数据**：服务器拿到 ID 后，去自己的库里比对，找到对应的用户信息，从而识别出：“哦，你是张三。”"},
 		{"id":"c3fc53509750a235","x":871,"y":2080,"width":250,"height":60,"type":"text","text":"配置auth.ts文件"},
 		{"id":"21a97de20e4149a0","x":1121,"y":1910,"width":285,"height":77,"type":"text","text":"核心配置文件，与数据库通信、配置providers、进行密码加密"},
-		{"id":"82e1475c92541bc7","x":512,"y":1570,"width":250,"height":60,"type":"text","text":"添加登录认证功能"},
-		{"id":"3642bf6494515dd0","x":-14,"y":1640,"width":428,"height":220,"type":"text","text":"为什么会有两个auth配置文件？\n\n因为auth.config.ts文件在proxy中被引用，prxoy文件运行在运行在 Edge Runtime环境，这个环境不支持node库，也不支持某些数据库驱动，因此只支持轻量的 auth.config.ts文件，但还需要配置providers和与数据库通信的auth.ts文件       "}
+		{"id":"3642bf6494515dd0","x":-14,"y":1640,"width":428,"height":220,"type":"text","text":"为什么会有两个auth配置文件？\n\n因为auth.config.ts文件在proxy中被引用，prxoy文件运行在运行在 Edge Runtime环境，这个环境不支持node库，也不支持某些数据库驱动，因此只支持轻量的 auth.config.ts文件，但还需要配置providers和与数据库通信的auth.ts文件       "},
+		{"id":"82e1475c92541bc7","x":481,"y":1540,"width":250,"height":60,"type":"text","text":"添加登录认证功能"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
@@ -80,9 +79,7 @@
 		{"id":"64b23adb15c64812","fromNode":"9d7d0870c7f8be2c","fromSide":"bottom","toNode":"96bd234f8c0b34fa","toSide":"top"},
 		{"id":"92be0c98fe76819d","fromNode":"9d7d0870c7f8be2c","fromSide":"bottom","toNode":"c3fc53509750a235","toSide":"top"},
 		{"id":"3882186d8c330c1e","fromNode":"9d7d0870c7f8be2c","fromSide":"bottom","toNode":"2698adaf50cc1706","toSide":"top"},
-		{"id":"4c86bcd2b46b51a3","fromNode":"2698adaf50cc1706","fromSide":"bottom","toNode":"273ab824eacdc230","toSide":"top"},
 		{"id":"faf914c606b48d3b","fromNode":"9d7d0870c7f8be2c","fromSide":"right","toNode":"7f17bd9fda209b46","toSide":"left"},
-		{"id":"cf92224913d6dc9b","fromNode":"96bd234f8c0b34fa","fromSide":"bottom","toNode":"273ab824eacdc230","toSide":"left"},
 		{"id":"e97a2a349e53284e","fromNode":"56bc71e248e6249f","fromSide":"bottom","toNode":"96bd234f8c0b34fa","toSide":"left"},
 		{"id":"1b07606fa5ce80e2","fromNode":"21a97de20e4149a0","fromSide":"bottom","toNode":"c3fc53509750a235","toSide":"right"}
 	]
