@@ -600,13 +600,42 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 一个项目里只允许存在**一个proxy**，并且proxy与app同级
 ## 作用
 
-### 1.解决开发环境跨域
+### 解决开发环境跨域
 
 - **痛点**：你的 Next.js 运行在 `http://localhost:3000`，而你的后端 API 运行在 `http://api.example.com`。由于浏览器的**同源策略**，前端直接请求后端会报错。
     
 - **Proxy 的作用**：你可以在 `next.config.ts` 中配置 `rewrites`。让前端请求 `/api/users`，Next.js 服务器作为代理，悄悄去后台请求数据再返回给前端。
     
 - **结果**：浏览器认为请求发往同源的 `localhost:3000`，跨域限制被绕过。
+#### [全局跨域（CORS）配置代理](https://nextjs.org/docs/app/api-reference/file-conventions/proxy#setting-headers)
+
+只要是/api下面的接口都可以被任意访问
+
+``` ts
+import { NextRequest, NextResponse } from "next/server";
+import { ProxyConfig } from "next/server";
+export async function proxy(request: NextRequest) {
+    const response = NextResponse.next();
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+        response.headers.set(key, value);
+    })
+    return response;
+}
+
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
+export const config: ProxyConfig = {
+   matcher:'/api/:path*',
+}
+```
+
+
+
+
 
 ## 配置对象
 
@@ -637,6 +666,8 @@ export const config = {
   ],
 }
 ```
+
+#### 复杂匹配
 
 `matcher` 选项接受一个具有以下键的对象数组，用于精细化控制：
 
@@ -676,7 +707,7 @@ export const config = {
 
 4. 可以使用括号内的正则表达式：`/about/(.*)` 与 `/about/:path* 相同`
 
-5. 锚定在路径的起始位置：``/about`` 匹配 ``/about`` 和 ``/about/team``，但不匹配 ``` /blog/about` ``
+5. 锚定在路径的起始位置：``/about`` 匹配 ``/about`` 和 ``/about/team``，但不匹配 `/blog/about` 
 
 
 
