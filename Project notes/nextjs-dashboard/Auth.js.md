@@ -175,6 +175,8 @@ providers.Credentials：最灵活的“用户名/密码”方式
 
 - authorize 函数决定“这个凭证能不能登录”
 
+	- 当用户在登录页面点击“登录”按钮后，NextAuth 会把用户填写的账号密码交给这个函数
+
 - 返回非 null → 登录成功，session 里就有 user 信息
 
 ## NextAuth
