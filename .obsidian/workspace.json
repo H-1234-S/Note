@@ -43,8 +43,8 @@
               "state": {
                 "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
                 "viewState": {
-                  "x": 483.04482648097246,
-                  "y": 2239.5381621007073,
+                  "x": 528.1881618934947,
+                  "y": 2379.841700884594,
                   "zoom": -0.01652470073318213
                 }
               },
@@ -67,7 +67,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -184,13 +184,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/nextjs-dashboard/Auth.js.md",
+                "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Auth.js 的大纲"
+              "title": "官方实战教程分析 的大纲"
             }
           },
           {
@@ -241,10 +241,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "3c4087371e33e82f",
+  "active": "26c26a2eb1f6b045",
   "lastOpenFiles": [
-    "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Project notes/nextjs-dashboard/Auth.js.md",
+    "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/React/React.md",
     "学习/技术栈.md",

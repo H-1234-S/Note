@@ -47,7 +47,7 @@
 		{"id":"21a97de20e4149a0","x":1121,"y":1910,"width":285,"height":77,"type":"text","text":"核心配置文件，与数据库通信、配置providers、进行密码加密"},
 		{"id":"3642bf6494515dd0","x":-14,"y":1640,"width":428,"height":220,"color":"1","type":"text","text":"为什么会有两个auth配置文件？\n\n因为auth.config.ts文件在proxy中被引用，prxoy文件运行在运行在 Edge Runtime环境，这个环境不支持node库，也不支持某些数据库驱动，因此只支持轻量的 auth.config.ts文件，但还需要配置providers和与数据库通信的auth.ts文件       "},
 		{"id":"82e1475c92541bc7","x":481,"y":1540,"width":250,"height":60,"type":"text","text":"添加登录认证功能"},
-		{"id":"765b23b8490dc8d4","x":200,"y":2240,"width":250,"height":60,"type":"text","text":"authorized函数进行"}
+		{"id":"1af74dca30ddf673","x":465,"y":2257,"width":250,"height":60,"type":"text","text":"server actions将认证逻辑与你的登录表单连接"}
 	],
 	"edges":[
 		{"id":"4abb6f3463b5e90f","fromNode":"273ef229978513de","fromSide":"bottom","toNode":"1a1ab36489092360","toSide":"top"},
@@ -82,7 +82,6 @@
 		{"id":"3882186d8c330c1e","fromNode":"9d7d0870c7f8be2c","fromSide":"bottom","toNode":"2698adaf50cc1706","toSide":"top"},
 		{"id":"faf914c606b48d3b","fromNode":"9d7d0870c7f8be2c","fromSide":"right","toNode":"7f17bd9fda209b46","toSide":"left"},
 		{"id":"e97a2a349e53284e","fromNode":"56bc71e248e6249f","fromSide":"bottom","toNode":"96bd234f8c0b34fa","toSide":"left"},
-		{"id":"1b07606fa5ce80e2","fromNode":"21a97de20e4149a0","fromSide":"bottom","toNode":"c3fc53509750a235","toSide":"right"},
-		{"id":"be74fd5e57abd7d6","fromNode":"96bd234f8c0b34fa","fromSide":"bottom","toNode":"765b23b8490dc8d4","toSide":"top"}
+		{"id":"1b07606fa5ce80e2","fromNode":"21a97de20e4149a0","fromSide":"bottom","toNode":"c3fc53509750a235","toSide":"right"}
 	]
 }
