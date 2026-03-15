@@ -266,15 +266,19 @@ providers.Credentials：最灵活的“用户名/密码”方式
     
 - **场景**：在 **Server Components** 里调用 `const session = await auth()`，判断用户是否登录。
     
-`signIn` (函数)
-
-- **用途**：发起登录流程。
-    
+`signIn` (函数)用来发起登录流程。
+	
+- **代码**：`await signIn('credentials', formData)`
+	
+	- **`credentials`**：这告诉 Auth.js，我们要使用的是 **“账号密码”** 这种登录方式
+		
+	-  **`formData`**：这是从前端表单（`<form>`）传过来的原始数据，里面包含了用户输入的邮箱和密码。
+	
 - **场景**：在 **Server Actions** 中调用，用户点击登录按钮后，触发认证逻辑。
     
-`signOut` (函数)
+`signOut` (函数)用来注销登录
 
-- **用途**：注销登录。
+- **代码**：`await signOut({ redirectTo: '/' })`
     
 - **场景**：点击“退出”按钮，清除用户的 Cookie 和 Session。
     
@@ -283,26 +287,128 @@ providers.Credentials：最灵活的“用户名/密码”方式
 - **用途**：包含 `GET` 和 `POST` 路由处理器。
     
 - **场景**：在 App Router 的 API 路由中使用，负责处理来自 OAuth 提供商（如 Google）的回调请求。
+
+## authorized
+
+### 1.用于路由保护
+
+auth.config.ts文件中`callbacks`里的`authorize` 作用是**不需要在每个受保护的页面里重复写判断逻辑。**
+
+结构如下：
+``` ts
+callbacks: {
+  authorized({ auth, request: { nextUrl } }) {
+    // 逻辑代码
+  },
+},
+```
+#### 参数
+
+`authorized` 接收一个对象作为参数，这个对象里最核心的两个属性是：
+
+- **`auth` (Session)**:
+    
+    - **内容**：当前的会话信息。
+			
+		- 由proxy文件中auth函数解析cookie传递而来
+	        
+    - **状态**：如果用户已登录，它包含用户信息（如 `user.email`）；如果未登录，它的值是 `null`。
+        
+    - **用途**：让你知道当前访问者“是谁”以及“是否合法”。
+        
+- **`request.nextUrl` (URL 对象)**:
+    
+    - **内容**：标准的 JavaScript `URL` 对象。
+        
+    - **用途**：让你知道用户“想去哪”。你最常用的是 `nextUrl.pathname`（例如 `/dashboard` 或 `/login`）。
+#### 返回值
+
+ **返回 `boolean` (最常用)**
+
+- **`true`**: **放行**。允许用户访问该路由。
+    
+- **`false`**: **拦截**。NextAuth 会自动将用户重定向到你在 `pages` 选项中定义的登录页面（例如 `/login`）。
+    
+    - _注意：它还会自动在 URL 后面附带 `callbackUrl`，方便用户登录后跳回原页面。_
+        
+ **返回 `Response` 对象**
+
+- **用途**：用于**强制重定向**。
+    
+- **场景**：例如用户已经登录了，但他尝试访问 `/login`。此时返回 `true` 会让他看到登录框（没意义），返回 `false` 会报错（循环重定向）。
+    
+- **做法**：返回 `Response.redirect(new URL('/dashboard', nextUrl))`，直接把他“弹”回后台。
+
+--- 
+### 2.用于登录校验
+
+auth.ts文件中`Credentials` 里的 `authorize` 是**登录校验的核心**。
+#### 参数
+
+接收一个名为 `credentials` 的对象，这个对象包含了用户从表单提交的所有数据。
+
+``` ts
+async authorize(credentials) {
+  // credentials 包含了表单传来的内容，例如：
+  // credentials.email
+  // credentials.password
+}
+```
+#### 返回值
+
+这个函数的返回值直接决定了登录是否成功：
+
+- **返回 `User` 对象**：
+    
+    - **含义**：登录**成功**。
+        
+    - **后续**：NextAuth 会把这个用户信息存入 Cookie/Session 中，用户从此状态变为“已登录”。
+        
+- **返回 `null`**：
+    
+    - **含义**：登录**失败**（比如密码错误或用户不存在）。
+        
+    - **后续**：页面会停留在登录页，并可能显示错误提示。
+        
+- **抛出错误 (`throw new Error`)**：
+    
+    - **含义**：发生异常（比如数据库连接断开）。
+
+``` ts
+async authorize(credentials) {
+  // 1. 校验格式（用 zod 或手动）
+  const parsed = z.object({
+    email: z.string().email(),
+    password: z.string().min(6),
+  }).safeParse(credentials);
+
+  if (!parsed.success) return null;
+
+  // 2. 去数据库找用户（最关键一步）
+  const user = await prisma.user.findUnique({
+    where: { email: parsed.data.email },
+  });
+
+  if (!user) return null;   // 没这个人
+
+  // 3. 比对密码（假设你存的是 bcrypt 哈希）
+  const passwordsMatch = await bcrypt.compare(
+    parsed.data.password,
+    user.password
+  );
+
+  if (!passwordsMatch) return null;
+
+  // 4. 成功 → 返回用户对象（注意：不要放敏感字段如 password）
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    // role: user.role,   // 可以加自定义字段
+  };
+}
+```
+
 ---
 # 登录页面（/app/login/page.tsx）中使用 Server Action
 
-``` ts
-// app/login/page.tsx
-'use client'
-
-import { authenticate } from '@/app/lib/actions';   // Server Action
-import { useFormState, useFormStatus } from 'react-dom';
-
-export default function LoginPage() {
-  const [errorMessage, dispatch] = useFormState(authenticate, undefined);
-
-  return (
-    <form action={dispatch}>
-      <input type="email" name="email" required />
-      <input type="password" name="password" required />
-      <button type="submit">登录</button>
-      {errorMessage && <p>{errorMessage}</p>}
-    </form>
-  );
-}
-```
