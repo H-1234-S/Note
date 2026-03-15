@@ -720,15 +720,6 @@ export const config = {
 
 5. 锚定在路径的起始位置：``/about`` 匹配 ``/about`` 和 ``/about/team``，但不匹配 `/blog/about` 
 
-
-
-
-
-
-
-
-
-
 --- 
 # 渲染方式
 
