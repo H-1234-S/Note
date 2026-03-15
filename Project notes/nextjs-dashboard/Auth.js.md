@@ -276,9 +276,9 @@ providers.Credentials：最灵活的“用户名/密码”方式
 	
 - **场景**：在 **Server Actions** 中调用，用户点击登录按钮后，触发认证逻辑。
     
-`signOut` (函数)
+`signOut` (函数)用来注销登录
 
-- **用途**：注销登录。
+- **代码**：`await signOut({ redirectTo: '/' })`
     
 - **场景**：点击“退出”按钮，清除用户的 Cookie 和 Session。
     
