@@ -69,12 +69,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "Project notes/nextjs-dashboard/Auth.js.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Next.js"
+              "title": "Auth.js"
             }
           }
         ],
@@ -135,7 +135,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -194,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "Project notes/nextjs-dashboard/Auth.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Next.js 的大纲"
+              "title": "Auth.js 的大纲"
             }
           },
           {
@@ -253,8 +254,8 @@
   },
   "active": "26c26a2eb1f6b045",
   "lastOpenFiles": [
-    "Front-end notes/Next.JS/NextAuth.js.md",
     "Front-end notes/Next.JS/Next.js.md",
+    "Front-end notes/Next.JS/NextAuth.js.md",
     "Project notes/nextjs-dashboard/Auth.js.md",
     "Front-end notes/Next.JS/核心知识.md",
     "Front-end notes/库/use-debounce防抖.md",
