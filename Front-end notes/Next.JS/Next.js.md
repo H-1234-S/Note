@@ -8,7 +8,7 @@
 
 ### 递归嵌套机制
 
-App Router 的路由本质上是由一个个**特定文件（Layout, Template, Error, Loading, Page）**按照严格的层级顺序嵌套而成的。
+App Router 的路由本质上是由一个个**特定文件（Layout, Template, Error, Loading, Page）** 按照严格的层级顺序嵌套而成的。
 
 在 App Router 中，当你访问一个路由（如 `/dashboard/invoices`）时，Next.js 会从根目录 `/app` 开始，逐层向下查找这些特定文件，并将它们包装在一起。
 
