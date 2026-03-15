@@ -616,7 +616,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ProxyConfig } from "next/server";
 
 const corsHeaders = {
-	// `*` 是通配符，意味着**任何域名**都可以访问这个 API。
+	// `*` 是通配符，意味着任何域名都可以访问这个 API。
     'Access-Control-Allow-Origin': '*',
     // 允许的 HTTP 方法。
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
