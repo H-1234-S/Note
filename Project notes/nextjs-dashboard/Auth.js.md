@@ -1,3 +1,5 @@
+[Auth.js](https://nextjs.org/learn/dashboard-app/adding-authentication#what-is-authentication)
+
 **教程的目的**：让 /dashboard 系列页面只有登录后才能访问，未登录用户自动重定向到登录页。
 # 安装依赖
 
@@ -242,6 +244,7 @@ providers.Credentials：最灵活的“用户名/密码”方式
 它接收一个**配置对象**作为参数（通常就是你在 `auth.config.ts` 里定义的那个对象，或者是扩展后的版本）。
 
 主要参数包括：
+
 
 - **`providers`**: 数组，定义你支持的登录方式（如 GitHub, Google 或 Credentials）。
     
