@@ -32,3 +32,10 @@ export const authConfig = {
   },
 } satisfies NextAuthConfig;
 ```
+
+ pages.signIn：自定义登录页，告诉 Auth.js 当需要登录时跳转到` /login`  页面
+## [callbacks](https://authjs.dev/reference/nextjs#callbacks)
+
+### authConfig
+
+`authConfig` 用于 **在身份验证流程的具体环节插入自定义逻辑。**
