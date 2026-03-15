@@ -166,6 +166,15 @@ export const { auth, signIn, signOut } = NextAuth({
   // 可选：secret、session 策略（默认 jwt）、adapter 等
 });
 ```
+
+提供者：[Credentials](https://authjs.dev/getting-started/authentication/credentials#validating-credentials)
+
+providers.Credentials：最灵活的“用户名/密码”方式
+
+- authorize 函数决定“这个凭证能不能登录”
+
+- 返回非 null → 登录成功，session 里就有 user 信息
+
 ## NextAuth
 
 `NextAuth` 函数是整个身份验证系统的**大脑**。
@@ -215,3 +224,26 @@ export const { auth, signIn, signOut } = NextAuth({
 - **用途**：包含 `GET` 和 `POST` 路由处理器。
     
 - **场景**：在 App Router 的 API 路由中使用，负责处理来自 OAuth 提供商（如 Google）的回调请求。
+---
+# 登录页面（/app/login/page.tsx）中使用 Server Action
+
+``` ts
+// app/login/page.tsx
+'use client'
+
+import { authenticate } from '@/app/lib/actions';   // Server Action
+import { useFormState, useFormStatus } from 'react-dom';
+
+export default function LoginPage() {
+  const [errorMessage, dispatch] = useFormState(authenticate, undefined);
+
+  return (
+    <form action={dispatch}>
+      <input type="email" name="email" required />
+      <input type="password" name="password" required />
+      <button type="submit">登录</button>
+      {errorMessage && <p>{errorMessage}</p>}
+    </form>
+  );
+}
+```
