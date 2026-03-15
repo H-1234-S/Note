@@ -321,7 +321,40 @@ async authorize(credentials) {
     
     - **含义**：发生异常（比如数据库连接断开）。
 
+``` ts
+async authorize(credentials) {
+  // 1. 校验格式（用 zod 或手动）
+  const parsed = z.object({
+    email: z.string().email(),
+    password: z.string().min(6),
+  }).safeParse(credentials);
 
+  if (!parsed.success) return null;
+
+  // 2. 去数据库找用户（最关键一步）
+  const user = await prisma.user.findUnique({
+    where: { email: parsed.data.email },
+  });
+
+  if (!user) return null;   // 没这个人
+
+  // 3. 比对密码（假设你存的是 bcrypt 哈希）
+  const passwordsMatch = await bcrypt.compare(
+    parsed.data.password,
+    user.password
+  );
+
+  if (!passwordsMatch) return null;
+
+  // 4. 成功 → 返回用户对象（注意：不要放敏感字段如 password）
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    // role: user.role,   // 可以加自定义字段
+  };
+}
+```
 
 
 

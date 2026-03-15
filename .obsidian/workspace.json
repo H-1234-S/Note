@@ -43,9 +43,9 @@
               "state": {
                 "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
                 "viewState": {
-                  "x": 674.1984172123816,
-                  "y": 2068.7379449371197,
-                  "zoom": -0.5236751979198737
+                  "x": 483.04482648097246,
+                  "y": 2239.5381621007073,
+                  "zoom": -0.01652470073318213
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -244,8 +244,8 @@
   "active": "3c4087371e33e82f",
   "lastOpenFiles": [
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
-    "Front-end notes/Next.JS/Next.js.md",
     "Project notes/nextjs-dashboard/Auth.js.md",
+    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/React/React.md",
     "学习/技术栈.md",
     "Front-end notes/Next.JS/NextAuth.js.md",
