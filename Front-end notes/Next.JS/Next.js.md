@@ -622,6 +622,7 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 
 ``` ts
 export const config = {
+  // matcher:'/' 匹配根路径
   matcher: ['/about/:path*', '/dashboard/:path*'],
 }
 ```
