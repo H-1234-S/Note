@@ -427,10 +427,13 @@ export default function BlogClientPage() {
     
 - **`NextResponse.rewrite()`**: 它允许你改变 URL 显示的内容，但**不改变浏览器地址栏的地址**（类似于代理）。
 
-- `NextResponse.next()`:返回的是一个 **`NextResponse` 的实例**
-
-	- 
-
+- `NextResponse.next()`:返回的是一个 **`NextResponse` 的实例**，这个实例有以下属性：
+		
+	- headers对象，允许读取、添加或删除响应头。
+		
+	- cookies对象，能直接操作 Cookie。
+		
+	- 继承自标准 `Response` 的内容，因为它是 `Response` 的子类
 
 ---
 ### [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
@@ -632,7 +635,9 @@ const corsHeaders = {
 }
 
 export async function proxy(request: NextRequest) {
+	// 创建了一个NextResponse实例对象
     const response = NextResponse.next();
+    
     Object.entries(corsHeaders).forEach(([key, value]) => {
         response.headers.set(key, value);
     })
