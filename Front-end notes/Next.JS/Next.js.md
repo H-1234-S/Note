@@ -593,26 +593,125 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 --- 
 # [Proxy](https://nextjs.org/docs/app/api-reference/file-conventions/proxy)
 
-代理允许你在**请求完成之前运行代码**。然后，根据传入的请求，你可以通过重写、重定向、修改请求或响应头，或直接响应来修改响应。
+代理允许你在**请求完成之前进行拦截**。然后，根据传入的请求，你可以通过重写、重定向、修改请求或响应头，或直接响应来修改响应。
 
 相当于网络请求中转站 **客户端** ➔ **代理服务器** ➔ **服务器**
 
 一个项目里只允许存在**一个proxy**，并且proxy与app同级
 ## 作用
 
-### 1.解决开发环境跨域
+### 解决开发环境跨域
 
 - **痛点**：你的 Next.js 运行在 `http://localhost:3000`，而你的后端 API 运行在 `http://api.example.com`。由于浏览器的**同源策略**，前端直接请求后端会报错。
     
 - **Proxy 的作用**：你可以在 `next.config.ts` 中配置 `rewrites`。让前端请求 `/api/users`，Next.js 服务器作为代理，悄悄去后台请求数据再返回给前端。
     
 - **结果**：浏览器认为请求发往同源的 `localhost:3000`，跨域限制被绕过。
+#### [全局跨域（CORS）配置代理](https://nextjs.org/docs/app/api-reference/file-conventions/proxy#setting-headers)
+
+只要是/api下面的接口都可以被任意访问
+
+``` ts
+import { NextRequest, NextResponse } from "next/server";
+import { ProxyConfig } from "next/server";
+
+const corsHeaders = {
+	// `*` 是通配符，意味着任何域名都可以访问这个 API。
+    'Access-Control-Allow-Origin': '*',
+    // 允许的 HTTP 方法。
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    // 允许的请求头字段。
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
+export async function proxy(request: NextRequest) {
+    const response = NextResponse.next();
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+        response.headers.set(key, value);
+    })
+    return response;
+}
+
+export const config: ProxyConfig = {
+   matcher:'/api/:path*',
+}
+```
+
+
+
+
 
 ## 配置对象
 
-可选，可以与代理函数一同导出一个配置对象。该对象包含[匹配器](https://nextjs.org/docs/app/api-reference/file-conventions/proxy#matcher)以指定代理适用的路径。
+可选，可以与代理函数一同导出一个**配置对象**。该对象包含**匹配器**以指定代理适用的路径。
 
+### 匹配器
 
+`matcher` 选项允许你**指定代理运行的目标路径**。你可以通过多种方式指定这些路径：
+
+- 对于单个路径：直接使用字符串定义路径，例如 `'/about'`。
+	
+- 对于多个路径：使用数组列出多个路径，例如 `matcher: ['/about', '/contact']` ，它将代理应用于 `/about` 和 `/contact`。
+
+``` ts
+export const config = {
+  // matcher:'/' 匹配根路径
+  matcher: ['/about/:path*', '/dashboard/:path*'],
+}
+```
+
+此外，`matcher` 选项支持使用正则表达式进行复杂的路径指定。例如，你可以使用**正则表达式**匹配器排除某些路径：
+
+``` ts
+export const config = {
+  matcher: [
+    // 排除 API 路由、静态文件、图像优化和 .png 文件
+    '/((?!api|_next/static|_next/image|.*\\.png$).*)',
+  ],
+}
+```
+
+#### 复杂匹配
+
+`matcher` 选项接受一个具有以下键的对象数组，用于精细化控制：
+
+- `source`: 用于匹配请求路径的路径或模式。它可以是用于直接路径匹配的字符串，也可以是用于更复杂匹配的模式。
+	
+- `locale` (可选): 当设置为 `false` 时，代理在匹配路径时会**忽略前面的语言代码**。。
+		
+	- Next.js 支持内置的国际化路由（如 `/en/about`, `/zh/about`）。
+		
+- `has` (可选): 指定基于特定请求元素（如请求头、查询参数或 Cookie）存在才会执行。
+	
+- `missing` (可选): 关注于某些请求元素缺失的条件，例如缺失的请求头或 Cookie，只有当请求中**没有**这些元素时，才触发。
+	
+``` ts
+export const config = {
+  matcher: [
+    {
+      source: '/api/:path*',
+      locale: false,
+      // 必须有这个请求头 
+      // URL 必须带 ?admin=true ]
+      has: [ { type: 'header', key: 'x-prerender' },{ type: 'query', key: 'admin', value: 'true' } 
+      // cookie 没有 session=active 时才会触发
+      missing: [{ type: 'cookie', key: 'session', value: 'active' }],
+    },
+  ],
+}
+```
+
+`source` 路径模式：
+
+1. 必须以 `/ 开头`
+
+2. 可以包含命名参数：`/about/:path` 匹配 `/about/a` 和 `/about/b`，但不匹配 `/about/a/c`
+
+3. 命名参数可以带有修饰符（以 `：` 开头）：`/about/:path*` 匹配 `/about/a/b/c`，因为 `*` 表示 _零个或多个_ 。`?` 表示 _零个或一个_ ，而 `+` _一个或多个_
+
+4. 可以使用括号内的正则表达式：`/about/(.*)` 与 `/about/:path* 相同`
+
+5. 锚定在路径的起始位置：``/about`` 匹配 ``/about`` 和 ``/about/team``，但不匹配 `/blog/about` 
 
 
 
@@ -1055,7 +1154,7 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 
 服务器函数(Server Actions)指的是可以是**服务器组件处理表单的提交**，无需手动编写API接口，并且还支持数据的验证，以及状态管理等。
 
-服务器组件渲染时不会将js代码传递给浏览器，因此浏览器执行不了服务端组件；而加了‘use server’之后，相当于开启了一个隐藏API接口，点击后浏览器才知道调用服务器上这个函数
+服务器组件渲染时不会将js代码传递给浏览器，因此浏览器执行不了服务端函数；而加了‘use server’之后，相当于开启了一个隐藏API接口，点击后浏览器才知道调用服务器上这个函数
 
 ## 1.如何工作的
 
@@ -1719,4 +1818,3 @@ export default function PostClientComponent() {
 
 --- 
 
-# Proxy
