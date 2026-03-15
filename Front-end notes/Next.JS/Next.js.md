@@ -1535,7 +1535,7 @@ export function ContentImage() {
 |decoding|String|`decoding="async"`|解码方式，“async”/“sync”/“auto”|
 
 ---
-## [2.font字体](https://nextjs.org/docs/app/api-reference/components/font)
+## [2.font字体优化](https://nextjs.org/docs/app/api-reference/components/font)
 
 在 Next.js 中，[字体优化（Font Optimization）](https://nextjs.org/docs/app/getting-started/fonts)是提升 **LCP (最大内容绘制)** 和 **CLS (累积布局偏移)** 的关键。Next.js 通过 `next/font` 模块实现了字体的自动自托管（Self-hosting）和零布局偏移。
 
