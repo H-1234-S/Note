@@ -610,9 +610,15 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 
 ## 配置对象
 
-可选，可以与代理函数一同导出一个配置对象。该对象包含[匹配器](https://nextjs.org/docs/app/api-reference/file-conventions/proxy#matcher)以指定代理适用的路径。
+可选，可以与代理函数一同导出一个**配置对象**。该对象包含**匹配器**以指定代理适用的路径。
 
+### 匹配器
 
+`matcher` 选项允许你指定代理运行的目标路径。你可以通过多种方式指定这些路径：
+
+- 对于单个路径：直接使用字符串定义路径，例如 `'/about'`。
+	
+- 对于多个路径：使用数组列出多个路径，例如 `matcher: ['/about', '/contact']` ，它将代理应用于 `/about` 和 `/contact`。
 
 
 
