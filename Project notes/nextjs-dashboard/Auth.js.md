@@ -283,6 +283,21 @@ providers.Credentials：最灵活的“用户名/密码”方式
 - **用途**：包含 `GET` 和 `POST` 路由处理器。
     
 - **场景**：在 App Router 的 API 路由中使用，负责处理来自 OAuth 提供商（如 Google）的回调请求。
+
+## authorized
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---
 # 登录页面（/app/login/page.tsx）中使用 Server Action
 
