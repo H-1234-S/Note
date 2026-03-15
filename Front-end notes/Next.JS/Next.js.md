@@ -8,7 +8,7 @@
 
 ### 递归嵌套机制
 
-App Router 的路由本质上是由一个个**特定文件（Layout, Template, Error, Loading, Page）**按照严格的层级顺序嵌套而成的。
+App Router 的路由本质上是由一个个**特定文件（Layout, Template, Error, Loading, Page）** 按照严格的层级顺序嵌套而成的。
 
 在 App Router 中，当你访问一个路由（如 `/dashboard/invoices`）时，Next.js 会从根目录 `/app` 开始，逐层向下查找这些特定文件，并将它们包装在一起。
 
@@ -392,6 +392,7 @@ export default function BlogClientPage() {
 
 - 以下 [HTTP 方法](https://developer.mozilla.org/docs/Web/HTTP/Methods)  受支持： `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, 和 `OPTIONS`。如果调用不受支持的方法，Next.js 将返回一个 `405 Method Not Allowed` 响应。
 
+--- 
 ###  `NextRequest` 和 `NextResponse` API[](https://nextjs.org/docs/app/getting-started/route-handlers#extended-nextrequest-and-nextresponse-apis)
 
 - 除了支持原生的 [Request](https://developer.mozilla.org/docs/Web/API/Request) 和 [Response](https://developer.mozilla.org/docs/Web/API/Response) API，Next.js 通过 [`NextRequest`](https://nextjs.org/docs/app/api-reference/functions/next-request) 和 [`NextResponse`](https://nextjs.org/docs/app/api-reference/functions/next-response) 扩展它们，以提供方便的高级用例辅助工具。
@@ -426,6 +427,15 @@ export default function BlogClientPage() {
     
 - **`NextResponse.rewrite()`**: 它允许你改变 URL 显示的内容，但**不改变浏览器地址栏的地址**（类似于代理）。
 
+- `NextResponse.next()`:返回的是一个 **`NextResponse` 的实例**，这个实例有以下属性：
+		
+	- headers对象，允许读取、添加或删除响应头。
+		
+	- cookies对象，能直接操作 Cookie。
+		
+	- 继承自标准 `Response` 的内容，因为它是 `Response` 的子类
+
+---
 ### [router.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
 
 #### http方法
@@ -593,7 +603,7 @@ POST http://localhost:3000/api/home/123141 HTTP/1.1
 --- 
 # [Proxy](https://nextjs.org/docs/app/api-reference/file-conventions/proxy)
 
-代理允许你在**请求完成之前进行拦截**。然后，根据传入的请求，你可以通过重写、重定向、修改请求或响应头，或直接响应来修改响应。
+代理允许你在**请求完成之前进行拦截**。然后，根据传入的请求，你可以通过重写、重定向、修改请求或响应头。
 
 相当于网络请求中转站 **客户端** ➔ **代理服务器** ➔ **服务器**
 
@@ -625,7 +635,9 @@ const corsHeaders = {
 }
 
 export async function proxy(request: NextRequest) {
+	// 创建了一个NextResponse实例对象
     const response = NextResponse.next();
+    
     Object.entries(corsHeaders).forEach(([key, value]) => {
         response.headers.set(key, value);
     })
@@ -637,10 +649,7 @@ export const config: ProxyConfig = {
 }
 ```
 
-
-
-
-
+### 重写
 ## 配置对象
 
 可选，可以与代理函数一同导出一个**配置对象**。该对象包含**匹配器**以指定代理适用的路径。
@@ -712,15 +721,6 @@ export const config = {
 4. 可以使用括号内的正则表达式：`/about/(.*)` 与 `/about/:path* 相同`
 
 5. 锚定在路径的起始位置：``/about`` 匹配 ``/about`` 和 ``/about/team``，但不匹配 `/blog/about` 
-
-
-
-
-
-
-
-
-
 
 --- 
 # 渲染方式
@@ -1523,7 +1523,7 @@ export function ContentImage() {
 |decoding|String|`decoding="async"`|解码方式，“async”/“sync”/“auto”|
 
 ---
-## [2.font字体](https://nextjs.org/docs/app/api-reference/components/font)
+## [2.font字体优化](https://nextjs.org/docs/app/api-reference/components/font)
 
 在 Next.js 中，[字体优化（Font Optimization）](https://nextjs.org/docs/app/getting-started/fonts)是提升 **LCP (最大内容绘制)** 和 **CLS (累积布局偏移)** 的关键。Next.js 通过 `next/font` 模块实现了字体的自动自托管（Self-hosting）和零布局偏移。
 
