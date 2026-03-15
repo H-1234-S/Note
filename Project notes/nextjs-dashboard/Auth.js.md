@@ -6,7 +6,7 @@ npm install next-auth@beta    # 或 pnpm / yarn
 # 或更新的写法（2026 年常见）
 npm install authjs            # 但教程里还是用 next-auth@beta
 ```
-# 创建 auth.config.ts
+# 创建 auth.config.ts(基础配置 + pages 重定向)
 
 ``` ts
 // auth.config.ts
@@ -137,3 +137,29 @@ callbacks.authorized：这是 **保护路由的核心逻辑**
 - **用途**：**反向跳转**。
     
     - **场景**：如果用户**已经登录**了，但他又手欠去点 `/login` 页面，你可以通过返回一个 `Response.redirect` 把他弹回 `/dashboard`。这样可以避免用户重复登录，提升体验。
+# 创建 auth.ts(核心配置文件 + 导出方法)
+
+``` ts
+// auth.ts   （放在根目录或 lib/ 下都行）
+import NextAuth from "next-auth";
+import { authConfig } from "./auth.config";
+import Credentials from "next-auth/providers/credentials";
+
+export const { auth, signIn, signOut } = NextAuth({
+  ...authConfig,
+  providers: [
+    Credentials({
+      async authorize(credentials) {
+        // 这里是你自己的登录逻辑
+        // 通常去数据库查用户、比对密码
+        // 返回用户对象 or null
+        const user = await getUserFromDB(credentials.email, credentials.password);
+        if (!user) return null;
+        return { id: user.id, name: user.name, email: user.email };
+      },
+    }),
+    // 你还可以加 Google、GitHub 等 provider
+  ],
+  // 可选：secret、session 策略（默认 jwt）、adapter 等
+});
+```
