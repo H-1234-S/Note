@@ -107,8 +107,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -226,8 +225,10 @@
   },
   "active": "dbbe38f78027d970",
   "lastOpenFiles": [
-    "Front-end notes/React/React.md",
+    "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/Next.JS/Next.js.md",
+    "Front-end notes/库",
+    "Front-end notes/React/React.md",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "学习/技术栈.md",
     "Front-end notes/Next.JS/核心知识.md",
@@ -269,7 +270,6 @@
     "数据流.canvas",
     "1.md",
     "Project notes",
-    "测试.md",
-    "测试.pdf"
+    "测试.md"
   ]
 }
