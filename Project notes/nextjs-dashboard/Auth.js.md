@@ -149,12 +149,15 @@ export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
+	    // credentials里是前端登录表单提交的数据。
       async authorize(credentials) {
         // 这里是你自己的登录逻辑
         // 通常去数据库查用户、比对密码
         // 返回用户对象 or null
         const user = await getUserFromDB(credentials.email, credentials.password);
+        // 返回 null (登录失败)
         if (!user) return null;
+        // 返回 user 对象 (登录成功)
         return { id: user.id, name: user.name, email: user.email };
       },
     }),
