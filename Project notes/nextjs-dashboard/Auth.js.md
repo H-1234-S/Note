@@ -36,6 +36,7 @@ export const authConfig = {
       return true;
     },
   },
+  providers: [],
 } satisfies NextAuthConfig;
 ```
 
@@ -52,6 +53,57 @@ callbacks.authorized：这是 **保护路由的核心逻辑**
 - 如果已登录但去的是公开页（如 /）→ 自动跳到 dashboard（常见体验）
 
 - 其他情况放行
+--- 
+## 为什么不配置providers
+
+其根本原因在于 **Next.js 的运行环境限制**，也就是所谓的 **Edge Runtime（边缘运行时）** 兼容性问题。
+
+### 1. 核心矛盾：中间件的限制
+
+Next.js 的 **Middleware（中间件）** 运行在 Edge Runtime 中。为了保证极快的响应速度，这个环境非常精简，它**不支持**许多 Node.js 的原生模块和重量级库。
+
+而在配置 `providers`（尤其是 `Credentials` 登录方式）时，你通常需要：
+
+1. **引入 `bcrypt`**：用于校验加密密码。`bcrypt` 依赖于 Node.js 的 C++ 绑定，这在 Edge 环境下会直接导致报错。
+    
+2. **查询数据库**：引入数据库驱动（如 `postgres` 或 `prisma`）。很多传统的数据库驱动在 Edge 环境下也是不工作的。
+    
+---
+### 2. 为什么 `auth.config.ts` 必须保持“干净”？
+
+- **它的角色**：这个文件会被 `middleware.ts` 引用。
+    
+- **后果**：如果你在 `auth.config.ts` 里配置了 `providers` 并引入了 `bcrypt`，那么中间件在启动时就会尝试加载 `bcrypt`。
+    
+- **报错**：你会看到类似 `Error: Standard Node.js modules are not supported in the Edge Runtime` 的错误。
+    
+
+因此，我们将 `auth.config.ts` 作为一个**“纯净的配置文件”**，只写中间件能理解的逻辑（比如路由跳转规则），而不引入任何不兼容的库。
+
+### 3. 为什么在 `auth.ts` 中配置？
+
+- **它的角色**：它是身份验证的“完全体”。
+    
+- **运行环境**：它通常在标准的 **Node.js Runtime** 下运行（例如处理登录请求的 API 或 Server Actions）。
+    
+- **逻辑合并**：在 `auth.ts` 中，我们会这样做：
+    
+    ``` ts
+    import NextAuth from 'next-auth';
+    import { authConfig } from './auth.config'; // 引入基础配置
+    import Credentials from 'next-auth/providers/credentials'; // 引入重量级组件
+    
+    export const { auth, signIn, signOut } = NextAuth({
+      ...authConfig, // 展开基础配置
+      providers: [
+        Credentials({
+          // 在这里写涉及数据库和 bcrypt 的复杂逻辑
+          // 因为这里是 Node.js 环境，所以不会报错
+        })
+      ],
+    });
+    ```
+
 --- 
 ## [callbacks](https://authjs.dev/reference/nextjs#callbacks)
 

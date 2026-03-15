@@ -196,7 +196,7 @@
               "type": "outline",
               "state": {
                 "file": "Project notes/nextjs-dashboard/Auth.js.md",
-                "followCursor": false,
+                "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
@@ -252,7 +252,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "26c26a2eb1f6b045",
+  "active": "ed4e7f2d0b9f101c",
   "lastOpenFiles": [
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/NextAuth.js.md",
