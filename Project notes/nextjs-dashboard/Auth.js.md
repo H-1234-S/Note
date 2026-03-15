@@ -34,6 +34,19 @@ export const authConfig = {
 ```
 
  pages.signIn：自定义登录页，告诉 Auth.js 当需要登录时跳转到` /login`  页面
+ 
+callbacks.authorized：这是 **保护路由的核心逻辑**
+
+- 每次请求进来，都会运行这个函数
+
+- 判断用户是否已登录（!!auth?.user）
+
+- 如果要去 /dashboard/* 但没登录 → 返回 false → Auth.js 自动重定向到 /login
+
+- 如果已登录但去的是公开页（如 /）→ 自动跳到 dashboard（常见体验）
+
+- 其他情况放行
+--- 
 ## [callbacks](https://authjs.dev/reference/nextjs#callbacks)
 
 ### authConfig
