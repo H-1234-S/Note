@@ -70,17 +70,14 @@
             "id": "e52409333862e07a",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
-                "viewState": {
-                  "x": 675.4173983718853,
-                  "y": 937.2151496837669,
-                  "zoom": -0.6378752958349545
-                }
+                "file": "Project notes/nextjs-dashboard/Auth.js.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "官方实战教程分析"
+              "icon": "lucide-file",
+              "title": "Auth.js"
             }
           }
         ],
@@ -234,10 +231,14 @@
   },
   "active": "e52409333862e07a",
   "lastOpenFiles": [
-    "/Project notes/nextjs-dashboard/Auth.js.md",
+    "Front-end notes/Next.JS/Next.js.md",
+    "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
+    "Project notes/nextjs-dashboard/添加搜索功能.canvas",
+    "/Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "/Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "/Project notes/nextjs-dashboard",
     "/Project notes",
+    "/Project notes/nextjs-dashboard/Auth.js.md",
     "/Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS",
     "/Front-end notes",
@@ -253,18 +254,14 @@
     "Project notes/react-firebase/消息同步.canvas",
     "Project notes/react-firebase/消息撤回.canvas",
     "Project notes/react-firebase",
-    "/Project notes/react-firebase/注册、登录.canvas",
     "/Project notes/react-firebase/React + Firebase 实时聊天项目复盘.md",
     "/Project notes/react-firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "/Project notes/react-firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
-    "/Project notes/react-firebase/最后一条消息.canvas",
-    "/Project notes/react-firebase/消息撤回.canvas",
     "/Front-end notes/Next.JS/NextAuth.js.md",
     "Front-end notes/Next.JS/NextAuth.js.md",
     "/Project notes/react-firebase",
     "/Project notes/React + Firebase",
     "核心知识.md",
-    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/核心知识.md",
     "学习/技术栈.md",
     "Front-end notes/库/use-debounce防抖.md",
