@@ -291,9 +291,35 @@ providers.Credentials：最灵活的“用户名/密码”方式
 `Credentials` 里的 `authorize` 是**登录校验的核心**。
 ### 参数
 
+接收一个名为 `credentials` 的对象，这个对象包含了用户从表单提交的所有数据。
 
+``` ts
+async authorize(credentials) {
+  // credentials 包含了表单传来的内容，例如：
+  // credentials.email
+  // credentials.password
+}
+```
 
+### 返回值
 
+这个函数的返回值直接决定了登录是否成功：
+
+- **返回 `User` 对象**：
+    
+    - **含义**：登录**成功**。
+        
+    - **后续**：NextAuth 会把这个用户信息存入 Cookie/Session 中，用户从此状态变为“已登录”。
+        
+- **返回 `null`**：
+    
+    - **含义**：登录**失败**（比如密码错误或用户不存在）。
+        
+    - **后续**：页面会停留在登录页，并可能显示错误提示。
+        
+- **抛出错误 (`throw new Error`)**：
+    
+    - **含义**：发生异常（比如数据库连接断开）。
 
 
 
