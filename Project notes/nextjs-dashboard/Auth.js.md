@@ -54,6 +54,8 @@ callbacks.authorized：这是 **保护路由的核心逻辑**
 ### authConfig
 
 `authConfig` 用于 **在身份验证流程的具体环节插入自定义逻辑。**
+
+每当proxy拦截到一个请求时运行
 #### 参数
 
  `auth` (Session 对象)
