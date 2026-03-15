@@ -71,8 +71,8 @@
               "state": {
                 "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
                 "viewState": {
-                  "x": 413.21498484859217,
-                  "y": 1154.643129215033,
+                  "x": 629.7221812747275,
+                  "y": 1214.1307138190102,
                   "zoom": -0.4477665534737474
                 }
               },
@@ -241,7 +241,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 257.5
+    "width": 257.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
