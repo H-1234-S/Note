@@ -163,3 +163,52 @@ export const { auth, signIn, signOut } = NextAuth({
   // 可选：secret、session 策略（默认 jwt）、adapter 等
 });
 ```
+## NextAuth
+
+`NextAuth` 函数是整个身份验证系统的**大脑**。
+
+它的核心作用是**生成一套工具集**。你把“配置说明书”（也就是 `authConfig`）喂给它，它就会根据你的配置，自动生成处理登录、登出、Session 校验的一系列“零件”。
+
+### 参数
+
+它接收一个**配置对象**作为参数（通常就是你在 `auth.config.ts` 里定义的那个对象，或者是扩展后的版本）。
+
+主要参数包括：
+
+- **`providers`**: 数组，定义你支持的登录方式（如 GitHub, Google 或 Credentials）。
+    
+- **`callbacks`**: 包含 `authorized`, `jwt`, `session` 等钩子函数。
+    
+- **`pages`**: 自定义登录、错误页面的路径。
+    
+- **`session`**: 设置如何存储 Session（默认是 JWT）。
+    
+- **`secret`**: 用于加密的随机字符串。
+
+### 返回值
+
+当你执行 `const { ... } = NextAuth(config)` 时，它会返回一个对象。在 Next.js 教程中，你会解构出以下几个最常用的“零件”：
+
+`auth` (函数/对象)
+
+- **用途**：在服务端获取当前的 Session。
+    
+- **场景**：在 **Server Components** 里调用 `const session = await auth()`，判断用户是否登录。
+    
+`signIn` (函数)
+
+- **用途**：发起登录流程。
+    
+- **场景**：在 **Server Actions** 中调用，用户点击登录按钮后，触发认证逻辑。
+    
+`signOut` (函数)
+
+- **用途**：注销登录。
+    
+- **场景**：点击“退出”按钮，清除用户的 Cookie 和 Session。
+    
+ `handlers` (对象)
+
+- **用途**：包含 `GET` 和 `POST` 路由处理器。
+    
+- **场景**：在 App Router 的 API 路由中使用，负责处理来自 OAuth 提供商（如 Google）的回调请求。
