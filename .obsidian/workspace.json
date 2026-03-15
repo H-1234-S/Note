@@ -67,14 +67,17 @@
             "id": "26c26a2eb1f6b045",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Project notes/nextjs-dashboard/Auth.js.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
+                "viewState": {
+                  "x": 413.21498484859217,
+                  "y": 1154.643129215033,
+                  "zoom": -0.4477665534737474
+                }
               },
-              "icon": "lucide-file",
-              "title": "Auth.js"
+              "icon": "lucide-layout-dashboard",
+              "title": "官方实战教程分析"
             }
           }
         ],
@@ -195,13 +198,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/nextjs-dashboard/Auth.js.md",
+                "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Auth.js 的大纲"
+              "title": "官方实战教程分析 的大纲"
             }
           },
           {
@@ -252,11 +255,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "ed4e7f2d0b9f101c",
+  "active": "26c26a2eb1f6b045",
   "lastOpenFiles": [
+    "Project notes/nextjs-dashboard/Auth.js.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/NextAuth.js.md",
-    "Project notes/nextjs-dashboard/Auth.js.md",
     "Front-end notes/Next.JS/核心知识.md",
     "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/库",
