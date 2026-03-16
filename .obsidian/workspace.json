@@ -41,7 +41,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "项目链接.md",
+                "file": "Project notes/项目链接.md",
                 "mode": "source",
                 "source": false
               },
@@ -166,7 +166,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "项目链接.md",
+                "file": "Project notes/项目链接.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
@@ -223,10 +223,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "eb03dfbe8cf13c9a",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
     "Front-end notes/Next.JS/Next.js.md",
-    "项目链接.md",
+    "Project notes/项目链接.md",
     "conflict-files-obsidian-git.md",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
