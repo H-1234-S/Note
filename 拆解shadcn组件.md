@@ -71,3 +71,18 @@ function Button({
 
 export { Button, buttonVariants }
 ```
+
+# props
+
+``` ts
+{
+  className,
+  variant = "default",
+  size = "default",
+  asChild = false,
+  ...props
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+  }
+```
