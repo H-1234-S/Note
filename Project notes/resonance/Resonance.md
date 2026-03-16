@@ -37,6 +37,19 @@ export default clerkMiddleware((auth, req) => {
   }
 });
 ```
+#### 函数的参数哪里来的？
+
+``` ts
+export default clerkMiddleware(async (auth, req) => { ... })
+```
+
+实际上是你向 Clerk 定义了一个“规则”。当用户访问你的网站时：
+
+1. **Next.js** 抓住了这个请求。
+    
+2. **Clerk 的内部代码** 先运行，它去检查请求里的 Cookie 和 Header，把复杂的加密信息解密。
+    
+3. **Clerk 调用你的函数**：它把解析好的工具（`auth`）和原始请求（`req`）作为参数塞进你的函数里。
 ### 返回值
 
 `clerkMiddleware()` 的返回值是一个标准的 **Next.js Proxy Handler**。
