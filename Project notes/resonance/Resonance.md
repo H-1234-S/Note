@@ -107,6 +107,13 @@ export default clerkMiddleware(async (auth, req) => {
 # Page
 ## [OrganizationList](https://clerk.com/docs/nextjs/reference/components/organization/organization-list)
 
+当 `<OrganizationList />` 组件加载时，它会携带配置的环境变量 向 Clerk 的服务器发送请求。
+
+Clerk 会检查该 Instance 的配置：
+
+- 如果你的后台关闭了组织功能，API 会返回错误或不显示相关 UI
+
+- 如果你开启了，API 才会返回正常的组织创建/选择列表。
 
 ``` ts
 import { OrganizationList } from "@clerk/nextjs";
