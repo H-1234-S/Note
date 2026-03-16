@@ -71,7 +71,6 @@ function Button({
 
 export { Button, buttonVariants }
 ```
-
 # props
 
 ``` ts
@@ -97,20 +96,16 @@ export { Button, buttonVariants }
     
 ## 2. `variant` & `size` (样式变体)
 
-- **含义**：由 `cva` (Class Variance Authority) 定义的视觉规格。
-    
 - **作用**：
     
     - **`variant`**：定义“种类”。如 `default`（主色）、`destructive`（红色/危险）、`outline`（边框线）。
         
     - **`size`**：定义“尺寸”。如 `sm`（小号）、`lg`（大号）、`icon`（正方形图标按钮）。
         
-- **默认值**：代码里的 `= "default"` 是 ES6 的默认参数，确保如果你不传这两个属性，按钮也不会“裸奔”。
+- **默认值**：代码里的 `= "default"` 是默认参数。
     
 ## 3. `asChild` (元素代理/槽)
 
-- **含义**：这是 shadcn/ui 的灵魂属性，来自 Radix UI 的 `Slot` 组件。
-    
 - **作用**：**改变组件渲染的实际 DOM 节点，但保留样式。**
     
 - **场景举例**：
