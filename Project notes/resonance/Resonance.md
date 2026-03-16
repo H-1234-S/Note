@@ -179,6 +179,7 @@ export default function OrgSelectionPage() {
 npm install @prisma/adapter—pg @prisma/client @t3-oss/env-nextjs pg
 ```
 
+## 是什么？
 ### 1. `@prisma/client` & `pg` (核心驱动层)
 
 - **`pg` (node-postgres)**:
@@ -219,7 +220,7 @@ npm install @prisma/adapter—pg @prisma/client @t3-oss/env-nextjs pg
         
 - **实际场景**：如果你的数据库密码填错了，或者少填了一个变量，项目在**编译阶段**（build）就会直接报错报错并告诉你哪里少了，而不是等到用户访问网站时才报错。
     
-### 4.总结：它们是如何协同工作的？
+## 如何协同工作？
 
 当你执行一个查询时，链路如下：
 
@@ -230,3 +231,54 @@ npm install @prisma/adapter—pg @prisma/client @t3-oss/env-nextjs pg
 3. **`@prisma/adapter-pg`**：作为中转站，将 Prisma 的指令传给底层的 `pg` 驱动。
     
 4. **`pg`**：通过网络把指令发给你的 **PostgreSQL** 数据库并取回数据。
+
+---
+# 开发环境
+
+``` bash
+npm install --save-dev prisma @types/pg dotenv tsx
+```
+## 是什么？
+
+### **`prisma` (Prisma CLI)**
+
+- **是什么**：Prisma 的命令行工具。
+    
+- **有什么用**：这是你与数据库交互的“控制台”。你不需要去数据库后台写 SQL，而是通过它来执行 `npx prisma db push`（同步模型到数据库）或 `npx prisma studio`（在浏览器里像看 Excel 一样查看和编辑数据）。
+    
+- **为什么是 `--save-dev`**：因为它主要在开发阶段用来管理表结构，项目部署后运行的是生成的 Client，不需要 CLI 核心包。
+    
+### **`@types/pg`**
+
+- **是什么**：`pg` (PostgreSQL 驱动) 的 TypeScript 类型定义文件。
+    
+- **有什么用**：为你之前安装的 `pg` 包提供代码补全和类型检查。
+    
+- **结合你的情况**：你简历里写了“熟悉 TypeScript 语法”，安装这个包能确保你在操作数据库连接时，编辑器不会报红线，并且能自动提示连接参数（如 host, port 等）。
+    
+### **`dotenv`**
+
+- **是什么**：环境变量加载器。
+    
+- **有什么用**：它能将 `.env` 文件中的配置加载到 Node.js 的 `process.env` 中。虽然 Next.js 自带环境变量支持，但在运行一些独立的脚本（比如数据库迁移脚本）时，仍然需要 `dotenv` 来确保程序能读到数据库地址。
+    
+### **`tsx`**
+
+- **是什么**：**T**ype**S**cript **E**xecute，一个极速的 TS 运行运行时。
+    
+- **有什么用**：它让你能够像运行原生 JS 一样直接运行 `.ts` 文件（例如：`npx tsx ./scripts/seed.ts`）。
+    
+- **结合你的项目**：在 `resonance` 这类项目中，通常需要写一个“种子脚本”来初始化数据库数据，`tsx` 让你不需要先编译成 JS 就能直接跑脚本，开发体验极佳。
+
+## 如何协同工作？
+
+- **`dotenv`** 负责把你的数据库账号密码从 `.env` 读出来。
+    
+- **`prisma`** 拿到地址后，去数据库里建表。
+    
+- **`tsx`** 运行你写的初始化脚本，往建好的表里塞入一些测试数据。
+    
+- **`@types/pg`** 确保你在写这些脚本时，代码提示非常准确。
+
+---
+
