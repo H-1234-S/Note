@@ -80,3 +80,69 @@ const voices = await db.voice.findMany({
 --- 
 # Prisma Client
 
+Prisma Client是一个根据定义的 `schema.prisma` 文件，**自动生成的**类型安全（Type-safe）的查询库。
+
+- **自动生成**：它不是一个写死的包。当你运行 `npx prisma generate` 时，它会读取你的模型（比如你刚写的 `Voice` 和 `Generation`），专门为你生成一套独一无二的代码。
+    
+- **类型安全**：因为它知道你的表里有哪些字段，所以当你敲代码时，编辑器会精准地告诉你哪些字段可以用，哪些是必填的。
+## 核心语法
+
+### 1. 查询 (Read)
+
+``` TypeScript
+// 获取所有系统语音
+const voices = await db.voice.findMany({
+  where: { variant: "SYSTEM" },
+  orderBy: { createdAt: "desc" }
+});
+
+// 获取单条记录及其关联数据 (使用 include)
+const voiceWithGenerations = await db.voice.findUnique({
+  where: { id: "voice_id_123" },
+  include: { generations: true } // 这里的 generations 对应 schema 中的关系字段
+});
+```
+### 2. 写入 (Create)
+
+``` TypeScript
+await db.generation.create({
+  data: {
+    text: "Hello World",
+    voiceId: "voice_123",
+    orgId: "org_abc",
+    temperature: 0.7,
+    // ...其他必填字段
+  }
+});
+```
+### 3. 更新与删除 (Update & Delete)
+
+``` TypeScript
+// 更新
+await db.voice.update({
+  where: { id: "123" },
+  data: { name: "New Name" }
+});
+
+// 删除
+await db.voice.delete({ where: { id: "123" } });
+```
+
+## 字段属性
+
+模型：
+
+``` 
+model 名字 { 
+  字段名 类型 属性 
+}
+```
+
+| **属性**           | **作用**           | **例子**                               |
+| ---------------- | ---------------- | ------------------------------------ |
+| **`@id`**        | 声明主键（唯一标识）       | `id String @id`                      |
+| **`@default()`** | 设置默认值            | `createdAt DateTime @default(now())` |
+| **`@unique`**    | 确保该字段值全表唯一       | `email String @unique`               |
+| **`?`**          | 声明该字段为“可选”（允许为空） | `description String?`                |
+| **`@updatedAt`** | 自动记录最后一次修改时间     | `updatedAt DateTime @updatedAt`      |
+| **`@map()`**     | 数据库字段名与代码字段名映射   | `userId String @map("user_id")`      |
