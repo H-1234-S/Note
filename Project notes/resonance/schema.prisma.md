@@ -51,8 +51,8 @@ model Generation {
 }
 ```
 
-
-# 一、 Voice 模型（声音/音色表）
+--- 
+# Voice
 
 这个表存储的是可用的“声音”，包括系统内置的和用户自己上传克隆的。
 
@@ -81,7 +81,7 @@ model Generation {
 
 ---
 
-# 二、 Generation 模型（生成记录表）
+# Generation
 
 这个表记录了每一次“文本转语音”的具体操作。
 
