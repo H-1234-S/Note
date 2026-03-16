@@ -103,8 +103,7 @@ export default clerkMiddleware(async (auth, req) => {
 ```
 
 --- 
-
-# Page
+# 组件
 ## [OrganizationList](https://clerk.com/docs/nextjs/reference/components/organization/organization-list)
 
 当 `<OrganizationList />` 组件加载时，它会携带配置的环境变量 向 Clerk 的服务器发送请求。
@@ -165,6 +164,15 @@ export default function OrgSelectionPage() {
     
     一个布尔值，用于控制创建组织后发送邀请的界面是否隐藏。当 ``undefined`` 时，如果最大允许成员数等于 1，Clerk 将自动隐藏该界面。默认值为 ``false``。
 
+## OrganizationSwitcher
+
+
+## UserButton
+
+
+
+
+--- 
 # 包
 
 ``` bash
