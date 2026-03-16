@@ -3,6 +3,54 @@
 在 Prisma 中，这不仅仅是建表，它还定义了两者之间的**一对多（One-to-Many）关系**：一个声音可以被用来生成多次音频。
 
 ---
+# Code
+
+``` 
+model Voice {
+  id String @id @default(cuid())
+
+  orgId String?
+
+  name        String
+  description String?
+  category    VoiceCategory @default(GENERAL)
+  language    String        @default("en-US")
+  variant     VoiceVariant
+  r2ObjectKey String?
+
+  generations Generation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([variant])
+  @@index([orgId])
+}
+
+model Generation {
+  id String @id @default(cuid())
+
+  orgId String
+
+  voiceId String?
+  voice   Voice?  @relation(fields: [voiceId], references: [id], onDelete: SetNull)
+
+  text              String
+  voiceName         String
+  r2ObjectKey       String?
+  temperature       Float
+  topP              Float
+  topK              Int
+  repetitionPenalty Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([voiceId])
+}
+```
+
 
 # 一、 Voice 模型（声音/音色表）
 
