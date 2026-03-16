@@ -11,14 +11,17 @@
             "id": "97f034e3812cceac",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Project notes/resonance/Resonance.md",
-                "mode": "source",
-                "source": false
+                "file": "未命名.canvas",
+                "viewState": {
+                  "x": 0,
+                  "y": 0,
+                  "zoom": 0
+                }
               },
-              "icon": "lucide-file",
-              "title": "Resonance"
+              "icon": "lucide-layout-dashboard",
+              "title": "未命名"
             }
           }
         ]
@@ -78,8 +81,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -138,13 +140,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/Resonance.md",
+                "file": "未命名.canvas",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Resonance 的大纲"
+              "title": "未命名 的大纲"
             }
           },
           {
@@ -197,11 +199,12 @@
   },
   "active": "97f034e3812cceac",
   "lastOpenFiles": [
+    "Project notes/resonance/Resonance.md",
+    "未命名.canvas",
     "Front-end notes/React/React.md",
     "Front-end notes/Tailwind CSS/全指令.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Project notes/项目链接.md",
-    "Project notes/resonance/Resonance.md",
     "Front-end notes/Shadcn/拆解shadcn组件.md",
     "Front-end notes/Shadcn",
     "Project notes/resonance",
@@ -221,7 +224,6 @@
     "学习",
     "Project notes/nextjs-dashboard/官方实战教程.md",
     "学习计划.md",
-    "未命名.canvas",
     "Project notes/nextjs-dashboard",
     "Front-end notes/TypeScript.md",
     "思考.md",
@@ -240,7 +242,6 @@
     "Project notes/react-firebase/React + Firebase 实时聊天项目复盘.md",
     "Project notes/react-firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "2026-03-07.md",
-    "Project notes/React + Firebase/数据流向 Mermaid 流程图.md",
     "React + Firebase 实时聊天项目：全栈开发技术文档.pdf",
     "Front-end notes",
     "Pasted image 20260228185140.png"
