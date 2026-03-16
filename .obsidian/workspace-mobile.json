@@ -234,6 +234,9 @@
   },
   "active": "3bcd41b642b847be",
   "lastOpenFiles": [
+    "/Project notes/项目链接.md",
+    "Project notes/项目链接.md",
+    "/Project notes",
     "Project notes/nextjs-dashboard/Auth.js.md",
     "学习/技术栈.md",
     "学习/学习计划.md",
@@ -243,7 +246,6 @@
     "/Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "/Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "/Project notes/nextjs-dashboard",
-    "/Project notes",
     "/Project notes/nextjs-dashboard/Auth.js.md",
     "/Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS",
@@ -277,8 +279,6 @@
     "Front-end notes/React/React Router.md",
     "Front-end notes/React/Zustand.md",
     "Front-end notes/React",
-    "/Front-end notes/React/Zustand.md",
-    "/Front-end notes/React/React Router.md",
-    "/Front-end notes/React/React.md"
+    "/Front-end notes/React/Zustand.md"
   ]
 }
