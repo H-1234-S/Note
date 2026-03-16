@@ -65,3 +65,39 @@ export default clerkMiddleware(async (auth, req) => { ... })
     - 它还会向请求头中注入 `Auth` 状态，以便你在 Server Components 中通过 `auth()` 钩子获取用户信息。
 ## auth()函数
 
+该auth函数是proxy代理里**异步函数的参数**；不是需要导入的auth函数
+### 作用
+
+调用 `await auth()` 可以拿到当前请求的实时快照：
+
+- **`userId`**: 用户 ID（未登录则为 `null`）。
+    
+- **`orgId`**: 用户当前激活的组织 ID。
+    
+- **`sessionClaims`**: JWT 的载荷（可以包含自定义的用户元数据）。
+
+调用 `auth().protect()`进行路由保护。
+
+- 如果用户没登录，它会直接打断请求，重定向到登录页。
+    
+- 它可以接收权限参数：`auth().protect({ role: 'org:admin' })`。
+
+``` ts
+export default clerkMiddleware(async (auth, req) => {
+  // 1. 判断当前路径属性
+  if (isPublicRoute(req)) return; // 公共路由直接放行
+
+  // 2. 这里的 auth 是参数！
+  // 场景：如果用户登录了但没选组织，且当前不是在选组织页面，就强制他去选组织
+  const { userId, orgId } = await auth();
+
+  if (userId && !orgId && !isOrgSelectionRoute(req)) {
+    // 构造一个重定向到组织选择页面的 URL
+    const orgSelection = new URL("/org-selection", req.url);
+    return NextResponse.redirect(orgSelection);
+  }
+
+  // 3. 场景：如果是私有路由且没登录，protect 会处理重定向
+  auth().protect();
+});
+```
