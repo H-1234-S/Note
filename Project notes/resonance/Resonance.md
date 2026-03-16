@@ -164,3 +164,61 @@ export default function OrgSelectionPage() {
     `boolean | undefined`
     
     一个布尔值，用于控制创建组织后发送邀请的界面是否隐藏。当 ``undefined`` 时，如果最大允许成员数等于 1，Clerk 将自动隐藏该界面。默认值为 ``false``。
+
+# 包
+
+``` bash
+npm install @prisma/adapter—pg @prisma/client @t3-oss/env-nextjs pg
+```
+
+### 1. `@prisma/client` & `pg` (核心驱动层)
+
+- **`pg` (node-postgres)**:
+    
+    - **是什么**：它是 Node.js 环境下连接 PostgreSQL 数据库最基础、最底层的驱动程序。
+        
+    - **作用**：负责与数据库进行实际的 TCP 通信、处理 SQL 查询请求和返回原始数据。你可以把它理解为“底层的翻译官”，让 JavaScript 能够听懂 PostgreSQL 的语言。
+        
+- **`@prisma/client`**:
+    
+    - **是什么**：这是 Prisma 的核心，一个自动生成的、**强类型**的数据库查询构建器（ORM）。
+        
+    - **作用**：你不需要写原始的 `SELECT * FROM ...` 语句，而是直接调用 `prisma.user.findMany()`。它会根据你的数据库模型自动提供 TypeScript 类型补全，极大减少了拼写错误和运行时错误。
+        
+### 2. `@prisma/adapter-pg` (适配层)
+
+- **是什么**：这是 Prisma 官方提供的“适配器”，用于将 Prisma 连接到特定的数据库驱动（在这里是 `pg`）。
+    
+- **为什么需要它**：
+    
+    - 在传统的 Node.js 环境中，Prisma 默认使用自己的二进制引擎。
+        
+    - 但在 **Serverless** 或 **Edge 运行时**（如 Vercel Edge Functions）中，直接使用二进制引擎可能会有兼容性问题。
+        
+    - 使用适配器可以让 Prisma 借用 `pg` 驱动的力量来处理连接池和通信，从而在各种托管环境下更稳定地运行。
+        
+### 3. `@t3-oss/env-nextjs` (工程化方案)
+
+- **是什么**：这是一个专门为 Next.js 设计的环境变量校验库，由 T3 Stack 团队开源。
+    
+- **有什么用**：
+    
+    - **防患于未然**：很多时候我们忘记在 `.env` 里写 `DATABASE_URL`，导致程序运行时崩溃。
+        
+    - **类型安全**：它强迫你在一个配置文件中定义所有环境变量（如 API Key, DB URL），并使用 **Zod** 进行校验。
+        
+    - **自动补全**：定义好后，你在代码里输入 `env.DATABASE_URL` 时会有完整的 TS 代码提示。
+        
+- **实际场景**：如果你的数据库密码填错了，或者少填了一个变量，项目在**编译阶段**（build）就会直接报错报错并告诉你哪里少了，而不是等到用户访问网站时才报错。
+    
+### 4.总结：它们是如何协同工作的？
+
+当你执行一个查询时，链路如下：
+
+1. **`@t3-oss/env-nextjs`**：确保你的数据库连接字符串（`DATABASE_URL`）是存在且格式正确的。
+    
+2. **`@prisma/client`**：提供代码提示，让你写出 `prisma.audio.create(...)`。
+    
+3. **`@prisma/adapter-pg`**：作为中转站，将 Prisma 的指令传给底层的 `pg` 驱动。
+    
+4. **`pg`**：通过网络把指令发给你的 **PostgreSQL** 数据库并取回数据。
