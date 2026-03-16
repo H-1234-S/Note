@@ -50,3 +50,5 @@ export default clerkMiddleware((auth, req) => {
     - 如果调用了 `auth().protect()` 且用户未登录，它会自动返回一个重定向到登录页面的响应。
         
     - 它还会向请求头中注入 `Auth` 状态，以便你在 Server Components 中通过 `auth()` 钩子获取用户信息。
+## auth()函数
+
