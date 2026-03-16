@@ -87,10 +87,50 @@ export { Button, buttonVariants }
   }
 ```
 
-|**属性名**|**来源**|**主要目的**|**典型值**|
-|---|---|---|---|
-|**`className`**|原生/用户自定义|样式微调与覆盖|`"mt-4"`, `"w-full"`|
-|**`variant`**|CVA 定义|切换视觉风格|`"outline"`, `"ghost"`|
-|**`size`**|CVA 定义|切换物理尺寸|`"sm"`, `"icon"`|
-|**`asChild`**|Radix UI|改变渲染的 HTML 标签|`true`, `false`|
-|**`...props`**|原生 Button 属性|保持与原生 HTML 交互一致|`onClick`, `type="submit"`|
+## 1. `className` (样式透传)
+
+- **含义**：允许外部在使用组件时，临时注入额外的 Tailwind 类名。
+    
+- **作用**：为了灵活性。比如 90% 的按钮都是默认宽度，但某处需要一个 `w-full`（全宽）按钮，你可以这样写：`<Button className="w-full">提交</Button>`。
+    
+- **底层配合**：它会通过 `cn()` 函数与组件内部定义的 `buttonVariants` 合并，确保外部传入的样式能正确覆盖默认样式。
+    
+## 2. `variant` & `size` (样式变体)
+
+- **含义**：由 `cva` (Class Variance Authority) 定义的视觉规格。
+    
+- **作用**：
+    
+    - **`variant`**：定义“种类”。如 `default`（主色）、`destructive`（红色/危险）、`outline`（边框线）。
+        
+    - **`size`**：定义“尺寸”。如 `sm`（小号）、`lg`（大号）、`icon`（正方形图标按钮）。
+        
+- **默认值**：代码里的 `= "default"` 是 ES6 的默认参数，确保如果你不传这两个属性，按钮也不会“裸奔”。
+    
+## 3. `asChild` (元素代理/槽)
+
+- **含义**：这是 shadcn/ui 的灵魂属性，来自 Radix UI 的 `Slot` 组件。
+    
+- **作用**：**改变组件渲染的实际 DOM 节点，但保留样式。**
+    
+- **场景举例**：
+    
+    - 默认：`<Button>点击</Button>` 渲染出来是 `<button>...</button>`。
+        
+    - 使用 `asChild`：如果你想让一个链接看起来像按钮，你会写：
+        
+        ``` ts
+		<Button asChild>
+		    <a href="/login">登录</a>
+        </Button>
+        ```
+        
+        此时，页面上**不会**出现 `button` 标签，而是直接渲染一个带有按钮样式的 `<a>` 标签。这避免了在 `button` 内部嵌套 `a` 标签这种非法的 HTML 结构。
+## 4. `...props` (属性转发/透传)
+
+- **含义**：收集所有剩余的属性（如 `onClick`, `type`, `disabled`, `id`, `onMouseEnter` 等）。
+    
+- **作用**：**封装性**。作为一个基础组件，你不可能穷举原生按钮的所有属性。
+    
+- **效果**：通过在返回的 JSX 中写 `{...props}`，你可以像使用原生 HTML 按钮一样使用这个组件，所有标准属性都会原封不动地传递给底层的 DOM 元素。
+
