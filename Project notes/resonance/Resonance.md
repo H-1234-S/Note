@@ -101,3 +101,67 @@ export default clerkMiddleware(async (auth, req) => {
   auth().protect();
 });
 ```
+
+--- 
+
+# Page
+## [OrganizationList](https://clerk.com/docs/nextjs/reference/components/organization/organization-list)
+
+
+``` ts
+import { OrganizationList } from "@clerk/nextjs";
+
+export default function OrgSelectionPage() {
+    return (
+        <div className="flex min-h-screen items-center justify-center bg-background">
+            <OrganizationList
+                hidePersonal
+                afterCreateOrganizationUrl="/"
+                afterSelectOrganizationUrl="/"
+                appearance={{
+                    elements: {
+                        rootBox: "mx-auto",
+                        card: "shadow-lg",
+                    },
+                }}
+            />
+        </div>
+    );
+};
+```
+
+### [属性](https://clerk.com/docs/nextjs/reference/components/organization/organization-list#properties)
+
+`<OrganizationList />` 组件接受以下属性，所有属性均为 **可选** ：
+
+- `afterCreateOrganizationUrl` 创建新组织后导航到的完整 URL 或路径。
+    
+    `((org: [Organization](https://clerk.com/docs/reference/javascript/organization)) => string) | string`
+    
+- `afterSelectOrganizationUrl`选择组织后要导航到的完整 URL 或路径。默认值为 `undefined`。
+    
+    `((org: [Organization](https://clerk.com/docs/reference/javascript/organization)) => string) | string`
+    
+- `afterSelectPersonalUrl`选择 个人账户  后要导航到的完整 URL 或路径。默认值为 `undefined`。
+    
+    `((org: [Organization](https://clerk.com/docs/reference/javascript/organization)) => string) | string`
+    
+- `appearance`可选的对象，用于样式化你的组件。仅会影响 [Clerk 组件](https://clerk.com/docs/nextjs/reference/components/overview)，而不会影响 [账户门户](https://clerk.com/docs/guides/account-portal/overview) 页面。
+    
+    `[Appearance](https://clerk.com/docs/nextjs/guides/customizing-clerk/appearance-prop/overview) | undefined`
+    
+- `fallback?` 组件挂载时可选的元素。
+    
+    `ReactNode`
+    
+- `hidePersonal`
+    
+    `boolean`
+    
+    一个布尔值，用于控制 ``<OrganizationList />`` 是否会在组织列表中包含用户的 个人账户 。将其设置为 ``true`` 将隐藏个人账户选项，用户将只能在不同组织之间切换。默认值为 ``false``。
+    
+- `skipInvitationScreen`
+    
+    `boolean | undefined`
+    
+    一个布尔值，用于控制创建组织后发送邀请的界面是否隐藏。当 ``undefined`` 时，如果最大允许成员数等于 1，Clerk 将自动隐藏该界面。默认值为 ``false``。
