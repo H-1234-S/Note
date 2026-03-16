@@ -1,4 +1,4 @@
-### 一、 Prisma 是什么？有什么用？
+## 一、 Prisma 是什么？有什么用？
 
 **Prisma** 是一个现代化的 **ORM（对象关系映射）**。
 
@@ -18,7 +18,7 @@
 
 ---
 
-### 二、 `schema.prisma` 文件是什么？有什么用？
+## 二、 `schema.prisma` 文件是什么？有什么用？
 
 这个文件是整个 Prisma 项目的**心脏**。
 
@@ -31,3 +31,47 @@
     - **定义模型（Model）**：描述你的表长什么样（有哪些列、什么类型、主键是谁、表与表之间怎么关联）。
         
     - **生成代码**：Prisma 会读取这个文件，为你生成定制化的 `Prisma Client` 代码。
+	
+
+---
+
+## 三、 怎么用?
+
+结合你正在做的 **Resonance** 项目，典型的用法如下：
+
+### 1. 定义模型 (在 `schema.prisma` 中)
+
+你会写下类似这样的代码：
+
+``` Code snippet
+// 定义一个语音模型
+model Voice {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  variant   VoiceVariant // 使用你截图里定义的那个枚举
+  createdAt DateTime @default(now())
+}
+```
+
+### 2. 同步到数据库 (迁移)
+
+在终端运行：
+
+``` Bash
+npx prisma migrate dev --name init_voice_table
+```
+
+这行命令会让 Prisma 跑去你的 PostgreSQL 数据库里把 `Voice` 这张表建出来。
+
+### 3. 在代码中调用
+
+现在你可以在你的 Next.js 服务端组件里直接用了：
+
+``` TypeScript
+import { db } from "@/lib/db"; // 假设你封装了 prisma 实例
+
+const voices = await db.voice.findMany({
+  where: { variant: "SYSTEM" }
+});
+```
