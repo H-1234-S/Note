@@ -143,19 +143,11 @@ export default function OrgSelectionPage() {
 
 - `afterCreateOrganizationUrl` 创建新组织后导航到的完整 URL 或路径。
     
-    `((org: [Organization](https://clerk.com/docs/reference/javascript/organization)) => string) | string`
-    
 - `afterSelectOrganizationUrl`选择组织后要导航到的完整 URL 或路径。默认值为 `undefined`。
-    
-    `((org: [Organization](https://clerk.com/docs/reference/javascript/organization)) => string) | string`
     
 - `afterSelectPersonalUrl`选择 个人账户  后要导航到的完整 URL 或路径。默认值为 `undefined`。
     
-    `((org: [Organization](https://clerk.com/docs/reference/javascript/organization)) => string) | string`
-    
 - `appearance`可选的对象，用于样式化你的组件。仅会影响 [Clerk 组件](https://clerk.com/docs/nextjs/reference/components/overview)，而不会影响 [账户门户](https://clerk.com/docs/guides/account-portal/overview) 页面。
-    
-    `[Appearance](https://clerk.com/docs/nextjs/guides/customizing-clerk/appearance-prop/overview) | undefined`
     
 - `fallback?` 组件挂载时可选的元素。
     
