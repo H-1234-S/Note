@@ -86,3 +86,11 @@ export { Button, buttonVariants }
     asChild?: boolean
   }
 ```
+
+|**属性名**|**来源**|**主要目的**|**典型值**|
+|---|---|---|---|
+|**`className`**|原生/用户自定义|样式微调与覆盖|`"mt-4"`, `"w-full"`|
+|**`variant`**|CVA 定义|切换视觉风格|`"outline"`, `"ghost"`|
+|**`size`**|CVA 定义|切换物理尺寸|`"sm"`, `"icon"`|
+|**`asChild`**|Radix UI|改变渲染的 HTML 标签|`true`, `false`|
+|**`...props`**|原生 Button 属性|保持与原生 HTML 交互一致|`onClick`, `type="submit"`|
