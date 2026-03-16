@@ -282,3 +282,37 @@ npm install --save-dev prisma @types/pg dotenv tsx
 
 ---
 
+# Prisma初始化
+
+``` bash
+npx prisma init --db
+```
+
+- **是什么**：初始化 Prisma 项目环境。
+    
+- **有什么用**：
+    
+    - **创建目录**：在项目根目录生成一个 `prisma` 文件夹。
+        
+    - **生成 Schema**：创建 `prisma/schema.prisma` 文件。这是整个项目的**灵魂**，你所有的数据表（User, Audio, Task 等）都在这里定义。
+        
+    - **配置文件**：自动在 `.env` 文件中添加 `DATABASE_URL` 变量。
+        
+- **注意**：`--db` 是为了指定你正在连接现有的数据库。
+
+
+``` bash
+npx prisma migrate dev --name init
+```
+
+- **是什么**：执行“数据库迁移”（Migration）。
+    
+- **有什么用**：
+    
+    - **同步结构**：它会读取 `schema.prisma` 中的模型定义，并自动生成对应的 **SQL 语句**。
+        
+    - **真实建表**：在你的 PostgreSQL 数据库中真正创建那些表。
+        
+    - **版本控制**：在 `prisma/migrations` 文件夹下生成一个带时间戳的文件夹（名字叫 `..._init`）。这记录了数据库结构的变更历史，就像 Git 的 commit 一样。
+        
+    - **更新 Client**：命令完成后，它会自动触发 `prisma generate`，更新你的 `@prisma/client`。这样你在代码里写 `prisma.user` 时，TS 才会给你精准的代码提示。
