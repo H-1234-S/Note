@@ -1839,7 +1839,9 @@ SELECT * FROM "Voice" WHERE "orgId" = '123';
 // 直接调用方法，简单明了
 const voices = await db.voice.findMany({ where: { orgId: '123' } });
 ```
+## Prisma
 
+Prisma是一个现代ORM工具
 
 
 
