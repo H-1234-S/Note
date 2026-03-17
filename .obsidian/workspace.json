@@ -42,14 +42,17 @@
             "id": "fd7976732baf18d6",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Front-end notes/Next.JS/Prisma.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/resonance/需求.canvas",
+                "viewState": {
+                  "x": 63.95948426818097,
+                  "y": 291.35889139214146,
+                  "zoom": -0.7607257457800374
+                }
               },
-              "icon": "lucide-file",
-              "title": "Prisma"
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
             }
           },
           {
@@ -67,7 +70,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -184,13 +187,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/Prisma.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Prisma 的大纲"
+              "title": "Resonance 的大纲"
             }
           },
           {
@@ -242,14 +245,14 @@
       "obsidian-excalidraw-plugin:新建绘图文件": false
     }
   },
-  "active": "fd7976732baf18d6",
+  "active": "494e7299d0381fb8",
   "lastOpenFiles": [
-    "Front-end notes/Next.JS/Next.js.md",
-    "Front-end notes/Next.JS/Prisma.md",
-    "Project notes/resonance/schema.prisma.md",
-    "Project notes/resonance/Resonance.md",
-    "Front-end notes/Next.JS/NextAuth.js.md",
     "Project notes/resonance/需求.canvas",
+    "Project notes/resonance/Resonance.md",
+    "Front-end notes/Next.JS/Prisma.md",
+    "Front-end notes/Next.JS/Next.js.md",
+    "Project notes/resonance/schema.prisma.md",
+    "Front-end notes/Next.JS/NextAuth.js.md",
     "Front-end notes/React/React.md",
     "Front-end notes/Tailwind CSS/全指令.md",
     "Project notes/项目链接.md",
@@ -287,7 +290,6 @@
     "Project notes/react-firebase/搜索.canvas",
     "Project notes/react-firebase/拉黑.canvas",
     "Project notes/react-firebase/React + Firebase 实时聊天项目复盘.md",
-    "Project notes/react-firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
     "React + Firebase 实时聊天项目：全栈开发技术文档.pdf",
     "Front-end notes",
     "Pasted image 20260228185140.png"
