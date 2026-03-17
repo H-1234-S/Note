@@ -514,7 +514,7 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 ```
 
-这一步是真正创建**“操作手”**。
+这一步是真正创建 **“操作手”**。
 
 - **接收的参数**：一个配置对象，其中最重要的属性就是 `adapter`。
     
