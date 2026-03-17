@@ -1,0 +1,7 @@
+{
+	"nodes":[
+		{"id":"8db28a21fb6223b5","type":"text","text":"``` mermaid\ngraph TD\n    A[用户发起请求] --> B{是否已登录?}\n    B -- 否 --> C[跳转 Clerk 登录页]\n    B -- 是 --> D{是否有组织?}\n    D -- 否 --> E[跳转 /org-selection]\n    D -- 是 --> F[进入 Dashboard 首页]\n    \n    C --> B\n    E --> G[用户创建或选择组织]\n    G --> F\n    F --> H[结束]\n```","x":-920,"y":-260,"width":640,"height":980},
+		{"id":"31c725ad81f4c9ef","x":-240,"y":-80,"width":1727,"height":239,"type":"text","text":"``` mermaid\ngraph LR\n    User((用户输入文本)) --> Action[Server Action]\n    Action --> DB_Voice{查询 Voice 模型}\n    DB_Voice -- 获取参数 --> AI[AI 模型生成音频]\n    AI -- 得到文件 --> R2[上传至 Cloudflare R2]\n    R2 -- 返回 Key --> DB_Gen[(写入 Generation 表)]\n    DB_Gen --> UI[前端播放音频]\n```"}
+	],
+	"edges":[]
+}
