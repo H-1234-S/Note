@@ -84,7 +84,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -201,13 +201,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/知识点.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "知识点 的大纲"
+              "title": "Resonance 的大纲"
             }
           },
           {
@@ -259,10 +259,12 @@
       "obsidian-excalidraw-plugin:新建绘图文件": false
     }
   },
-  "active": "8d6d4a49515bcf90",
+  "active": "494e7299d0381fb8",
   "lastOpenFiles": [
-    "Project notes/resonance/Resonance.md",
     "Project notes/resonance/知识点.md",
+    "Excalidraw/Drawing 2026-03-17 13.06.03.excalidraw.md",
+    "Project notes/resonance/Resonance.md",
+    "Excalidraw",
     "Project notes/resonance/需求.canvas",
     "Front-end notes/Next.JS/Prisma.md",
     "Front-end notes/Next.JS/Next.js.md",
@@ -304,9 +306,7 @@
     "Project notes/react-firebase/消息撤回.canvas",
     "Project notes/react-firebase/搜索.canvas",
     "Project notes/react-firebase/拉黑.canvas",
-    "Project notes/react-firebase/React + Firebase 实时聊天项目复盘.md",
     "React + Firebase 实时聊天项目：全栈开发技术文档.pdf",
-    "Front-end notes",
     "Pasted image 20260228185140.png"
   ]
 }
