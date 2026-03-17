@@ -75,12 +75,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "学习/技术栈.md",
+                "file": "Front-end notes/Next.JS/Prisma.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "技术栈"
+              "title": "Prisma"
             }
           }
         ],
@@ -234,6 +234,7 @@
   },
   "active": "3bcd41b642b847be",
   "lastOpenFiles": [
+    "学习/技术栈.md",
     "H-1234-S",
     "Project notes/resonance/知识点.md",
     "Front-end notes/Next.JS/Prisma.md",
@@ -258,11 +259,9 @@
     "/Front-end notes/Shadcn",
     "/Excalidraw",
     "/Front-end notes/Next.JS",
-    "/Front-end notes",
     "/Project notes/项目链接.md",
     "Project notes/项目链接.md",
     "Project notes/nextjs-dashboard/Auth.js.md",
-    "学习/技术栈.md",
     "学习/学习计划.md",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Front-end notes/Next.JS/Next.js.md",
