@@ -317,6 +317,12 @@ npx prisma migrate dev --name init
         
     - **更新 Client**：命令完成后，它会自动触发 `prisma generate`，更新你的 `@prisma/client`。这样你在代码里写 `prisma.user` 时，TS 才会给你精准的代码提示。
 
+
+``` bash
+npx prisma generate
+```
+
+
 ---
 # schema.prisma
 
