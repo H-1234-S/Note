@@ -476,7 +476,7 @@ export { prisma };
 
 ## [驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/database-drivers#driver-adapters)
 
-Prisma Client 可以通过 **驱动程序适配器** 使用 **JavaScript 数据库驱动程序**连接到您的数据库并执行查询。
+Prisma Client 可以通过 **驱动程序适配器** 使用 **JavaScript 数据库驱动程序**连接到数据库并执行查询。
 
 适配器充当 Prisma Client 和 JavaScript 数据库驱动程序之间的 _翻译器_ 。
 ### [使用驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/postgresql#using-driver-adapters)
