@@ -67,7 +67,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -184,13 +184,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/Prisma.md",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Prisma 的大纲"
+              "title": "Next.js 的大纲"
             }
           },
           {
@@ -242,10 +242,10 @@
       "obsidian-excalidraw-plugin:新建绘图文件": false
     }
   },
-  "active": "fd7976732baf18d6",
+  "active": "d238711ec19cf390",
   "lastOpenFiles": [
-    "Project notes/resonance/schema.prisma.md",
     "Front-end notes/Next.JS/Prisma.md",
+    "Project notes/resonance/schema.prisma.md",
     "Project notes/resonance/Resonance.md",
     "Front-end notes/Next.JS/NextAuth.js.md",
     "Project notes/resonance/需求.canvas",
