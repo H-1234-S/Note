@@ -13,3 +13,27 @@
 - `SidebarGroup` - `SidebarContent` 内的分区。
 
 - `SidebarTrigger` - `Sidebar` 的触发器。
+
+``` ts
+<Sidebar>
+  {/* 顶部固定区域 */}
+  <SidebarHeader>
+    <Logo />
+  </SidebarHeader>
+
+  {/* 中间滚动区域 */}
+  <SidebarContent>
+    <SidebarGroup>
+      <SidebarGroupLabel>Application</SidebarGroupLabel>
+      <SidebarGroupContent>
+        {/* 菜单项 */}
+      </SidebarGroupContent>
+    </SidebarGroup>
+  </SidebarContent>
+
+  {/* 底部固定区域 */}
+  <SidebarFooter>
+    <UserMenu />
+  </SidebarFooter>
+</Sidebar>
+```

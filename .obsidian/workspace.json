@@ -25,14 +25,17 @@
             "id": "1e82f71d4927cce3",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Front-end notes/Shadcn/Sidebar.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/resonance/需求.canvas",
+                "viewState": {
+                  "x": 79.41933948223448,
+                  "y": 123.05911376324069,
+                  "zoom": -0.6962270634210712
+                }
               },
-              "icon": "lucide-file",
-              "title": "Sidebar"
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
             }
           }
         ],
@@ -152,13 +155,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Shadcn/Sidebar.md",
+                "file": "Project notes/resonance/需求.canvas",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sidebar 的大纲"
+              "title": "需求 的大纲"
             }
           },
           {
@@ -211,8 +214,8 @@
   },
   "active": "1e82f71d4927cce3",
   "lastOpenFiles": [
-    "Front-end notes/Shadcn/Button.md",
     "Front-end notes/Shadcn/Sidebar.md",
+    "Front-end notes/Shadcn/Button.md",
     "Front-end notes/Tailwind CSS/全指令.md",
     "Front-end notes/Tailwind CSS/核心概念.md",
     "Project notes/resonance/知识点.md",
