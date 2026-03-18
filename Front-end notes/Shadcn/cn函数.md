@@ -15,3 +15,7 @@ type Record<K extends keyof any, T> = {
 `keyof any` 指的是**可以做为对象键的类型**，只能是 `string`、`number` 和 `symbol`。
 
 # twMerge函数
+
+用于**合并冲突的Tailwind类名**，并以后写的类名为主
+
+接收一串字符串，返回合并冲突后的字符串
