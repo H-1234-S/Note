@@ -1,6 +1,6 @@
 # clsx函数
 
-接收乱七八糟的输入，如嵌套数组、对象；输出一串字符串
+用于**处理条件判断**，接收乱七八糟的输入，如嵌套数组、对象；输出一串字符串
 
 ``` ts
 export type ClassDictionary = Record<string, any>;
@@ -14,6 +14,7 @@ type Record<K extends keyof any, T> = {
 
 `keyof any` 指的是**可以做为对象键的类型**，只能是 `string`、`number` 和 `symbol`。
 
+`[P in K]: T` 
 # twMerge函数
 
 用于**合并冲突的Tailwind类名**，并以后写的类名为主
