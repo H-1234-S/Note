@@ -48,6 +48,7 @@ export type ClassValue = ClassArray | ClassDictionary | string | number | bigint
 export type ClassArray = ClassValue[];
 ```
 
+TypeScript中递归类型定义
 
 
 
