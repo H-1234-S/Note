@@ -60,9 +60,9 @@
               "state": {
                 "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
                 "viewState": {
-                  "x": 247.23700992098486,
-                  "y": 1685.2839440833393,
-                  "zoom": -0.5952347361399027
+                  "x": -863.9728643009821,
+                  "y": 1317.4035041463928,
+                  "zoom": -1.2429212342389455
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -75,16 +75,44 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "学习/技术栈.md",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "技术栈"
+              "title": "Next.js"
+            }
+          },
+          {
+            "id": "07fffeae146c86a4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/Next.JS/Prisma.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Prisma"
+            }
+          },
+          {
+            "id": "81b212d95f258f0e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/React/React.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "React"
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -208,7 +236,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "学习/技术栈.md",
+            "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -232,22 +260,44 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "3bcd41b642b847be",
+  "active": "e52409333862e07a",
   "lastOpenFiles": [
-    "Project notes/nextjs-dashboard/Auth.js.md",
-    "学习/技术栈.md",
-    "学习/学习计划.md",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
+    "Front-end notes/React/React.md",
     "Front-end notes/Next.JS/Next.js.md",
+    "学习/技术栈.md",
+    "Front-end notes/Next.JS/Prisma.md",
+    "Project notes/resonance/Resonance.md",
+    "H-1234-S",
+    "Project notes/resonance/知识点.md",
+    "Front-end notes/Shadcn/拆解shadcn组件.md",
+    "Front-end notes/Shadcn",
+    "Project notes/resonance/需求.canvas",
+    "Excalidraw/Drawing 2026-03-17 13.06.03.excalidraw.md",
+    "Excalidraw",
+    "/Front-end notes/Next.JS/Prisma.md",
+    "/Front-end notes/Tailwind CSS/全指令.md",
+    "/Front-end notes/Tailwind CSS",
+    "/Project notes/resonance/知识点.md",
+    "/Project notes/resonance/Resonance.md",
+    "/Front-end notes/Shadcn/拆解shadcn组件.md",
+    "/Front-end notes/Next.JS/Next.js.md",
+    "/Project notes/resonance/需求.canvas",
+    "/Excalidraw/Drawing 2026-03-17 13.06.03.excalidraw.md",
+    "/Project notes/resonance",
+    "Project notes/resonance",
+    "/Project notes",
+    "/Front-end notes/Shadcn",
+    "/Excalidraw",
+    "/Front-end notes/Next.JS",
+    "/Project notes/项目链接.md",
+    "Project notes/项目链接.md",
+    "Project notes/nextjs-dashboard/Auth.js.md",
+    "学习/学习计划.md",
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "/Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "/Project notes/nextjs-dashboard/官方实战教程分析.canvas",
-    "/Project notes/nextjs-dashboard",
-    "/Project notes",
     "/Project notes/nextjs-dashboard/Auth.js.md",
-    "/Front-end notes/Next.JS/Next.js.md",
-    "/Front-end notes/Next.JS",
-    "/Front-end notes",
     "conflict-files-obsidian-git.md",
     "Project notes/react-firebase/注册、登录.canvas",
     "Project notes/react-firebase/最后一条消息.canvas",
@@ -256,29 +306,6 @@
     "Project notes/react-firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "Project notes/react-firebase/React + Firebase 实时聊天项目复盘.md",
     "Project notes/react-firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
-    "Project notes/react-firebase/消息同步.canvas",
-    "Project notes/react-firebase/消息撤回.canvas",
-    "Project notes/react-firebase",
-    "/Project notes/react-firebase/React + Firebase 实时聊天项目复盘.md",
-    "/Project notes/react-firebase/Firebase Web SDK 实战手册 (本项目专用).md",
-    "/Project notes/react-firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
-    "/Front-end notes/Next.JS/NextAuth.js.md",
-    "Front-end notes/Next.JS/NextAuth.js.md",
-    "/Project notes/react-firebase",
-    "/Project notes/React + Firebase",
-    "核心知识.md",
-    "Front-end notes/Next.JS/核心知识.md",
-    "Front-end notes/库/use-debounce防抖.md",
-    "/Front-end notes/库/use-debounce防抖.md",
-    "/Front-end notes/库",
-    "Front-end notes/库",
-    "Front-end notes/React/深入学习React.md",
-    "Front-end notes/React/React.md",
-    "Front-end notes/React/React Router.md",
-    "Front-end notes/React/Zustand.md",
-    "Front-end notes/React",
-    "/Front-end notes/React/Zustand.md",
-    "/Front-end notes/React/React Router.md",
-    "/Front-end notes/React/React.md"
+    "/Project notes/react-firebase/React + Firebase 实时聊天项目复盘.md"
   ]
 }
