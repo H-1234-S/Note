@@ -1,5 +1,5 @@
 # Prisma
-## 一、 Prisma 是什么？有什么用？
+## Prisma 是什么？有什么用？
 
 **Prisma** 是一个现代化的 **ORM（对象关系映射）**。
 
@@ -19,7 +19,7 @@
 
 ---
 
-## 二、 `schema.prisma` 文件是什么？有什么用？
+## `schema.prisma` 文件是什么？有什么用？
 
 这个文件是整个 Prisma 项目的**心脏**。
 
@@ -36,7 +36,7 @@
 
 ---
 
-## 三、 怎么用?
+## 怎么用?
 
 ### 1. 定义模型 (在 `schema.prisma` 中)
 
@@ -74,6 +74,33 @@ const voices = await db.voice.findMany({
   where: { variant: "SYSTEM" }
 });
 ```
+
+## 开发环境搭建
+
+``` bash
+# 1. 安装 CLI 和类型定义
+npm install prisma @types/pg --save-dev
+
+# 2. 安装运行时的核心包
+npm install @prisma/client @prisma/adapter-pg pg
+
+# 3. 初始化（如果你还没做过）
+npx prisma init
+```
+
+每个包的作用如下：
+
+- **`prisma`** - Prisma 命令行工具，用于运行 `prisma init`、`prisma migrate` 和 `prisma generate 等命令`
+
+- **`@prisma/client`** - 用于查询数据库的 Prisma Client 库
+
+- **`@prisma/adapter-pg`** - 连接 Prisma Client 到数据库的 [`node-postgres` 驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/postgresql#using-driver-adapters)
+
+- **`pg`** - node-postgres 数据库驱动
+
+- **`@types/pg`** - TypeScript 的 node-postgres 类型定义
+
+- **`dotenv`** - 从你的 `.env` 文件加载环境变量
 
 --- 
 # Prisma Client
@@ -218,3 +245,7 @@ model 名字 {
 |**`Int`**|`integer`|存储整数（如 `topK`）。|
 |**`DateTime`**|`timestamp`|存储精确的时间。|
 |**`VoiceVariant`**|`enum`|你自定义的枚举类型，只允许存预设的值。|
+
+---
+
+# Prisma studio
