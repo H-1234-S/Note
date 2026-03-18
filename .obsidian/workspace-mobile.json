@@ -75,12 +75,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project notes/resonance/Resonance.md",
+                "file": "Front-end notes/Next.JS/Prisma.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Resonance"
+              "title": "Prisma"
             }
           },
           {
@@ -98,7 +98,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -246,7 +246,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "07fffeae146c86a4",
+  "active": "3bcd41b642b847be",
   "lastOpenFiles": [
     "Project notes/resonance/Resonance.md",
     "Front-end notes/Next.JS/Prisma.md",
