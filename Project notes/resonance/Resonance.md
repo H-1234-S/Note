@@ -541,65 +541,38 @@ const prisma = new PrismaClient({ adapter });
 --- 
 # [shadcn侧边栏](https://ui.shadcn.com/docs/components/radix/sidebar#structure)
 
-### 核心容器层
-
-这是侧边栏的基础骨架，决定了它是悬浮的、固定的还是可缩放的。
-
-- **`<SidebarProvider>`**:
-    
-    - **作用**：状态管理器（Context）。
-        
-    - **理解**：它包裹整个应用或整个页面，负责记录侧边栏是“展开”还是“折叠”的状态，并提供快捷键（如 `Ctrl+B`）支持。
-        
-- **`<Sidebar>`**:
-    
-    - **作用**：视觉上的侧边栏实体。
-        
-    - **理解**：这是最外层的 DOM 容器。你可以在这里通过 `side="left" | "right"` 决定它在哪边，或者通过 `variant` 决定它是侧边停靠（sidebar）还是浮动（floating）。
-        
-###  内容布局层
-
-这一层负责把侧边栏划分为头部、中间滚动区和底部。
-
-- **`<SidebarHeader>`**:
-    
-    - **作用**：顶部区域。通常放 Logo 或项目切换器（如你用的 `OrganizationSwitcher`）。
-        
-- **`<SidebarContent>`**:
-    
-    - **作用**：中间的核心内容区。
-        
-    - **理解**：它会自动处理**滚动条**。当你的菜单项非常多时，只有这一块会滚动，头部和底部保持不动。
-        
-- **`<SidebarFooter>`**:
-    
-    - **作用**：底部区域。通常放用户信息（`UserButton`）或设置按钮。
-        
-- **`<SidebarRail>`**:
-    
-    - **作用**：侧边栏边缘的“拉手”。
-        
-    - **理解**：如果你想实现鼠标拖拽改变侧边栏宽度的功能，这个组件就是那个感应区域。
-        
-### 菜单条目层
-
-这是你最常写代码的地方，负责渲染具体的导航链接。
-
-- **`<SidebarGroup>`**:
-    
-    - **作用**：逻辑分组。比如“管理”组和“设置”组。内部通常包含一个 `<SidebarGroupLabel>`（分组标题）。
-        
-- **`<SidebarMenu>`**:
-    
-    - **作用**：菜单列表的容器（类似 `<ul>`）。
-        
-- **`<SidebarMenuItem>`**:
-    
-    - **作用**：单个菜单项的包装器（类似 `<li>`）。
-        
-- **`<SidebarMenuButton>`**:
-    
-    - **作用**：**真正的可点击内容**。
-        
-    - **理解**：它处理了所有的交互样式（Hover、Active、图标对齐）。它通常包含图标和文字，并且支持 `asChild` 属性，方便你配合 Next.js 的 `<Link>` 使用。
-        
+``` ts
+<SidebarGroupContent>
+                <SidebarMenu>
+                    {items.map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton
+                                asChild={!!item.url}
+                                isActive={
+                                    item.url
+                                        ? item.url === "/"
+                                            ? pathname === "/"
+                                            : pathname.startsWith(item.url) // 前缀匹配
+                                        : false
+                                }
+                                onClick={item.onClick}
+                                tooltip={item.title}
+                                className="h-9 px-3 py-2 text-[13px] tracking-tight font-medium border border-transparent data-[active=true]:border-border data-[active=true]:shadow-[0px_1px_1px_0px_rgba(44,54,53,0.03),inset_0px_0px_0px_2px_white]"
+                            >
+                                {item.url ? (
+                                    <Link href={item.url}>
+                                        <item.icon />
+                                        <span>{item.title}</span>
+                                    </Link>
+                                ) : (
+                                    <>
+                                        <item.icon />
+                                        <span>{item.title}</span>
+                                    </>
+                                )}
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+            </SidebarGroupContent>
+```
