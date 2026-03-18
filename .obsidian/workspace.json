@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project notes/resonance/知识点.md",
+                "file": "Front-end notes/Tailwind CSS/全指令.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "知识点"
+              "title": "全指令"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -138,13 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/知识点.md",
+                "file": "Front-end notes/Tailwind CSS/全指令.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "知识点 的大纲"
+              "title": "全指令 的大纲"
             }
           },
           {
@@ -198,8 +197,9 @@
   },
   "active": "8d6d4a49515bcf90",
   "lastOpenFiles": [
-    "Front-end notes/Next.JS/Next.js.md",
+    "Front-end notes/Tailwind CSS/核心概念.md",
     "Project notes/resonance/知识点.md",
+    "Front-end notes/Next.JS/Next.js.md",
     "Project notes/resonance/Resonance.md",
     "Front-end notes/Next.JS/Prisma.md",
     "Project notes/resonance/需求.canvas",
@@ -232,7 +232,6 @@
     "Front-end notes/TypeScript.md",
     "思考.md",
     "思考.canvas",
-    "Front-end notes/Tailwind CSS/核心概念.md",
     "Front-end notes/Next.JS",
     "Front-end notes/React/React Router.md",
     "Front-end notes/Tailwind CSS",
