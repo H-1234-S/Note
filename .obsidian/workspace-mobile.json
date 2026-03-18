@@ -60,9 +60,9 @@
               "state": {
                 "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
                 "viewState": {
-                  "x": 247.23700992098486,
-                  "y": 1685.2839440833393,
-                  "zoom": -0.5952347361399027
+                  "x": -863.9728643009821,
+                  "y": 1317.4035041463928,
+                  "zoom": -1.2429212342389455
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -75,12 +75,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Next.JS/Prisma.md",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Prisma"
+              "title": "Next.js"
             }
           },
           {
@@ -96,9 +96,23 @@
               "icon": "lucide-file",
               "title": "Prisma"
             }
+          },
+          {
+            "id": "81b212d95f258f0e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/React/React.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "React"
+            }
           }
         ],
-        "currentTab": 4
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -222,7 +236,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "Front-end notes/Next.JS/Prisma.md",
+            "file": "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -246,11 +260,14 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "3bcd41b642b847be",
+  "active": "e52409333862e07a",
   "lastOpenFiles": [
-    "Project notes/resonance/Resonance.md",
-    "Front-end notes/Next.JS/Prisma.md",
+    "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
+    "Front-end notes/React/React.md",
+    "Front-end notes/Next.JS/Next.js.md",
     "学习/技术栈.md",
+    "Front-end notes/Next.JS/Prisma.md",
+    "Project notes/resonance/Resonance.md",
     "H-1234-S",
     "Project notes/resonance/知识点.md",
     "Front-end notes/Shadcn/拆解shadcn组件.md",
@@ -277,8 +294,6 @@
     "Project notes/项目链接.md",
     "Project notes/nextjs-dashboard/Auth.js.md",
     "学习/学习计划.md",
-    "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
-    "Front-end notes/Next.JS/Next.js.md",
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "/Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "/Project notes/nextjs-dashboard/官方实战教程分析.canvas",
@@ -291,7 +306,6 @@
     "Project notes/react-firebase/Firebase Web SDK 实战手册 (本项目专用).md",
     "Project notes/react-firebase/React + Firebase 实时聊天项目复盘.md",
     "Project notes/react-firebase/React + Firebase 实时聊天项目：全栈开发技术文档.md",
-    "/Project notes/react-firebase/React + Firebase 实时聊天项目复盘.md",
-    "/Project notes/react-firebase/Firebase Web SDK 实战手册 (本项目专用).md"
+    "/Project notes/react-firebase/React + Firebase 实时聊天项目复盘.md"
   ]
 }
