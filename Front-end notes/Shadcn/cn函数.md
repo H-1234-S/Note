@@ -50,7 +50,38 @@ export type ClassArray = ClassValue[];
 
 TypeScript中递归类型定义
 
+## miniclsx函数
 
+``` ts
+function miniClsx(...args: ClassValue[]): string {
+  const classes: string[] = [];
+
+  function process(value: ClassValue) {
+    if (!value) return;                    // falsy 直接跳过
+
+    if (typeof value === "string") {
+      classes.push(value);
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      // 递归！处理数组里的每一项
+      value.forEach(process);
+      return;
+    }
+
+    if (typeof value === "object") {
+      // 处理 { "text-red": true, "font-bold": isBold } 这种对象
+      for (const key in value) {
+        if (value[key]) classes.push(key);
+      }
+    }
+  }
+
+  args.forEach(process);
+  return classes.join(" ");
+}
+```
 
 # twMerge函数
 
