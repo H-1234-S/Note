@@ -1,3 +1,4 @@
+# [Sidebar](https://ui.shadcn.com/docs/components/radix/sidebar)
 ## 结构
 
 一个 `Sidebar` 组件由以下部分组成：
