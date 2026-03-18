@@ -2,6 +2,8 @@
 
 用于**处理条件判断**，接收乱七八糟的输入，如嵌套数组、对象；输出一串字符串
 
+## 处理对象
+
 ``` ts
 export type ClassDictionary = Record<string, any>;
 
@@ -38,6 +40,17 @@ type Counts = {
   bird: number;
 }
 ```
+## 处理数组
+
+``` ts
+export type ClassValue = ClassArray | ClassDictionary | string | number | bigint | null | boolean | undefined;
+
+export type ClassArray = ClassValue[];
+```
+
+
+
+
 # twMerge函数
 
 用于**合并冲突的Tailwind类名**，并以后写的类名为主
