@@ -550,6 +550,8 @@ isActive={ item.url ? item.url === "/" ? pathname === "/" : pathname.startsWith(
 
 如果存在链接，判断这个链接是不是根目录 `/`。
 
+- 解决 **“首页永远高亮”** 的问题
+
 `pathname === "/"` **精确匹配**。只有当当前页面刚好就是首页 `/` 时，首页按钮才激活。
 
 `pathname.startsWith(item.url)` **前缀匹配**。只要当前的路径是以这个菜单项的链接开头的，就激活。
