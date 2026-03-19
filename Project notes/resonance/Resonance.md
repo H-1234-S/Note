@@ -541,38 +541,9 @@ const prisma = new PrismaClient({ adapter });
 --- 
 # [shadcn侧边栏](https://ui.shadcn.com/docs/components/radix/sidebar#structure)
 
+
 ``` ts
-<SidebarGroupContent>
-                <SidebarMenu>
-                    {items.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton
-                                asChild={!!item.url}
-                                isActive={
-                                    item.url
-                                        ? item.url === "/"
-                                            ? pathname === "/"
-                                            : pathname.startsWith(item.url) // 前缀匹配
-                                        : false
-                                }
-                                onClick={item.onClick}
-                                tooltip={item.title}
-                                className="h-9 px-3 py-2 text-[13px] tracking-tight font-medium border border-transparent data-[active=true]:border-border data-[active=true]:shadow-[0px_1px_1px_0px_rgba(44,54,53,0.03),inset_0px_0px_0px_2px_white]"
-                            >
-                                {item.url ? (
-                                    <Link href={item.url}>
-                                        <item.icon />
-                                        <span>{item.title}</span>
-                                    </Link>
-                                ) : (
-                                    <>
-                                        <item.icon />
-                                        <span>{item.title}</span>
-                                    </>
-                                )}
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    ))}
-                </SidebarMenu>
-            </SidebarGroupContent>
+isActive={ item.url ? item.url === "/" ? pathname === "/" : pathname.startsWith(item.url): false }
 ```
+
+
