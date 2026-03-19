@@ -546,4 +546,11 @@ const prisma = new PrismaClient({ adapter });
 isActive={ item.url ? item.url === "/" ? pathname === "/" : pathname.startsWith(item.url): false }
 ```
 
+首先判断这个菜单项是否有定义 `url`
+
+如果存在链接，判断这个链接是不是根目录 `/`。
+
+`pathname === "/"` **精确匹配**。只有当当前页面刚好就是首页 `/` 时，首页按钮才激活。
+
+`pathname.startsWith(item.url)` **前缀匹配**。只要当前的路径是以这个菜单项的链接开头的，就激活。
 
