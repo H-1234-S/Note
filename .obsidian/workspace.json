@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/Resonance.md",
+                "file": "Front-end notes/Shadcn/Sidebar.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Resonance 的大纲"
+              "title": "Sidebar 的大纲"
             }
           },
           {
@@ -224,10 +224,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "831df3b80ee99947",
+  "active": "fec449ccb7d94341",
   "lastOpenFiles": [
-    "Front-end notes/Shadcn/Sidebar.md",
     "Project notes/resonance/Resonance.md",
+    "Pasted image 20260319134418.png",
+    "Front-end notes/Shadcn/Sidebar.md",
     "Front-end notes/Shadcn/cn函数.md",
     "Front-end notes/Shadcn/Button.md",
     "Project notes/resonance/需求.canvas",
@@ -261,7 +262,6 @@
     "学习计划.md",
     "Project notes/nextjs-dashboard",
     "Front-end notes/TypeScript.md",
-    "思考.md",
     "思考.canvas",
     "Front-end notes/Next.JS",
     "Front-end notes/Tailwind CSS",
