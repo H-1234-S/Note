@@ -609,3 +609,18 @@ console.log(safeUrl);
 // 输出: https://example.com/%E6%90%9C%E7%B4%A2?q=%E5%89%8D%E7%AB%AF%20%E5%BC%80%E5%8F%91
 // (中文和空格被编码了，但 : / ? & = 等结构字符完好无损)
 ```
+# Git
+
+``` bash
+# 创建并切换到一个新分支
+git checkout -b <分支名>
+
+# 将所有修改过的文件添加到暂存区
+git add .  
+
+# 将暂存区的修改正式保存到本地仓库的历史记录中
+git commit -m "提交信息"
+
+# 将本地的分支推送到远程仓库
+git push -u origin <分支名>
+```
