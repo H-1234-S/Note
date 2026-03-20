@@ -574,7 +574,7 @@ isActive={ item.url ? item.url === "/" ? pathname === "/" : pathname.startsWith(
     A-Z a-z 0-9 - _ . ! ~ * ' ( )
 ```
 
-
+用于编码参数：
 
 ``` ts
 const baseUrl = "https://example.com/search";
@@ -590,3 +590,22 @@ const goodUrl = baseUrl + "?q=" + encodeURIComponent(query);
 ```
 ## encodeURI()
 
+用于对完整的 **URI进行编码。它会将某些字符替换为十六进制转义序列，但它**会跳过 **那些在 URL 中具有特定含义的保留字符**。
+
+``` ts
+const myUrl = "https://example.com/搜索?q=前端";
+console.log(encodeURIComponent(myUrl)); 
+// 输出: https%3A%2F%2Fexample.com%2F%E6%90%9C%E7%B4%A2%3Fq%3D%E5%89%8D%E7%AB%AF
+// (由于 : / ? 全被转义了，浏览器无法识别这是一个网址)
+```
+
+使用 `encodeURI()` 处理整个网址：
+
+``` ts
+const myUrl = "https://example.com/搜索?q=前端 开发";
+const safeUrl = encodeURI(myUrl);
+
+console.log(safeUrl);
+// 输出: https://example.com/%E6%90%9C%E7%B4%A2?q=%E5%89%8D%E7%AB%AF%20%E5%BC%80%E5%8F%91
+// (中文和空格被编码了，但 : / ? & = 等结构字符完好无损)
+```
