@@ -16,7 +16,7 @@ type Record<K extends keyof any, T> = {
 
 `keyof any` 指的是**可以做为对象键的类型**，只能是 `string`、`number` 和 `symbol`。
 
-`[P in K]: T` 意思是
+`[P in K]: T` 意思是遍历K中所有的键
 
 假如你写：
 

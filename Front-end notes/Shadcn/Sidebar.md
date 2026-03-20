@@ -38,3 +38,22 @@
   </SidebarFooter>
 </Sidebar>
 ```
+### SidebarMenu
+
+`SidebarMenu` 组件用于在 `SidebarGroup` 内构建菜单。
+
+``` ts
+<SidebarMenu>
+  {projects.map((project) => (
+    <SidebarMenuItem key={project.name}>
+      <SidebarMenuButton asChild>
+        <a href={project.url}>
+          <project.icon />
+          <span>{project.name}</span>
+        </a>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  ))}
+</SidebarMenu>
+```
+

@@ -541,38 +541,20 @@ const prisma = new PrismaClient({ adapter });
 --- 
 # [shadcn侧边栏](https://ui.shadcn.com/docs/components/radix/sidebar#structure)
 
+
 ``` ts
-<SidebarGroupContent>
-                <SidebarMenu>
-                    {items.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton
-                                asChild={!!item.url}
-                                isActive={
-                                    item.url
-                                        ? item.url === "/"
-                                            ? pathname === "/"
-                                            : pathname.startsWith(item.url) // 前缀匹配
-                                        : false
-                                }
-                                onClick={item.onClick}
-                                tooltip={item.title}
-                                className="h-9 px-3 py-2 text-[13px] tracking-tight font-medium border border-transparent data-[active=true]:border-border data-[active=true]:shadow-[0px_1px_1px_0px_rgba(44,54,53,0.03),inset_0px_0px_0px_2px_white]"
-                            >
-                                {item.url ? (
-                                    <Link href={item.url}>
-                                        <item.icon />
-                                        <span>{item.title}</span>
-                                    </Link>
-                                ) : (
-                                    <>
-                                        <item.icon />
-                                        <span>{item.title}</span>
-                                    </>
-                                )}
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    ))}
-                </SidebarMenu>
-            </SidebarGroupContent>
+isActive={ item.url ? item.url === "/" ? pathname === "/" : pathname.startsWith(item.url): false }
 ```
+
+首先判断这个菜单项是否有定义 `url`
+
+如果存在链接，判断这个链接是不是根目录 `/`。
+	
+- 解决 **“首页永远高亮”** 的问题
+	
+`pathname === "/"` **精确匹配**。只有当当前页面刚好就是首页 `/` 时，首页按钮才激活。
+
+`pathname.startsWith(item.url)` **前缀匹配**。只要当前的路径是以这个菜单项的链接开头的，就激活。
+	
+- 比如你的菜单项是 `/projects`，当你进入子页面 `/projects/123` 或 `/projects/settings` 时，父级菜单依然保持高亮，
+	
