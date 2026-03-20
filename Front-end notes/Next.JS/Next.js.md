@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     default: "欢迎来到 棱镜",
     template: "%s | 棱镜"
   },
-  description: "人工智能-驱动的文本转语音和语音克隆平台",
+  description: "人工智能-驱动的文本转语音和语音克隆平台",()
 };
 ```
 
