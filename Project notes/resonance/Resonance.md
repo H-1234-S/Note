@@ -573,3 +573,20 @@ isActive={ item.url ? item.url === "/" ? pathname === "/" : pathname.startsWith(
 不转义的字符：
     A-Z a-z 0-9 - _ . ! ~ * ' ( )
 ```
+
+
+
+``` ts
+const baseUrl = "https://example.com/search";
+const query = "前端开发 & React"; // 含有特殊字符 &
+
+// 错误写法：直接拼接
+const badUrl = baseUrl + "?q=" + query; 
+// 结果: https://example.com/search?q=前端开发 & React (解析器会以为 & 后面是另一个参数)
+
+// 正确写法：使用 encodeURIComponent
+const goodUrl = baseUrl + "?q=" + encodeURIComponent(query);
+// 结果: https://example.com/search?q=%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%20%26%20React
+```
+## encodeURI()
+
