@@ -126,7 +126,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -274,8 +274,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "dcab296da3ac78fa",
+  "active": "3bcd41b642b847be",
   "lastOpenFiles": [
+    "学习/技术栈.md",
     "/Project notes/resonance/Resonance.md",
     "/Project notes/resonance",
     "/Project notes",
@@ -284,7 +285,6 @@
     "/Front-end notes/Shadcn",
     "/Front-end notes",
     "计算机网络.md",
-    "学习/技术栈.md",
     "Front-end notes/Shadcn/Button.md",
     "Front-end notes/Shadcn/Sidebar.md",
     "Front-end notes/Shadcn/cn函数.md",
