@@ -49,7 +49,8 @@
               "title": "Resonance"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -166,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Next.js 的大纲"
+              "title": "Resonance 的大纲"
             }
           },
           {
@@ -223,13 +224,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "3985d70c6ff4a803",
+  "active": "0d2dce80496dbcf3",
   "lastOpenFiles": [
-    "Project notes/resonance/Resonance.md",
+    "Front-end notes/Web API.md",
     "Front-end notes/Next.JS/Next.js.md",
+    "Project notes/resonance/Resonance.md",
     "Front-end notes/Shadcn/cn函数.md",
     "Front-end notes/Shadcn/Sidebar.md",
-    "Front-end notes/Web API.md",
     "Pasted image 20260319134418.png",
     "Front-end notes/Shadcn/Button.md",
     "Project notes/resonance/需求.canvas",
