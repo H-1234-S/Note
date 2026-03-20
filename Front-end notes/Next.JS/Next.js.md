@@ -76,9 +76,11 @@ export const metadata: Metadata = {
     default: "欢迎来到 棱镜",
     template: "%s | 棱镜"
   },
-  description: "AI-powered text-to-speech and voice cloning platform",
+  description: "人工智能-驱动的文本转语音和语音克隆平台",
 };
 ```
+
+接收一个对象
 
 ### loading
 
