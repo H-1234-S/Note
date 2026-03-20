@@ -66,6 +66,20 @@ App Router 的路由本质上是由一个个**特定文件（Layout, Template, E
 | **状态保持** | **保持状态**。例如：输入框里的文字、展开的菜单状态在跳转时不会消失。     | **重置状态**。每次跳转，组件内的 `useState`、动画等都会重新初始化。         |
 | **生命周期** | 不会触发 `useEffect` 的重新执行。                  | 每次跳转都会重新触发 `useEffect`。                           |
 | **典型用途** | 导航栏、侧边栏、搜索框（跨页面共享且不需要重置的 UI）。            | 页面切换动画（如 CSS 过渡）、依赖页面挂载的统计脚本（如 Google Analytics）。 |
+#### Metadata
+
+用于设置不同页面的页面名，显示在标签处
+
+``` ts
+export const metadata: Metadata = {
+  title: {
+    default: "欢迎来到 棱镜",
+    template: "%s | 棱镜"
+  },
+  description: "AI-powered text-to-speech and voice cloning platform",
+};
+```
+
 ### loading
 
 - Next.js的loading是借助了`Suspense`实现的
