@@ -565,7 +565,7 @@ isActive={ item.url ? item.url === "/" ? pathname === "/" : pathname.startsWith(
 
 ## encodeURIComponent()
 
-将字符串中的某些特殊字符替换为十六进制的转义序列，以确保这些字符在 URL 中传输时不会被误解为控制符号。
+将字符串中的**某些特殊字符**替换为十六进制的转义序列，以确保这些字符在 URL 中传输时不会被误解为控制符号。
 
 转义除了如下所示外的所有字符：
 
