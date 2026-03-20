@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Shadcn/Sidebar.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sidebar 的大纲"
+              "title": "Resonance 的大纲"
             }
           },
           {
@@ -224,11 +224,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "fec449ccb7d94341",
+  "active": "831df3b80ee99947",
   "lastOpenFiles": [
+    "Front-end notes/Shadcn/Sidebar.md",
     "Project notes/resonance/Resonance.md",
     "Pasted image 20260319134418.png",
-    "Front-end notes/Shadcn/Sidebar.md",
     "Front-end notes/Shadcn/cn函数.md",
     "Front-end notes/Shadcn/Button.md",
     "Project notes/resonance/需求.canvas",

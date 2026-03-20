@@ -557,4 +557,19 @@ isActive={ item.url ? item.url === "/" ? pathname === "/" : pathname.startsWith(
 `pathname.startsWith(item.url)` **前缀匹配**。只要当前的路径是以这个菜单项的链接开头的，就激活。
 	
 - 比如你的菜单项是 `/projects`，当你进入子页面 `/projects/123` 或 `/projects/settings` 时，父级菜单依然保持高亮，
-	
+
+
+--- 
+
+# 语音识别
+
+## encodeURIComponent()
+
+将字符串中的某些特殊字符替换为十六进制的转义序列，以确保这些字符在 URL 中传输时不会被误解为控制符号。
+
+转义除了如下所示外的所有字符：
+
+``` ts
+不转义的字符：
+    A-Z a-z 0-9 - _ . ! ~ * ' ( )
+```
