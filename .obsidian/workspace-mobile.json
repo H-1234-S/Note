@@ -58,12 +58,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "未命名.md",
+                "file": "计算机网络.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "未命名"
+              "title": "计算机网络"
             }
           },
           {
@@ -277,7 +277,7 @@
   "active": "dcab296da3ac78fa",
   "lastOpenFiles": [
     "学习/技术栈.md",
-    "未命名.md",
+    "计算机网络.md",
     "Front-end notes/Shadcn/Button.md",
     "Front-end notes/Shadcn/Sidebar.md",
     "Front-end notes/Shadcn/cn函数.md",
