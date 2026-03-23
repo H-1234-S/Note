@@ -56,6 +56,7 @@ TanStack Form 使用渲染属性（Render Props）模式。每个字段都是一
         id={field.name}
         name={field.name}
         value={field.state.value}
+        // onBlur 发生在用户“离开”输入框的那一刻，而 field.handleBlur 的作用是告诉表单系统：“这个字段已经被用户‘碰过’（Touched）了。”
         onBlur={field.handleBlur}
         onChange={(e) => field.handleChange(e.target.value)}
       />
@@ -100,6 +101,8 @@ TanStack Form 使用渲染属性（Render Props）模式。每个字段都是一
 - **`field.state.meta.errors`**: 一个数组，包含了该字段当前所有的验证错误信息。
     
 - **`field.state.meta.isTouched`**: 布尔值，标识用户是否点击过并离开了该字段（通常用于控制“只有碰过才显示错误”）。
+	
+	- 执行 `field.handleBlur()`后 `field.state.meta.isTouched` 从 `false` 变为 `true`。
     
 - **`field.state.meta.isValidating`**: 布尔值，异步验证（如查重）进行时为 `true`。
     
