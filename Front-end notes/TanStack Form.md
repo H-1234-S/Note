@@ -184,22 +184,39 @@ TanStack Form 可以在**字段级别**或**表单级别**进行验证。它支�
 处理动态列表（如社交媒体链接、多个电话号码）非常简单，只需将 `name` 指向数组路径即可。
 
 ``` TypeScript
+const form = useForm({
+  defaultValues: {
+    friends: ['张三'] // 初始有一个输入框
+  }
+})
+
+// JSX 渲染
 <form.Field
-  name="users" // 假设 defaultValues 里有 users: ['']
+  name="friends"
+  mode="array" // 明确告诉插件这是数组模式
   children={(field) => (
     <div>
+      {/* 1. 遍历数组值，渲染多个输入框 */}
       {field.state.value.map((_, i) => (
-        <form.Field key={i} name={`users[${i}]`}>
-          {(subField) => (
-            <input
-              value={subField.state.value}
-              onChange={(e) => subField.handleChange(e.target.value)}
-            />
-          )}
-        </form.Field>
+        <div key={i}>
+          {/* 注意：name 必须是 path 格式，例如 "friends[0]", "friends[1]" */}
+          <form.Field name={`friends[${i}]`}>
+            {(subField) => (
+              <input
+                value={subField.state.value}
+                onChange={(e) => subField.handleChange(e.target.value)}
+              />
+            )}
+          </form.Field>
+          
+          {/* 2. 删除功能 */}
+          <button type="button" onClick={() => field.removeValue(i)}>删除</button>
+        </div>
       ))}
-	      <button type="button" onClick={() => field.pushValue('')}>添加用户</button>
-	      <button type="button" onClick={() => field.removeValue(i)}>删除</button>
+      {/* 3. 添加功能 */}
+      <button type="button" onClick={() => field.pushValue('')}>
+        添加好友
+      </button>
     </div>
   )}
 />
