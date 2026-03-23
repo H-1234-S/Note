@@ -625,5 +625,75 @@ git commit -m "提交信息"
 git push -u origin <分支名>
 ```
 
+---
 
+# TanStack Form
+
+use-app-form.tsx
+
+``` ts
+"use client";
+
+import {
+  createFormHookContexts,
+  createFormHook,
+} from "@tanstack/react-form";
+
+// 创建 React Context 容器
+export const {
+  fieldContext,
+  formContext,
+  useFieldContext,
+  useFormContext,
+} = createFormHookContexts();
+
+export const {
+  useAppForm,
+  useTypedAppFormContext,
+} = createFormHook({
+  fieldContext,
+  formContext,
+  fieldComponents: {},
+  formComponents: {},
+});
+```
+
+逻辑与ui解耦
+
+
+父组件：只管逻辑
+``` ts
+function Parent() {
+  const form = useAppForm({ defaultValues: { email: '' } });
+  return (
+    <form.Provider> {/* 自动注入 Context */}
+      <form onSubmit={...}>
+        <MyCustomInput name="email" label="邮箱" />
+      </form>
+    </form.Provider>
+  );
+}
+```
+
+子组件：只管ui
+``` ts
+function MyCustomInput({ name, label }) {
+  // 自动从 Context 拿到父表单，且自带类型补全！
+  const form = useTypedAppFormContext(); 
+
+  return (
+    <form.Field name={name} children={(field) => (
+      <div>
+        <label>{label}</label>
+        <input value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+        {field.state.meta.errors && <span>{field.state.meta.errors}</span>}
+      </div>
+    )} />
+  );
+}
+```
+
+# sliders.ts配置文件
+
+ [chatterbox](https://github.com/resemble-ai/chatterbox)
 
