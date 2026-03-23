@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/TanStack Form.md",
+                "file": "Front-end notes/Zod.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "TanStack Form 的大纲"
+              "title": "Zod 的大纲"
             }
           },
           {
@@ -224,11 +224,12 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "0b86879b07fe4714",
+  "active": "082765287c37f3e3",
   "lastOpenFiles": [
+    "Front-end notes/TanStack Form.md",
+    "计算机网络.md",
     "Front-end notes/Zod.md",
     "Front-end notes/Prisma.md",
-    "Front-end notes/TanStack Form.md",
     "Project notes/resonance/Resonance.md",
     "Front-end notes/JavaScript/Promise.md",
     "Front-end notes/JavaScript",
@@ -261,7 +262,6 @@
     "Front-end notes/库",
     "Front-end notes/React/深入学习React.md",
     "Front-end notes/React",
-    "学习/思考.md",
     "学习",
     "Project notes/nextjs-dashboard",
     "思考.canvas",
