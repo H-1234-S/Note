@@ -181,9 +181,7 @@ const RegistrationSchema = z.object({
 
 很多时候，我们不仅要验证数据，还要在验证通过后对数据进行“加工”。`.transform()` 允许你改变输出的数据结构或类型。
 
-TypeScript
-
-```
+``` TypeScript
 const searchSchema = z.string()
   .transform((val) => val.trim()) // 去除首尾空格
   .transform((val) => val.toLowerCase()); // 转小写
@@ -202,9 +200,8 @@ const id = idSchema.parse("123"); // 输出类型为 number: 123
 
 `.transform()` 发生在验证**之后**，而 `.preprocess()` 发生在验证**之前**。这在处理表单数据（通常全是字符串）时非常有用。
 
-TypeScript
 
-```
+``` TypeScript
 const castToNumber = z.preprocess(
   (val) => Number(val), 
   z.number().min(18)
@@ -219,9 +216,7 @@ castToNumber.parse("20"); // 成功。先变数字 20，再校验是否 >= 18
 
 如果你的验证逻辑需要查数据库或调用 API（例如：检查用户名是否已存在），你需要使用 `superRefine` 或 `refine` 的异步版本，并配合 `.parseAsync()`。
 
-TypeScript
-
-```
+``` TypeScript
 const UsernameSchema = z.string().refine(async (name) => {
   const exists = await checkUserExistsInDB(name); // 模拟 API 请求
   return !exists;
@@ -237,9 +232,7 @@ await UsernameSchema.parseAsync("new_user");
 
 `.refine()` 虽然好用，但它只能返回一个布尔值。如果你需要**在一次验证中产生多个错误**，或者将错误精确挂载到某个子路径，请使用 `superRefine`。
 
-TypeScript
-
-```
+``` TypeScript
 const PasswordStrength = z.string().superRefine((val, ctx) => {
   if (val.length < 8) {
     ctx.addIssue({
@@ -263,9 +256,7 @@ const PasswordStrength = z.string().superRefine((val, ctx) => {
 
 在处理具有“标志位”的对象集合时，这是 Zod 的**性能之选**。它能让 TypeScript 的类型收窄（Narrowing）变得非常丝滑。
 
-TypeScript
-
-```
+``` TypeScript
 const ResponseSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("success"), data: z.string() }),
   z.object({ type: z.literal("error"), message: z.string() }),
@@ -284,9 +275,7 @@ if (result.type === "success") {
 
 处理像“文件树”或“无限评论列表”这类嵌套数据时，需要用到 `z.lazy()` 来处理循环引用。
 
-TypeScript
-
-```
+``` TypeScript
 interface Category {
   name: string;
   subcategories: Category[];
@@ -311,9 +300,7 @@ const CategorySchema: z.ZodType<Category> = z.lazy(() =>
 - **`.strict()`**: 只要有 Schema 中没定义的字段，直接报错。
     
 
-TypeScript
-
-```
+``` TypeScript
 const BaseUser = z.object({ name: z.string() }).strict();
 
 BaseUser.parse({ name: "Bob", age: 20 }); // 报错：age 是多余的
@@ -325,9 +312,8 @@ BaseUser.parse({ name: "Bob", age: 20 }); // 报错：age 是多余的
 
 `.catch()` 允许你在验证失败时，不抛出异常，而是返回一个降级后的默认值。
 
-TypeScript
 
-```
+``` TypeScript
 const safelyGetNumber = z.number().catch(0);
 
 console.log(safelyGetNumber.parse("not a number")); // 输出: 0
