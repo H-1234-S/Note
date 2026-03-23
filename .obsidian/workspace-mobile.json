@@ -89,12 +89,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "学习/技术栈.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Next.js"
+              "title": "技术栈"
             }
           },
           {
@@ -276,6 +276,8 @@
   },
   "active": "3bcd41b642b847be",
   "lastOpenFiles": [
+    "计算机网络.md",
+    "Front-end notes/Next.JS/Next.js.md",
     "学习/技术栈.md",
     "/Project notes/resonance/Resonance.md",
     "/Project notes/resonance",
@@ -284,7 +286,6 @@
     "/Front-end notes/Shadcn/Sidebar.md",
     "/Front-end notes/Shadcn",
     "/Front-end notes",
-    "计算机网络.md",
     "Front-end notes/Shadcn/Button.md",
     "Front-end notes/Shadcn/Sidebar.md",
     "Front-end notes/Shadcn/cn函数.md",
@@ -297,7 +298,6 @@
     "/Excalidraw",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Front-end notes/React/React.md",
-    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/Prisma.md",
     "Project notes/resonance/Resonance.md",
     "H-1234-S",
