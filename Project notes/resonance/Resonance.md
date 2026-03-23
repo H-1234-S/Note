@@ -692,3 +692,8 @@ function MyCustomInput({ name, label }) {
   );
 }
 ```
+
+# sliders.ts配置文件
+
+ [chatterbox](https://github.com/resemble-ai/chatterbox)
+
