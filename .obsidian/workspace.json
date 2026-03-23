@@ -107,7 +107,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -223,7 +224,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "082765287c37f3e3",
   "lastOpenFiles": [
     "Front-end notes/Prisma.md",
     "Front-end notes/Zod.md",
