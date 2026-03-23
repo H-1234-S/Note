@@ -39,6 +39,8 @@ const form = useForm({
 
 TanStack Form 使用渲染属性（Render Props）模式。每个字段都是一个独立的组件，这有助于提高性能（只重新渲染变动的字段）。
 
+**架构设计：** 每一个 `form.Field` 都是**原子化**的。这意味着当你修改 `userName` 时，`email` 和 `address` 的输入框完全不会重新渲染，这在大表单中性能极佳。
+
 ### 核心属性：
 
 - **name**: 对应 `defaultValues` 中的键。
