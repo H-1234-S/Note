@@ -405,3 +405,182 @@ const form = useForm<FormData>({
 
 # 案例
 
+这个案例将涵盖：**Zod 验证、异步用户名查重、密码二次确认依赖、动态兴趣小组（数组）、以及提交状态处理**。
+
+### 1. 核心代码实现
+
+
+``` TypeScript
+import React from 'react'
+import { useForm } from '@tanstack/react-form'
+import { zodValidator } from '@tanstack/zod-form-adapter'
+import { z } from 'zod'
+
+// --- 1. 定义数据结构与验证 Schema (进阶：Zod 适配) ---
+const userSchema = z.object({
+  username: z.string().min(3, '用户名至少3位'),
+  password: z.string().min(6, '密码至少6位'),
+  confirmPassword: z.string(),
+  // 动态数组基础
+  hobbies: z.array(z.string().min(1, '爱好不能为空')).min(1, '至少添加一个爱好'),
+})
+
+type UserForm = z.infer<typeof userSchema>
+
+// 模拟 API 检查用户名是否存在 (进阶：异步验证)
+const checkUserExists = (name: string) => 
+  new Promise((resolve) => setTimeout(() => resolve(name === 'admin'), 800))
+
+export default function AdvancedRegistrationForm() {
+  // --- 2. 初始化表单实例 (基础：useForm) ---
+  const form = useForm({
+    defaultValues: {
+      username: '',
+      password: '',
+      confirmPassword: '',
+      hobbies: ['编程'],
+    } as UserForm,
+    validatorAdapter: zodValidator(),
+    onSubmit: async ({ value }) => {
+      await new Promise((r) => setTimeout(r, 1000))
+      console.log('提交成功:', value)
+    },
+  })
+
+  return (
+    <div style={{ padding: '20px', maxWidth: '400px' }}>
+      <h2>用户注册</h2>
+      <form
+        onSubmit={(e) => { e.preventDefault(); e.stopPropagation(); form.handleSubmit(); }}
+      >
+        {/* 用户名：演示异步验证与防抖 (进阶) */}
+        <form.Field
+          name="username"
+          asyncValidators={{
+            onChangeAsyncDebounceMs: 500,
+            onChangeAsync: async ({ value }) => {
+              const isTaken = await checkUserExists(value)
+              return isTaken ? '该用户名已被占用' : undefined
+            },
+          }}
+          children={(field) => (
+            <div className="field">
+              <label>用户名:</label>
+              <input value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+              {field.state.meta.isValidating && <small> 检查中...</small>}
+              {field.state.meta.errors && <p style={{ color: 'red' }}>{field.state.meta.errors}</p>}
+            </div>
+          )}
+        />
+
+        {/* 密码：基础输入 */}
+        <form.Field
+          name="password"
+          children={(field) => (
+            <div className="field">
+              <label>密码:</label>
+              <input type="password" value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+            </div>
+          )}
+        />
+
+        {/* 确认密码：演示字段依赖 (进阶) */}
+        <form.Field
+          name="confirmPassword"
+          listenTo={['password']} // 核心：监听 password 变化
+          validators={{
+            onChange: ({ value, fieldApi }) => 
+              value !== fieldApi.form.getFieldValue('password') ? '两次密码不一致' : undefined,
+          }}
+          children={(field) => (
+            <div className="field">
+              <label>确认密码:</label>
+              <input type="password" value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+              {field.state.meta.errors && <p style={{ color: 'red' }}>{field.state.meta.errors}</p>}
+            </div>
+          )}
+        />
+
+        {/* 爱好列表：演示字段数组操作 (基础+进阶) */}
+        <div className="field">
+          <label>兴趣爱好:</label>
+          <form.Field
+            name="hobbies"
+            mode="array"
+            children={(field) => (
+              <div>
+                {field.state.value.map((_, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '5px', marginBottom: '5px' }}>
+                    <form.Field name={`hobbies[${i}]`}>
+                      {(subField) => (
+                        <input value={subField.state.value} onChange={(e) => subField.handleChange(e.target.value)} />
+                      )}
+                    </form.Field>
+                    <button type="button" onClick={() => field.removeValue(i)}>X</button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => field.pushValue('')}>添加爱好</button>
+                {field.state.meta.errors && <p style={{ color: 'red' }}>{field.state.meta.errors}</p>}
+              </div>
+            )}
+          />
+        </div>
+
+        {/* 提交按钮：演示全局状态订阅 (基础) */}
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          children={([canSubmit, isSubmitting]) => (
+            <button type="submit" disabled={!canSubmit} style={{ marginTop: '20px' }}>
+              {isSubmitting ? '注册中...' : '立即注册'}
+            </button>
+          )}
+        />
+      </form>
+    </div>
+  )
+}
+```
+
+---
+
+### 2. 设计思路与架构分析
+
+#### A. 为什么使用 `Render Props` (Field 模式)？
+
+TanStack Form 的核心架构是**原子化更新**。
+
+- **传统做法**：整个表单是一个巨大的 `state`，任何输入都会导致整个表单组件重绘。
+    
+- **本设计**：每一个 `form.Field` 都是一个独立的订阅者。当你在输入“用户名”时，只有用户名的 `input` 组件在重绘，“密码”和“确认密码”组件保持静止。这在处理包含几十个字段的复杂表单时，性能优势巨大。
+    
+
+#### B. 为什么将验证逻辑从组件中解耦？
+
+代码中我们使用了 `zodValidator`。
+
+- **架构解耦**：验证逻辑（Schema）可以在前端验证，也可以直接传给后端 API 共用，保证了 **Single Source of Truth（单一事实来源）**。
+    
+- **维护性**：当你需要修改校验规则（比如密码长度从 6 位改为 8 位），你只需要修改 Schema，而不需要在 UI 代码里到处找逻辑。
+    
+
+#### C. 为什么引入 `listenTo`？
+
+在进阶场景中，字段不是孤立的。
+
+- **设计意图**：确认密码字段必须知道密码字段的值。通过 `listenTo`，TanStack Form 建立了一个**响应式依赖图**。当“密码”更新时，它会自动标记“确认密码”为无效并重新触发验证。这避免了手动在 `useEffect` 中同步状态的混乱。
+    
+
+#### D. 为什么使用 `form.Subscribe`？
+
+- **性能优化**：我们将“提交按钮”包装在 `Subscribe` 中，并使用 `selector` 只提取 `canSubmit` 状态。这样，只有当表单整体合法性发生变化时，按钮才会重绘，而不会干扰到上方的输入控件。
+    
+
+### 3. 如何练习？
+
+1. **基础巩固**：尝试删除 `zodValidator`，改用普通的 `validators` 函数重写验证。
+    
+2. **进阶挑战**：尝试在 `hobbies` 数组中添加一个“上移/下移”功能，使用 `field.moveValue(from, to)`。
+    
+3. **结合实战**：尝试在 `onSubmit` 中调用一个真实的 API，并根据 API 返回的错误（如 400）使用 `form.setError` 手动设置字段错误。
+    
+
