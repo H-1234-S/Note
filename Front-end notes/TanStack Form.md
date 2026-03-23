@@ -198,7 +198,8 @@ TanStack Form 可以在**字段级别**或**表单级别**进行验证。它支�
           )}
         </form.Field>
       ))}
-      <button type="button" onClick={() => field.pushValue('')}>添加用户</button>
+	      <button type="button" onClick={() => field.pushValue('')}>添加用户</button>
+	      <button type="button" onClick={() => field.removeValue(i)}>删除</button>
     </div>
   )}
 />
