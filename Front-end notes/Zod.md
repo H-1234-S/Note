@@ -7,7 +7,6 @@ Zod 是一个以 TypeScript 为首的 **Schema 声明与验证库**。它的核�
 
 Zod 几乎支持 JavaScript 所有的原始类型。
 
-
 ``` TypeScript
 import { z } from "zod";
 
@@ -29,7 +28,6 @@ numberSchema.parse(123);     // 通过
 
 这是 Zod 最常用的场景，用于定义 API 响应或表单数据的结构。
 
-
 ``` TypeScript
 const UserSchema = z.object({
   username: z.string(),
@@ -50,7 +48,6 @@ const result = UserSchema.parse({
 
 这是 Zod 的杀手锏。你不需要手动写 `interface`，直接从 Schema 提取 TypeScript 类型。
 
-
 ``` TypeScript
 type User = z.infer<typeof UserSchema>;
 
@@ -68,7 +65,6 @@ type User = z.infer<typeof UserSchema>;
 
 Zod 提供了极其丰富的内置验证器。
 
-
 ``` TypeScript
 const passwordSchema = z.string()
   .min(8, "密码长度不能少于8位")
@@ -84,7 +80,6 @@ const passwordSchema = z.string()
 
 你可以定义简单数组，也可以定义复杂的对象数组。
 
-
 ``` TypeScript
 const stringArray = z.array(z.string());
 
@@ -99,7 +94,6 @@ stringArray.parse(["a", "b", "c"]); // 通过
 ## 6. 枚举与字面量 (Enums & Literals)
 
 用于限制变量只能是特定的几个值。
-
 
 ``` TypeScript
 // 字面量
@@ -117,7 +111,6 @@ type Status = z.infer<typeof StatusEnum>; // "Pending" | "Success" | "Failed"
 
 类似于 TypeScript 的 `|` 和 `&`。
 
-
 ``` TypeScript
 // 联合类型 (OR)
 const stringOrNumber = z.union([z.string(), z.number()]);
@@ -134,7 +127,6 @@ const AppUser = Person.and(Employee); // 必须同时拥有 name 和 id
 
 处理缺失或为 null 的数据。
 
-
 ``` TypeScript
 const settingsSchema = z.object({
   theme: z.string().default("light"), // 如果缺失，默认为 "light"
@@ -148,7 +140,6 @@ const settingsSchema = z.object({
 ## 9. 安全解析 (Safe Parse)
 
 如果你不想让程序因为验证失败而直接抛出异常，可以使用 `safeParse`。
-
 
 ``` TypeScript
 const result = z.string().safeParse(123);
@@ -167,7 +158,6 @@ if (!result.success) {
 ## 10. 逻辑精炼：`.refine()`
 
 当内置验证器不够用时，可以使用 `refine` 编写自定义逻辑（例如：确认密码是否一致）。
-
 
 ``` TypeScript
 const RegistrationSchema = z.object({
