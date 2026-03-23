@@ -66,6 +66,60 @@ TanStack Form 使用渲染属性（Render Props）模式。每个字段都是一
 
 ### field参数
 
+#### 1. `field` 参数从哪里来？
+
+在 React 的 **Render Props** 模式中，`form.Field` 并不是一个普通的组件，它更像是一个**高阶逻辑容器**。
+
+1. **注册过程**：当你定义 `<form.Field name="firstName">` 时，该组件内部会去 `form`（即 `useForm` 返回的实例）中寻找路径为 `firstName` 的状态节点。
+    
+2. **状态订阅**：`form.Field` 会自动订阅这个特定路径的状态变化。
+    
+3. **注入注入**：当组件渲染时，它会创建一个包含**该字段当前状态**（如 `value`, `isTouched`）和**控制方法**（如 `handleChange`）的对象。这个对象就是 `field`。
+    
+
+---
+
+#### 2. `field` 参数有什么用？
+
+它的核心作用是**连接（Binding）**。
+
+它充当了“底层数据状态”与“上层 UI 控件”之间的桥梁。如果没有 `field`，你需要手动写大量的 `useState`、`useEffect` 和校验逻辑来同步每一个 Input。有了它，你只需要把 `field` 提供的属性“挂载”到原生的 `<input />` 或 UI 框架（如 Ant Design/Mantine）的组件上即可。
+
+---
+
+#### 3. `field` 对象常用属性详解
+
+`field` 对象非常庞大，但我们可以将其分为三大类：**元数据 (Meta)**、**核心状态 (State)** 和 **动作方法 (Methods)**。
+
+#### A. 核心状态 (field.state)
+
+反映了该字段在表单中的实时情况。
+
+- **`field.state.value`**: 当前字段的值（最常用）。
+    
+- **`field.state.meta.errors`**: 一个数组，包含了该字段当前所有的验证错误信息。
+    
+- **`field.state.meta.isTouched`**: 布尔值，标识用户是否点击过并离开了该字段（通常用于控制“只有碰过才显示错误”）。
+    
+- **`field.state.meta.isValidating`**: 布尔值，异步验证（如查重）进行时为 `true`。
+    
+
+#### B. 动作方法 (field.handle...)
+
+用于更新表单状态的“方向盘”。
+
+- **`field.handleChange(newValue)`**: 改变字段的值。它会自动触发校验逻辑。
+    
+- **`field.handleBlur()`**: 标记字段为 "touched" 状态。通常挂载在 input 的 `onBlur` 上。
+    
+- **`field.validate()`**: 手动触发一次该字段的校验。
+    
+
+#### C. 基础信息
+
+- **`field.name`**: 完整的字段路径字符串（如 `users[0].firstName`）。
+    
+- **`field.form`**: 指向整个表单实例的引用，让你可以跨字段操作（比如在 A 字段里调用 `field.form.reset()`）。
 
 
 ---
