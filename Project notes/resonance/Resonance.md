@@ -557,4 +557,73 @@ isActive={ item.url ? item.url === "/" ? pathname === "/" : pathname.startsWith(
 `pathname.startsWith(item.url)` **前缀匹配**。只要当前的路径是以这个菜单项的链接开头的，就激活。
 	
 - 比如你的菜单项是 `/projects`，当你进入子页面 `/projects/123` 或 `/projects/settings` 时，父级菜单依然保持高亮，
-	
+
+
+--- 
+
+# 语音识别
+
+## encodeURIComponent()
+
+将字符串中的**某些特殊字符**替换为十六进制的转义序列，以确保这些字符在 URL 中传输时不会被误解为控制符号。
+
+转义除了如下所示外的所有字符：
+
+``` ts
+不转义的字符：
+    A-Z a-z 0-9 - _ . ! ~ * ' ( )
+```
+
+用于编码参数：
+
+``` ts
+const baseUrl = "https://example.com/search";
+const query = "前端开发 & React"; // 含有特殊字符 &
+
+// 错误写法：直接拼接
+const badUrl = baseUrl + "?q=" + query; 
+// 结果: https://example.com/search?q=前端开发 & React (解析器会以为 & 后面是另一个参数)
+
+// 正确写法：使用 encodeURIComponent
+const goodUrl = baseUrl + "?q=" + encodeURIComponent(query);
+// 结果: https://example.com/search?q=%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%20%26%20React
+```
+## encodeURI()
+
+用于对完整的 **URI进行编码。它会将某些字符替换为十六进制转义序列，但它**会跳过 **那些在 URL 中具有特定含义的保留字符**。
+
+``` ts
+const myUrl = "https://example.com/搜索?q=前端";
+console.log(encodeURIComponent(myUrl)); 
+// 输出: https%3A%2F%2Fexample.com%2F%E6%90%9C%E7%B4%A2%3Fq%3D%E5%89%8D%E7%AB%AF
+// (由于 : / ? 全被转义了，浏览器无法识别这是一个网址)
+```
+
+使用 `encodeURI()` 处理整个网址：
+
+``` ts
+const myUrl = "https://example.com/搜索?q=前端 开发";
+const safeUrl = encodeURI(myUrl);
+
+console.log(safeUrl);
+// 输出: https://example.com/%E6%90%9C%E7%B4%A2?q=%E5%89%8D%E7%AB%AF%20%E5%BC%80%E5%8F%91
+// (中文和空格被编码了，但 : / ? & = 等结构字符完好无损)
+```
+# Git
+
+``` bash
+# 创建并切换到一个新分支
+git checkout -b <分支名>
+
+# 将所有修改过的文件添加到暂存区
+git add .  
+
+# 将暂存区的修改正式保存到本地仓库的历史记录中
+git commit -m "提交信息"
+
+# 将本地的分支推送到远程仓库
+git push -u origin <分支名>
+```
+
+
+

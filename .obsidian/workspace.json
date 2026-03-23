@@ -4,53 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "9cb295d3ecabf0bd",
+        "id": "b84ca1fd68f75c39",
         "type": "tabs",
         "children": [
           {
-            "id": "f06f5351c1825e53",
+            "id": "76a976dd910baad1",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Shadcn/cn函数.md",
+                "file": "Front-end notes/JavaScript/Promise.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "cn函数"
-            }
-          },
-          {
-            "id": "fec449ccb7d94341",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/Shadcn/Sidebar.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Sidebar"
-            }
-          },
-          {
-            "id": "831df3b80ee99947",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Project notes/resonance/Resonance.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Resonance"
+              "title": "Promise"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -107,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -167,13 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Shadcn/Sidebar.md",
+                "file": "Front-end notes/JavaScript/Promise.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sidebar 的大纲"
+              "title": "Promise 的大纲"
             }
           },
           {
@@ -224,18 +194,22 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "fec449ccb7d94341",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
-    "Project notes/resonance/Resonance.md",
-    "Pasted image 20260319134418.png",
-    "Front-end notes/Shadcn/Sidebar.md",
+    "Front-end notes/JavaScript/Promise.md",
+    "Front-end notes/JavaScript",
+    "Front-end notes/TypeScript.md",
     "Front-end notes/Shadcn/cn函数.md",
+    "Front-end notes/Next.JS/Next.js.md",
+    "Project notes/resonance/Resonance.md",
+    "Front-end notes/Web API.md",
+    "Front-end notes/Shadcn/Sidebar.md",
+    "Pasted image 20260319134418.png",
     "Front-end notes/Shadcn/Button.md",
     "Project notes/resonance/需求.canvas",
     "Front-end notes/Tailwind CSS/全指令.md",
     "Front-end notes/Tailwind CSS/核心概念.md",
     "Project notes/resonance/知识点.md",
-    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Next.JS/Prisma.md",
     "Excalidraw/Drawing 2026-03-17 13.06.03.excalidraw.md",
     "Excalidraw",
@@ -259,9 +233,7 @@
     "学习/学习计划.md",
     "学习",
     "Project notes/nextjs-dashboard/官方实战教程.md",
-    "学习计划.md",
     "Project notes/nextjs-dashboard",
-    "Front-end notes/TypeScript.md",
     "思考.canvas",
     "Front-end notes/Next.JS",
     "Front-end notes/Tailwind CSS",
@@ -271,7 +243,6 @@
     "Project notes/react-firebase/消息撤回.canvas",
     "Project notes/react-firebase/搜索.canvas",
     "Project notes/react-firebase/拉黑.canvas",
-    "React + Firebase 实时聊天项目：全栈开发技术文档.pdf",
     "Pasted image 20260228185140.png"
   ]
 }
