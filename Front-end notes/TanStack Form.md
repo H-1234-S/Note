@@ -39,7 +39,7 @@
     
 - **`state.isSubmitting`**: 提交函数是否正在运行。
 
-## 例子
+## 代码示例
 
 ```ts
 import React from 'react'
@@ -87,7 +87,7 @@ const rootElement = document.getElementById('root')!
 ReactDOM.createRoot(rootElement).render(<PeoplePage />)
 ```
 
-### 数据是怎么流动的
+### 数据是怎么流动的？
 
 #### 1. 初始状态：从大脑到表单 (Initial State)
 
