@@ -46,7 +46,6 @@ TanStack Form 使用渲染属性（Render Props）模式。每个字段都是一
 - **children**: 一个函数，接收 `field` 对象作为参数。
     
 
-
 ``` TypeScript
 <form.Field
   name="firstName"
@@ -104,7 +103,6 @@ TanStack Form 可以在**字段级别**或**表单级别**进行验证。它支�
 
 如果你需要根据表单的整体状态（如 `canSubmit`, `isSubmitting`）来更新 UI（比如禁用提交按钮），可以使用 `Subscribe` 组件。这能避免整个父组件因为一个输入框的变动而重新渲染。
 
-
 ``` TypeScript
 <form.Subscribe
   selector={(state) => [state.canSubmit, state.isSubmitting]}
@@ -121,7 +119,6 @@ TanStack Form 可以在**字段级别**或**表单级别**进行验证。它支�
 ## 6. 数组/列表处理 (Field Arrays)
 
 处理动态列表（如社交媒体链接、多个电话号码）非常简单，只需将 `name` 指向数组路径即可。
-
 
 ``` TypeScript
 <form.Field
@@ -149,7 +146,6 @@ TanStack Form 可以在**字段级别**或**表单级别**进行验证。它支�
 ## 7. 综合示例
 
 将以上碎片整合在一起，就是一个完整的表单：
-
 
 ``` TypeScript
 function App() {
