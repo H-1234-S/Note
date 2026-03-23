@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/TanStack Form.md",
+                "file": "Front-end notes/Prisma.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "TanStack Form"
+              "title": "Prisma"
             }
           }
         ],
@@ -139,13 +139,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/TanStack Form.md",
+                "file": "Front-end notes/Prisma.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "TanStack Form 的大纲"
+              "title": "Prisma 的大纲"
             }
           },
           {
@@ -199,8 +199,8 @@
   },
   "active": "dcabedf7e98ec146",
   "lastOpenFiles": [
-    "Front-end notes/Zod.md",
     "Front-end notes/TanStack Form.md",
+    "Front-end notes/Zod.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Prisma.md",
     "计算机网络.md",
