@@ -767,7 +767,7 @@ function ParentForm() {
 ``` ts
 function DeepNestedInput() {
   // 这里的 form 直接从 Context 拿，类型极其精准
-  const form = useTypedAppFormContext();
+nvnv;
 
   return (
     <form.Field
