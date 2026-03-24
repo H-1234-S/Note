@@ -752,3 +752,45 @@ function DeepNestedInput() {
 
 ## 数据流动
 
+例：
+
+**text-to-speech-form.tsx**
+``` ts
+export const defaultTTSValues: TTSFormValues = {
+  text: "",
+  voiceId: "",
+  temperature: 0.8,
+  topP: 0.95,
+  topK: 1000,
+  repetitionPenalty: 1.2,
+};
+
+export const ttsFormOptions = formOptions({
+  defaultValues: defaultTTSValues,
+});
+```
+
+
+**text-input-panel.tsx**
+``` ts
+const form = useTypedAppFormContext(ttsFormOptions);
+
+<form.Field name="text">
+          {(field) => (
+            <Textarea
+              value={field.state.value}
+              onChange={(e) => field.handleChange(e.target.value)}
+              placeholder="开始输入或粘贴文本..."
+              className="absolute inset-0 resize-none border-0 bg-transparent p-4 pb-6 lg:p-6 lg:pb-8 text-base! leading-relaxed tracking-tight shadow-none wrap-break-word focus-visible:ring-0"
+              maxLength={TEXT_MAX_LENGTH}
+              disabled={isSubmitting}
+            />
+          )}
+        </form.Field>
+```
+
+Context 里的流动不是单向的，而是一个闭环：
+
+- 用户在 `Textarea` 输入内容 $\rightarrow$ 触发 `field.handleChange` $\rightarrow$ 该方法通过 Context 找到顶层的 `form` 实例 $\rightarrow$ 修改 Store 里的 `text` 值。
+
+- Store 里的值变了 $\rightarrow$ Context 发出信号 $\rightarrow$ **只有**订阅了 `text` 路径的 `form.Field` 收到通知 $\rightarrow$ 触发局部重新渲染 $\rightarrow$ `Textarea` 显示新值。
