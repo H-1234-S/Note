@@ -796,3 +796,112 @@ Context 里的流动不是单向的，而是一个闭环：
 - 用户在 `Textarea` 输入内容 $\rightarrow$ 触发 `field.handleChange` $\rightarrow$ 该方法通过 Context 找到顶层的 `form` 实例 $\rightarrow$ 修改 Store 里的 `text` 值。
 
 - Store 里的值变了 $\rightarrow$ Context 发出信号 $\rightarrow$ **只有**订阅了 `text` 路径的 `form.Field` 收到通知 $\rightarrow$ 触发局部重新渲染 $\rightarrow$ `Textarea` 显示新值。
+
+---
+
+# formOptions
+
+在基础用法中，我们直接把配置写在 `useForm` 里；而在进阶开发中，我们使用 `formOptions` 将**逻辑配置**与 **UI 组件**彻底解耦。
+
+## 基础定义与类型锁定
+
+这是最常见的用法，目的是为了让表单的配置在多个组件之间共享，并保持**强类型提示**。
+
+``` TypeScript
+import { formOptions } from '@tanstack/react-form'
+
+// 1. 定义一份通用的表单配置（蓝图）
+export const loginFormOptions = formOptions({
+  defaultValues: {
+    email: '',
+    password: '',
+    rememberMe: false,
+  },
+  // 你甚至可以在蓝图里预设好基础验证
+  validators: {
+    onChange: ({ value }) => {
+      if (value.password.length < 6) return '密码太短了'
+      return undefined
+    },
+  },
+})
+```
+
+**为什么这么做？**
+
+现在，无论你在哪个页面使用这个 `loginFormOptions`，TypeScript 都会自动知道这个表单有且仅有这三个字段，且类型分别是 `string`, `string`, `boolean`。
+
+---
+
+## 跨组件复用（新建与编辑）
+
+假设你有一个“用户信息表单”，在“用户注册”页面需要它，在“修改资料”页面也需要它。
+
+### 第一步：抽离配置 (`userFormConfig.ts`)
+
+
+``` TypeScript
+export const userFormOptions = formOptions({
+  defaultValues: {
+    name: '',
+    bio: '',
+  }
+})
+```
+
+### 第二步：在“注册页面”使用
+
+
+``` TypeScript
+function RegisterPage() {
+  const form = useAppForm({
+    ...userFormOptions, // 直接展开配置
+    onSubmit: async ({ value }) => {
+      // 执行注册逻辑
+    },
+  })
+  // ... 渲染表单
+}
+```
+
+### 第三步：在“编辑页面”使用（覆盖默认值）
+
+
+``` TypeScript
+function EditProfilePage({ userData }) {
+  const form = useAppForm({
+    ...userFormOptions, 
+    defaultValues: userData, // 用已有的用户信息覆盖初始的空值
+    onSubmit: async ({ value }) => {
+      // 执行更新逻辑
+    },
+  })
+  // ... 渲染表单
+}
+```
+
+---
+
+## 配合 Context 实现“深层注入”
+
+这是你之前代码中用到的模式，也是 `formOptions` 最强大的地方。
+
+当你在子组件中想要获取表单实例时，`formOptions` 充当了**类型导航员**。
+
+``` TypeScript
+// 在深层子组件中
+function SubmitButton() {
+  // 关键：传入 userFormOptions 
+  // 这样 form 实例就会自动获得 name 和 bio 的类型补全
+  const form = useTypedAppFormContext(userFormOptions); 
+
+  return (
+    <button onClick={() => form.handleSubmit()}>
+      提交 {form.getFieldValue('name')} 的资料
+    </button>
+  )
+}
+```
+
+---
+
