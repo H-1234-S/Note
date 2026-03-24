@@ -938,3 +938,123 @@ function SubmitButton() {
 
 ---
 
+# useStore
+
+简单来说：TanStack Form 为了性能，把数据存在 React 之外的一个“小仓库”（Store）里。**`useStore` 的作用就是把这个“小仓库”里的某个值，变成 React 组件可以识别并随之刷新的“响应式变量”。**
+
+如果没有 `useStore`，你修改了表单，界面也不会有任何变化。
+
+---
+
+## 全量订阅
+
+直接监听整个 Store。只要表单里**任何**数据变了（哪怕是一个不相关的打字动作），这个组件都会重新渲染。
+
+**使用场景：** 调试、表单预览、小型简单表单。
+
+``` ts
+import { useStore } from '@tanstack/react-form'
+
+function FormDebugger() {
+  const form = useTypedAppFormContext(ttsFormOptions)
+  
+  // 订阅整个 store 所有的状态
+  const state = useStore(form.store)
+
+  return (
+    <div className="border p-2">
+      <h3>当前所有数据实时预览：</h3>
+      <pre>{JSON.stringify(state.values, null, 2)}</pre>
+      <p>是否正在提交: {state.isSubmitting ? '是' : '否'}</p>
+    </div>
+  )
+}
+```
+
+---
+
+## 精准选择器订阅
+
+这是最常用的**高性能**方案。你传入一个函数（Selector），告诉 React：“我只关心这一个属性”。
+
+**使用场景：** 提交按钮、Loading 状态、单个字段值的显示。
+
+``` ts
+function LoadingSpinner() {
+  const form = useTypedAppFormContext(ttsFormOptions)
+
+  // 只有 isSubmitting 变了，这个组件才会刷新
+  // 哪怕用户在输入框里写了一万个字，这里都不会触发重新渲染（Re-render）
+  const isSubmitting = useStore(form.store, (s) => s.isSubmitting)
+
+  if (!isSubmitting) return null
+  return <div className="spinner">正在生成语音...</div>
+}
+```
+
+---
+
+## 计算属性订阅
+
+你可以在订阅的同时，对数据进行简单的转换。这样组件拿到的就是“加工后的结果”。
+
+**使用场景：** 字数统计、价格计算、条件禁用判断。
+
+``` ts
+function CharacterLimit() {
+  const form = useTypedAppFormContext(ttsFormOptions)
+
+  // 直接订阅计算后的长度结果
+  // 只有长度发生变化时，UI 才会更新
+  const textLength = useStore(form.store, (s) => s.values.text.length)
+  const isOverLimit = textLength > 1000
+
+  return (
+    <span className={isOverLimit ? 'text-red-500' : 'text-gray-400'}>
+      {textLength} / 1000
+    </span>
+  )
+}
+```
+
+---
+
+## 多重状态提取
+
+如果你需要同时监听好几个互不相关的状态，可以返回一个对象或数组。TanStack 会自动帮你做“浅比较”，避免不必要的刷新。
+
+**使用场景：** 复杂的控制逻辑。
+
+``` ts
+function SubmitControl() {
+  const form = useTypedAppFormContext(ttsFormOptions)
+
+  // 同时监听多个状态
+  const { canSubmit, isPristine } = useStore(form.store, (s) => ({
+    canSubmit: s.canSubmit,
+    isPristine: !s.isDirty // 是否从未动过（原生状态）
+  }))
+
+  return (
+    <button disabled={!canSubmit || isPristine}>
+      保存修改
+    </button>
+  )
+}
+```
+
+---
+
+## 配合 `form.Subscribe`
+
+如果你不想在组件顶层写 `useStore`（因为这会导致整个组件文件变大），你可以使用 `form.Subscribe` 组件。它的底层也是 `useStore`，但它可以把重绘范围缩小到 JSX 的某一个小块里：
+
+``` ts
+<form.Subscribe
+  selector={(s) => [s.isSubmitting]}
+  children={([isSubmitting]) => (
+    <button disabled={isSubmitting}>提交</button>
+  )}
+/>
+```
+
