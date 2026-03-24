@@ -138,13 +138,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Prisma.md",
+                "file": "Front-end notes/TanStack Form.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Prisma 的大纲"
+              "title": "TanStack Form 的大纲"
             }
           },
           {
@@ -181,8 +181,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.5,
-    "collapsed": true
+    "width": 263.5
   },
   "left-ribbon": {
     "hiddenItems": {
