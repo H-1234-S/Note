@@ -959,6 +959,12 @@ function SubmitButton() {
 
 如果没有 `useStore`，你修改了表单，界面也不会有任何变化。
 
+**语法结构：** `useStore(store, selector)`
+
+- **参数 1**: `form.store`（数据源）。
+    
+- **参数 2**: 一个函数，定义你要提取的数据切片。
+
 ---
 
 ## 全量订阅
@@ -974,7 +980,7 @@ function FormDebugger() {
   const form = useTypedAppFormContext(ttsFormOptions)
   
   // 订阅整个 store 所有的状态
-  const state = useStore(form.store)
+  const state = useStore(form.store,(s) => s)
 
   return (
     <div className="border p-2">
