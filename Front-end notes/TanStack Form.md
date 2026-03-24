@@ -210,6 +210,21 @@ TanStack Form 可以在**字段级别**或**表单级别**进行验证。它支�
 />
 ```
 
+**注意：** `onSubmit` 中必须要有异步等待
+
+``` ts
+const form = useAppForm({
+        ...defaultValue,
+        onSubmit: async ({ value }) => {
+            await new Promise((res) => (
+                setTimeout(() => {
+                    res(console.log(value))
+                }, 2000)
+            ))
+        }
+    })
+```
+
 ---
 
 ## 6. 数组/列表处理 (Field Arrays)
