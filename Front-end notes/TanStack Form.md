@@ -687,4 +687,22 @@ export const {
 
 ## createFormHook
 
-接收上面创建的 Context，并返回一套**定制化**的 Hooks 和组件。
+接收 `createFormHookContexts() `创建的 Context，并返回一套**定制化**的 Hooks 和组件。
+
+``` ts
+import { createFormHook } from "@tanstack/react-form";
+
+// 2. 基于 Context 生成具体的 Hook
+export const { 
+  useAppForm,             // 代替原生的 useForm，它会自动关联 Context
+  useTypedAppFormContext, // 带有强类型的 Context Hook
+  useField,               // 独立的字段 Hook
+  AppForm                 // 自动提供 Provider 的包装组件
+} = createFormHook({
+  formContext,
+  fieldContext,
+  // 你甚至可以在这里注入全局的自定义组件（进阶用法）
+  fieldComponents: {}, 
+  formComponents: {},
+});
+```
