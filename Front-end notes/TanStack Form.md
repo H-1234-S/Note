@@ -789,6 +789,8 @@ const form = useTypedAppFormContext(ttsFormOptions);
         </form.Field>
 ```
 
+当调用 `useAppForm` 时，TanStack Form 在内存中创建了一个 **Store（状态库）**。
+
 Context 里的流动不是单向的，而是一个闭环：
 
 - 用户在 `Textarea` 输入内容 $\rightarrow$ 触发 `field.handleChange` $\rightarrow$ 该方法通过 Context 找到顶层的 `form` 实例 $\rightarrow$ 修改 Store 里的 `text` 值。
