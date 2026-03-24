@@ -624,9 +624,10 @@ git commit -m "提交信息"
 # 将本地的分支推送到远程仓库
 git push -u origin <分支名>
 
-
+# 切换回main分支
 git checkout main
 
+# 同步main最新的变化
 git pull origin main
 ```
 
