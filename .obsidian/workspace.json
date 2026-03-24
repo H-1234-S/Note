@@ -49,8 +49,7 @@
               "title": "知识点"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -167,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/知识点.md",
+                "file": "Front-end notes/TanStack Form.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "知识点 的大纲"
+              "title": "TanStack Form 的大纲"
             }
           },
           {
@@ -224,9 +223,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "eef7918bd4652e9a",
+  "active": "aaf8307fa693423d",
   "lastOpenFiles": [
     "Project notes/resonance/Resonance.md",
+    "Project notes/resonance/知识点.md",
     "Front-end notes/TanStack Form.md",
     "Front-end notes/Prisma.md",
     "Front-end notes/Zod.md",
@@ -243,7 +243,6 @@
     "Project notes/resonance/需求.canvas",
     "Front-end notes/Tailwind CSS/全指令.md",
     "Front-end notes/Tailwind CSS/核心概念.md",
-    "Project notes/resonance/知识点.md",
     "Excalidraw/Drawing 2026-03-17 13.06.03.excalidraw.md",
     "Excalidraw",
     "Project notes/resonance/schema.prisma.md",
