@@ -669,3 +669,22 @@ TanStack Form 的核心架构是**原子化更新**。
 
 # Context
 
+## createFormHookContexts
+
+生成一组空的 **Context 容器**。它不包含具体的逻辑，只是定义了存放“表单实例”和“字段实例”的框子。
+
+``` ts
+import { createFormHookContexts } from "@tanstack/react-form";
+
+// 1. 创建 Context 集合
+export const { 
+  formContext,     // 存储整个表单实例的 Context
+  fieldContext,    // 存储单个字段实例的 Context
+  useFormContext,  // 基础 Hook：获取表单实例
+  useFieldContext  // 基础 Hook：获取字段实例
+} = createFormHookContexts();
+```
+
+## createFormHook
+
+接收上面创建的 Context，并返回一套**定制化**的 Hooks 和组件。
