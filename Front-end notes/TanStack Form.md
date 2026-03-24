@@ -706,3 +706,46 @@ export const {
   formComponents: {},
 });
 ```
+
+## 使用方法
+
+**父组件初始化**：
+
+``` ts
+function ParentForm() {
+  const form = useAppForm({
+    defaultValues: { email: "" },
+    onSubmit: (val) => console.log(val),
+  });
+
+  return (
+    // form.AppForm 内部自动处理了 <formContext.Provider value={form}>
+    <form.AppForm>
+      <h1>注册表单</h1>
+      {/* 这里的子组件可以是任意深度的，不需要传 form prop */}
+      <DeepNestedInput /> 
+    </form.AppForm>
+  );
+}
+```
+
+**子组件调用**：使用生成的 `useTypedAppFormContext`。
+
+``` ts
+function DeepNestedInput() {
+  // 这里的 form 直接从 Context 拿，类型极其精准
+  const form = useTypedAppFormContext();
+
+  return (
+    <form.Field
+      name="email"
+      children={(field) => (
+        <input 
+          value={field.state.value} 
+          onChange={(e) => field.handleChange(e.target.value)} 
+        />
+      )}
+    />
+  );
+}
+```
