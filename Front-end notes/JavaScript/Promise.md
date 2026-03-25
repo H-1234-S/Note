@@ -72,9 +72,8 @@ myPromise
 
 ---
 
-# 手写核心 Promise (简易版)
+# 手写核心 Promise
 
-为了清晰直观，我们实现最核心的状态转换和 `.then` 逻辑。
 
 ``` js
 class MyPromise {
@@ -128,7 +127,7 @@ class MyPromise {
 
 ---
 
-## 1. 为什么要有 `state`？（状态机设计）
+## 1. 为什么要有 `state`？
 
 Promise 的本质是一个**状态机**。
 
@@ -147,7 +146,7 @@ if (this.state === 'pending') {
 
 ---
 
-## 2. 为什么需要 `onResolvedCallbacks` 数组？（异步处理）
+## 2. 为什么需要 `onResolvedCallbacks` 数组？
 
 这是很多初学者最困惑的地方：**为什么要用数组存起来，而不是直接执行？**
 
@@ -168,11 +167,11 @@ if (this.state === 'pending') {
 
 ---
 
-## 3. 为什么要用箭头函数定义 `resolve` / `reject`
+## 3. 为什么要用箭头函数定义 `resolve` / `reject` ?
 
 你观察到你的代码里是用 `const resolve = (value) => { ... }` 了吗？
 
-- **设计意图**：`executor` 是用户传进来的。如果用户在外部直接调用 `resolve()`，普通函数的 `this` 指向可能会丢失（指向全局或 undefined）。
+- **设计意图**：`executor` 是用户传进来的。如果用户在外部直接调用 `resolve()`，普通函数的 `this` 指向会丢失（指向全局或 undefined）。
     
 - **解决方案**：箭头函数不绑定 `this`，它会捕获定义时所处环境的 `this`（即当前的 `MyPromise` 实例）。这样无论用户怎么调用，`this.state` 都能准确找到实例。
     
