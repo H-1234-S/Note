@@ -715,3 +715,27 @@ function DeepNestedInput() {
 
  [chatterbox](https://github.com/resemble-ai/chatterbox)
 
+# Tabs
+
+``` ts
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppWindowIcon, CodeIcon } from "lucide-react";
+
+export default function Tabspage() {
+    const tabTriggerClassName =
+        "flex-1 h-full gap-2 bg-transparent rounded-none border-x-0 border-t-0 border-b-px border-b-transparent shadow-none data-[state=active]:border-b-foreground group-data-[variant=default]/tabs-list:data-[state=active]:shadow-none";
+
+    return (
+        <div className="hidden w-105 min-h-0 flex-col border-l lg:flex">
+            <Tabs defaultValue="setting" className="flex h-full min-h-0 flex-col gap-y-0">
+                <TabsList className="w-full bg-transparent rounded-none border-b h-12 group-data-[orientation=horizontal]/tabs:h-12 p-0">
+                    <TabsTrigger value="setting" className={tabTriggerClassName}><AppWindowIcon />预览</TabsTrigger>
+                    <TabsTrigger value="code" className={tabTriggerClassName}><CodeIcon />代码</TabsTrigger>
+                </TabsList>
+                <TabsContent value="setting" className="mt-0 flex min-h-0 flex-1 flex-col overflow-y-auto"><h1>appWindow page</h1></TabsContent>
+            </Tabs>
+
+        </div>
+    )
+}
+```
