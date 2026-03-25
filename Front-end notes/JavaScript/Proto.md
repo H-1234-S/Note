@@ -40,6 +40,8 @@ console.log(p1.eat === p2.eat); // false
 
 原型对象默认有一个 `constructor` 属性，指向它关联的构造函数。
 
+原型也有 constructor 属性，指向该原型的函数
+
 ---
 
 # 代码实战与验证
