@@ -39,3 +39,34 @@ export default function Tabspage() {
     )
 }
 ```
+
+# 受控用法
+
+通过代码逻辑（比如点击外部按钮）来切换 Tab，你可以使用 `value` 和 `onValueChange`。
+
+``` ts
+"use client"
+import { useState } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+export function ControlledTabs() {
+  const [activeTab, setActiveTab] = useState("tab1")
+
+  return (
+    <div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="tab1">第一项</TabsTrigger>
+          <TabsTrigger value="tab2">第二项</TabsTrigger>
+        </TabsList>
+        <TabsContent value="tab1">内容 1</TabsContent>
+        <TabsContent value="tab2">内容 2</TabsContent>
+      </Tabs>
+      
+      <button onClick={() => setActiveTab("tab2")} className="mt-4">
+        点击跳转到第二项
+      </button>
+    </div>
+  )
+}
+```
