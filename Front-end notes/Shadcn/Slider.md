@@ -24,3 +24,36 @@ export function SliderDemo() {
   )
 }
 ```
+
+# 步长与范围限制 
+
+通过 `min`、`max` 和 `step` 属性，你可以精确控制滑动条的边界和增量。例如，创建一个步长为 $5$ 的音量调节器：
+
+``` ts
+<Slider
+  defaultValue={[20]}
+  min={0}
+  max={100}
+  step={5}
+  className="w-full"
+/>
+```
+
+# 双滑块范围选择 
+
+如果向 `defaultValue` 传递两个值，组件会自动渲染两个滑块，允许用户选择一个区间（如价格区间）。
+
+``` ts
+export function RangeSlider() {
+  return (
+    <div className="p-4">
+      <p className="mb-4">价格范围</p>
+      <Slider 
+        defaultValue={[20, 80]} 
+        max={100} 
+        step={1} 
+      />
+    </div>
+  )
+}
+```
