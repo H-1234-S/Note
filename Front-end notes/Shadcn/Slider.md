@@ -83,3 +83,20 @@ export function ControlledSlider() {
   )
 }
 ```
+
+# 禁用
+
+
+
+
+# 属性
+
+|**属性**|**类型**|**默认值**|**说明**|
+|---|---|---|---|
+|`defaultValue`|`number[]`|`[0]`|初始值，数组长度决定滑块个数|
+|`value`|`number[]`|-|受控状态下的值|
+|`onValueChange`|`(value: number[]) => void`|-|值改变时的回调函数|
+|`min`|`number`|`0`|最小值|
+|`max`|`number`|`100`|最大值|
+|`step`|`number`|`1`|步长|
+|`minStepsBetweenThumbs`|`number`|`0`|两个滑块之间的最小步长间隔|
