@@ -21,7 +21,7 @@
 
 # 基本用法 —— 链式调用
 
-### 1. 构造一个 Promise
+## 1. 构造一个 Promise
 
 
 ``` js
@@ -37,7 +37,7 @@ const myPromise = new Promise((resolve, reject) => {
 });
 ```
 
-### 2. 消费 Promise
+## 2. 消费 Promise
 
 通过 `.then()`、`.catch()` 和 `.finally()` 来处理结果：
 
@@ -76,7 +76,7 @@ myPromise
 
 理解 Promise 的最好方式就是亲手实现它。我们要实现符合 **Promise/A+ 规范** 的核心逻辑。
 
-### 1. 手写核心 Promise (简易版)
+## 1. 手写核心 Promise (简易版)
 
 为了清晰直观，我们实现最核心的状态转换和 `.then` 逻辑。
 
@@ -130,7 +130,7 @@ class MyPromise {
 }
 ```
 
-### 2. 手写 Promise.all
+## 2. 手写 Promise.all
 
 这是大厂面试的高频考点。核心逻辑：**计数器**。
 
