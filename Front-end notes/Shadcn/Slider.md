@@ -57,3 +57,29 @@ export function RangeSlider() {
   )
 }
 ```
+
+# 受控组件
+
+使用 `value` 和 `onValueChange` 实时获取滑块的值。 
+
+``` ts
+"use client"
+import { useState } from "react"
+import { Slider } from "@/components/ui/slider"
+
+export function ControlledSlider() {
+  const [values, setValues] = useState([30])
+
+  return (
+    <div className="space-y-4">
+      <Slider
+        value={values}
+        onValueChange={(value) => setValues(value)}
+        max={100}
+        step={1}
+      />
+      <p>当前数值：{values[0]}</p>
+    </div>
+  )
+}
+```
