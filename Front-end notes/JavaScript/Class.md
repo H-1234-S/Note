@@ -12,7 +12,6 @@
 
 在 ES6 之前，我们实现一个“类”是这样的：
 
-
 ``` js
 function Plane(color) {
   this.color = color;
@@ -138,7 +137,6 @@ myDog.eat();
 ## 第四阶段：Getter 与 Setter（拦截器）
 
 闭包可以保护数据，`class` 提供的 `get` 和 `set` 关键字则能让我们在读写属性时进行逻辑校验。
-
 
 ``` js
 class Person {
