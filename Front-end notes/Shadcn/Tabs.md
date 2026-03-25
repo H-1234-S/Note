@@ -1,4 +1,4 @@
-# 安装
+# [安装](https://ui.shadcn.com/docs/components/radix/tabs#api-reference)
 
 ``` bash
 npx shadcn@latest add tabs
@@ -21,18 +21,21 @@ npx shadcn@latest add tabs
 - **注意**：`TabsTrigger` 的 `value` 必须与对应的 `TabsContent` 的 `value` 完全一致。
 
 ``` ts
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppWindowIcon, CodeIcon } from "lucide-react";
 
-export function BasicTabs() {
-  return (
-    <Tabs defaultValue="account" className="w-[400px]">
-      <TabsList>
-        <TabsTrigger value="account">账户</TabsTrigger>
-        <TabsTrigger value="password">密码</TabsTrigger>
-      </TabsList>
-      <TabsContent value="account">这里是账户设置的内容。</TabsContent>
-      <TabsContent value="password">这里是修改密码的内容。</TabsContent>
-    </Tabs>
-  )
+export default function Tabspage() {
+    return (
+        <div className="mt-10 flex items-center justify-center flex-col">
+            <Tabs  defaultValue="setting"  className="w-[400px] ">
+                <TabsList  className="w-full grid-cols-2 ">
+                    <TabsTrigger value="setting"><AppWindowIcon />预览</TabsTrigger>
+                    <TabsTrigger value="code"><CodeIcon />代码</TabsTrigger>
+                </TabsList>
+                <TabsContent value="setting"><h1>appWindow page</h1></TabsContent>
+                <TabsContent value="code"><h1>code page</h1></TabsContent>
+            </Tabs>
+        </div>
+    )
 }
 ```
