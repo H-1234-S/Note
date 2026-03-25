@@ -44,6 +44,8 @@ export default function Tabspage() {
 
 通过代码逻辑（比如点击外部按钮）来切换 Tab，你可以使用 `value` 和 `onValueChange`。
 
+- `value` 表示显示哪个标签；初次渲染时value显示的是useState中的 `initvalue`
+
 ``` ts
 "use client"
 import { useState } from "react"
@@ -67,6 +69,51 @@ export function ControlledTabs() {
         点击跳转到第二项
       </button>
     </div>
+  )
+}
+```
+
+# 禁用状态
+
+给哪个 `TabsTrigger` 添加 `disabled` 表示禁用哪个标签
+
+# 水平布局
+
+给 `TabsList` 添加 `variant="line"` 表示水平布局；默认是水平布局
+
+``` ts
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+export function TabsLine() {
+  return (
+    <Tabs defaultValue="overview">
+      <TabsList variant="line">
+        <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        <TabsTrigger value="reports">Reports</TabsTrigger>
+      </TabsList>
+    </Tabs>
+  )
+}
+
+```
+
+# 垂直布局
+
+给 `Tabs` 使用 `orientation="vertical"` 设置垂直选项卡。
+
+``` ts
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+export function TabsVertical() {
+  return (
+    <Tabs defaultValue="account" orientation="vertical">
+      <TabsList>
+        <TabsTrigger value="account">Account</TabsTrigger>
+        <TabsTrigger value="password">Password</TabsTrigger>
+        <TabsTrigger value="notifications">Notifications</TabsTrigger>
+      </TabsList>
+    </Tabs>
   )
 }
 ```
