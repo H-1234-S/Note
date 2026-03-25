@@ -1,4 +1,4 @@
-# 初识 Promise —— 异步的“承诺”
+# Promise 是什么？
 
 在没有 Promise 之前，我们处理异步依赖全靠回调函数嵌套，代码像个向右倒的“金字塔”。
 
@@ -19,7 +19,7 @@
 
 ---
 
-# 基本用法 —— 链式调用
+# 基本用法 
 
 ## 1. 构造一个 Promise
 
@@ -57,7 +57,7 @@ myPromise
 
 ---
 
-# 进阶——静态方法
+# 静态方法
 
 在实际工程中，我们经常需要处理多个异步任务：
 
@@ -72,11 +72,7 @@ myPromise
 
 ---
 
-# 终极挑战 —— 手写实现
-
-理解 Promise 的最好方式就是亲手实现它。我们要实现符合 **Promise/A+ 规范** 的核心逻辑。
-
-## 1. 手写核心 Promise (简易版)
+# 手写核心 Promise (简易版)
 
 为了清晰直观，我们实现最核心的状态转换和 `.then` 逻辑。
 
@@ -130,9 +126,123 @@ class MyPromise {
 }
 ```
 
-## 2. 手写 Promise.all
+---
 
-这是大厂面试的高频考点。核心逻辑：**计数器**。
+## 1. 为什么要有 `state`？（状态机设计）
+
+Promise 的本质是一个**状态机**。
+
+- **设计意图**：异步操作需要一个“进度条”。`pending` 是进行中，`fulfilled` 是成功，`rejected` 是失败。
+    
+- **关键约束**：状态一旦改变就不可逆。
+
+
+``` js
+// 为什么要写这一步？
+if (this.state === 'pending') { 
+    // 只有 pending 状态下才允许改变状态
+    // 防止 resolve 了之后又去调用 reject
+}
+```
+
+---
+
+## 2. 为什么需要 `onResolvedCallbacks` 数组？（异步处理）
+
+这是很多初学者最困惑的地方：**为什么要用数组存起来，而不是直接执行？**
+
+- **场景还原**：如果你在 Promise 里写了一个 `setTimeout`，执行到 `then` 的时候，异步操作还没完成，此时状态还是 `pending`。
+    
+- **设计意图**：我们不能立即执行回调，得先把它“记在小本本上”（存入数组）。
+    
+- **为什么是数组？**：因为同一个 Promise 实例可以多次调用 `.then`。如果是数组，我们就能按顺序触发所有的回调。
+    
+
+
+``` js
+// 当你在 pending 时调用 .then
+if (this.state === 'pending') {
+    this.onResolvedCallbacks.push(() => onFulfilled(this.value));
+}
+```
+
+---
+
+## 3. 为什么要用箭头函数定义 `resolve` / `reject`
+
+你观察到你的代码里是用 `const resolve = (value) => { ... }` 了吗？
+
+- **设计意图**：`executor` 是用户传进来的。如果用户在外部直接调用 `resolve()`，普通函数的 `this` 指向可能会丢失（指向全局或 undefined）。
+    
+- **解决方案**：箭头函数不绑定 `this`，它会捕获定义时所处环境的 `this`（即当前的 `MyPromise` 实例）。这样无论用户怎么调用，`this.state` 都能准确找到实例。
+    
+
+---
+
+## 4. 为什么要用 `try...catch` 包裹 `executor`
+
+- **设计意图**：用户传的代码是不可控的。如果用户在 Promise 内部写了非法代码（比如 `console.log(a)` 且 `a` 未定义），我们需要把这个“程序崩溃”优雅地转化为“Promise 失败”。
+
+``` js
+try {
+    executor(resolve, reject);
+} catch (error) { // 这里的参数名字要和 catch 后面一致
+    reject(error);
+}
+```
+
+---
+
+## 5. 你的代码中需要优化的“资深细节”
+
+为了让你的 Promise 更接近原生，我们需要修正几个逻辑小瑕疵：
+
+### A. 参数校验（值穿透）
+
+原生的 `.then` 允许不传参数。如果你不传，结果应该一直传下去。
+
+``` js
+onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : v => v;
+onRejected = typeof onRejected === 'function' ? onRejected : err => { throw err };
+```
+
+### B. 链式调用（最重要的进阶）
+
+原生的 `then` 返回的是一个**全新的 Promise**，这样才能实现 `p.then().then()`。你目前的实现返回的是 `undefined`，无法链式调用。
+
+### C. 异步执行（微任务）
+
+原生的 `then` 里的回调是**异步**执行的（微任务）。即使用户立即调用了 `resolve`，`.then` 里的代码也会在同步代码执行完后再跑。你可以用 `queueMicrotask` 或 `setTimeout` 来模拟。
+
+---
+
+## 修改后的进阶逻辑预览
+
+``` js
+then(onFulfilled, onRejected) {
+    // 1. 完善参数校验
+    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : v => v;
+    onRejected = typeof onRejected === 'function' ? onRejected : e => { throw e };
+
+    // 2. 为了支持链式调用，返回一个新的 MyPromise
+    return new MyPromise((resolve, reject) => {
+        if (this.state === 'fulfilled') {
+            // 模拟异步执行
+            setTimeout(() => {
+                try {
+                    let x = onFulfilled(this.value);
+                    resolve(x); // 把上一个 then 的返回值传给下一个
+                } catch (e) { reject(e); }
+            });
+        }
+        // ... pending 和 rejected 同理
+    });
+}
+```
+
+---
+
+# 手写 Promise.all
 
 ``` ts
 MyPromise.all = function(promises) {
