@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/tRPC.md",
+                "file": "Front-end notes/TanStack Query.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "tRPC"
+              "title": "TanStack Query"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -138,13 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/tRPC.md",
+                "file": "Front-end notes/TanStack Query.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "tRPC 的大纲"
+              "title": "TanStack Query 的大纲"
             }
           },
           {
@@ -198,6 +197,7 @@
   "active": "08c967d4c86214e3",
   "lastOpenFiles": [
     "Front-end notes/tRPC.md",
+    "Front-end notes/TanStack Query.md",
     "Front-end notes/TanStack Form.md",
     "Front-end notes/Zod.md",
     "Front-end notes/Prisma.md",
@@ -226,7 +226,6 @@
     "Excalidraw/Drawing 2026-03-17 13.06.03.excalidraw.md",
     "Excalidraw",
     "Project notes/resonance/schema.prisma.md",
-    "Front-end notes/Next.JS/NextAuth.js.md",
     "Front-end notes/Shadcn",
     "Project notes/resonance",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
