@@ -309,3 +309,189 @@ export const appRouter = t.router({
 
 ---
 
+# 案例
+
+构建一个 **“企业级任务管理系统 (Task Flow)”** 的后端核心
+
+这个案例将涵盖：**路由模块化、Zod 深度校验、权限中间件、SuperJSON、以及错误处理**。
+
+---
+
+## 1. 架构设计思路
+
+我们采用 **模块化路由 (Nested Routers)** 架构。这种设计模拟了大型项目的真实结构：
+
+- **`context.ts`**: 统一处理认证逻辑，将用户信息注入请求生命周期。
+    
+- **`trpc.ts`**: 初始化 tRPC，定义通用的 `publicProcedure` 和 `protectedProcedure`。
+    
+- **`routers/`**: 按业务维度拆分，保持单一职责原则 (SRP)。
+    
+- **`index.ts`**: 合并路由，导出类型。
+    
+
+---
+
+## 2. 代码实现
+
+### 步骤 A：定义 Context (上下文)
+
+这是进阶开发的第一步，决定了你的 API 如何识别“我是谁”。
+
+``` ts
+// server/context.ts
+import { inferAsyncReturnType } from '@trpc/server';
+import { CreateNextContextOptions } from '@trpc/server/adapters/next';
+
+export async function createContext(opts: CreateNextContextOptions) {
+  // 模拟从 Header 中获取 Token 并验证用户
+  const token = opts.req.headers.authorization;
+  const user = token === 'admin-secret' ? { id: 'u1', name: 'Admin', role: 'ADMIN' } : null;
+
+  return {
+    user,
+    db: {}, // 这里可以挂载你的 Prisma 或 Drizzle 实例
+  };
+}
+
+export type Context = inferAsyncReturnType<typeof createContext>;
+```
+
+### 步骤 B：初始化与中间件 (The Core)
+
+这里体现了如何将基础的 `procedure` 扩展为带有权限控制的组件。
+
+``` ts
+// server/trpc.ts
+import { initTRPC, TRPCError } from '@trpc/server';
+import { Context } from './context';
+import superjson from 'superjson';
+
+// 使用 superjson 处理 Date 等复杂类型
+const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+});
+
+export const router = t.router;
+export const publicProcedure = t.procedure;
+
+// 进阶：权限校验中间件
+const isAuthed = t.middleware(({ next, ctx }) => {
+  if (!ctx.user) {
+    throw new TRPCError({ 
+      code: 'UNAUTHORIZED', 
+      message: '只有登录用户才能操作' 
+    });
+  }
+  return next({
+    ctx: { user: ctx.user }, // 这里的 ctx 会被后续 procedure 继承且类型收窄
+  });
+});
+
+// 导出受保护的 Procedure，前端调用时会自动要求权限
+export const protectedProcedure = t.procedure.use(isAuthed);
+```
+
+### 步骤 C：业务路由 (Task Router)
+
+结合 **Zod** 进行严谨的输入校验。
+
+``` ts
+// server/routers/task.ts
+import { z } from 'zod';
+import { router, publicProcedure, protectedProcedure } from '../trpc';
+
+export const taskRouter = router({
+  // 1. 公开查询：获取任务列表
+  list: publicProcedure
+    .input(z.object({ filter: z.string().optional() }))
+    .query(({ input }) => {
+      return [
+        { id: 1, title: '学习 tRPC 进阶', createdAt: new Date() },
+      ];
+    }),
+
+  // 2. 受限操作：创建任务（必须登录）
+  create: protectedProcedure
+    .input(z.object({
+      title: z.string().min(5, "标题至少5个字符"),
+      priority: z.enum(['LOW', 'HIGH'])
+    }))
+    .mutation(async ({ input, ctx }) => {
+      // ctx.user 在这里是保证存在的，这就是 middleware 的威力
+      console.log(`用户 ${ctx.user.name} 正在创建任务`);
+      
+      return {
+        id: Math.random(),
+        ...input,
+        ownerId: ctx.user.id
+      };
+    }),
+});
+```
+
+### 步骤 D：合并导出 (Root Router)
+
+``` ts
+// server/index.ts
+import { router } from './trpc';
+import { taskRouter } from './routers/task';
+
+export const appRouter = router({
+  task: taskRouter, // 挂载子路由
+});
+
+export type AppRouter = typeof appRouter;
+```
+
+---
+
+## 3. 为什么这样设计？（架构优势）
+
+1. **类型隐式传递 (Type Inference)**:
+    
+    前端在调用 `trpc.task.create.useMutation()` 时，输入参数必须符合 `z.object` 定义的结构，返回结果中的 `createdAt` 会自动被解析为 `Date` 对象。如果你改了后端字段名，前端会在编译时立刻报错。
+    
+2. **Procedure 组合**:
+    
+    我们没有在每个接口里写 `if (!user)`，而是通过 `protectedProcedure` 统一管理。这种逻辑复用是大型项目保持代码整洁的关键。
+    
+3. **SuperJSON 的必要性**:
+    
+    在任务系统中，日期（CreatedAt）和金额（BigInt）很常见。通过在初始化时注入 `superjson`，我们消除了前端频繁手动 `new Date(string)` 的痛苦。
+    
+
+---
+
+## 4. 前端调用示例 (React)
+
+TypeScript
+
+```
+function TaskApp() {
+  const utils = trpc.useContext();
+  
+  // 自动推导类型，甚至不需要看 API 文档
+  const { data: tasks } = trpc.task.list.useQuery({ filter: 'urgent' });
+
+  const mutation = trpc.task.create.useMutation({
+    onSuccess: () => {
+      // 进阶技巧：操作成功后，让列表缓存失效，触发自动刷新
+      utils.task.list.invalidate();
+    },
+    onError: (err) => alert(err.message)
+  });
+
+  return (
+    <button onClick={() => mutation.mutate({ title: '新任务', priority: 'HIGH' })}>
+      添加任务
+    </button>
+  );
+}
+```
+
+---
+
+**下一步建议：**
+
+你现在的代码已经非常接近工业标准了。如果你想更进一步，我们可以聊聊如何集成 **Prisma (数据库 ORM)**，实现真正的全栈数据流？或者你想了解如何为 tRPC 编写**单元测试**？
