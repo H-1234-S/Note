@@ -10,7 +10,6 @@
 2. **Procedure**: 具体的 API 接口（Query 用于读，Mutation 用于写）。
     
 3. **Context**: 共享的数据（如数据库连接、用户信息）。
-    
 
 ---
 
@@ -35,6 +34,7 @@ export const appRouter = t.router({
     })
     .query((opts) => {
       const { input } = opts; // 这里的 input 类型会被推导为 string
+      // 返回给前的数据
       return { id: input, name: 'Alex', role: 'Engineer' };
     }),
 });
@@ -59,6 +59,7 @@ import type { AppRouter } from './server'; // 仅导入类型
 const trpc = createTRPCProxyClient<AppRouter>({
   links: [
     httpBatchLink({
+      // 后端服务的地址
       url: 'http://localhost:3000/trpc',
     }),
   ],
@@ -645,6 +646,10 @@ export const TaskItem = ({ task }: Props) => {
 ```
 
 ---
+
+## 7. 资深工程师的总结
+
+### 为什么这是最佳实践？
 
 1. **唯一事实来源 (Single Source of Truth)**: 只要修改了 `schema.prisma` 并运行 `npx prisma generate`，从数据库层到 tRPC API 层，再到前端 UI 层，类型会自动同步。
     
