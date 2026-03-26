@@ -1,4 +1,3 @@
-# TypeScript
 
 ## 数据类型
 
@@ -155,18 +154,23 @@ if (result) {
 ~~~
 
 * 如果一个函数返回类型为 void
+
   * 从语法上讲:函数是可以返回 undefined 的,至于显式返回,还是隐式返回,这无所谓!
+
   * 从语义上讲:函数调用者不应关心函数返回的值,也不应依赖返回值进行任何操作!即使我们知道它返回了 undefined 
 
 ### object
 
 * object（小写），**可存储非原始类型**
+
   * 原始类型：number、string、boolean、null、undefined
+
 * Object（大写），**可存存储除了 undefined 和 null 之外的任何值。**
 
 #### 声明对象类型
 
 * 属性名后跟？**表示可选属性**，可以给age赋值也可以不赋值
+
   * 声明时`可省略，`赋值时`不可省略，`？？？？？
 
 ~~~typescript
@@ -228,8 +232,6 @@ console.log(sum(1, 2))
 
 #### 声明数组类型
 
-* ​
-
 ~~~typescript
 //单个数组元素限定
 let arr: [number, string]
@@ -243,7 +245,9 @@ newArr = ['w', 'r', 't']
 ### tuple
 
 * 元组(Tuple)是一种特殊的**数组类型**,可以存储固定数量的元素,并且每个元素的类型是已知的且可以不同。
+
   * [string, number] ---元组
+
 * 元组用于精确描述一组值的类型,?表示可选元素。
 
 ~~~typescript
@@ -268,11 +272,13 @@ arr3 = [100]
 ### enum
 
 * 可以用来定义一组**命名常量**
+
   * 注意：枚举的属性是只读的
 
 #### 数字枚举
 
 * 数字枚举一种最常见的枚举类型,其**成员的值会自动递增**,且数字枚举还具备**反向映射**的特点
+
 * 在下面代码的打印中,不难发现:**可以通过值来获取对应的枚举成员名称。**
 
 ~~~typescript
@@ -339,11 +345,13 @@ console.log(Direction)
 #### 常量枚举
 
 * 使用const关键字定义常量枚举
+
 * 可以使得js代码只显示业务代码
 
 ### type
 
 * type可以为任意类型创建别名
+
   * 注意：要有实际意义，要有语义
 
 #### 基本用法
@@ -409,7 +417,9 @@ logGender('女')
 #### 交叉类型
 
 * 将多个用type定义过的类型合并成一个类型
+
 * 合并后的类型有被合并类型的所有成员
+
 * `&`符号用于交叉类型，相当于并且
 
 ~~~typescript
@@ -523,6 +533,7 @@ class Person {
 ### 抽象类
 
 * 概述:**抽象类是一种无法被实例化的类**,专门用来定义类的**结构和行为**,类中可以写抽象方法,也可以写具体实现。
+
 * `抽象类主要用来`**为其派生类提供一个基础结构**,要求其**派生类必须实现其中的抽象方法**。
 
 ~~~typescript
@@ -585,14 +596,20 @@ el.printPackage()
 ~~~
 
 * 总结:何时使用抽象类?
+
   * 定义通用接口:为一组相关的类定义通用的行为(方法或属性)时。
+
   * 提供基础实现:在抽象类中提供某些方法或为其提供基础实现,这样派生类就可以继承这些实现。
+
   * 确保关键实现:**强制派生类实现一些关键行为**。
+
   * 共享代码和逻辑:当多个类需要共享部分代码时,抽象类可以避免代码重复。
 
 ### Mixins
 
-* Mixins 是一种**将多个类的功能组合到一个类中的方式**。在 TypeScript 中，由于不支持多继承，mixins 提供了一种替代方案。
+* Mixins 是一种**将多个类的功能组合到一个类中的方式**。在 TypeScript 中，由于不支持多继承，
+
+* mixins 提供了一种替代方案。
 
 ~~~typescript
 // 定义可复用的行为
@@ -641,9 +658,13 @@ obj.interact();   // SmartObject 自己的方法
 obj.activate();   // 来自 Activatable
 obj.dispose();    // 来自 Disposable
 ~~~
+
 - **SmartObject**：目标类（想要增强的类）
+
 - **[Disposable, Activatable]**：源类列表（提供功能的类）
+
 - **applyMixins**：一个工具函数，执行复制操作
+
 ```typescript
 applyMixins(SmartObject, [Disposable, Activatable]);
 ```
@@ -692,20 +713,16 @@ const mixins = pluginMinxins(App)
 const app = new mixins
 ~~~
 
-
-
-
-
-
-
 ## 接口
 
 * **interface是一种`定义结构`的方式**，主要作用为类、对象、函数等规定一种契约
+
   * 是定义结构的方式，约束了必须要有接口这种结构，而不是名义
 
 ### 定义类结构
 
 * class  类名  implements  接口名
+
 * 表示某类实现了某接口
 
 ~~~typescript
@@ -779,8 +796,6 @@ interface SmartObject extends Disposable, Activatable {
 
 ### 定义对象结构
 
-* ​
-
 ~~~typescript
 interface PersonInterface {
   name: string
@@ -798,8 +813,6 @@ const P: PersonInterface = {
 ~~~
 
 ### 定义函数结构
-
-* ​
 
 ~~~typescript
 // 定义函数接口
@@ -875,7 +888,9 @@ type PersonType = {
 ~~~
 
 * 不同点：
+
   * interface 支持继承和合并
+
   * type 可以定义类别名，联合类型和交叉类型
 
 ~~~typescript
@@ -909,17 +924,21 @@ const student: StudentType = {
 ### interface 与 抽象类的区别
 
 * 相同点:都能定义一个类的格式(定义类应遵循的契约)
+
 * 不相同:
-  * 接口:**只能描述结构**,不能有任何实现代码,**一个类可以实现多个接口。**
+
+  * 接口:**只能描述结构**,不能有任何实现代码,**一个类可以实现多个接口。
+
   *  抽象类:既可以包含抽象方法,也可以包含具体方法,**一个类只能继承一个抽象类。**
 
 ## 泛型
 
 
 * 泛型允许我们在**定义函数、类或接口**时,`使用类型参数来表示未指定的类型`,这些参数在**具体使用时**,才被指定具体的类型
-* 泛型能让同一段代码适用于多种类型,同时仍然保持类型的安全性。
-* 定义函数、类或接口时，不能确定类型，调用时才能确定类型，就要用到泛型
 
+* 泛型能让同一段代码适用于多种类型,同时仍然保持类型的安全性。
+
+* 定义函数、类或接口时，不能确定类型，调用时才能确定类型，就要用到泛型
 
 ### 泛型函数
 
@@ -981,154 +1000,6 @@ add(1,2)
 ~~~
 
 * 语法：<T extends ConstraintType>
-
-
-
-~~~typescript
-//定义了一种结构
-interface LengthInterface {
-  length: number
-}
-// 约束规则是:传入的类型T必须具有 length 属性
-// T是什么？T是数据类型，比如number、string等
-// T被约束了要有Len这种结构
-// string里有接口Len这种结构，所以string类型的数据可以被传入
-function logPerson<T extends LengthInterface>(data: T): void {
-  console.log(data.length)
-}
-logPerson<string>('hello')
-
-//报错:因为number不具备length属性
-// logPerson<number>(100)
-~~~
-
-#### keyof
-
-* keyof 可以将对象身上的key 转成联合类型
-
-~~~typescript
-let obj = {
-  name: '小满',
-  gender: '女'
-}
-
-type key = keyof typeof obj   //===> 'name' | 'gender'
-~~~
-
-~~~typescript
-let obj = {
-  name: '小满',
-  gender: '女'
-}
-
-function ob<T extends object, K extends keyof T>(obj: T, key: K) {
-  return obj[key]
-}
-//要想key能被obj解析，必须是obj的key
-//要对K进行泛型约束，约束传入的key必须是是obj的key
-//keyof 将obj身上的key，转成联合类型
-ob(obj, 'gender')
-~~~
-
-* 遍历接口
-
-~~~typescript
-interface Data {
-  name: string
-  age: number
-  sex: string
-}
-//for in for(let key in obj)
-type Options<T extends object> = {
-  readonly [Key in keyof T]: T[Key]	//映射与反向映射
-}
-
-type B = Options<Data>
-~~~
-
-### 泛型类
-
-~~~typescript
-// 5.泛型类
-class Person<T> {
-  constructor(
-    public name: string,
-    public age: number,
-    public extraInfo: T
-  ) { }
-  speak() {
-    console.log(`我叫${this.name}今年${this.age}岁了`)
-    console.log(this.extraInfo)
-  }
-}
-// 测试代码1
-const p1 = new Person<number>("tom", 30, 250);
-
-// 测试代码2
-type JobInfo = {
-  title: string;
-  company: string;
-}
-const p2 = new Person<JobInfo>("tom", 30, {
-  title: '研发总监', company: '发发发科技公司'
-});
-~~~
-
-## 命名空间
-
-* 用来分离变量或方法，避免全局污染
-* 要在空间外访问空间内变量或方法，通过export关键字导出
-* 语法：
-
-~~~typescript
-namespace 空间名 {
-    esport
-    //导出
-}
-~~~
-
-* 特性：嵌套 抽离 导出 简化 合并
-
-~~~typescript
-namespace Test {
-  export let a: number = 1
-  export const add: (x: number, y: number) => number = (x, y) => {
-    return x + y
-  }
-  export const sum = (x: number, y: number): number => x + y
-}
-console.log(Test.a)	// 打印1
-~~~
-
-~~~typescript
-import Test from './Test.ts'
-~~~
-
-## 知识点
-
-### typeof
-
-* 在typescript中，typeof是**类型查询操作符**，用于获得某个值的详细信息，与javascript不同
-
-~~~typescript
-const initState = { count: -1 };
-// TypeScript 的 typeof 会推导出 initState 的具体结构
-// 结果是：{ readonly count: number } 或 { count: number }
-type State = typeof initState;
-// State 现在等价于 { count: number }
-~~~
-
-### as 类型断言
-
-例：
-
-~~~typescript
-({} as ThemeContextType)
-//用一个空对象 {} 作为默认值，并通过 as ThemeContextType 告诉 TypeScript 将其断言为该类型
-~~~
-
-
-
 
 
 
