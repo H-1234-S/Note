@@ -234,7 +234,24 @@ class MyPromise {
           nextReject(e);
         }
       };
-
+		/*
+			if (this.state === 'fulfilled') {
+	            setTimeout(() => {
+	                onFulfilled(this.value)
+	            })
+	        }
+	        if (this.state === 'rejected') {
+	            setTimeout(() => {
+	                onRejected(this.reason)
+	            })
+	        }
+	        if (this.state === 'pending') {
+	            this.onResolvedCallbacks.push(onFulfilled)
+	            this.onRejectedCallbacks.push(onRejected)
+	        }
+		*/
+		
+		
       if (this.state === 'fulfilled') {
         setTimeout(() => handle(onFulfilled, this.value, resolve, reject));
       } 
