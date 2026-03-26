@@ -465,9 +465,7 @@ export type AppRouter = typeof appRouter;
 
 ## 4. 前端调用示例 (React)
 
-TypeScript
-
-```
+``` ts
 function TaskApp() {
   const utils = trpc.useContext();
   
@@ -492,6 +490,169 @@ function TaskApp() {
 
 ---
 
-**下一步建议：**
+# 全链路类型安全
 
-你现在的代码已经非常接近工业标准了。如果你想更进一步，我们可以聊聊如何集成 **Prisma (数据库 ORM)**，实现真正的全栈数据流？或者你想了解如何为 tRPC 编写**单元测试**？
+## 1. 架构总览：数据流转
+
+在这个架构中，Prisma 负责**数据库 Schema**，tRPC 负责**类型路由**。
+
+- **Schema (Prisma)**: 定义数据库结构。
+    
+- **Client (Prisma)**: 自动生成操作数据库的类型化函数。
+    
+- **Context (tRPC)**: 将 Prisma 实例注入到每一个 API 请求中。
+    
+
+---
+
+## 2. 步骤一：Prisma 初始化与模型定义
+
+首先，我们需要定义数据模型。假设我们继续开发之前的“任务管理系统”。
+
+``` ts
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql" // 或 sqlite, mysql
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 定义任务模型
+model Task {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // 关联用户
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id    String @id @default(cuid())
+  name  String
+  tasks Task[]
+}
+```
+
+---
+
+## 3. 步骤二：单例模式实例化 Prisma
+
+在开发环境下，Next.js 的热重载会导致创建多个数据库连接。我们需要一个单例模式。
+
+``` ts
+// server/db.ts
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const db =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  });
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db;
+```
+
+---
+
+## 4. 步骤三：将 Prisma 注入 tRPC Context
+
+这是最关键的工程实践：**不要在每个 Router 里 import db**。通过 Context 注入，可以方便后续做单元测试（Mocking）。
+
+``` ts
+// server/context.ts
+import { db } from './db';
+
+export const createContext = async (opts: any) => {
+  const session = await getSession(opts.req); // 假设这是你的鉴权逻辑
+  
+  return {
+    db, // 将 prisma 实例注入上下文
+    user: session?.user ?? null,
+  };
+};
+```
+
+---
+
+## 5. 步骤四：在 Procedure 中调用 Prisma
+
+现在，你可以在 `query` 或 `mutation` 中享受极度舒适的代码补全了。
+
+``` ts
+// server/routers/task.ts
+import { z } from 'zod';
+import { router, protectedProcedure } from '../trpc';
+
+export const taskRouter = router({
+  // 获取当前用户的所有任务
+  getMyTasks: protectedProcedure.query(async ({ ctx }) => {
+    // 这里的 ctx.db 就是 Prisma 实例
+    // 这里的返回值会自动推导出 Prisma 生成的 Task 类型
+    return await ctx.db.task.findMany({
+      where: { userId: ctx.user.id },
+      orderBy: { createdAt: 'desc' },
+    });
+  }),
+
+  // 创建任务
+  createTask: protectedProcedure
+    .input(z.object({
+      title: z.string().min(1),
+      content: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.db.task.create({
+        data: {
+          title: input.title,
+          content: input.content,
+          userId: ctx.user.id, // 关联当前登录用户
+        },
+      });
+    }),
+});
+```
+
+---
+
+## 6. 进阶 Tip：利用 Prisma 的自动生成类型
+
+tRPC 的类型推导虽然强大，但有时前端组件需要显式声明一个 Task 的类型。你可以直接使用 Prisma 生成的类型：
+
+``` ts
+// frontend/components/TaskItem.tsx
+import type { Task } from '@prisma/client';
+
+interface Props {
+  task: Task; // 直接使用后端生成的数据库模型类型
+}
+
+export const TaskItem = ({ task }: Props) => {
+  return <div>{task.title} - {task.createdAt.toLocaleDateString()}</div>;
+};
+```
+
+---
+
+## 7. 资深工程师的总结
+
+### 为什么这是最佳实践？
+
+1. **唯一事实来源 (Single Source of Truth)**: 只要修改了 `schema.prisma` 并运行 `npx prisma generate`，从数据库层到 tRPC API 层，再到前端 UI 层，类型会自动同步。
+    
+2. **安全性**: 通过 tRPC 的 `input` (Zod) 校验前端输入，再通过 `protectedProcedure` 拦截非法访问，最后通过 Prisma 操作数据库，形成了一个封闭的安全环。
+    
+3. **性能**: Prisma 的查询引擎经过高度优化，配合 tRPC 的 Batching，可以有效减少数据库连接压力。
+    
