@@ -326,3 +326,147 @@ const queryClient = new QueryClient({
 ---
 # 案例
 
+ **“实时协作任务看板（Task Board）”** 的案例。
+ 
+**Query Key 工厂、乐观更新、数据转换、以及预获取**
+
+---
+
+## 核心案例：高性能任务管理系统 (Mission Control)
+
+### 1. 架构设计思路
+
+在设计这个系统时，我采用了以下三个核心架构原则：
+
+- **单一事实来源 (SSOT)**：所有 UI 状态（谁在加载、数据是什么）都由 TanStack Query 的缓存驱动，组件保持轻量。
+    
+- **预判式 UI (Anticipatory UI)**：通过“预获取”和“乐观更新”，让用户感觉网络请求是瞬时完成的。
+    
+- **声明式逻辑**：将复杂的 Key 管理和数据转换逻辑从组件中抽离，通过自定义 Hook 实现复用。
+    
+
+---
+
+### 2. 代码实现
+
+#### 第一步：定义 Query Key 工厂 (工程化规范)
+
+``` ts
+// 📁 src/api/keys.ts
+export const todoKeys = {
+  all: ['todos'] as const,
+  lists: () => [...todoKeys.all, 'list'] as const,
+  list: (filter: string) => [...todoKeys.lists(), { filter }] as const,
+  details: () => [...todoKeys.all, 'detail'] as const,
+  detail: (id: string) => [...todoKeys.details(), id] as const,
+};
+```
+
+#### 第二步：封装自定义 Hook (数据转换与复用)
+
+``` ts
+// 📁 src/hooks/useTodos.ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { todoKeys } from '../api/keys';
+
+// 基础查询：带数据过滤转换 (Select)
+export const useTodos = (filter: string) => {
+  return useQuery({
+    queryKey: todoKeys.list(filter),
+    queryFn: () => fetch('/api/todos').then(res => res.json()),
+    // 进阶：只返回用户关心的字段，并按时间排序
+    select: (todos) => todos
+      .filter(t => filter === 'all' ? true : t.status === filter)
+      .sort((a, b) => b.id - a.id),
+    staleTime: 30000, // 30秒内数据认为是新鲜的
+  });
+};
+
+// 进阶：乐观更新 Mutation
+export const useUpdateTodoStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, status }) => patchTodo(id, { status }),
+    
+    // 核心进阶：在请求发送瞬间执行
+    onMutate: async (updatedTodo) => {
+      // 1. 取消相关的正在进行的请求，避免覆盖乐观数据
+      await queryClient.cancelQueries({ queryKey: todoKeys.all });
+
+      // 2. 保存旧数据的快照，用于出错回滚
+      const previousTodos = queryClient.getQueryData(todoKeys.lists());
+
+      // 3. 乐观更新：手动修改缓存
+      queryClient.setQueriesData({ queryKey: todoKeys.lists() }, (old: any) => {
+        return old?.map(t => t.id === updatedTodo.id ? { ...t, ...updatedTodo } : t);
+      });
+
+      return { previousTodos };
+    },
+    // 4. 如果失败，回滚到快照状态
+    onError: (err, newTodo, context) => {
+      queryClient.setQueriesData({ queryKey: todoKeys.lists() }, context.previousTodos);
+    },
+    // 5. 无论成功失败，让缓存失效以同步服务器真实状态
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: todoKeys.all });
+    },
+  });
+};
+```
+
+#### 第三步：业务组件 (性能与体验)
+
+``` ts
+// 📁 src/components/TodoItem.tsx
+import { useUpdateTodoStatus } from '../hooks/useTodos';
+import { useQueryClient } from '@tanstack/react-query';
+import { todoKeys } from '../api/keys';
+
+export const TodoItem = ({ todo }) => {
+  const queryClient = useQueryClient();
+  const { mutate } = useUpdateTodoStatus();
+
+  // 进阶：预获取详情 (Prefetching)
+  // 当用户鼠标悬停在任务上时，提前加载详情
+  const prefetchDetail = () => {
+    queryClient.prefetchQuery({
+      queryKey: todoKeys.detail(todo.id),
+      queryFn: () => fetchTodoDetail(todo.id),
+      staleTime: 10000,
+    });
+  };
+
+  return (
+    <div 
+      className="p-4 border" 
+      onMouseEnter={prefetchDetail} // 触发预加载
+    >
+      <h3>{todo.title}</h3>
+      <button onClick={() => mutate({ id: todo.id, status: 'completed' })}>
+        完成任务 (体验瞬时切换)
+      </button>
+    </div>
+  );
+};
+```
+
+---
+
+### 3. 为什么这样设计？
+
+1. **关于 `onMutate` 的设计**：
+    
+    在协作应用中，网络波动很常见。如果直接等 API 返回，用户点击“完成”后会有短暂的卡顿感。通过 `setQueriesData` 配合 `cancelQueries`，我们给用户提供了 **0 延迟** 的操作反馈，极大提升了高级感。
+    
+2. **关于 `select` 的设计**：
+    
+    在大型列表里，如果你在 API 层面直接返回 100 条原始数据，React 默认会在数据变动时重染所有组件。使用 `select` 后，TanStack Query 会在内部进行**浅比较**。如果过滤后的结果没变，组件就不会触发重渲染，这对保持 60fps 的流畅度至关重要。
+    
+3. **关于 `prefetchQuery` 的设计**：
+    
+    这是一个典型的**心理学优化**。用户从悬停标题到点击进去通常有 200-500ms 的决策时间，这段时间足够我们把详情页的数据加载完毕。当用户点进去时，页面是瞬开的。
+    
+
+---
