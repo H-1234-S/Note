@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "22c5db3d1da8bf49",
+        "id": "37a98bc0508d85b3",
         "type": "tabs",
         "children": [
           {
-            "id": "5ab0db43a6b2166b",
+            "id": "a8ad2cd3363fe716",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Project notes/resonance/第四章.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "第四章"
             }
           }
         ]
@@ -134,12 +138,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Project notes/resonance/第四章.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "第四章 的大纲"
             }
           },
           {
@@ -190,15 +195,17 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "5ab0db43a6b2166b",
+  "active": "a8ad2cd3363fe716",
   "lastOpenFiles": [
+    "Project notes/resonance/第四章.md",
+    "Project notes/resonance/Resonance.md",
+    "Project notes/resonance/需求.canvas",
     "Front-end notes/JavaScript/Promise.md",
     "Front-end notes/JavaScript/Class.md",
     "Front-end notes/JavaScript/Event Loop.md",
     "Front-end notes/JavaScript/闭包.md",
     "Front-end notes/JavaScript/Proto.md",
     "Front-end notes/Shadcn/cn函数.md",
-    "Project notes/resonance/Resonance.md",
     "Front-end notes/Shadcn/Tabs.md",
     "Front-end notes/Shadcn/Slider.md",
     "Front-end notes/Shadcn/Sidebar.md",
@@ -213,7 +220,6 @@
     "Front-end notes/Web API.md",
     "Pasted image 20260319134418.png",
     "Front-end notes/Shadcn/Button.md",
-    "Project notes/resonance/需求.canvas",
     "Front-end notes/Tailwind CSS/全指令.md",
     "Front-end notes/Tailwind CSS/核心概念.md",
     "Excalidraw/Drawing 2026-03-17 13.06.03.excalidraw.md",
@@ -221,7 +227,6 @@
     "Project notes/resonance/schema.prisma.md",
     "Front-end notes/Next.JS/NextAuth.js.md",
     "Front-end notes/React/React.md",
-    "Project notes/项目链接.md",
     "Front-end notes/Shadcn",
     "Project notes/resonance",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
