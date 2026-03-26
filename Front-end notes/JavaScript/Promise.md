@@ -237,10 +237,11 @@ class MyPromise {
 
       if (this.state === 'fulfilled') {
         setTimeout(() => handle(onFulfilled, this.value, resolve, reject));
-      } else if (this.state === 'rejected') {
+      } 
+	  if (this.state === 'rejected') {
         setTimeout(() => handle(onRejected, this.reason, resolve, reject));
-      } else {
-        // 如果是 pending（异步情况），先订阅（存入数组）
+      } 
+      if (this.state === 'pending') {
         this.onFulfilledCallbacks.push(() => {
           setTimeout(() => handle(onFulfilled, this.value, resolve, reject));
         });
