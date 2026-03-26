@@ -145,7 +145,7 @@ if (this.state === 'pending') {
 
 - **场景还原**：如果在 Promise 里写了一个 `setTimeout`，执行到 `then` 的时候，异步操作还没完成，此时状态还是 `pending`。
     
-- **设计意图**：我们不能立即执行回调，得先把它“记在小本本上”（存入数组）。
+- **设计意图**：我们不能立即执行回调，**而是先把回调函数存起来** ，Event loop 执行到 `setTimeout` 是，再取出
     
 - **为什么是数组？**：因为同一个 Promise 实例可以多次调用 `.then`。如果是数组，我们就能按顺序触发所有的回调。
     
@@ -159,8 +159,6 @@ if (this.state === 'pending') {
 ---
 
 ## 3. 为什么要用箭头函数定义 `resolve` / `reject` ?
-
-你观察到你的代码里是用 `const resolve = (value) => { ... }` 了吗？
 
 - **设计意图**：`executor` 是用户传进来的。如果用户在外部直接调用 `resolve()`，普通函数的 `this` 指向会丢失（指向全局或 undefined）。
     
