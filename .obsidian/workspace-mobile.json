@@ -98,7 +98,7 @@
               "type": "markdown",
               "state": {
                 "file": "Front-end notes/JavaScript/Event Loop.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
@@ -112,7 +112,7 @@
               "type": "markdown",
               "state": {
                 "file": "Front-end notes/JavaScript/Promise.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
@@ -273,10 +273,10 @@
     "Front-end notes/JavaScript/Promise.md",
     "Front-end notes/JavaScript/Event Loop.md",
     "/Front-end notes/JavaScript/Promise.md",
-    "/Front-end notes/JavaScript/Class.md",
-    "Front-end notes/JavaScript/Class.md",
     "/Front-end notes/JavaScript",
     "/Front-end notes",
+    "/Front-end notes/JavaScript/Class.md",
+    "Front-end notes/JavaScript/Class.md",
     "学习/技术栈.md",
     "Front-end notes/JavaScript/Proto.md",
     "Front-end notes/TanStack Form.md",
@@ -301,7 +301,6 @@
     "/Front-end notes/Next.JS/Next.js.md",
     "/Front-end notes/Next.JS",
     "Front-end notes/Prisma.md",
-    "Front-end notes/Web API.md",
     "Front-end notes/JavaScript",
     "/Front-end notes/Tailwind CSS",
     "/Excalidraw",
