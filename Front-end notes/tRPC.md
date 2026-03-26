@@ -154,3 +154,158 @@ export function UserView() {
 
 # 进阶用法
 
+## 1. 路由模块化：Router Merging
+
+当项目变大时，把所有接口写在一个 `appRouter` 里是不可持续的。我们需要像拆分 Express Router 一样拆分 tRPC 路由。
+
+``` ts
+// server/routers/user.ts
+export const userRouter = t.router({
+  getById: t.procedure.input(z.string()).query(({ input }) => { ... }),
+  updateProfile: t.procedure.input(z.object({ name: z.string() })).mutation(({ input }) => { ... }),
+});
+
+// server/routers/post.ts
+export const postRouter = t.router({
+  list: t.procedure.query(() => { ... }),
+});
+
+// server/trpc.ts (主入口)
+export const appRouter = t.router({
+  user: userRouter, // 嵌套路由
+  post: postRouter,
+});
+
+// 前端调用时会变成：trpc.user.getById.useQuery('123')
+```
+
+---
+
+## 2. 错误处理与自定义错误 (Error Handling)
+
+在生产环境中，你不能只返回 500 错误。tRPC 允许你抛出带有特定 HTTP 状态码的错误，并能被前端精准捕获。
+
+``` TS
+import { TRPCError } from '@trpc/server';
+
+const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: '你还没有登录，请先登录',
+      cause: 'Token expired', // 可选：内部调试原因
+    });
+  }
+  return next();
+});
+```
+
+**前端捕获：**
+
+``` TS
+const mutation = trpc.user.update.useMutation({
+  onError: (err) => {
+    if (err.data?.code === 'UNAUTHORIZED') {
+      alert(err.message);
+    }
+  },
+});
+```
+
+---
+
+## 3. Server-Side Helpers (预取数据)
+
+在 Next.js 等框架中，为了 SEO 或减少首屏白屏，我们通常需要在服务器端预取数据。`createServerSideHelpers` 允许你在服务端直接“跑” tRPC 逻辑，而不需要发起真正的 HTTP 请求。
+
+``` TS
+// pages/posts/[id].tsx (Next.js 示例)
+export async function getStaticProps(opts) {
+  const helpers = createServerSideHelpers({
+    router: appRouter,
+    ctx: await createContext(),
+    transformer: superjson, // 后面会讲
+  });
+
+  const id = opts.params.id;
+  // 预取数据并注入缓存
+  await helpers.post.getById.prefetch({ id });
+
+  return {
+    props: {
+      trpcState: helpers.dehydrate(),
+      id,
+    },
+  };
+}
+```
+
+---
+
+## 4. 数据转换器：SuperJSON
+
+标准的 JSON 不支持 `Date`, `Map`, `Set` 或 `BigInt`。如果你从数据库查出一个 `createdAt` 字段（Date 类型），JSON 会把它转成字符串。tRPC 配合 `superjson` 可以完美解决这个问题。
+
+``` TS
+// server.ts
+import superjson from 'superjson';
+
+const t = initTRPC.create({
+  transformer: superjson, // 开启超级转换
+});
+
+// 此时后端返回：{ time: new Date() }
+// 前端收到的也是真正的 Date 对象，而不是 string！
+```
+
+---
+
+## 5. 性能利器：Batching & Suspense
+
+tRPC 默认支持 **Batching（请求合并）**。如果你在一个组件里同时调用了三个 `useQuery`，tRPC 会自动把它们合并成**一个** HTTP 请求发送给后端，极大地减少了网络开销。
+
+此外，你还可以开启 **Suspense** 模式，让代码更具声明性：
+
+``` TS
+// 开启后，不再需要判断 isLoading
+const [data] = trpc.user.getProfile.useSuspenseQuery();
+
+return <div>{data.name}</div>; 
+// 父组件用 <Suspense fallback={<Loading />}> 包裹即可
+```
+
+---
+
+## 6. 拦截器与元数据 (Interceptors & Meta)
+
+有时候你想给某些接口打标签（例如：`log: true`），或者统计接口耗时。
+
+``` TS
+// 定义 Meta 类型
+interface Meta {
+  logDescription?: string;
+}
+
+const t = initTRPC.meta<Meta>().create();
+
+const logMiddleware = t.middleware(async ({ next, meta, path }) => {
+  const start = Date.now();
+  const result = await next();
+  const durationMs = Date.now() - start;
+  
+  if (meta?.logDescription) {
+    console.log(`[${path}] ${meta.logDescription} took ${durationMs}ms`);
+  }
+  return result;
+});
+
+export const appRouter = t.router({
+  slowQuery: t.procedure
+    .meta({ logDescription: '这是一个很慢的查询' })
+    .use(logMiddleware)
+    .query(() => { ... }),
+});
+```
+
+---
+
