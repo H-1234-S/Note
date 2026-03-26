@@ -646,10 +646,6 @@ export const TaskItem = ({ task }: Props) => {
 
 ---
 
-## 7. 资深工程师的总结
-
-### 为什么这是最佳实践？
-
 1. **唯一事实来源 (Single Source of Truth)**: 只要修改了 `schema.prisma` 并运行 `npx prisma generate`，从数据库层到 tRPC API 层，再到前端 UI 层，类型会自动同步。
     
 2. **安全性**: 通过 tRPC 的 `input` (Zod) 校验前端输入，再通过 `protectedProcedure` 拦截非法访问，最后通过 Prisma 操作数据库，形成了一个封闭的安全环。
