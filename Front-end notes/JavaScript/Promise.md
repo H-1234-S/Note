@@ -74,55 +74,78 @@ myPromise
 
 # 手写核心 Promise
 
+**结构、this指向、then异步调用、处理异常、处理异步、回调保存、链式调用**
 
 ``` js
 class MyPromise {
-  constructor(executor) {
-    this.state = 'pending'; // 初始状态
-    this.value = undefined; // 成功的值
-    this.reason = undefined; // 失败的原因
-    this.onResolvedCallbacks = []; // 存放成功的回调
-    this.onRejectedCallbacks = []; // 存放失败的回调
+    constructor(fn) {
+        this.state = 'pending'
+        this.value = undefined
+        this.reason = undefined
+        this.onResolvedCallbacks = []
+        this.onRejectedCallbacks = []
+        
+        const resolve = (value) => {
+            setTimeout(() => {
+                if (this.state === 'pending') {
+                    this.state = 'fulfilled'
+                    this.value = value
+                    this.onResolvedCallbacks.forEach(callback => callback(value))
+                }
+            })
+        }
 
-    const resolve = (value) => {
-      if (this.state === 'pending') {
-        this.state = 'fulfilled';
-        this.value = value;
-        // 依次执行异步收集的回调
-        this.onResolvedCallbacks.forEach(fn => fn());
-      }
-    };
+        const reject = (reason) => {
+            setTimeout(() => {
+                if (this.state === 'pending') {
+                    this.state = 'rejected'
+                    this.reason = reason
+                    this.onRejectedCallbacks.forEach(callback => callback(reason))
+                }
+            })
+        }
 
-    const reject = (reason) => {
-      if (this.state === 'pending') {
-        this.state = 'rejected';
-        this.reason = reason;
-        this.onRejectedCallbacks.forEach(fn => fn());
-      }
-    };
+        try {
+            fn(resolve, reject)
+        } catch (error) {
+            reject(error)
+        }
+    }
 
-    try {
-      executor(resolve, reject);
-    } catch (err) {
-      reject(err);
-    }
-  }
+    then(onFulfilled, onRejected) {
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : () => { }
+        onRejected = typeof onRejected === 'function' ? onRejected : () => { }
 
-  then(onFulfilled, onRejected) {
-    // 简单起见，这里假设 then 返回一个简单的结果
-    if (this.state === 'fulfilled') {
-      onFulfilled(this.value);
-    }
-    if (this.state === 'rejected') {
-      onRejected(this.reason);
-    }
-    // 如果是异步的（pending状态），先订阅
-    if (this.state === 'pending') {
-      this.onResolvedCallbacks.push(() => onFulfilled(this.value));
-      this.onRejectedCallbacks.push(() => onRejected(this.reason));
-    }
-  }
+        return new MyPromise((resolve, reject) => {
+            if (this.state === 'fulfilled') {
+                setTimeout(() => {
+                    onFulfilled(this.value)
+                })
+            }
+            if (this.state === 'rejected') {
+                setTimeout(() => {
+                    onRejected(this.reason)
+                })
+            }
+            if (this.state === 'pending') {
+                this.onResolvedCallbacks.push(onFulfilled)
+                this.onRejectedCallbacks.push(onRejected)
+            }
+        })
+    }
 }
+
+console.log('1')
+const myPromise = new MyPromise((resolve) => {
+    console.log('2')
+    setTimeout(() => {
+        resolve('ok')
+        console.log('4')
+    })
+})
+
+myPromise.then(data => { console.log(data) })
+console.log('3')
 ```
 
 ---
@@ -152,7 +175,7 @@ if (this.state === 'pending') {
 ``` js
 // 当你在 pending 时调用 .then
 if (this.state === 'pending') {
-    this.onResolvedCallbacks.push(() => onFulfilled(this.value));
+    this.onResolvedCallbacks.push(onFulfilled);
 }
 ```
 
