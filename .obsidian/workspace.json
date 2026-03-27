@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/JavaScript/执行上下文.md",
+                "file": "Front-end notes/JavaScript/闭包.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "执行上下文"
+              "title": "闭包"
             }
           }
         ]
@@ -137,13 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/JavaScript/执行上下文.md",
+                "file": "Front-end notes/JavaScript/闭包.md",
                 "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "执行上下文 的大纲"
+              "title": "闭包 的大纲"
             }
           },
           {
@@ -194,7 +194,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "1abdbf3cda11ceb0",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
     "Front-end notes/JavaScript/执行上下文.md",
     "Front-end notes/Next.JS/Next.js.md",
