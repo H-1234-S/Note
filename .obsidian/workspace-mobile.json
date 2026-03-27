@@ -134,7 +134,7 @@
             }
           }
         ],
-        "currentTab": 8
+        "currentTab": 7
       }
     ],
     "direction": "vertical"
@@ -282,8 +282,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "102de034f2482a52",
+  "active": "d989bd2b9b7021d5",
   "lastOpenFiles": [
+    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/tRPC.md",
     "/Front-end notes/tRPC.md",
     "/Front-end notes",
