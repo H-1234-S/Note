@@ -42,6 +42,8 @@
 
 `SidebarMenu` 组件用于在 `SidebarGroup` 内构建菜单。
 
+![[Pasted image 20260328115001.png]]
+
 ``` ts
 <SidebarMenu>
   {projects.map((project) => (
