@@ -266,7 +266,7 @@ function WorkLoop(deadline) {
 
 requestIdleCallback(WorkLoop)
 
-// 执行工作dan'y
+// 执行工作单元
 function performUnitOfWork(nextUnitOfWork) {
 
 }
