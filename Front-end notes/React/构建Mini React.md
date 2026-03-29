@@ -50,19 +50,24 @@ function createTextNode(text) {
 	}
 }
 
+const Didact = {
+	createElement,
+	createTextNode,
+}
+
 const element = (
-	<div>
-		<a> bar </a>
-		<br />
+	<div id="foo">
+		<a>bar</a>
+		<b />
 	</div>
 )
 
-const element = {
-	type:'div'
-	props:{
-		children
-	}
-}
-
-
+const element = Didact.createElement(
+	"div",
+	{ id: "foo" },
+	Didact.createElement("a", null, "bar"),
+	Didact.createElement("b")
+)
 ```
+
+对于children中非对象元素，
