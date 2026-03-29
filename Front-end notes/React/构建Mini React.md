@@ -248,11 +248,13 @@ JS脚本执行 -----  样式布局 ----- 样式绘制
 **Work Loop：**
 
 ``` js
+// 下一工作单元
 let nextUnitOfWork = null
 
 function WorkLoop(deadline) {
     let shouldYield = false
 
+	// 下一个工作单元存在 并且 不应该让步 则进入循环
     while (nextUnitOfWork && !shouldYield) {
         nextUnitOfWork = performUnitOfWork(nextUnitOfWork)
 
@@ -264,6 +266,7 @@ function WorkLoop(deadline) {
 
 requestIdleCallback(WorkLoop)
 
+// 执行工作dan'y
 function performUnitOfWork(nextUnitOfWork) {
 
 }
