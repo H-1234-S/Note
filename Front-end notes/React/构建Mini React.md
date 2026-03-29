@@ -21,6 +21,27 @@ node.appendChild(text)
 root.appendChild(node)
 ```
 
+# JSX代码编译
+
+``` jsx
+const element = (
+  <div id="foo">
+    <a>bar</a>
+    <b />
+  </div>
+);
+```
+
+通过`Babel` 等编译工具 将JSX代码编译为 JS
+
+``` js
+const element = React.createElement(
+  "div",
+  { id: "foo" },
+  React.createElement("a", null, "bar"),
+  React.createElement("b", null)
+);
+```
 # 创建createElement函数
 
 创建一个 `element` 对象，也就是虚拟DOM
