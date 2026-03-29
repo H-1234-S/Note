@@ -124,7 +124,7 @@ function render(element, container) {
             
     const isProperty = key => key !== 'children'
     
-    Object.keys(element)
+    Object.keys(element.props)
         .filter(isProperty)
         .forEach(item => dom[item] = element.props[item])
 
