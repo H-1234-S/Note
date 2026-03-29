@@ -393,3 +393,37 @@ function render(element, container) {
 }
 ```
 
+**挂载DOM节点**
+
+``` js
+function performUnitOfWork(fiber) {
+	// 如果DOM节点没创建，则创建DOM节点
+	if(!fiber.dom) {
+		fiber.dom = createDom(fiber)
+	}
+	
+	// 判断是否有父节点，如果存在则将DOM节点挂载到父节点
+	if(fiber.parent) {
+		fiber.parent.dom.appendChild(fiber.dom)
+	}
+}
+```
+
+**创建子元素的Fiber**
+
+``` js
+const elements = fiber.props.children
+let index = 0
+let prevSibling = null
+	
+while (index < elements.length) {
+	const element = elements[index]
+	
+	const newFiber = {
+		type: element.type,
+		props: element.props,
+		parent: fiber,
+		dom: null,
+	}
+}
+```
