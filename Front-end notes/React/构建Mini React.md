@@ -22,4 +22,3 @@ node.appendChild(text)
 root.appendChild(node)
 ```
 
-每一个标签就是一个对象，对象的type属性就是标签名
