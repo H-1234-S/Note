@@ -427,3 +427,27 @@ while (index < elements.length) {
 	}
 }
 ```
+
+**然后将创建的子元素的 fiber 添加到 fiber 树中，根据它是否是第一个子节点，将其设置为子节点或兄弟节点。**
+
+``` js
+while (index < elements.length) {
+	const element = elements[index]
+	
+	const newFiber = {
+		type: element.type,
+		props: element.props,
+		parent: fiber,
+		dom: null,
+	}
+	
+	if(index === 0) {
+		fiber.child = newFiber
+	} else {
+		prevSibling.sibling = newFiber
+	}
+	
+	prevSibling = newFiber
+	index++
+}
+```
