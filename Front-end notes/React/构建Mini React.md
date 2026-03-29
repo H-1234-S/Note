@@ -336,3 +336,23 @@ function performUnitOfWork(nextUnitOfWork) {
 
 ## 代码实现
 
+创建DOM节点
+
+``` js
+function createDom(fiber) {
+	const dom =
+		fiber.type == "TEXT_ELEMENT"
+		? document.createTextNode("")
+		: document.createElement(fiber.type)
+	
+	const isProperty = key => key !== "children"
+	
+	Object.keys(fiber.props)
+	.filter(isProperty)
+	.forEach()
+	dom[name] = fiber.props[name]
+	
+	})
+	return dom
+}
+```
