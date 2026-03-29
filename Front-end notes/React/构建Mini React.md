@@ -261,6 +261,8 @@ function WorkLoop(deadline) {
         shouldYield = deadline.timeRemaining() < 1
     }
 
+	// 预约下一帧浏览器空闲时间
+	// 这样循环起来
     requestIdleCallback(WorkLoop)
 }
 
