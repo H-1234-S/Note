@@ -406,6 +406,10 @@ function performUnitOfWork(fiber) {
 	if(fiber.parent) {
 		fiber.parent.dom.appendChild(fiber.dom)
 	}
+	
+	// 创建子元素的Fiber
+	
+	// 寻找下一个工作单元
 }
 ```
 
@@ -449,5 +453,26 @@ while (index < elements.length) {
 	
 	prevSibling = newFiber
 	index++
+}
+```
+
+**寻找下一个工作单元**
+
+首先寻找子节点，然后是兄弟节点，然后是叔节点，以此类推。
+
+``` js
+if (fiber.child) {
+	return fiber.child
+}
+
+let nextFiber = fiber
+
+while (nextFiber) {
+	
+	if (nextFiber.sibling) {
+		return nextFiber.sibling
+	}
+	
+	nextFiber = nextFiber.parent
 }
 ```
