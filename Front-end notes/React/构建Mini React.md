@@ -239,3 +239,8 @@ JS脚本执行 -----  样式布局 ----- 样式绘制
 
 **如何解决？**
 
+在浏览器每一帧的时间中，预留一些时间给 JS 线程，`React`利用这部分时间更新组件（在[源码](https://github.com/facebook/react/blob/1fb18e22ae66fdb1dc127347e169e73948778e5a/packages/scheduler/src/forks/SchedulerHostConfig.default.js#L119)中，预留的初始时间是 5ms）。
+
+当预留的时间不够用时，`React`将线程控制权交还给浏览器使其有时间渲染 UI，`React`则等待下一帧时间到来继续被中断的工作。
+
+也就是将**同步更新变为可中断的异步更新**
