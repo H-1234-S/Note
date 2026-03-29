@@ -182,3 +182,43 @@ function render(element,container) {
 	container.appendChild(dom)
 }
 ```
+
+# 目前复盘
+
+## 为什么需要 `createElement`？
+
+- **语法糖的终点**：JSX 只是语法糖，Babel 会将其编译为 `createElement` 的调用，也就是参数。
+    
+- **创建虚拟 DOM**：它不直接创建真实 DOM，而是返回一个轻量级的 JS 对象（包含 `type` 和 `props`），便于后续的 Diff 算法和跨平台处理。
+    
+## `TEXT_ELEMENT` 的标准化处理
+
+- **问题**：`children` 数组中可能混入字符串或数字。
+    
+- **对策**：将非对象元素包装成 `type: "TEXT_ELEMENT"` 的特殊对象。
+    
+- **目的**：**统一数据结构**。让所有子节点都拥有相同的格式（`type` / `props` / `children`），从而简化 `render` 函数中的递归逻辑。
+    
+## 属性挂载的细节
+
+- **遍历目标**：应遍历 `element.props` 而非 `element` 本身。
+    
+- **属性过滤**：必须通过 `filter` 排除 `children` 属性，因为它不是普通的 HTML 属性，而是需要递归渲染的子节点。
+    
+- **特殊命名**：在 JS 中操作 DOM 属性时，使用 `className` 而非 `class`，因为 `class` 是 JavaScript 的保留关键字。
+    
+##  `render` 函数的递归逻辑
+
+- **双重分支**：
+    
+    - 若是 `TEXT_ELEMENT`：使用 `document.createTextNode("")`。
+        
+    - 若是普通标签：使用 `document.createElement(element.type)`。
+        
+- **接力棒机制**：
+    
+    - 在 `render(child, dom)` 递归调用中，当前的 `dom` 节点会作为下一个子节点的 `container`。
+        
+    - 通过 `container.appendChild(dom)`，每一层节点都能准确地挂载到其父节点上，最终构建出完整的 DOM 树。
+
+--- 
