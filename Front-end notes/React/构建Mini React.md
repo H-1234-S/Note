@@ -315,11 +315,11 @@ function performUnitOfWork(nextUnitOfWork) {
 - **将子元素转化 Fiber 结构**
 	
 	React 会遍历当前元素的 `children`，并为每一个子元素创建一个新的 Fiber 节点
-		
+	
 	- **第一个子元素**：会被设为当前 Fiber 的 `child`。
-	    
+	
 	- **后续子元素**：会被设为前一个子元素的 `sibling`（兄弟）。
-	    
+	
 	- **父子绑定**：所有这些新生成的子 Fiber 都会有一个 `return` 指向当前的 Fiber。
 
 - **寻找下一个工作单元**
@@ -332,4 +332,7 @@ function performUnitOfWork(nextUnitOfWork) {
 	
 	- 如果既没子节点也没兄弟节点，就回到父节点（`return`），查看父节点有没有兄弟。
 	
-	- **以此类推**，直到回到了根节点
+	- **以此类推**，直到回到根节点
+
+## 代码实现
+
