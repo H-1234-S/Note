@@ -50,5 +50,12 @@ function createTextNode(text) {
 	}
 }
 
+const element = (
+	<div>
+		<a> bar </a>
+		<br />
+	</div>
+)
+
 
 ```
