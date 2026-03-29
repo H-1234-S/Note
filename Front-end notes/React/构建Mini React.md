@@ -1,7 +1,6 @@
 
 # 简易实现
 
-
 ``` js
 const element = {
     type:'h1',
@@ -92,7 +91,7 @@ function createElement(type,props,...children) {
 
 # 创建render函数
 
-将创建的虚拟DOM添加到真实DOM中
+将创建的虚拟DOM添加到真实DOM中；只考虑添加，不考虑更新和删除
 
 接收两个参数：`element` `container`
 
@@ -116,3 +115,50 @@ function render(element, container) {
 }
 ```
 
+实现虚拟DOM添加到真实DOM
+
+``` js
+function render(element,container) {
+	const dom = document.createElement(element.type)
+	
+	container.appendChild(dom)
+}
+```
+
+对文本节点和普通节点进行判断
+
+递归处理children中的子节点
+
+``` js
+function render(element,container) {
+	const dom = 
+		element.type === 'TEXT_ELEMENT'
+		? document.createTextNode('')
+		: document.createElement(element.type)
+		
+	element.props.children.forEach(child => {
+		render(child,dom)
+	})
+	container.appendChild(dom)
+}
+```
+
+将虚拟DOM中的属性挂载到真实DOM中
+
+``` js
+function render(element,container) {
+	const dom = 
+		element.type === 'TEXT_ELEMENT'
+		? document.createTextNode('')
+		: document.createElement(element.type)
+		
+	const isFilter = key => key !== 'children'
+	
+	Object.keys(element).filter(isFilter).forEach(name => dom[name] = element.props[name])
+		
+	element.props.children.forEach(child => {
+		render(child,dom)
+	})
+	container.appendChild(dom)
+}
+```
