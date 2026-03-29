@@ -24,3 +24,31 @@ root.appendChild(node)
 
 # 创建createElement函数
 
+这个函数的作用是：创建一个 `element` 对象
+
+接收三个参数：`type` 、`props` 、`...children`
+
+``` js
+
+function createElement(type,props,...children) {
+	return {
+		type,
+		props:{
+			...props,
+			children
+		}
+	}
+}
+
+function createTextNode(text) {
+	return {
+		type:'TEXT_ELEMENT',
+		props:{
+			nodeValue:text,
+			children:[]
+		}
+	}
+}
+
+
+```
