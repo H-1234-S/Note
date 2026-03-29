@@ -74,6 +74,16 @@ const element = Didact.createElement(
 
 对于**对象类型**，也就是子节点
 
-```
-functio
+``` js
+function createElement(type,props,...children) {
+	return {
+		type,
+		porps:{
+			...props,
+			children:children.map(child => {
+				typeof child === 'object' ? 
+			})
+		}
+	}
+}
 ```
