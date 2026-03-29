@@ -336,6 +336,29 @@ function performUnitOfWork(nextUnitOfWork) {
 
 ## 代码实现
 
+**Fiber对象代码示例**
+
+JSX：`<div id="foo"><h1>Hello</h1></div>`
+
+``` js
+// 这是一个 div 的 Fiber 节点
+const fiber = {
+  type: "div",
+  props: {
+    id: "foo",
+    children: [ /* 原始虚拟 DOM 子节点 */ ],
+  },
+  
+  // 关系指针
+  child: { /* 指向 h1 的 Fiber */ },
+  sibling: null, // div 没有兄弟，所以是 null
+  return: { /* 指向父级 Fiber，比如 root */ },
+
+  // 真实 DOM 引用
+  dom: <div id="foo"></div>, 
+};
+```
+
 **创建真实DOM节点**
 
 ``` js
