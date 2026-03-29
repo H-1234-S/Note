@@ -70,4 +70,10 @@ const element = Didact.createElement(
 )
 ```
 
-对于children中非对象元素，
+对于children中**非对象元素**，也就是数字或字符串等基本数据类型，创建一个新类型 `TEXT_ELEMENT` ,包裹在元素内
+
+对于**对象类型**，也就是子节点
+
+```
+functio
+```
