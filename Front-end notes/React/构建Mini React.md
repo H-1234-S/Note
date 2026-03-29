@@ -49,7 +49,6 @@ const element = React.createElement(
 接收三个参数：`type` 、`props` 、`...children`
 
 ``` js
-
 function createElement(type,props,...children) {
 	return {
 		type,
