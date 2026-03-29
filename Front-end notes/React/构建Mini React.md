@@ -222,3 +222,4 @@ function render(element,container) {
     - 通过 `container.appendChild(dom)`，每一层节点都能准确地挂载到其父节点上，最终构建出完整的 DOM 树。
 
 --- 
+
