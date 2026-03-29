@@ -24,7 +24,7 @@ root.appendChild(node)
 
 # 创建createElement函数
 
-这个函数的作用是：创建一个 `element` 对象
+创建一个 `element` 对象，也就是虚拟DOM
 
 接收三个参数：`type` 、`props` 、`...children`
 
@@ -89,3 +89,30 @@ function createElement(type,props,...children) {
 	}
 }
 ```
+
+# 创建render函数
+
+将创建的虚拟DOM添加到真实DOM中
+
+接收两个参数：`element` `container`
+
+``` js
+function render(element, container) {
+    const dom =
+        element.type === 'TEXT_ELEMENT'
+            ? document.createTextNode('')
+            : document.createElement(element.type)
+            
+    const isProperty = key => key !== 'children'
+    
+    Object.keys(element)
+        .filter(isProperty)
+        .forEach(item => dom[item] = element.props[item])
+
+    element.props.children.map(child => {
+        render(child, dom)
+    })
+    container.appendChild(dom)
+}
+```
+
