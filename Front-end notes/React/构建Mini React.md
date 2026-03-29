@@ -296,7 +296,7 @@ function performUnitOfWork(nextUnitOfWork) {
 	    
 	- **sibling**: 指向下一个兄弟节点。
 	    
-	- **return**: 指向父节点。
+	- **parent**: 指向父节点。
 	
 - **作为动态的工作单元：** 每一个 Fiber 节点就是一个 `unitOfWork`（工作单元）。处理一个 Fiber 节点时，React 会完成两件事：
 
@@ -322,7 +322,7 @@ function performUnitOfWork(nextUnitOfWork) {
 	
 	- **后续子元素**：会被设为前一个子元素的 `sibling`（兄弟）。
 	
-	- **父子绑定**：所有这些新生成的子 Fiber 都会有一个 `return` 指向当前的 Fiber。
+	- **父子绑定**：所有这些新生成的子 Fiber 都会有一个 `parent` 指向当前的 Fiber。
 
 - **寻找下一个工作单元**
 	
@@ -332,7 +332,7 @@ function performUnitOfWork(nextUnitOfWork) {
 	
 	- 如果没有子节点，就找自己的 `sibling` ，也就是兄弟节点
 	
-	- 如果既没子节点也没兄弟节点，就回到父节点（`return`），查看父节点有没有兄弟。
+	- 如果既没子节点也没兄弟节点，就回到父节点（`parent`），查看父节点有没有兄弟。
 	
 	- **以此类推**，直到回到根节点
 
