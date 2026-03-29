@@ -550,7 +550,7 @@ function performUnitOfWork(fiber) {
             prevSibling.sibling = newFiber
         }
 
-        newFiber = fiber
+        prevSibling = newFiber
         index++
     }
 
