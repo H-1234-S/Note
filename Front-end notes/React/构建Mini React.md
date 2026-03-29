@@ -352,7 +352,7 @@ const fiber = {
   // 关系指针
   child: { /* 指向 h1 的 Fiber */ },
   sibling: null, // div 没有兄弟，所以是 null
-  return: { /* 指向父级 Fiber，比如 root */ },
+  parent: { /* 指向父级 Fiber，比如 root */ },
 
   // 真实 DOM 引用
   dom: <div id="foo"></div>, 
