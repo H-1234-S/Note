@@ -278,4 +278,6 @@ function performUnitOfWork(nextUnitOfWork) {
 	
 - `deadline对象`里的 `timeRemaining()` 方法返回**距离下一次屏幕刷新**还有多少毫秒
 
-`deadline.timeRemaining() < 1`  检查当前这一帧是否还剩下超过 1 毫秒的时间。如果时间不够了，JS 必须停止执行，把控制权还给浏览器，让浏览器去处理绘图或用户点击。
+`deadline.timeRemaining() < 1`  检查当前这一帧是否还剩下超过 1 毫秒的时间。
+
+如果时间不够了，JS 必须停止执行，把控制权还给浏览器，让浏览器去处理绘图或用户点击。
