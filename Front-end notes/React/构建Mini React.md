@@ -244,3 +244,29 @@ JS脚本执行 -----  样式布局 ----- 样式绘制
 当预留的时间不够用时，`React`将线程控制权交还给浏览器使其有时间渲染 UI，`React`则等待下一帧时间到来继续被中断的工作。
 
 >也就是将**同步更新变为可中断的异步更新**
+
+**Work Loop：**
+
+``` js
+let nextUnitOfWork = null
+
+function WorkLoop(deadline) {
+    let shouldYield = false
+
+    while (nextUnitOfWork && !shouldYield) {
+        nextUnitOfWork = performUnitOfWork(nextUnitOfWork)
+
+        shouldYield = deadline.timeRemaining() < 1
+    }
+
+    requestIdleCallback(WorkLoop)
+}
+
+requestIdleCallback(WorkLoop)
+
+function performUnitOfWork(nextUnitOfWork) {
+
+}
+```
+
+`requestIdleCallback` 方法插入一个函数，这个函数将在浏览器空闲时期被调用。 
