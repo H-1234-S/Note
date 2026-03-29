@@ -1,5 +1,5 @@
 
-# 简易实现
+# 实现思路
 
 ``` js
 const element = {
