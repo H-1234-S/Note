@@ -284,7 +284,7 @@ function performUnitOfWork(nextUnitOfWork) {
 
 # Fiber
 
-**Fiber 有三种含义：**
+## Fiber 的含义
 
 - **作为架构：** Fiber 让 React 拥有了**暂停、分段和恢复**工作的能力。它把同步的渲染变成了可中断的异步任务。
 
@@ -301,3 +301,35 @@ function performUnitOfWork(nextUnitOfWork) {
 	- 把元素渲染成真实的 DOM 节点（或者更新它）。
     
 	- 为子元素创建新的 Fiber 节点。
+
+## 处理一个 Fiber 节点
+
+- **创建真实DOM（如果没有）**
+	
+	如果当前的 Fiber 节点还没有对应的真实 DOM 节点，React 会根据 `fiber.type` 创建它。
+	
+	- 如果是 `TEXT_ELEMENT`，创建文本节点。
+    
+	- 如果是普通标签（如 `div`），创建对应的元素。
+
+- **将子元素转化 Fiber 结构**
+	
+	React 会遍历当前元素的 `children`，并为每一个子元素创建一个新的 Fiber 节点
+		
+	- **第一个子元素**：会被设为当前 Fiber 的 `child`。
+	    
+	- **后续子元素**：会被设为前一个子元素的 `sibling`（兄弟）。
+	    
+	- **父子绑定**：所有这些新生成的子 Fiber 都会有一个 `return` 指向当前的 Fiber。
+
+- **寻找下一个工作单元**
+	
+	处理完当前节点后，React 遵循 **“深度优先搜索”** 的顺序 决定下一个要处理谁。
+	
+	- 如果有 `child` 节点，则下一个任务处理 子节点
+	
+	- 如果没有子节点，就找自己的 `sibling` ，也就是兄弟节点
+	
+	- 如果既没子节点也没兄弟节点，就回到父节点（`return`），查看父节点有没有兄弟。
+	
+	- **以此类推**，直到回到了根节点
