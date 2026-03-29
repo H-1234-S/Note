@@ -57,5 +57,12 @@ const element = (
 	</div>
 )
 
+const element = {
+	type:'div'
+	props:{
+		children
+	}
+}
+
 
 ```
