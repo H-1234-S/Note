@@ -269,4 +269,4 @@ function performUnitOfWork(nextUnitOfWork) {
 }
 ```
 
-`requestIdleCallback` 方法插入一个函数，这个函数将在浏览器空闲时期被调用。 
+`requestIdleCallback` 方法插入一个函数，这个函数将在浏览器空闲时期被调用，也就是**在浏览器每一帧的空闲时间去执行任务**（[官方文档](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)）。 
