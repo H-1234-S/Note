@@ -72,7 +72,9 @@ const element = Didact.createElement(
 
 对于children中**非对象元素**，也就是数字或字符串等基本数据类型，创建一个新类型 `TEXT_ELEMENT` ,包裹在元素内
 
-这样可以使children中都是**对象类型**，都具有相同的结构 `type` `children`，
+这样可以使children中都是**对象类型**，都具有相同的结构 `type` `children`，后续进行递归处理
+
+虚拟 DOM 的核心是 **递归渲染**。
 
 ``` js
 function createElement(type,props,...children) {
