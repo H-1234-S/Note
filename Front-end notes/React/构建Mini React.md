@@ -357,4 +357,15 @@ function createDom(fiber) {
 }
 ```
 
-**将nextU哪天Of**
+**将nextUnitOfWork设置为Fiber树的根节点**
+
+``` js
+function render(element, container) {
+	nextUnitOfWork = {
+		dom: container,
+		props: {
+			children: [element],
+		},
+	}
+}
+```
