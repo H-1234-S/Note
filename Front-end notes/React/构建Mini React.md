@@ -82,7 +82,7 @@ function createElement(type,props,...children) {
 		porps:{
 			...props,
 			children:children.map(child => {
-				typeof child === 'object' ? child : createElement(child)
+				typeof child === 'object' ? child : createTextNode(child)
 			})
 		}
 	}
