@@ -269,4 +269,6 @@ function performUnitOfWork(nextUnitOfWork) {
 }
 ```
 
-`requestIdleCallback` 方法插入一个函数，这个函数将在浏览器空闲时期被调用，也就是**在浏览器每一帧的空闲时间去执行任务**（[官方文档](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)）。 
+`requestIdleCallback()` 方法插入一个函数，这个函数将在浏览器空闲时期被调用，也就是**在浏览器每一帧的空闲时间去执行任务**（[官方文档](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)）。 
+
+`deadline.timeRemaining() < 1`  检查当前这一帧是否还剩下超过 1 毫秒的时间。如果时间不够了，JS 必须停止执行，把控制权还给浏览器，让浏览器去处理绘图或用户点击。
