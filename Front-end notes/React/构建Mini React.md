@@ -223,3 +223,6 @@ function render(element,container) {
 
 --- 
 
+# 并发模式
+
+因为 `render` 函数一旦进行递归就无法停止
