@@ -308,7 +308,7 @@ function performUnitOfWork(nextUnitOfWork) {
 
 - **创建真实DOM（如果没有）**
 	
-	如果当前的 Fiber 节点还没有对应的真实 DOM 节点，React 会根据 `fiber.type` 创建它。
+	如果当前的 Fiber 节点还没有对应的真实 DOM 节点，React 会根据 `fiber.type` 创建它，并且挂载到父节点上。
 	
 	- 如果是 `TEXT_ELEMENT`，创建文本节点。
     
