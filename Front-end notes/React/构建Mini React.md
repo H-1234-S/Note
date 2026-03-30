@@ -727,7 +727,7 @@ function render(element, container) {
 }
 ```
 
-**从 `performUnitOfWork` 中提取创建新 fibers 的代码** 
+**从 `performUnitOfWork` 中提取创建新 fibers 的代码，得到一个新的 `reconcileChildren` 函数。**
 
 ``` js
 function reconcileChildren(wipFiber, elements) {
@@ -752,6 +752,33 @@ function reconcileChildren(wipFiber, elements) {
 
         prevSibling = newFiber
         index++
+    }
+}
+```
+
+`performUnitOfWork` 函数
+
+``` js
+function performUnitOfWork(fiber) {
+
+    if (!fiber.dom) {
+        fiber.dom = createDom(fiber)
+    }
+
+    const elements = fiber.props.children
+    reconcileChildren(fiber, elements)
+
+    if (fiber.child) {
+        return fiber.child
+    }
+    
+    let nextFiber = fiber
+    
+    while (nextFiber) {
+        if (nextFiber.sibling) {
+            return nextFiber.sibling
+        }
+        nextFiber = nextFiber.parent
     }
 }
 ```
