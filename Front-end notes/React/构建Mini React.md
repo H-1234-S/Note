@@ -998,3 +998,20 @@ function updateDom(dom, prevProps, nextProps) {
 	})
 }
 ```
+
+> `in` 运算符，指的是 如果指定的属性在指定的对象或其原型链中，则 **`in`** **运算符**返回 `true`。
+
+> 对`isGone` 的展开
+``` js
+// 简写版
+const isGone = (prev, next) => key => !(key in next)
+
+// 展开版（逻辑完全等价）
+function isGone(prev, next) {
+    return function(key) {
+        // 检查 key 是否【不在】next 对象中
+        const existsInNext = key in next; 
+        return !existsInNext; 
+    }
+}
+```
