@@ -134,17 +134,13 @@
             }
           },
           {
-            "id": "aa3bea2e4107066d",
+            "id": "cb6d5966140eb65a",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/JavaScript/闭包.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "闭包"
+              "title": "新标签页"
             }
           }
         ],
@@ -272,7 +268,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "Front-end notes/JavaScript/闭包.md",
+            "file": "Front-end notes/JavaScript/执行机制与内存篇.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -296,15 +292,24 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "aa3bea2e4107066d",
+  "active": "cb6d5966140eb65a",
   "lastOpenFiles": [
-    "Front-end notes/JavaScript/Promise.md",
-    "/Front-end notes/JavaScript/闭包.md",
-    "/Front-end notes/JavaScript/执行上下文.md",
-    "Front-end notes/JavaScript/执行上下文.md",
-    "/Front-end notes/JavaScript",
+    "/Pasted image 20260328115001.png",
+    "/Front-end notes/Shadcn/Sidebar.md",
+    "/Front-end notes/Shadcn",
+    "/Front-end notes/React/构建Mini React.md",
+    "Front-end notes/React/构建Mini React.md",
+    "/Front-end notes/React",
     "/Front-end notes",
     "Front-end notes/Next.JS/Next.js.md",
+    "Front-end notes/JavaScript/执行机制与内存篇.md",
+    "Front-end notes/JavaScript/闭包.md",
+    "/Front-end notes/JavaScript/闭包.md",
+    "/Front-end notes/JavaScript/执行机制与内存篇.md",
+    "/Front-end notes/JavaScript",
+    "Front-end notes/JavaScript/Promise.md",
+    "/Front-end notes/JavaScript/执行上下文.md",
+    "Front-end notes/JavaScript/执行上下文.md",
     "Front-end notes/tRPC.md",
     "/Front-end notes/tRPC.md",
     "Front-end notes/JavaScript/Event Loop.md",
@@ -320,22 +325,13 @@
     "学习/技术栈.md",
     "Front-end notes/JavaScript/Proto.md",
     "Front-end notes/TanStack Form.md",
-    "Front-end notes/JavaScript/闭包.md",
     "Front-end notes/Shadcn/Tabs.md",
     "/Front-end notes/Shadcn/Tabs.md",
-    "/Front-end notes/Shadcn/Slider.md",
-    "Front-end notes/Shadcn/Slider.md",
-    "/Front-end notes/Shadcn",
-    "/Front-end notes/JavaScript/Proto.md",
-    "/Front-end notes/JavaScript/Event Loop.md",
-    "Front-end notes/Zod.md",
-    "学习/学习计划.md",
     "/Front-end notes/Next.JS",
     "Front-end notes/JavaScript",
     "/Front-end notes/Tailwind CSS",
     "/Excalidraw",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
-    "H-1234-S",
     "Project notes/resonance/需求.canvas",
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "/Project notes/nextjs-dashboard/添加搜索功能.canvas",
