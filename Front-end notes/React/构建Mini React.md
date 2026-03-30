@@ -972,13 +972,16 @@ function commitWork(fiber) {
 
 **实现`updateDom` 函数**
 
+将旧 fiber 的 props 与新 fiber 的 props 进行比较，移除已消失的 props，并设置新出现或发生变化的 props。
+
 ``` js
 const isProperty = key => key !== "children"
 const isNew = (prev, next) => key =>
 prev[key] !== next[key]
 const isGone = (prev, next) => key => !(key in next)
+
 function updateDom(dom, prevProps, nextProps) {
-	// Remove old properties
+	// 移除旧属性
 	Object.keys(prevProps)
 		.filter(isProperty)
 		.filter(isGone(prevProps, nextProps))
@@ -986,7 +989,7 @@ function updateDom(dom, prevProps, nextProps) {
 			dom[name] = ""
 	})
 	
-	// Set new or changed properties
+	// 设置新的或更改的属性
 	Object.keys(nextProps)
 		.filter(isProperty)
 		.filter(isNew(prevProps, nextProps))
