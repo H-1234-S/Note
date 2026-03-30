@@ -712,6 +712,46 @@ function commitRoot() {
 
 **添加了 `alternate` 属性，即在上一个提交阶段提交到 DOM 的 fiber。**
 
+``` js
+function render(element, container) {
+
+    wipRoot = {
+        dom: container,
+        props: {
+            children: [element]
+        },
+        alternate: currentRoot
+    }
+    
+    nextUnitOfWork = wipRoot
+}
 ```
 
+**从 `performUnitOfWork` 中提取创建新 fibers 的代码** 
+
+``` js
+function reconcileChildren(wipFiber, elements) {
+    let index = 0
+    let prevSibling = null
+
+    while (index < elements.length) {
+        const element = elements[index]
+        
+        const newFiber = {
+            type: element.type,
+            props: element.props,
+            parent: wipFiber,
+            dom: null,
+        }
+
+        if (index === 0) {
+            wipFiber.child = newFiber
+        } else {
+            prevSibling.sibling = newFiber
+        }
+
+        prevSibling = newFiber
+        index++
+    }
+}
 ```
