@@ -953,6 +953,17 @@ function commitWork(fiber) {
 		fiber.dom != null
 	) {
 		domParent.appendChild(fiber.dom)
+	} else if (    // 如果是 UPDATE，需要用变化的属性来更新现有的 DOM 节点。
+		fiber.effectTag === "UPDATE" &&
+		fiber.dom != null
+	) {
+		updateDom(
+			fiber.dom,
+			fiber.alternate.props,
+			fiber.props
+		)
+	} else if (fiber.effectTag === "DELETION") {    // 如果是 DELETION，移除子元素。
+		domParent.removeChild(fiber.dom)
 	}
 	commitWork(fiber.child)
 	commitWork(fiber.sibling)
