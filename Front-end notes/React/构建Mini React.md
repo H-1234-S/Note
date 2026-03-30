@@ -675,7 +675,8 @@ function commitWork(fiber) {
     if (!fiber) {
         return
     }
-
+	
+	// 挂载到parent container 中
     const domParent = fiber.parent.dom
     domParent.appendChild(fiber.dom)
     commitWork(fiber.child)
@@ -683,4 +684,12 @@ function commitWork(fiber) {
 }
 ```
 
-commitWork归地将所有节点附加到 dom 上。
+`commit` 阶段不可中断，由 `commitRoot` 触发。
+
+一旦所有 Fiber 都处理完了（`!nextUnitOfWork`），React 会一次性把所有 DOM 节点挂载到真实的页面中。
+
+---
+# 调和
+
+处理更新和删除节点
+
