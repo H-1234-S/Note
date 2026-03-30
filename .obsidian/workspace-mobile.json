@@ -137,10 +137,14 @@
             "id": "cb6d5966140eb65a",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/React/构建Mini React.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "构建Mini React"
             }
           }
         ],
@@ -268,7 +272,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "Front-end notes/JavaScript/执行机制与内存篇.md",
+            "file": "Front-end notes/React/构建Mini React.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -294,6 +298,7 @@
   },
   "active": "cb6d5966140eb65a",
   "lastOpenFiles": [
+    "Pasted image 20260328115001.png",
     "/Pasted image 20260328115001.png",
     "/Front-end notes/Shadcn/Sidebar.md",
     "/Front-end notes/Shadcn",
