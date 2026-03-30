@@ -865,3 +865,31 @@ function reconcileChildren(wipFiber, elements) {
     
 - 如果新元素不存在，**旧的 Fiber** 在新的一轮渲染中**消失了**，那么需要移除旧节点
 
+``` js
+if (sameType) {
+	newFiber = {
+		type: oldFiber.type,
+		props: element.props,
+		dom: oldFiber.dom,
+		parent: wipFiber,
+		alternate: oldFiber,
+		effectTag: "UPDATE",
+	}
+}
+
+if (element && !sameType) {
+	newFiber = {
+		type: element.type,
+		props: element.props,
+		dom: null,
+		parent: wipFiber,
+		alternate: null,
+		effectTag: "PLACEMENT",
+	}
+}
+
+if (oldFiber && !sameType) {
+	oldFiber.effectTag = "DELETION"
+	deletions.push(oldFiber)
+}
+```
