@@ -811,7 +811,7 @@ function reconcileChildren(wipFiber, elements) {
 			oldFiber = oldFiber.sibling
 		}
 		
-		prevSibling = newFiber
+		prevSibling = oldFiber
 		index++
 		
 	}
