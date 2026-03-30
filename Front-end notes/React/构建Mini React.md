@@ -611,9 +611,74 @@ Fiber 节点通过三个核心指针将树形结构转化为**线性链表**，�
     
 3. **寻找下一个任务**：按照 **“子节点 -> 兄弟节点 -> 叔叔节点”** 的深度优先搜索（DFS）顺序回溯。
 
+---
 # 渲染和提交
 
 每次处理一个元素时，都在向 DOM 添加一个新的节点。但是浏览器可能会在我们渲染整个树形结构之前中断我们的工作。
 
 在这种情况下，用户会看到一个不完整的 UI。
 
+---
+
+**跟踪fiber tree的根**
+
+``` js
+let wipRoot = null
+let nextUnitOfWork = null
+
+function render(element, container) {
+    wipRoot = {
+        dom: container,
+        props: {
+            children: [element]
+        }
+    }
+
+    nextUnitOfWork = wipRoot
+}
+```
+
+`nextUnitOfWork` 相当于一个在fiber tree中**不断移动的指针**，当所有任务处理完成后，`nextUnitOfWork` 最终会被赋值为null
+
+如果没有 `wipRoot` 记录fiber tree的顶端，处理完 `unitOfWork` 后，会找不到内存中的fiber tree
+
+---
+
+**提交fiber tree到DOM**
+
+``` js
+function WorkLoop(deadline) {
+    let shouldYield = false
+
+    while (nextUnitOfWork && !shouldYield) {
+        nextUnitOfWork = performUnitOfWork(nextUnitOfWork)
+
+        shouldYield = deadline.timeRemaining() < 1
+    }
+
+	// 完成所有工作后 提交
+    if (!nextUnitOfWork && wipRoot) {
+        commitRoot()
+    }
+
+    requestIdleCallback(WorkLoop)
+}
+
+requestIdleCallback(WorkLoop)
+
+function commitRoot() {
+    commitWork(wipRoot.child)
+    wipRoot = null
+}
+
+function commitWork(fiber) {
+    if (!fiber) {
+        return
+    }
+
+    const domParent = fiber.parent.dom
+    domParent.appendChild(fiber.dom)
+    commitWork(fiber.child)
+    commitWork(fiber.sibling)
+}
+```
