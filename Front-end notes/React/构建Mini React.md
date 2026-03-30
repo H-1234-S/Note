@@ -695,6 +695,8 @@ function commitWork(fiber) {
 
 比较在 `render` 函数中接收到的元素与最后提交到 DOM 的 fiber 树。
 
+**diff算法**
+
 ---
 
 **保存对“最后提交到 DOM 的 fiber 树”的引用**
@@ -782,3 +784,84 @@ function performUnitOfWork(fiber) {
     }
 }
 ```
+
+**将旧 fibers 与新元素进行 reconcile。**
+
+**这里的 `element` 是这次想要渲染到 DOM 的东西，而 `oldFiber` 是上次渲染的东西。**
+
+``` js
+function reconcileChildren(wipFiber, elements) {
+	let index = 0
+	let oldFiber =
+		wipFiber.alternate && wipFiber.alternate.child
+	let prevSibling = null
+	
+	while (
+		index < elements.length ||
+		oldFiber != null
+	) {
+		const element = elements[index]
+		let newFiber = null
+	
+	// TODO 比较 oldFiber 和 element
+	
+	if(oldFiber) {
+		oldFiber = oldFiber.sibling
+	}
+	
+	prevSibling = newFiber
+	index++
+	
+	}
+}
+```
+
+**比较 `oldFiber` 和 `element`，看是否需要对 DOM 进行任何更改。**
+
+``` js
+function reconcileChildren(wipFiber, elements) {
+	let index = 0
+	let oldFiber =
+		wipFiber.alternate && wipFiber.alternate.child
+	let prevSibling = null
+	
+	while (
+		index < elements.length ||
+		oldFiber != null
+	) {
+		const element = elements[index]
+		let newFiber = null
+	
+	const sameType =
+		oldFiber &&
+		element &&
+		element.type == oldFiber.type
+	
+	if (sameType) {
+		// TODO update the node
+	}
+	
+	if (element && !sameType) {
+		// TODO add this node
+	}
+	if (oldFiber && !sameType) {
+		// TODO delete the oldFiber's node
+	}
+	
+	if(oldFiber) {
+		oldFiber = oldFiber.sibling
+	}
+	
+	prevSibling = newFiber
+	index++
+	
+	}
+}
+```
+
+- 如果旧 fiber 和新元素类型相同，保留 DOM 节点，只需用新属性更新即可
+    
+- 如果类型不同且存在新元素，创建一个新的 DOM 节点
+    
+- 如果类型不同且存在旧 fiber，我们需要移除旧节点
+
