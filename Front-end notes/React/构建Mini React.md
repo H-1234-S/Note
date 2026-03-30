@@ -693,3 +693,4 @@ function commitWork(fiber) {
 
 处理更新和删除节点
 
+比较在 `render` 函数中接收到的元素与最后提交到 DOM 的 fiber 树。
