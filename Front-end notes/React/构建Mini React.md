@@ -969,3 +969,29 @@ function commitWork(fiber) {
 	commitWork(fiber.sibling)
 }
 ```
+
+**实现`updateDom` 函数**
+
+``` js
+const isProperty = key => key !== "children"
+const isNew = (prev, next) => key =>
+prev[key] !== next[key]
+const isGone = (prev, next) => key => !(key in next)
+function updateDom(dom, prevProps, nextProps) {
+	// Remove old properties
+	Object.keys(prevProps)
+		.filter(isProperty)
+		.filter(isGone(prevProps, nextProps))
+		.forEach(name => {
+			dom[name] = ""
+	})
+	
+	// Set new or changed properties
+	Object.keys(nextProps)
+		.filter(isProperty)
+		.filter(isNew(prevProps, nextProps))
+		.forEach(name => {
+			dom[name] = nextProps[name]
+	})
+}
+```
