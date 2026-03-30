@@ -909,4 +909,25 @@ if (oldFiber && !sameType) {
 
 对于需要删除节点的情形，我们没有新的 fiber，因此我们将 effect tag 添加到旧的 fiber 上。
 
-但是当我们提交 fiber 树到 DOM 时，我们是从正在进行的根节点开始的，这个根节点没有旧的 fiber。
+由于在 **Commit 阶段** 是遍历“新树”来挂载 DOM 的，而新树里已经没有这些被删掉的节点了。
+
+所以需要一个专门的数组 `deletions` 来跟踪想要移除的节点。
+
+``` js
+function render(element, container) {
+	wipRoot = {
+		dom: container,
+		props: {
+			children: [element],
+		},
+		alternate: currentRoot,
+	}
+	deletions = []
+	nextUnitOfWork = wipRoot
+}
+
+let nextUnitOfWork = null
+let currentRoot = null
+let wipRoot = null
+let deletions = null
+```
