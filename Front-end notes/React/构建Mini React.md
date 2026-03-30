@@ -838,14 +838,14 @@ function reconcileChildren(wipFiber, elements) {
 			element.type == oldFiber.type
 		
 		if (sameType) {
-			// TODO update the node
+			// TODO 更新节点
 		}
 		
 		if (element && !sameType) {
-			// TODO add this node
+			// TODO 添加此节点
 		}
 		if (oldFiber && !sameType) {
-			// TODO delete the oldFiber's node
+			// TODO 删除旧Fiber的节点
 		}
 		
 		if(oldFiber) {
