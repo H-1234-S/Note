@@ -803,15 +803,15 @@ function reconcileChildren(wipFiber, elements) {
 		const element = elements[index]
 		let newFiber = null
 	
-	// TODO 比较 oldFiber 和 element
-	
-	if(oldFiber) {
-		oldFiber = oldFiber.sibling
-	}
-	
-	prevSibling = newFiber
-	index++
-	
+		// TODO 比较 oldFiber 和 element
+		
+		if(oldFiber) {
+			oldFiber = oldFiber.sibling
+		}
+		
+		prevSibling = newFiber
+		index++
+		
 	}
 }
 ```
@@ -832,29 +832,29 @@ function reconcileChildren(wipFiber, elements) {
 		const element = elements[index]
 		let newFiber = null
 	
-	const sameType =
-		oldFiber &&
-		element &&
-		element.type == oldFiber.type
-	
-	if (sameType) {
-		// TODO update the node
-	}
-	
-	if (element && !sameType) {
-		// TODO add this node
-	}
-	if (oldFiber && !sameType) {
-		// TODO delete the oldFiber's node
-	}
-	
-	if(oldFiber) {
-		oldFiber = oldFiber.sibling
-	}
-	
-	prevSibling = newFiber
-	index++
-	
+		const sameType =
+			oldFiber &&
+			element &&
+			element.type == oldFiber.type
+		
+		if (sameType) {
+			// TODO update the node
+		}
+		
+		if (element && !sameType) {
+			// TODO add this node
+		}
+		if (oldFiber && !sameType) {
+			// TODO delete the oldFiber's node
+		}
+		
+		if(oldFiber) {
+			oldFiber = oldFiber.sibling
+		}
+		
+		prevSibling = newFiber
+		index++
+		
 	}
 }
 ```
