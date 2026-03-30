@@ -811,7 +811,13 @@ function reconcileChildren(wipFiber, elements) {
 			oldFiber = oldFiber.sibling
 		}
 		
-		prevSibling = oldFiber
+		if(index === 0) {
+			wipFiber.child = newFiber
+		} else {
+			prevSibling.sibling = newFiber
+		}
+		
+		prevSibling = newFiber
 		index++
 		
 	}
@@ -854,9 +860,14 @@ function reconcileChildren(wipFiber, elements) {
 			oldFiber = oldFiber.sibling
 		}
 		
-		prevSibling = newFiber
-		index++
-		
+        if(index === 0) {
+            wipFiber.child = newFiber
+        } else {
+            prevSibling.sibling = newFiber
+        }
+        
+        prevSibling = newFiber
+        index++
 	}
 }
 ```
