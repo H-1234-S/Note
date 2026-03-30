@@ -697,4 +697,21 @@ function commitWork(fiber) {
 
 ---
 
-保存对“最后提交到 DOM 的 fiber 树”**的引用**
+**保存对“最后提交到 DOM 的 fiber 树”的引用**
+
+``` js
+function commitRoot() {
+
+    commitWork(wipRoot.child)
+    
+    currentRoot = wipRoot
+    
+    wipRoot = null
+}
+```
+
+**添加了 `alternate` 属性，即在上一个提交阶段提交到 DOM 的 fiber。**
+
+```
+
+```
