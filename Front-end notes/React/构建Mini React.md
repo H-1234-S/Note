@@ -682,3 +682,5 @@ function commitWork(fiber) {
     commitWork(fiber.sibling)
 }
 ```
+
+commitWork归地将所有节点附加到 dom 上。
