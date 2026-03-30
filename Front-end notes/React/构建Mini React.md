@@ -930,4 +930,31 @@ let nextUnitOfWork = null
 let currentRoot = null
 let wipRoot = null
 let deletions = null
+
+function commitRoot() {
+	deletions.forEach(commitWork)
+	commitWork(wipRoot.child)
+	currentRoot = wipRoot
+	wipRoot = null
+}
+```
+
+**修改 `commitWork` 函数以处理新的 `effectTags`。**
+
+``` js
+function commitWork(fiber) {
+	if (!fiber) {
+		return
+	}
+	
+	const domParent = fiber.parent.dom
+	if (
+		fiber.effectTag === "PLACEMENT" &&
+		fiber.dom != null
+	) {
+		domParent.appendChild(fiber.dom)
+	}
+	commitWork(fiber.child)
+	commitWork(fiber.sibling)
+}
 ```
