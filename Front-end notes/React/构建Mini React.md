@@ -1024,7 +1024,10 @@ function isGone(prev, next) {
 }
 ```
 
-**对事件监听器特殊处理**
+---
+## 事件监听器
+
+**对事件监听器特殊处理，如果事件处理器改变了，我们就将其从节点中移除。**
 
 ``` js
 const isEvent = key => key.startsWith("on")
@@ -1051,4 +1054,21 @@ function updateDom(dom, prevProps, nextProps) {
 				prevProps[name]
 			)
 		})
+```
+
+**添加新的事件监听器**
+
+``` js
+Object.keys(nextProps)
+	.filter(isEvent)
+	.filter(isNew(prevProps, nextProps))
+	.forEach(name => {
+		const eventType = name
+		.toLowerCase()
+		.substring(2)
+	dom.addEventListener(
+		eventType,
+		nextProps[name]
+	)
+})
 ```
