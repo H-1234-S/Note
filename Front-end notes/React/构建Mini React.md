@@ -1046,6 +1046,8 @@ const isProperty = key =>
 	key !== "children" && !isEvent(key)
 	
 function updateDom(dom, prevProps, nextProps) {
+	// TODO 普通属性操作
+
 	// 删除旧的或更改的事件监听器
 	Object.keys(prevProps)
 		.filter(isEvent)
