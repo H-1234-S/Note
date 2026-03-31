@@ -716,7 +716,9 @@ function commitRoot() {
 
 **添加了 `alternate` 属性，即在上一个提交阶段提交到 DOM 的 fiber。**
 
-- `alternate` 属性不仅仅作为指针，
+- `alternate` 属性不仅仅作为指针，是建立 ***同等身份节点*** 在两棵树中的连接
+
+- 当 `alternate` 为 `null` 时，React 会明确知道这是一个全新的 `PLACEMENT`（挂载）任务。
 
 ``` js
 function render(element, container) {
