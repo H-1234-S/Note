@@ -35,8 +35,7 @@
               "title": "构建Mini React"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -153,13 +152,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React/构建Mini React.md",
+                "file": "Front-end notes/React/深入学习React.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "构建Mini React 的大纲"
+              "title": "深入学习React 的大纲"
             }
           },
           {
@@ -210,10 +209,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "f896cd6a08131591",
+  "active": "e5129007fc20cd25",
   "lastOpenFiles": [
-    "Front-end notes/React/深入学习React.md",
     "Front-end notes/React/构建Mini React.md",
+    "Front-end notes/React/深入学习React.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Shadcn/Sidebar.md",
     "Pasted image 20260328115001.png",
