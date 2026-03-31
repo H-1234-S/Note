@@ -953,6 +953,9 @@ function commitWork(fiber) {
 	}
 	
 	const domParent = fiber.parent.dom
+	
+	// domParent.appendChild(fiber.dom)
+	
 	if (
 		fiber.effectTag === "PLACEMENT" &&
 		fiber.dom != null
