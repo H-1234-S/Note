@@ -716,6 +716,8 @@ function commitRoot() {
 
 **添加了 `alternate` 属性，即在上一个提交阶段提交到 DOM 的 fiber。**
 
+- `alternate` 属性不仅仅作为指针，
+
 ``` js
 function render(element, container) {
 
