@@ -1052,7 +1052,7 @@ function updateDom(dom, prevProps, nextProps) {
 	Object.keys(prevProps)
 		.filter(isEvent)
 		.filter(
-			// key 需要移除 或 key 是新的或更改的
+			// nextProps中没有该key 或 key已经更改了的
 			key =>
 				!(key in nextProps) ||
 			isNew(prevProps, nextProps)(key)
