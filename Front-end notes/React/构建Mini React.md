@@ -1023,3 +1023,31 @@ function isGone(prev, next) {
     }
 }
 ```
+
+**对事件监听器特殊处理**
+
+``` js
+const isEvent = key => key.startsWith("on")
+
+const isProperty = key =>
+	key !== "children" && !isEvent(key)
+	
+function updateDom(dom, prevProps, nextProps) {
+	// 删除旧的或更改的事件监听器
+	Object.keys(prevProps)
+		.filter(isEvent)
+		.filter(
+			key =>
+				!(key in nextProps) ||
+			isNew(prevProps, nextProps)(key)
+		)
+		.forEach(name => {
+			const eventType = name
+				.toLowerCase()
+				.substring(2)
+			dom.removeEventListener(
+				eventType,
+				prevProps[name]
+			)
+		})
+```
