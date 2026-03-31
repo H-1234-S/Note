@@ -735,6 +735,10 @@ function render(element, container) {
 }
 ```
 
+---
+
+## reconcileChildren 函数
+
 **从 `performUnitOfWork` 中提取创建新 fibers 的代码，得到一个新的 `reconcileChildren` 函数。**
 
 ``` js
@@ -944,6 +948,10 @@ function commitRoot() {
 }
 ```
 
+---
+
+## 处理effectTage
+
 **修改 `commitWork` 函数以处理新的 `effectTags`。**
 
 ``` js
@@ -978,7 +986,9 @@ function commitWork(fiber) {
 }
 ```
 
-**实现`updateDom` 函数**
+---
+
+## updateDom 函数
 
 将旧 fiber 的 props 与新 fiber 的 props 进行比较，移除已消失的 props，并设置新出现或发生变化的 props。
 
@@ -1072,3 +1082,4 @@ Object.keys(nextProps)
 	)
 })
 ```
+
