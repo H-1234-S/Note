@@ -926,6 +926,7 @@ function render(element, container) {
 		},
 		alternate: currentRoot,
 	}
+	
 	deletions = []
 	nextUnitOfWork = wipRoot
 }
