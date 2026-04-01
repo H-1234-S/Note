@@ -1190,3 +1190,8 @@ const element = Didact.createElement(App, {
     
 - `{props.name}`（一个 JS 表达式）是第二个子参数。
 
+## 函数组件渲染
+
+函数组件的fiber没有DOM节点
+
+- 因为函数组件本身相当于一个逻辑容器，当写<App />时，页面并不会出现<App>标签
