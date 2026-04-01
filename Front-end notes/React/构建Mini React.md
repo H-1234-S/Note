@@ -1189,3 +1189,4 @@ const element = Didact.createElement(App, {
 - `"Hi "` 是第一个子参数。
     
 - `{props.name}`（一个 JS 表达式）是第二个子参数。
+
