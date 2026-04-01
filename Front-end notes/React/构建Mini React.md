@@ -1234,5 +1234,14 @@ function performUnitOfWork(fiber) {
 function updateFunctionComponent(fiber) {
 	// TODO
 }
-
 ```
+
+**updateFunctionComponent** 函数
+
+``` js
+function updateFunctionComponent(fiber) {
+	const children = [fiber.type(fiber.props)]
+	reconcileChildren(fiber, children)
+}
+```
+
