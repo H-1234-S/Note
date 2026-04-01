@@ -1196,6 +1196,10 @@ const element = Didact.createElement(App, {
 
 - 因为函数组件本身相当于一个逻辑容器，当写<App />时，页面并不会出现<App>标签
 
+
+
+-
+
  - 它最终渲染出来的东西，其实是它内部 `return` 出来的那些 HTML 标签。
     
 - 因此，函数组件对应的 Fiber 节点，其 `dom` 属性始终是 `null`。它不直接产生 DOM，而是通过它的子节点来产生 DOM。

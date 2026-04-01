@@ -14,8 +14,8 @@
               "type": "markdown",
               "state": {
                 "file": "Front-end notes/React/构建Mini React.md",
-                "mode": "source",
-                "source": false
+                "mode": "preview",
+                "source": true
               },
               "icon": "lucide-file",
               "title": "构建Mini React"
