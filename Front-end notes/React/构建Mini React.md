@@ -1052,7 +1052,7 @@ function updateDom(dom, prevProps, nextProps) {
 	Object.keys(prevProps)
 		.filter(isEvent)
 		.filter(
-			// key 需要移除 或 key 是新的或更改的
+			// nextProps中没有该key 或 key已经更改了的
 			key =>
 				!(key in nextProps) ||
 			isNew(prevProps, nextProps)(key)
@@ -1144,4 +1144,61 @@ Object.keys(nextProps)
 
 ---
 # 函数组件
+
+## 示例
+
+``` js
+function App(props) {
+	return <h1>Hi {props.name}</h1>
+}
+
+const element = <App name="foo" />
+```
+
+> **将JSX代码转换成JS代码**
+
+``` js
+function App(props) {
+  return Didact.createElement(
+    "h1",
+    null,
+    "Hi ",
+    props.name
+  )
+}
+
+const element = Didact.createElement(App, {
+  name: "foo",
+})
+```
+
+**转换规则：**
+
+- **标签名（Type）**：`<App ... />` 中的 `App` 会变成 `createElement` 的第一个参数。
+    
+    - 注意：如果标签首字母是大写（如 `App`），编译工具会将其视为一个**变量（函数或类）**；如果是小写（如 `h1`），则视为**字符串**。
+        
+- **属性（Props）**：标签上的属性（如 `name="foo"`）会被收集并转换成一个普通的 JS 对象 `{ name: "foo" }`，作为第二个参数。
+    
+- **子元素（Children）**：标签包裹的内容会作为后续的参数传入。
+
+**递归嵌套：**
+
+如果 JSX 内部还有子节点，比如 `<h1>Hi {props.name}</h1>`，它会被递归地转换。
+
+- `"Hi "` 是第一个子参数。
+    
+- `{props.name}`（一个 JS 表达式）是第二个子参数。
+
+## 函数组件与普通标签的区别
+
+函数组件的fiber没有DOM节点
+
+- 因为函数组件本身相当于一个逻辑容器，当写<App />时，页面并不会出现<App />标签
+
+- 它最终渲染出来的东西，其实是它内部 `return` 出来的那些 HTML 标签。
+
+- 因此，函数组件对应的 Fiber 节点，其 `dom` 属性始终是 `null`。它不直接产生 DOM，而是通过它的子节点来产生 DOM。
+
+子元素是通过运行函数而不是直接从 `props 获取`
 
