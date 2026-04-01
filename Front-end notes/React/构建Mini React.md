@@ -1298,9 +1298,11 @@ function commitWork(fiber) {
 }
 ```
 
-函数组件本身没有DOM节点，为了让`reconcileChildren` 内部返回 `h1`  ，
+函数组件的 Fiber 节点本身没有对应的真实 DOM（它的 `dom` 属性是 `null`）
 
-首先，为了找到 DOM 节点的父节点，我们需要沿着 fiber 树向上查找，直到找到一个有 DOM 节点的 fiber。
+那么当 `reconcileChildren` 为它内部返回的那个 `h1` 创建新的 Fiber 时，这个 `h1` 的 **`parent`** 应该指向谁？
+
+因此，为了找到这个 DOM 节点的父节点，我们需要沿着 fiber 树向上查找，直到找到一个有 DOM 节点的 fiber。
 
 并且当我们移除一个节点时，我们也需要继续进行，直到找到一个具有 DOM 节点的子节点。
 
