@@ -1145,6 +1145,7 @@ Object.keys(nextProps)
 ---
 # 函数组件
 
+对不存在DOM节点的fiber进行不同的逻辑操作
 ## 示例
 
 ``` js
