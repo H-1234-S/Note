@@ -1157,6 +1157,8 @@ const element = <App name="foo" />
 
 > **将JSX代码转换成JS代码**
 
+在浏览器运行代码之前，编译工具（如 Babel）会把所有的 JSX 语法转换成普通的 JavaScript 调用。
+
 ``` js
 function App(props) {
   return Didact.createElement(
@@ -1244,6 +1246,8 @@ function updateFunctionComponent(fiber) {
 	reconcileChildren(fiber, children)
 }
 ```
+
+为什么
 
 **修改commitWork函数**
 
