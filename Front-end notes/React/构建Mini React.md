@@ -1245,3 +1245,10 @@ function updateFunctionComponent(fiber) {
 }
 ```
 
+**commitWork函数**
+
+```
+
+```
+
+
