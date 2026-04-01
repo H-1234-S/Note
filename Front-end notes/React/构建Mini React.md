@@ -1290,7 +1290,7 @@ function commitWork(fiber) {
 			fiber.props
 	)
 	} else if (fiber.effectTag === "DELETION") {
-		domParent.removeChild(fiber.dom)
+		commitDeletion(fiber, domParent)
 	}
 	
 	commitWork(fiber.child)
@@ -1305,5 +1305,19 @@ function commitWork(fiber) {
 因此，为了找到这个 DOM 节点的父节点，我们需要沿着 fiber 树向上查找，直到找到一个有 DOM 节点的 fiber。
 
 并且当我们移除一个节点时，我们也需要继续进行，直到找到一个具有 DOM 节点的子节点。
+
+---
+
+并且当我们移除一个节点时，我们也需要继续进行，直到找到一个具有 DOM 节点的子节点。
+
+``` js
+function commitDeletion(fiber, domParent) {
+	if (fiber.dom) {
+		domParent.removeChild(fiber.dom)
+	} else {
+		commitDeletion(fiber.child, domParent)
+	}
+}
+```
 
 
