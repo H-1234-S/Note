@@ -1247,7 +1247,18 @@ function updateFunctionComponent(fiber) {
 }
 ```
 
-为什么
+> 执行过程分析：
+
+当执行 `const children = [fiber.type(fiber.props)]` 时：
+
+- **`fiber.type`**：指向的就是上面的 `App` 函数。
+    
+- **调用函数**：程序开始执行 `App` 函数体。
+    
+- **执行 `createElement`**：函数体内执行了 `Didact.createElement(...)`。
+    
+- **得到结果**：`createElement` 返回一个普通的 JS 对象（即虚拟 DOM 节点），结构类似于 `{ type: "h1", props: { ... } }`
+
 
 **修改commitWork函数**
 
