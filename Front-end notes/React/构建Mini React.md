@@ -1268,6 +1268,7 @@ function commitWork(fiber) {
 		return
 	}
 	
+	// 寻找具有DOM节点的fiber
 	let domParentFiber = fiber.parent
 	while (!domParentFiber.dom) {
 		domParentFiber = domParentFiber.parent
@@ -1296,6 +1297,8 @@ function commitWork(fiber) {
 	commitWork(fiber.sibling)
 }
 ```
+
+函数组件本身没有DOM节点，
 
 首先，为了找到 DOM 节点的父节点，我们需要沿着 fiber 树向上查找，直到找到一个有 DOM 节点的 fiber。
 
