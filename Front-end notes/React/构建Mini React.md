@@ -1245,10 +1245,45 @@ function updateFunctionComponent(fiber) {
 }
 ```
 
-**commitWork函数**
+**修改commitWork函数**
 
+``` js
+function commitWork(fiber) {
+	if (!fiber) {
+		return
+	}
+	
+	let domParentFiber = fiber.parent
+	while (!domParentFiber.dom) {
+		domParentFiber = domParentFiber.parent
+	}
+	const domParent = domParentFiber.dom
+	
+	if (
+		fiber.effectTag === "PLACEMENT" &&
+		fiber.dom != null
+	) {
+		domParent.appendChild(fiber.dom)
+	} else if (
+		fiber.effectTag === "UPDATE" &&
+		fiber.dom != null
+	) {
+		updateDom(
+			fiber.dom,
+			fiber.alternate.props,
+			fiber.props
+	)
+	} else if (fiber.effectTag === "DELETION") {
+		domParent.removeChild(fiber.dom)
+	}
+	
+	commitWork(fiber.child)
+	commitWork(fiber.sibling)
+}
 ```
 
-```
+首先，为了找到 DOM 节点的父节点，我们需要沿着 fiber 树向上查找，直到找到一个有 DOM 节点的 fiber。
+
+并且当我们移除一个节点时，我们也需要继续进行，直到找到一个具有 DOM 节点的子节点。
 
 
