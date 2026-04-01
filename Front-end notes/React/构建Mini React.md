@@ -1186,11 +1186,34 @@ const element = Didact.createElement(App, {
 
 **递归嵌套：**
 
-如果 JSX 内部还有子节点，比如 `<h1>Hi {props.name}</h1>`，它会被递归地转换。
+如果 JSX 内部还有子节点，它会被递归地转换。
 
-- `"Hi "` 是第一个子参数。
-    
-- `{props.name}`（一个 JS 表达式）是第二个子参数。
+> 例如：
+``` jsx
+<div id="container">
+  <p>User List:</p>
+  <ul>
+    <li>{props.name}</li>
+  </ul>
+</div>
+```
+
+> 转换成：
+``` js
+Didact.createElement(
+  "div",
+  { id: "container" },
+  // 第一个子参数：p 标签
+  Didact.createElement("p", null, "User List:"),
+  // 第二个子参数：ul 标签
+  Didact.createElement(
+    "ul",
+    null,
+    // ul 的子参数：li 标签
+    Didact.createElement("li", null, props.name)
+  )
+)
+```
 
 ## 函数组件与普通标签的区别
 
