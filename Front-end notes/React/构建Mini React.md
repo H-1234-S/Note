@@ -716,6 +716,10 @@ function commitRoot() {
 
 **添加了 `alternate` 属性，即在上一个提交阶段提交到 DOM 的 fiber。**
 
+- `alternate` 属性不仅仅作为指针，是建立 ***同等身份节点*** 在两棵树中的连接
+
+- 当 `alternate` 为 `null` 时，React 会明确知道这是一个全新的 `PLACEMENT`（挂载）任务。
+
 ``` js
 function render(element, container) {
 
@@ -730,6 +734,10 @@ function render(element, container) {
     nextUnitOfWork = wipRoot
 }
 ```
+
+---
+
+## reconcileChildren 函数
 
 **从 `performUnitOfWork` 中提取创建新 fibers 的代码，得到一个新的 `reconcileChildren` 函数。**
 
@@ -922,6 +930,7 @@ function render(element, container) {
 		},
 		alternate: currentRoot,
 	}
+	
 	deletions = []
 	nextUnitOfWork = wipRoot
 }
@@ -939,6 +948,10 @@ function commitRoot() {
 }
 ```
 
+---
+
+## 处理effectTage
+
 **修改 `commitWork` 函数以处理新的 `effectTags`。**
 
 ``` js
@@ -948,6 +961,9 @@ function commitWork(fiber) {
 	}
 	
 	const domParent = fiber.parent.dom
+	
+	// domParent.appendChild(fiber.dom)
+	
 	if (
 		fiber.effectTag === "PLACEMENT" &&
 		fiber.dom != null
@@ -970,7 +986,9 @@ function commitWork(fiber) {
 }
 ```
 
-**实现`updateDom` 函数**
+---
+
+## updateDom 函数
 
 将旧 fiber 的 props 与新 fiber 的 props 进行比较，移除已消失的 props，并设置新出现或发生变化的 props。
 
@@ -1015,3 +1033,115 @@ function isGone(prev, next) {
     }
 }
 ```
+
+---
+## 事件监听器
+
+**对事件监听器特殊处理，如果事件处理器改变了，我们就将其从节点中移除。**
+
+``` js
+const isEvent = key => key.startsWith("on")
+
+const isProperty = key =>
+	key !== "children" && !isEvent(key)
+	
+function updateDom(dom, prevProps, nextProps) {
+	// TODO 普通属性操作
+
+	// 删除旧的或更改的事件监听器
+	Object.keys(prevProps)
+		.filter(isEvent)
+		.filter(
+			// key 需要移除 或 key 是新的或更改的
+			key =>
+				!(key in nextProps) ||
+			isNew(prevProps, nextProps)(key)
+		)
+		.forEach(name => {
+			const eventType = name
+				.toLowerCase()
+				.substring(2)
+			dom.removeEventListener(
+				eventType,
+				prevProps[name]
+			)
+		})
+```
+
+**添加新的事件监听器**
+
+``` js
+Object.keys(nextProps)
+	.filter(isEvent)
+	.filter(isNew(prevProps, nextProps))
+	.forEach(name => {
+		const eventType = name
+		.toLowerCase()
+		.substring(2)
+	dom.addEventListener(
+		eventType,
+		nextProps[name]
+	)
+})
+```
+
+# 目前复盘
+
+## 为什么需要 Fiber 架构？
+
+- **性能瓶颈**：传统的递归 `render` 一旦开始就无法中断。如果组件树很大，主线程会被长时间占用，导致浏览器无法响应用户输入或动画，产生卡顿。
+    
+- **解决对策（工作单元化）**：将任务拆分为微小的 `Unit of Work`。利用 `requestIdleCallback` 在浏览器空闲时执行。
+    
+- **接力机制**：通过 `child`、`sibling`、`parent` 三个指针构建链表。即使工作被中断，React 也能通过指针找到下一个该处理的节点，实现**可中断、可恢复**的异步渲染。
+    
+
+##  双缓存树与 alternate 属性
+
+- **概念**：React 同时维护两棵树。`currentRoot`（屏幕上正在显示的旧树）和 `wipRoot`（正在内存中构建的新树）。
+    
+- **alternate 的作用**：它是新旧 Fiber 节点之间的“桥梁”。通过 `wipFiber.alternate` 找到对应的旧节点，从而进行属性对比（Diff），决定是复用还是重建。
+    
+
+## 调和（Reconciliation）的三种命运
+
+- **UPDATE（更新）**：`sameType` 为真（类型相同）。
+    
+    - **操作**：复用旧的 `dom` 节点，只更新 props。
+        
+    - **意义**：保持 DOM 状态（如 input 的焦点、滚动位置），且性能最高。
+        
+- **PLACEMENT（新增/替换）**：`element` 存在但类型改变或旧节点不存在。
+    
+    - **操作**：创建新 Fiber，`dom` 初始为 `null`，`alternate` 设为 `null`。
+        
+    - **后果**：彻底断开与旧节点的联系，确保后续执行全新的 DOM 挂载流程。
+        
+- **DELETION（删除）**：新元素不存在但 `oldFiber` 存在。
+    
+    - **操作**：给旧 Fiber 打上 `DELETION` 标签。
+        
+    - **必要性**：因为新树里不再包含这些节点，必须通过全局 `deletions` 数组记录，以便在 Commit 阶段进行清理。
+        
+
+##  渲染（Render）与提交（Commit）的分阶段处理
+
+- **Render 阶段（打草稿）**：通过调和算法标记每个节点的 `effectTag`。这个过程在内存中完成，可以被中断，用户感知不到。
+    
+- **Commit 阶段（落笔成书）**：一旦 `wipRoot` 构建完成，一气呵成地执行 `commitRoot`。
+    
+    - **目的**：保证 DOM 更新的**原子性**。避免因为任务中断导致页面只渲染了一半，给用户带来糟糕的视觉破碎感。
+        
+
+##  updateDom 的精细化同步
+
+- **对比逻辑**：同时遍历 `prevProps` 和 `nextProps`。
+    
+- **清除旧账**：如果某个属性在 `prevProps` 中有但在 `nextProps` 中消失了，必须显式设为 `""` 或 `null`，否则 DOM 节点会残留旧状态。
+    
+- **事件监听**：对 `on` 开头的属性做特殊处理。如果事件函数变化，必须先 `remove` 旧函数再 `add` 新函数，防止内存泄漏或逻辑错误。
+    
+
+---
+# 函数组件
+
