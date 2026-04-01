@@ -1348,6 +1348,6 @@ function commitDeletion(fiber, domParent) {
 
 - 当调用 `parent.removeChild(child)` 时，这个 `child` 节点及其内部**所有的子孙节点**会一起从页面上消失。
 
-- 
+- 如果函数组件中有多个并列组件，也就是第一个节点有很多兄弟节点
 
 
