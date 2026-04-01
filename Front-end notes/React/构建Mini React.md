@@ -1202,3 +1202,44 @@ const element = Didact.createElement(App, {
 
 子元素是通过运行函数而不是直接从 `props 获取`
 
+## 函数组件更新
+
+``` js
+function performUnitOfWork(fiber) {
+	
+	// 根据是否为函数组件进入不同的更新函数
+	const isFunctionComponent =
+		fiber.type instanceof Function
+		
+	if (isFunctionComponent) {
+		updateFunctionComponent(fiber)
+	} else {
+		updateHostComponent(fiber)
+	}
+	
+	if (fiber.child) {
+		return fiber.child
+	}
+	
+	let nextFiber = fiber
+	
+	while (nextFiber) {
+		if (nextFiber.sibling) {
+			return nextFiber.sibling
+		}
+		nextFiber = nextFiber.parent
+	}
+}
+
+function updateFunctionComponent(fiber) {
+	// TODO
+}
+
+function updateHostComponent(fiber) {
+	if (!fiber.dom) {
+		fiber.dom = createDom(fiber)
+	}
+	
+	reconcileChildren(fiber, fiber.props.children)
+}
+```
