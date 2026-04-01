@@ -137,6 +137,23 @@
             "id": "cb6d5966140eb65a",
             "type": "leaf",
             "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Project notes/resonance/需求.canvas",
+                "viewState": {
+                  "x": -796.8082068976618,
+                  "y": -144.78838912822616,
+                  "zoom": 0.3525296627175856
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
+            }
+          },
+          {
+            "id": "76e0415c2037d895",
+            "type": "leaf",
+            "state": {
               "type": "markdown",
               "state": {
                 "file": "Front-end notes/React/构建Mini React.md",
@@ -148,7 +165,7 @@
             }
           }
         ],
-        "currentTab": 9
+        "currentTab": 10
       }
     ],
     "direction": "vertical"
@@ -296,8 +313,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "cb6d5966140eb65a",
+  "active": "76e0415c2037d895",
   "lastOpenFiles": [
+    "Project notes/resonance/需求.canvas",
+    "Front-end notes/React/构建Mini React.md",
     "/Front-end notes/React/构建Mini React.md",
     "/Front-end notes/React",
     "/Front-end notes",
@@ -305,7 +324,6 @@
     "/Pasted image 20260328115001.png",
     "/Front-end notes/Shadcn/Sidebar.md",
     "/Front-end notes/Shadcn",
-    "Front-end notes/React/构建Mini React.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/JavaScript/执行机制与内存篇.md",
     "Front-end notes/JavaScript/闭包.md",
@@ -337,7 +355,6 @@
     "/Front-end notes/Tailwind CSS",
     "/Excalidraw",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
-    "Project notes/resonance/需求.canvas",
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "/Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "/Project notes/nextjs-dashboard/官方实战教程分析.canvas",
