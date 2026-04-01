@@ -1190,7 +1190,7 @@ const element = Didact.createElement(App, {
     
 - `{props.name}`（一个 JS 表达式）是第二个子参数。
 
-## 函数组件渲染
+## 函数组件与普通标签的区别
 
 函数组件的fiber没有DOM节点
 
@@ -1199,4 +1199,6 @@ const element = Didact.createElement(App, {
 - 它最终渲染出来的东西，其实是它内部 `return` 出来的那些 HTML 标签。
 
 - 因此，函数组件对应的 Fiber 节点，其 `dom` 属性始终是 `null`。它不直接产生 DOM，而是通过它的子节点来产生 DOM。
+
+子元素是通过运行函数而不是直接从 `props 获取`
 
