@@ -1380,6 +1380,8 @@ let hookIndex = null
 function updateFunctionComponent(fiber) {
 	wipFiber = fiber
 	hookIndex = 0
+	
+	// 在同一个组件中多次调用 useState
 	wipFiber.hooks = []
 	const children = [fiber.type(fiber.props)]
 	reconcileChildren(fiber, children)
