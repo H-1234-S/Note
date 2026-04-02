@@ -1435,8 +1435,13 @@ function useState(initial) {
 		
 	const hook = {
 		state: oldHook ? oldHook.state : initial,
-			queue: [],
+		queue: [],
 	}
+	
+	const actions = oldHook ? oldHook.queue : []
+	actions.forEach(action => {
+		hook.state = action(hook.state)
+	})
 	
 	const setState = action => {
 		hook.queue.push(action)
@@ -1457,10 +1462,3 @@ function useState(initial) {
 ```
 
 每当状态发生改变时，组件应重现渲染，因此设置`nextUnitOfWork`，以便**工作循环**可以开始新的渲染阶段
-
-``` js
-const actions = oldHook ? oldHook.queue : []
-	actions.forEach(action => {
-	hook.state = action(hook.state)
-})
-```
