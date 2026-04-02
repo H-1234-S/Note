@@ -1371,7 +1371,11 @@ function Counter() {
 const element = <Counter />
 ```
 
-## 实现useState函数
+## useState函数
+
+初始化 work in progress
+
+向fiber中添加一个 `hooks` 数组，以支持在同一个组件中多次调用 `useState`；跟踪当前的钩子索引。
 
 ``` js
 let wipFiber = null
@@ -1392,7 +1396,7 @@ function useState(initial) {
 }
 ```
 
-当函数组件调用 `useState` 时，检查是否有一个旧的hook
+
 
 ``` js
 function useState(initial) {
@@ -1412,3 +1416,8 @@ function useState(initial) {
 	}
 ```
 
+当函数组件调用 `useState` 时，我们会检查是否有一个旧的钩子。我们使用钩子索引在 fiber 的 `alternate` 中进行检查。
+
+如果我们有旧的钩子，我们将旧钩子的状态复制到新钩子中，如果没有，我们将初始化状态。
+
+接着我们将新的钩子添加到 fiber 中，将钩子索引加一，并返回状态。
