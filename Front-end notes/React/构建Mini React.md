@@ -1392,5 +1392,23 @@ function useState(initial) {
 }
 ```
 
+当函数组件调用 `useState` 时，检查是否有一个旧的hook
 
+``` js
+function useState(initial) {
+	
+	const oldHook =
+		wipFiber.alternate &&
+		wipFiber.alternate.hooks &&
+		wipFiber.alternate.hooks[hookIndex]
+		
+	const hook = {
+		state: oldHook ? oldHook.state : initial,
+	}
+	
+	wipFiber.hooks.push(hook)
+		hookIndex++
+		return [hook.state]
+	}
+```
 
