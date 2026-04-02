@@ -134,23 +134,6 @@
             }
           },
           {
-            "id": "cb6d5966140eb65a",
-            "type": "leaf",
-            "state": {
-              "type": "canvas",
-              "state": {
-                "file": "Project notes/resonance/需求.canvas",
-                "viewState": {
-                  "x": -796.8082068976618,
-                  "y": -144.78838912822616,
-                  "zoom": 0.3525296627175856
-                }
-              },
-              "icon": "lucide-layout-dashboard",
-              "title": "需求"
-            }
-          },
-          {
             "id": "76e0415c2037d895",
             "type": "leaf",
             "state": {
@@ -165,7 +148,7 @@
             }
           }
         ],
-        "currentTab": 10
+        "currentTab": 9
       }
     ],
     "direction": "vertical"
@@ -313,13 +296,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "102de034f2482a52",
+  "active": "76e0415c2037d895",
   "lastOpenFiles": [
-    "Project notes/resonance/需求.canvas",
-    "Front-end notes/React/构建Mini React.md",
     "/Front-end notes/React/构建Mini React.md",
     "/Front-end notes/React",
     "/Front-end notes",
+    "Project notes/resonance/需求.canvas",
+    "Front-end notes/React/构建Mini React.md",
     "Pasted image 20260328115001.png",
     "/Pasted image 20260328115001.png",
     "/Front-end notes/Shadcn/Sidebar.md",
