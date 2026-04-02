@@ -1396,7 +1396,7 @@ function useState(initial) {
 }
 ```
 
-
+组件第一次渲染时，state 值为 initivalue
 
 ``` js
 function useState(initial) {
@@ -1411,9 +1411,9 @@ function useState(initial) {
 	}
 	
 	wipFiber.hooks.push(hook)
-		hookIndex++
-		return [hook.state]
-	}
+	hookIndex++
+	return [hook.state]
+}
 ```
 
 当函数组件调用 `useState` 时，我们会检查是否有一个旧的钩子。我们使用钩子索引在 fiber 的 `alternate` 中进行检查。
