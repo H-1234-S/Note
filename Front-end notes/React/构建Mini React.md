@@ -1479,3 +1479,5 @@ function useState(initial) {
 ```
 
 每当状态发生改变时，组件应重现渲染，因此设置`nextUnitOfWork`，以便**工作循环**可以开始新的渲染阶段
+
+useState只会在函数组件被调用时执行，也就是`fiber.type(fiber)` 时执行，但一个函数组件中可以**执行多次useState**
