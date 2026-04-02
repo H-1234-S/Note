@@ -1481,3 +1481,12 @@ function useState(initial) {
 每当状态发生改变时，组件应重现渲染，因此设置`nextUnitOfWork`，以便**工作循环**可以开始新的渲染阶段
 
 useState只会在函数组件被调用时执行，也就是`fiber.type(fiber)` 时执行，但一个函数组件中可以**执行多次useState**
+
+## 注意
+
+**为什么不要在循环、条件或嵌套函数中调用 Hook**
+
+- 因为 React 依赖 `hookIndex` 的**自增顺序**来匹配状态。
+- 
+- 如果 `hookIndex` 的自增逻辑因为 `if` 语句而被打乱，后面的 Hook 就会取到错误的数据。
+
