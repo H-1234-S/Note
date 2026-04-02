@@ -1371,9 +1371,23 @@ function Counter() {
 const element = <Counter />
 ```
 
-## useState函数
+## 实现useState函数
 
-初始化 work in progress
+- **初始化 Hook 仓库**：在执行函数组件之前，为当前的 Fiber 节点准备一个空数组来存放 Hook，并记录当前处理到了第几个 Hook（索引）。
+    
+- **实现 `useState` 函数**：
+    
+    - 检查是否有“旧状态”（从 `alternate` 也就是旧 Fiber 中获取）。
+        
+    - 如果有旧状态，直接复用；如果没有，使用初始值。
+        
+    - 创建一个 `setState` 函数，并将其放入任务队列中，准备触发重新渲染。
+        
+-  **闭包与更新**：`setState` 必须能够记住它属于哪个 Fiber 节点，这样当它被调用时，React 才知道该从哪里开始重新调度更新。
+
+---
+
+**初始化 work in progress**
 
 向fiber中添加一个 `hooks` 数组，以支持在同一个组件中多次调用 `useState`；跟踪当前的钩子索引。
 
