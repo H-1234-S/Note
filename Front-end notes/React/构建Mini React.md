@@ -1335,12 +1335,19 @@ function commitWork(fiber) {
 并且当我们移除一个节点时，我们也需要继续进行，直到找到一个具有 DOM 节点的子节点。
 
 ``` js
-function commitDeletion(fiber, domParent) {
-	if (fiber.dom) {
-		domParent.removeChild(fiber.dom)
-	} else {
-		commitDeletion(fiber.child, domParent)
-	}
+function commitDeletion(fiber,domParent) {
+    if(fiber.dom) {
+        domParent.removeChild(fiber.dom)
+    } else {
+        commitDeletion(fiber.child,domParent)
+
+        let node = fiber.child
+        while(node.sibling) {
+            commitDeletion(node.sibling,domParent)
+
+            node = node.sibling
+        }
+    }
 }
 ```
 
