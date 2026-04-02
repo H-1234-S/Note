@@ -1487,6 +1487,13 @@ useState只会在函数组件被调用时执行，也就是`fiber.type(fiber)` �
 **为什么不要在循环、条件或嵌套函数中调用 Hook**
 
 - 因为 React 依赖 `hookIndex` 的**自增顺序**来匹配状态。
-- 
+
 - 如果 `hookIndex` 的自增逻辑因为 `if` 语句而被打乱，后面的 Hook 就会取到错误的数据。
 
+**例如：** 假设一个组件里有两个 Hook
+
+-  `const [name, setName] = useState("Alice")` （索引 0）
+    
+-  `const [age, setAge] = useState(25)` （索引 1）
+
+> 如果在某次渲染中，用 `if` 跳过了第一个 `name` 的 Hook，那么原本属于 `age` 的那个 `useState` 执行时，它的 `hookIndex`还是
