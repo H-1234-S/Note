@@ -1460,6 +1460,7 @@ function useState(initial) {
 	const setState = action => {
 		hook.queue.push(action)
 		
+		// 重新开启work loop
 		wipRoot = {
 			dom: currentRoot.dom,
 			props: currentRoot.props,
