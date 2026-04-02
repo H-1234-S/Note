@@ -1435,7 +1435,7 @@ function useState(initial) {
 		
 	const hook = {
 		state: oldHook ? oldHook.state : initial,
-		queue: [],
+			queue: [],
 	}
 	
 	const setState = action => {
