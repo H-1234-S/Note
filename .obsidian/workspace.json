@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/React/构建Mini React.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "构建Mini React"
+              "title": "Resonance"
             }
           }
         ]
@@ -138,13 +138,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React/构建Mini React.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "构建Mini React 的大纲"
+              "title": "Resonance 的大纲"
             }
           },
           {
@@ -197,8 +197,8 @@
   },
   "active": "f896cd6a08131591",
   "lastOpenFiles": [
-    "学习/技术栈.md",
     "Front-end notes/React/构建Mini React.md",
+    "学习/技术栈.md",
     "Front-end notes/React/深入学习React.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/Shadcn/Sidebar.md",
