@@ -1355,5 +1355,40 @@ function commitDeletion(fiber,domParent) {
 
 - 当调用 `parent.removeChild(child)` 时，这个 `child` 节点及其内部**所有的子孙节点**会一起从页面上消失。
 
+# Hooks
+
+## 示例
+
+``` js
+function Counter() {
+	const [state, setState] = Didact.useState(1)
+	return (
+		<h1 onClick={() => setState(c => c + 1)}>
+			Count: {state}
+		</h1>
+	)
+}
+const element = <Counter />
+```
+
+## 实现useState函数
+
+``` js
+let wipFiber = null
+let hookIndex = null
+
+function updateFunctionComponent(fiber) {
+	wipFiber = fiber
+	hookIndex = 0
+	wipFiber.hooks = []
+	const children = [fiber.type(fiber.props)]
+	reconcileChildren(fiber, children)
+}
+
+function useState(initial) {
+	// TODO
+}
+```
+
 
 
