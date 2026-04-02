@@ -1401,6 +1401,8 @@ function updateFunctionComponent(fiber) {
 	
 	// 在同一个组件中多次调用 useState
 	wipFiber.hooks = []
+	
+	// use函数在此处开始执行
 	const children = [fiber.type(fiber.props)]
 	reconcileChildren(fiber, children)
 }
