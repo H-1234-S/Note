@@ -1496,4 +1496,4 @@ useState只会在函数组件被调用时执行，也就是`fiber.type(fiber)` �
     
 -  `const [age, setAge] = useState(25)` （索引 1）
 
-> 如果在某次渲染中，用 `if` 跳过了第一个 `name` 的 Hook，那么原本属于 `age` 的那个 `useState` 执行时，它的 `hookIndex`还是
+> 如果在某次渲染中，用 `if` 跳过了第一个 `name` 的 Hook，那么原本属于 `age` 的那个 `useState` 执行时，它的 `hookIndex`还是0，会从hooks[0] 开始读取数据
