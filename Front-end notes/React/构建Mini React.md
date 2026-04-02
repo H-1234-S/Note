@@ -1421,3 +1421,36 @@ function useState(initial) {
 如果我们有旧的钩子，我们将旧钩子的状态复制到新钩子中，如果没有，我们将初始化状态。
 
 接着我们将新的钩子添加到 fiber 中，将钩子索引加一，并返回状态。
+
+---
+
+**添加更新函数**
+
+``` js
+function useState(initial) {
+	const oldHook =
+		wipFiber.alternate &&
+		wipFiber.alternate.hooks &&
+		wipFiber.alternate.hooks[hookIndex]
+		
+	const hook = {
+		state: oldHook ? oldHook.state : initial,
+		queue: [],
+	}
+	
+	const setState = action => {
+		hook.queue.push(action)
+		wipRoot = {
+			dom: currentRoot.dom,
+			props: currentRoot.props,
+			alternate: currentRoot,
+		}
+		nextUnitOfWork = wipRoot
+		deletions = []
+	}
+	
+	wipFiber.hooks.push(hook)
+	hookIndex++
+	return [hook.state, setState]
+}
+```
