@@ -34,9 +34,19 @@
               "icon": "lucide-file",
               "title": "构建Mini React"
             }
+          },
+          {
+            "id": "eb807d66250fc03d",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -153,13 +163,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React/构建Mini React.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "构建Mini React 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -210,10 +219,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "4e5a28a2c40b2081",
+  "active": "eb807d66250fc03d",
   "lastOpenFiles": [
-    "conflict-files-obsidian-git.md",
     "Front-end notes/React/构建Mini React.md",
+    "conflict-files-obsidian-git.md",
     "Project notes/resonance/Resonance.md",
     "学习/技术栈.md",
     "Front-end notes/React/深入学习React.md",
