@@ -1500,3 +1500,49 @@ useState只会在函数组件被调用时执行，也就是`fiber.type(fiber)` �
 
 # 复盘
 
+**Q：Fiber 架构中，WorkLoop 是如何实现“可中断”的？中断发生的精确时机是什么？**
+
+- **答**：React 利用 `requestIdleCallback`（或类似调度机制）在浏览器空闲时执行任务。中断发生在**每个 Fiber 节点（工作单元）处理完毕后**。
+    
+- **细节**：一旦进入 `performUnitOfWork`，该节点的逻辑（创建 DOM、调和子节点）必须同步执行完。只有在返回下一个工作单元前，才会检查 `deadline.timeRemaining()`。如果时间不够，就退出循环，交还控制权。
+    
+
+**Q：函数组件的 `alternate` 属性是在什么时候挂载的？有什么用？**
+
+- **答**：是在**父级 Fiber 节点**执行 `reconcileChildren`（调和子节点）时挂载的。
+    
+- **细节**：父节点对比新 element 和旧 Fiber，如果 `type` 相同，就创建一个 `newFiber`，并把旧 Fiber 赋值给 `newFiber.alternate`。它的作用是让 `useState` 能找回上一次的状态，以及让 DOM 节点能够被复用。
+    
+
+**Q：在 `reconcileChildren` 中，如果 `sameType` 为真，为什么要复用 `oldFiber.dom`？**
+
+- **答**：为了实现“原地复用”。创建 DOM 节点开销巨大，直接引用旧的 DOM 节点，后续只需通过 `updateDom` 对比 props 并更新差异（如 `className` 或 `onClick`），这比销毁再重建要快得多。
+    
+
+**Q：为什么不建议在 `if` 语句或循环中调用 `useState`？请描述“串位”过程。**
+
+- **答**：因为 React 靠执行顺序（索引 `hookIndex`）来定位状态。
+    
+- **过程**：初次渲染存了 `[A, B]`。二次渲染如果 `if` 跳过了 A，此时第一个执行的 Hook 对应的 `hookIndex` 是 0，它会去 `alternate.hooks[0]` 取值，结果取到了 A 的状态给了 B。导致状态和逻辑完全对不上。
+    
+
+**Q：不带 `key` 的列表 Diff 逻辑是怎样的？会有什么问题？**
+
+- **答**：它是简单的“按索引对比”。如果列表 `[A, B]` 变成了 `[B, A]`，React 会认为第一个位置的 A 变成了 B，第二个位置的 B 变成了 A，从而执行两次 `UPDATE`。
+    
+- **问题**：除了不必要的属性更新开销，还会导致非受控组件（如 input 焦点、video 播放状态）因为 DOM 没移动而发生 UI 状态残留。
+    
+
+**Q：为什么删除节点（DELETION）时需要递归调用 `commitDeletion`？**
+
+- **答**：因为 Fiber 树和真实 DOM 树不是一一对应的。函数组件节点没有 `dom` 属性。
+    
+- **细节**：删除一个函数组件时，不能直接 `removeChild`，必须递归向下寻找，直到找到它下面第一个（或多个）真正带有 `dom` 的子节点，才能从父 DOM 中移除。
+    
+
+**Q：连续调用 100 次 `setState`，Mini React 会执行 100 次 Fiber 遍历吗？**
+
+- **答**：在你的实现中，由于 `setState` 立即修改了 `nextUnitOfWork`，虽然同步代码没执行完不会进 `WorkLoop`，但最终会触发一轮完整的遍历。
+    
+- **进阶**：React 源码通过“更新队列”和“批处理”解决。它会把 100 个 `action` 先存起来，在下一帧一次性合并计算，只跑一次调和流程。
+    
