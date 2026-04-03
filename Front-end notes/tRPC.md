@@ -666,3 +666,113 @@ export const TaskItem = ({ task }: Props) => {
     
 3. **性能**: Prisma 的查询引擎经过高度优化，配合 tRPC 的 Batching，可以有效减少数据库连接压力。
     
+
+# 补充
+
+## createTRPCRouter
+
+### 1. 基础用法：定义简单接口
+
+这是最常见的用法，直接在对象中定义 `query`（查询）和 `mutation`（变更）。
+
+``` ts
+import { createTRPCRouter, publicProcedure } from "../trpc";
+import { z } from "zod";
+
+export const userRouter = createTRPCRouter({
+  // 获取用户：使用 query (GET)
+  greet: publicProcedure
+    .input(z.object({ name: z.string() }))
+    .query(({ input }) => {
+      return `你好, ${input.name}!`;
+    }),
+
+  // 创建用户：使用 mutation (POST/PUT/DELETE)
+  create: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ input, ctx }) => {
+      // 这里通常会写数据库操作，比如 db.user.create(...)
+      return { success: true, email: input.email };
+    }),
+});
+```
+
+---
+
+### 2. 嵌套用法：构建 API 树
+
+随着项目变大，你不可能把所有接口写在一个路由里。`createTRPCRouter` 允许你将小的路由组合成一个大的 `appRouter`。
+
+``` ts
+// src/server/api/root.ts
+import { createTRPCRouter } from "./trpc";
+import { postRouter } from "./routers/post";
+import { userRouter } from "./routers/user";
+
+export const appRouter = createTRPCRouter({
+  post: postRouter, // 访问路径: trpc.post.getAll
+  user: userRouter, // 访问路径: trpc.user.getById
+});
+
+export type AppRouter = typeof appRouter;
+```
+
+---
+
+### 3. 权限控制用法：配合中间件
+
+你可以定义不同类型的 `procedure`，并将它们放在同一个 Router 中。比如只有登录用户能访问的接口。
+
+``` ts
+import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+
+export const secretRouter = createTRPCRouter({
+  // 任何人都能看
+  stats: publicProcedure.query(() => {
+    return { views: 100 };
+  }),
+
+  // 只有登录用户（通过 Clerk/NextAuth 校验）能看
+  getBillingInfo: protectedProcedure.query(({ ctx }) => {
+    // ctx.auth 中包含了用户信息
+    return { balance: 99.9, userId: ctx.auth.userId };
+  }),
+});
+```
+
+---
+
+### 4. 动态上下文（Context）用法
+
+`createTRPCRouter` 处理的逻辑可以访问 `ctx`（上下文）。这允许你在 Router 内部直接操作数据库连接、Session 信息等。
+
+``` ts
+export const todoRouter = createTRPCRouter({
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    // 假设你在 createContext 中注入了 prisma 实例
+    return await ctx.db.todo.findMany();
+  }),
+});
+```
+
+---
+
+### 5. 命名空间深化（深层嵌套）
+
+如果你有非常复杂的业务逻辑，可以继续向下嵌套，形成多层命名空间。
+
+``` ts
+export const adminRouter = createTRPCRouter({
+  system: createTRPCRouter({
+    logs: publicProcedure.query(() => ["log1", "log2"]),
+    health: publicProcedure.query(() => "ok"),
+  }),
+  settings: createTRPCRouter({
+    updateTheme: publicProcedure.mutation(() => "done"),
+  }),
+});
+
+// 前端调用方式: trpc.admin.system.logs.useQuery()
+```
+
+---
