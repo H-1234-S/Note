@@ -39,10 +39,14 @@
             "id": "eb807d66250fc03d",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/tRPC.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "tRPC"
             }
           }
         ],
@@ -163,12 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Front-end notes/tRPC.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "tRPC 的大纲"
             }
           },
           {
