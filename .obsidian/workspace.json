@@ -49,8 +49,7 @@
               "title": "tRPC"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -167,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/tRPC.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "tRPC 的大纲"
+              "title": "Resonance 的大纲"
             }
           },
           {
@@ -224,8 +223,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "eb807d66250fc03d",
+  "active": "f896cd6a08131591",
   "lastOpenFiles": [
+    "Front-end notes/tRPC.md",
     "Front-end notes/React/构建Mini React.md",
     "conflict-files-obsidian-git.md",
     "Project notes/resonance/Resonance.md",
@@ -236,7 +236,6 @@
     "Pasted image 20260328115001.png",
     "Front-end notes/JavaScript/闭包.md",
     "Front-end notes/JavaScript/执行机制与内存篇.md",
-    "Front-end notes/tRPC.md",
     "Front-end notes/TanStack Form.md",
     "Front-end notes/Zod.md",
     "Front-end notes/Prisma.md",
