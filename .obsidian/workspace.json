@@ -63,8 +63,7 @@
               "title": "Prisma"
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "vertical"
@@ -181,13 +180,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Prisma.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Prisma 的大纲"
+              "title": "Resonance 的大纲"
             }
           },
           {
@@ -238,12 +237,12 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "bcabfbc71f95d3b6",
+  "active": "f896cd6a08131591",
   "lastOpenFiles": [
-    "Pasted image 20260328115001.png",
-    "Front-end notes/Prisma.md",
-    "计算机网络.md",
     "Front-end notes/tRPC.md",
+    "Front-end notes/Prisma.md",
+    "Pasted image 20260328115001.png",
+    "计算机网络.md",
     "Project notes/resonance/Resonance.md",
     "Front-end notes/React/构建Mini React.md",
     "conflict-files-obsidian-git.md",
