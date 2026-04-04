@@ -776,3 +776,119 @@ export const adminRouter = createTRPCRouter({
 ```
 
 ---
+## inferRouterOutputs
+
+作用是：**把后端的逻辑实现，直接转换成前端可以使用的 TypeScript 类型。**
+
+例如：在传统的开发中，如果在前端写一个 `VoiceCard` 组件，你可能需要手动定义一个 `interface`：
+
+``` ts
+interface Voice {
+  id: string;
+  name: string;
+  // ... 万一后端 Prisma 模型改了字段名，这里就会报错或者运行出错
+}
+```
+
+**这样写的缺点**：后端改了，前端得手动跟着改。一旦漏掉，就是线上 Bug。
+
+**使用 `inferRouterOutputs` 的优点**：它是**活的**。只要后端的 Prisma 模型或 tRPC 路由逻辑变了，这个 `TTSVoiceItem` 类型会**瞬间自动同步**，不需要你改一行前端代码。
+
+---
+
+### 1. 基础用法：获取整个路由表的输出类型
+
+这是最宏观的用法。它会生成一个对象，其结构与你的 `appRouter` 完全一致，但每个节点对应的是该接口的**返回类型**。
+
+``` ts
+// 1. 在后端导出类型
+export type AppRouter = typeof appRouter;
+
+// 2. 在前端提取类型
+import { inferRouterOutputs } from '@trpc/server';
+import type { AppRouter } from '@/server/api/root';
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+
+// 举例：你可以直接通过点语法找到某个接口的返回类型
+type GetAllVoicesOutput = RouterOutput['voices']['getAll']; 
+```
+
+---
+
+### 2. 核心用法：提取数组中的单项类型 (`[number]`)
+
+这是你在 Resonance 项目中最常用的场景。当 `getAll` 返回一个数组时，你的子组件（如 `VoiceCard`）只需要其中一个元素的类型。
+
+``` ts
+// 假设 getAll 返回 { custom: Voice[], system: Voice[] }
+export type VoiceItem = inferRouterOutputs<AppRouter>["voices"]["getAll"]["custom"][number];
+
+// 代码举例：在子组件中使用
+interface Props {
+  data: VoiceItem;
+}
+
+export function VoiceCard({ data }: Props) {
+  return <div>{data.name}</div>; // 这里会有完美的类型补全
+}
+```
+
+---
+
+### 3. 提取分页或复杂对象的子字段
+
+如果你的后端返回的是带分页的数据结构（如 `{ items: T[], nextCursor: string }`），你可以精准定位到数据主体。
+
+``` ts
+// 定义后端路由
+// .query(() => { return { items: [...], total: 100 } })
+
+// 前端提取
+type ProjectList = inferRouterOutputs<AppRouter>["project"]["list"]["items"];
+type SingleProject = ProjectList[number];
+```
+
+---
+
+### 4. 配合 `useQuery` 的 `select` 转换类型
+
+有时候前端会用 `select` 对后端数据做二次加工。此时，`inferRouterOutputs` 依然可以作为基础，帮你定义加工后的类型。
+
+``` ts
+const { data } = trpc.voices.getAll.useQuery(undefined, {
+  select: (data) => data.custom.map(v => v.name), // 只想要名字数组
+});
+
+// 此时 data 的类型会自动推断为 string[]
+// 但如果你想手动定义这个转换后的类型：
+type VoiceNames = inferRouterOutputs<AppRouter>["voices"]["getAll"]["custom"][number]["name"][];
+```
+
+---
+
+### 5. 跨文件共享类型的最佳实践
+
+在资深工程师的工程实践中，我们通常会建立一个专门的 `types.ts` 文件，集中存放这些推断出来的类型，避免在每个组件里重复写长长的路径。
+
+``` ts
+// src/types/trpc.ts
+import { inferRouterOutputs, inferRouterInputs } from '@trpc/server';
+import type { AppRouter } from '@/server/api/root';
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type RouterInput = inferRouterInputs<AppRouter>; // 顺便把输入参数类型也提出来
+
+// 统一导出业务类型
+export type VoiceDetail = RouterOutput['voices']['getOne'];
+export type CreateVoiceInput = RouterInput['voices']['create'];
+```
+
+---
+
+| **维度**   | **手动写 interface Voice** | **使用 inferRouterOutputs**    |
+| -------- | ----------------------- | ---------------------------- |
+| **同步效率** | 后端改了，前端得手动改，容易忘         | **瞬时自动同步**，一行代码都不用动          |
+| **准确性**  | 可能存在拼写错误或类型偏差           | **绝对准确**，它就是后端代码的映射          |
+| **重构压力** | 修改数据库字段名时，搜索替换很痛苦       | 修改字段名后，前端报错会精准定位到组件          |
+| **开发体验** | 需要在前后端反复跳转确认字段          | **丝滑的 IDE 补全**，甚至不需要看 API 文档 |
