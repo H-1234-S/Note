@@ -63,7 +63,8 @@
               "title": "Prisma"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -180,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/Resonance.md",
+                "file": "Front-end notes/tRPC.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Resonance 的大纲"
+              "title": "tRPC 的大纲"
             }
           },
           {
@@ -237,13 +238,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "f896cd6a08131591",
+  "active": "eb807d66250fc03d",
   "lastOpenFiles": [
+    "Project notes/resonance/Resonance.md",
     "Front-end notes/tRPC.md",
     "Front-end notes/Prisma.md",
     "Pasted image 20260328115001.png",
     "计算机网络.md",
-    "Project notes/resonance/Resonance.md",
     "Front-end notes/React/构建Mini React.md",
     "conflict-files-obsidian-git.md",
     "学习/技术栈.md",
