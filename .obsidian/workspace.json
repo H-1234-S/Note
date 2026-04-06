@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/tRPC.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "tRPC 的大纲"
+              "title": "Resonance 的大纲"
             }
           },
           {
@@ -224,12 +224,12 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "bcabfbc71f95d3b6",
+  "active": "5e59a93e067acbb8",
   "lastOpenFiles": [
     "Front-end notes/Prisma.md",
-    "Project notes/resonance/trpc.md",
-    "Front-end notes/tRPC.md",
     "Project notes/resonance/Resonance.md",
+    "Front-end notes/tRPC.md",
+    "Project notes/resonance/trpc.md",
     "Front-end notes/TanStack Form.md",
     "Project notes/resonance/Resonance Clone.md",
     "Pasted image 20260328115001.png",
