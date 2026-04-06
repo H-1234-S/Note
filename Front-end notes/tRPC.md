@@ -1,4 +1,4 @@
-# 基础用法
+# [基础用法](https://trpc.io/docs/server/middlewares)
 ## 1. 核心概念：什么是 tRPC？
 
 在传统的 REST 或 GraphQL 中，前后端是“松散耦合”的。而 tRPC 利用了 TypeScript 的 `inference`（推导）特性，直接将后端的类型传递给前端。
