@@ -36,20 +36,17 @@
             }
           },
           {
-            "id": "5e59a93e067acbb8",
+            "id": "b048366b5591cb9b",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/resonance/需求.canvas",
-                "viewState": {
-                  "x": -600,
-                  "y": 230,
-                  "zoom": -0.8073549220576042
-                }
+                "file": "Front-end notes/Next.JS/Next.js.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "需求"
+              "icon": "lucide-file",
+              "title": "Next.js"
             }
           }
         ],
@@ -110,7 +107,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -169,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/需求.canvas",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "需求 的大纲"
+              "title": "Next.js 的大纲"
             }
           },
           {
@@ -226,12 +224,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "5e59a93e067acbb8",
+  "active": "b048366b5591cb9b",
   "lastOpenFiles": [
+    "Front-end notes/tRPC.md",
+    "Project notes/resonance/需求.canvas",
     "Front-end notes/Next.JS/Next.js.md",
     "Project notes/resonance/Resonance.md",
     "Front-end notes/Prisma.md",
-    "Front-end notes/tRPC.md",
     "Project notes/resonance/trpc.md",
     "Front-end notes/TanStack Form.md",
     "Project notes/resonance/Resonance Clone.md",
@@ -246,7 +245,6 @@
     "Front-end notes/JavaScript/执行机制与内存篇.md",
     "Front-end notes/Zod.md",
     "Project notes/resonance/第四章.md",
-    "Project notes/resonance/需求.canvas",
     "Front-end notes/JavaScript/Promise.md",
     "Front-end notes/JavaScript/Class.md",
     "Front-end notes/JavaScript/Event Loop.md",
@@ -256,7 +254,6 @@
     "Front-end notes/Shadcn/Slider.md",
     "Project notes/resonance/知识点.md",
     "Front-end notes/JavaScript",
-    "Front-end notes/TypeScript.md",
     "Pasted image 20260319134418.png",
     "Excalidraw",
     "Front-end notes/Shadcn",
