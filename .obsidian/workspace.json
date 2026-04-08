@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/知识内容.md",
+                "file": "Front-end notes/Zod.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "知识内容"
+              "title": "Zod"
             }
           }
         ],
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/知识内容.md",
+                "file": "Front-end notes/Zod.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "知识内容 的大纲"
+              "title": "Zod 的大纲"
             }
           },
           {
@@ -227,9 +227,9 @@
   },
   "active": "b048366b5591cb9b",
   "lastOpenFiles": [
+    "Front-end notes/知识内容.md",
     "Front-end notes/Next.JS/Next.js.md",
     "conflict-files-obsidian-git.md",
-    "Front-end notes/知识内容.md",
     "Front-end notes/tRPC.md",
     "Project notes/resonance/需求.canvas",
     "Project notes/resonance/Resonance.md",
