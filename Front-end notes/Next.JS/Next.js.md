@@ -1830,3 +1830,52 @@ export default function PostClientComponent() {
 - **返回值**：`{ id: '123' }`
 
 --- 
+# ORM
+
+**ORM** 的全称是 **Object-Relational Mapping**（对象关系映射）。
+
+- **Object（对象）**：指你在代码里写的 JavaScript/TypeScript 对象。
+    
+- **Relational（关系）**：指 SQL 数据库里的表（Table）和行（Row）。
+    
+- **Mapping（映射）**：就是在两者之间架起一座桥梁。
+    
+
+**没有 ORM 时**：你需要手写 SQL 字符串，就像在两种语言之间硬切换。
+
+``` SQL
+-- 手写 SQL，万一拼错一个单词，代码只有运行到这里才会报错
+SELECT * FROM "Voice" WHERE "orgId" = '123';
+```
+
+**有了 ORM 时**：你像操作普通的 JS 数组或对象一样操作数据库。
+
+``` TypeScript
+// 直接调用方法，简单明了
+const voices = await db.voice.findMany({ where: { orgId: '123' } });
+```
+## Prisma
+
+Prisma是一个现代ORM工具
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+# 可访问性
+
+可访问性是指设计和实现所有人都能使用的网络应用程序，包括残障人士。这是一个涵盖许多领域的广泛主题，例如键盘导航、语义 HTML、图像、颜色、视频等。
+
+
+--- 
+

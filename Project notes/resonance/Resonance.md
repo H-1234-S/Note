@@ -631,16 +631,6 @@ git checkout main
 git pull origin main
 ```
 
-``` bash
-git config --global http.proxy http://127.0.0.1:7897
-git config --global https.proxy http://127.0.0.1:7897
-```
-
-``` bash
-git config --global --unset http.proxy
-git config --global --unset https.proxy
-```
-
 ---
 
 # TanStack Form
@@ -750,61 +740,3 @@ export default function Tabspage() {
 }
 ```
 
-## 库
-
-## superjson
-
-**让 JSON 支持更多原本不支持的数据类型，并保持它们的类型完整**
-
-# 包
-
-## DiceBear
-
-根据随机字符串（如用户 ID 或用户名）自动生成头像
-
-``` bash
-npm install @dicebear/collection @dicebear/core
-```
-
-- **`@dicebear/core`**：
-    
-    - **核心引擎**。它负责处理生成逻辑，比如接收设置参数、渲染 SVG 字符串等。它本身不包含任何图片样式。
-        
-- **`@dicebear/collection`**：
-    
-    - **风格合集**。它包含了 DiceBear 官方提供的多种设计风格，比如：
-        
-        - `avataaars`（经典人像）
-            
-        - `identicon`（类似 GitHub 的几何图形）
-            
-        - `pixel-art`（像素风）
-            
-        - `lorelei`（可爱手绘风）
-
-### 代码示例
-
-``` ts
-import { createAvatar } from '@dicebear/core';
-import { avataaars } from '@dicebear/collection';
-
-export function UserAvatar({ seed }: { seed: string }) {
-  // 1. 创建头像实例
-  const avatar = createAvatar(avataaars, {
-    seed: seed, // 传入用户的 userId
-    // 你还可以自定义颜色、配饰等
-    backgroundColor: ['b6e3f4', 'c0aede'],
-  });
-
-  // 2. 转换为数据链接或 SVG 字符串
-  const dataUri = avatar.toDataUri();
-
-  return (
-    <img 
-      src={dataUri} 
-      alt="User Avatar" 
-      className="size-10 rounded-full border shadow-sm" 
-    />
-  );
-}
-```

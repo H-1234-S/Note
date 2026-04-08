@@ -1,9 +1,8 @@
 {
 	"nodes":[
-		{"id":"fca81c03f07ed7f6","x":-1183,"y":43,"width":250,"height":60,"type":"text","text":""},
 		{"id":"8db28a21fb6223b5","type":"text","text":"``` mermaid\ngraph TD\n    A[用户发起请求] --> B{是否已登录?}\n    B -- 否 --> C[跳转 Clerk 登录页]\n    B -- 是 --> D{是否有组织?}\n    D -- 否 --> E[跳转 /org-selection]\n    D -- 是 --> F[进入 Dashboard 首页]\n    \n    C --> B\n    E --> G[用户创建或选择组织]\n    G --> F\n    F --> H[结束]\n```","x":-920,"y":-260,"width":640,"height":980},
 		{"id":"31c725ad81f4c9ef","type":"text","text":"``` mermaid\ngraph LR\n    User((用户输入文本)) --> Action[Server Action]\n    Action --> DB_Voice{查询 Voice 模型}\n    DB_Voice -- 获取参数 --> AI[AI 模型生成音频]\n    AI -- 得到文件 --> R2[上传至 Cloudflare R2]\n    R2 -- 返回 Key --> DB_Gen[(写入 Generation 表)]\n    DB_Gen --> UI[前端播放音频]\n```","x":-240,"y":-80,"width":1727,"height":239},
-		{"id":"dd45d13a6fc49341","type":"text","text":"``` mermaid\ngraph TD\n    A1([端到端类型安全 API<br/>Type-Safe API]) --- A2([3级权限验证中间件<br/>Auth Middleware])\n    A1 --- A3([服务器预取 + 激活<br/>Server Prefetch + Hydration])\n    A2 --- A4([音频签名 URL<br/>Signed URLs for Audio])\n    A3 --- A5([幂等种子脚本<br/>Idempotent Seed Script])\n\n    style A1 fill:#e1d5e7,stroke:#9673a6\n    style A2 fill:#ffe6cc,stroke:#d79b00\n    style A3 fill:#dae8fc,stroke:#6c8ebf\n    style A4 fill:#d5e8d4,stroke:#82b366\n    style A5 fill:#fff2cc,stroke:#d6b656\n```","x":200,"y":320,"width":580,"height":431}
+		{"id":"dd45d13a6fc49341","x":200,"y":320,"width":580,"height":431,"type":"text","text":"``` mermaid\ngraph TD\n    A1([端到端类型安全 API<br/>Type-Safe API]) --- A2([3级权限验证中间件<br/>Auth Middleware])\n    A1 --- A3([服务器预取 + 激活<br/>Server Prefetch + Hydration])\n    A2 --- A4([音频签名 URL<br/>Signed URLs for Audio])\n    A3 --- A5([幂等种子脚本<br/>Idempotent Seed Script])\n\n    style A1 fill:#e1d5e7,stroke:#9673a6\n    style A2 fill:#ffe6cc,stroke:#d79b00\n    style A3 fill:#dae8fc,stroke:#6c8ebf\n    style A4 fill:#d5e8d4,stroke:#82b366\n    style A5 fill:#fff2cc,stroke:#d6b656\n```"}
 	],
 	"edges":[]
 }
