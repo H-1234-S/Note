@@ -137,14 +137,17 @@
             "id": "76e0415c2037d895",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Front-end notes/知识内容.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/resonance/需求.canvas",
+                "viewState": {
+                  "x": -629.3444796976642,
+                  "y": 854.0783715717831,
+                  "zoom": -1.503865581928383
+                }
               },
-              "icon": "lucide-file",
-              "title": "知识内容"
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
             }
           }
         ],
@@ -298,8 +301,11 @@
   },
   "active": "76e0415c2037d895",
   "lastOpenFiles": [
-    "计算机网络.md",
+    "/Project notes/resonance/需求.canvas",
+    "/Project notes/resonance",
+    "/Project notes",
     "Front-end notes/知识内容.md",
+    "计算机网络.md",
     "Front-end notes/React/构建Mini React.md",
     "/Front-end notes/React/构建Mini React.md",
     "/Front-end notes/React",
@@ -321,19 +327,15 @@
     "Front-end notes/tRPC.md",
     "/Front-end notes/tRPC.md",
     "Front-end notes/JavaScript/Event Loop.md",
-    "/Project notes/resonance/需求.canvas",
     "/Project notes/resonance/Resonance.md",
     "/Front-end notes/JavaScript/Promise.md",
     "/Project notes/resonance/第四章.md",
     "Project notes/resonance/第四章.md",
-    "/Project notes/resonance",
-    "/Project notes",
     "/Front-end notes/JavaScript/Class.md",
     "Front-end notes/JavaScript/Class.md",
     "学习/技术栈.md",
     "Front-end notes/JavaScript/Proto.md",
     "Front-end notes/TanStack Form.md",
-    "Front-end notes/Shadcn/Tabs.md",
     "/Front-end notes/Next.JS",
     "Front-end notes/JavaScript",
     "/Front-end notes/Tailwind CSS",
