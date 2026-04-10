@@ -137,17 +137,14 @@
             "id": "76e0415c2037d895",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/resonance/需求.canvas",
-                "viewState": {
-                  "x": -9.823362299368767,
-                  "y": -199.48477505791615,
-                  "zoom": -1.3054399743317742
-                }
+                "file": "Front-end notes/React/构建Mini React.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "需求"
+              "icon": "lucide-file",
+              "title": "构建Mini React"
             }
           }
         ],
@@ -299,8 +296,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "66cdfe62b8e41325",
+  "active": "76e0415c2037d895",
   "lastOpenFiles": [
+    "Project notes/resonance/需求.canvas",
     "/Project notes/resonance/需求.canvas",
     "/Project notes/resonance",
     "/Project notes",
@@ -310,7 +308,6 @@
     "/Front-end notes/React/构建Mini React.md",
     "/Front-end notes/React",
     "/Front-end notes",
-    "Project notes/resonance/需求.canvas",
     "Front-end notes/Pasted image 20260328115001.png",
     "/Pasted image 20260328115001.png",
     "/Front-end notes/Shadcn/Sidebar.md",
