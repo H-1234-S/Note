@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project notes/resonance/Resonance.md",
+                "file": "Project notes/polaris/claude prompt.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Resonance"
+              "title": "claude prompt"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -138,13 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/Resonance.md",
+                "file": "Project notes/polaris/claude prompt.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Resonance 的大纲"
+              "title": "claude prompt 的大纲"
             }
           },
           {
@@ -197,8 +196,10 @@
   },
   "active": "94b014e705938fa6",
   "lastOpenFiles": [
-    "conflict-files-obsidian-git.md",
     "Project notes/resonance/Resonance.md",
+    "Project notes/polaris/claude prompt.md",
+    "Project notes/polaris",
+    "conflict-files-obsidian-git.md",
     "Project notes/resonance/需求.canvas",
     "Front-end notes/tRPC.md",
     "Front-end notes/Zod.md",
@@ -237,7 +238,6 @@
     "Project notes/nextjs-dashboard",
     "思考.canvas",
     "Front-end notes/Next.JS",
-    "Front-end notes/Tailwind CSS",
     "Project notes/react-firebase/最后一条消息.canvas",
     "Project notes/react-firebase/注册、登录.canvas",
     "Project notes/react-firebase/消息同步.canvas",
