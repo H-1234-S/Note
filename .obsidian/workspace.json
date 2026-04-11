@@ -20,8 +20,23 @@
               "icon": "lucide-file",
               "title": "Resonance"
             }
+          },
+          {
+            "id": "5886208569338927",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "conflict-files-obsidian-git.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "conflict-files-obsidian-git"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -138,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/Resonance.md",
+                "file": "conflict-files-obsidian-git.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Resonance 的大纲"
+              "title": "conflict-files-obsidian-git 的大纲"
             }
           },
           {
@@ -195,15 +210,15 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "94b014e705938fa6",
+  "active": "5886208569338927",
   "lastOpenFiles": [
-    "Project notes/resonance/需求.canvas",
     "Project notes/resonance/Resonance.md",
+    "conflict-files-obsidian-git.md",
+    "Project notes/resonance/需求.canvas",
     "Front-end notes/tRPC.md",
     "Front-end notes/Zod.md",
     "Front-end notes/知识内容.md",
     "Front-end notes/Next.JS/Next.js.md",
-    "conflict-files-obsidian-git.md",
     "Front-end notes/Prisma.md",
     "Project notes/resonance/trpc.md",
     "Front-end notes/TanStack Form.md",
