@@ -2956,7 +2956,7 @@ function shallowEqual(obj1, obj2) {
 
 ---
 
-### 9.5 手写简易Redux
+### 10.5 手写简易Redux
 **考点**：状态管理原理
 
 ```javascript
@@ -3031,7 +3031,7 @@ store.dispatch({ type: 'DECREMENT' }); // { count: 1 }
 
 ---
 
-### 9.6 手写高阶组件（HOC）
+### 10.6 手写高阶组件（HOC）
 **考点**：组件模式
 
 ```javascript
@@ -3086,7 +3086,7 @@ const EnhancedComponent = withLoading(
 
 ---
 
-### 9.7 手写Render Props
+### 10.7 手写Render Props
 **考点**：组件复用模式
 
 ```javascript
@@ -3163,7 +3163,7 @@ function App() {
 
 ---
 
-### 9.8 手写Compound Components
+### 10.8 手写Compound Components
 **考点**：高级组件模式
 
 ```javascript
