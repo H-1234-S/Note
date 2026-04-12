@@ -1,6 +1,9 @@
 # 前端面试 - JavaScript篇
 
 ## 📌 目录
+<details>
+<summary>点击展开目录</summary>
+
 - [1. 数据类型与类型判断](#1-数据类型与类型判断)
 - [2. 作用域与闭包](#2-作用域与闭包)
 - [3. 原型与继承](#3-原型与继承)
@@ -12,9 +15,11 @@
 - [9. 手写代码](#9-手写代码)
 - [10. 性能优化](#10-性能优化)
 
+</details>
+
 ---
 
-## 1. 数据类型与类型判断
+## 1. 数据类型与类型判断 {#data-types}
 
 ### 1.1 JavaScript有哪些数据类型？
 **考点**：基础数据类型分类
@@ -247,7 +252,7 @@ console.log(0.1 + 0.2);          // 0.30000000000000004
 
 ---
 
-## 2. 作用域与闭包
+## 2. 作用域与闭包 {#scope-closure}
 
 ### 2.1 什么是作用域？JavaScript有哪些作用域？
 **考点**：变量可见性
@@ -427,7 +432,7 @@ for (let j = 0; j < 3; j++) {
 
 ---
 
-## 3. 原型与继承
+## 3. 原型与继承 {#prototype-inheritance}
 
 ### 3.1 什么是原型（Prototype）和原型链？
 **考点**：JavaScript继承机制
@@ -729,7 +734,7 @@ function myNew() {
 
 ---
 
-## 4. this指向
+## 4. this指向 {#this-binding}
 
 ### 4.1 this的指向规则？
 **考点**：核心难点
@@ -941,7 +946,7 @@ console.log(alice.age);   // 18
 
 ---
 
-## 5. 事件循环
+## 5. 事件循环 {#event-loop}
 
 ### 5.1 什么是事件循环（Event Loop）？
 **考点**：JavaScript执行机制核心
@@ -1096,7 +1101,7 @@ console.log('script end');
 
 ---
 
-## 6. Promise与异步编程
+## 6. Promise与异步编程 {#promise-async}
 
 ### 6.1 Promise是什么？有哪些状态？
 **考点**：异步编程基础
@@ -1547,7 +1552,7 @@ async function fetchData() {
 
 ---
 
-## 7. ES6+新特性
+## 7. ES6+新特性 {#es6-features}
 
 ### 7.1 let、const和var的区别？
 **考点**：变量声明方式
@@ -2136,7 +2141,7 @@ const proxy = new Proxy(obj, {
 
 ---
 
-## 8. 模块化
+## 8. 模块化 {#module}
 
 ### 8.1 JavaScript有哪些模块化方案？
 **考点**：模块化演进
@@ -2332,7 +2337,7 @@ async function loadModule() {
 
 ---
 
-## 9. 手写代码
+## 9. 手写代码 {#handwriting}
 
 ### 9.1 手写防抖（debounce）和节流（throttle）
 **考点**：性能优化高频手写
@@ -3342,7 +3347,7 @@ myFetch('/api/users', {
 
 ---
 
-## 10. 性能优化
+## 10. 性能优化 {#performance}
 
 ### 10.1 内存泄漏的常见原因和解决方法？
 **考点**：性能优化核心
