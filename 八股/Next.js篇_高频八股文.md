@@ -1,0 +1,1218 @@
+# 前端面试 - Next.js篇
+
+## 📌 目录
+- [1. Next.js基础概念](#1-nextjs基础概念)
+- [2. 渲染模式与策略](#2-渲染模式与策略)
+- [3. App Router（App Router）](#3-app-routerapp-router)
+- [4. Pages Router](#4-pages-router)
+- [5. 数据获取](#5-数据获取)
+- [6. 路由系统](#6-路由系统)
+- [7. API Routes](#7-api-routes)
+- [8. 性能优化](#8-性能优化)
+- [9. Next.js 14/15新特性](#9-nextjs-1415新特性)
+- [10. 常见面试题](#10-常见面试题)
+
+---
+
+## 1. Next.js基础概念
+
+### 1.1 Next.js是什么？有什么特点？
+**考点**：Next.js基础认知
+
+**Next.js定义**：
+- Vercel开发的React全栈框架
+- 支持服务端渲染（SSR）、静态生成（SSG）、增量静态再生成（ISR）
+- 内置文件系统路由、API Routes、图像优化等功能
+
+**核心特点**：
+
+1. **多种渲染模式**
+   - SSR（服务端渲染）
+   - SSG（静态站点生成）
+   - ISR（增量静态再生成）
+   - CSR（客户端渲染）
+
+2. **文件系统路由**
+   - 基于文件结构的路由系统
+   - 动态路由参数支持
+   - 路由分组和嵌套
+
+3. **API Routes**
+   - 可创建API端点
+   - 支持RESTful风格
+   - 可作为BFF层
+
+4. **开箱即用的优化**
+   - 图片优化（next/image）
+   - 字体优化（next/font）
+   - 脚本加载优化（next/script）
+
+**代码示例**：
+```jsx
+// pages/index.js (Pages Router)
+export default function Home() {
+  return <h1>Hello Next.js</h1>;
+}
+
+// app/page.tsx (App Router)
+export default function Page() {
+  return <h1>Hello Next.js 13+</h1>;
+}
+```
+
+---
+
+### 1.2 Next.js和React的区别？
+**考点**：框架对比理解
+
+| 特性 | React | Next.js |
+|-----|-------|---------|
+| **核心定位** | UI库，专注视图层 | React全栈框架 |
+| **渲染方式** | 纯客户端渲染（CSR） | SSR/SSG/ISR/CSR皆可 |
+| **路由系统** | 需搭配react-router | 内置文件系统路由 |
+| **SEO支持** | 需要额外配置 | 天生SEO友好 |
+| **API支持** | 无内置API | 内置API Routes |
+| **首屏性能** | 需要水合（hydrate） | 可预渲染 |
+| **配置复杂度** | 更灵活但需自行配置 | 约定大于配置 |
+
+**核心思想差异**：
+- React：客户端UI库，专注于构建 SPA
+- Next.js：基于React的全栈方案，提供服务端渲染能力和API层
+
+---
+
+### 1.3 App Router vs Pages Router 区别？
+**考点**：Next.js路由架构
+
+| 特性 | App Router | Pages Router |
+|-----|------------|--------------|
+| **推出版本** | Next.js 13+ | Next.js 最初引入 |
+| **目录结构** | `app/` 目录 | `pages/` 目录 |
+| **组件模型** | React Server Components | 客户端组件为主 |
+| **布局系统** | 嵌套布局（layout.tsx） | 自定义\_app.js |
+| **数据获取** | async组件 + fetch | getServerSideProps等 |
+| **路由分组** | 通过文件夹（） | 通过\_前缀 |
+| **默认状态** | 服务端组件 | 客户端渲染 |
+| **缓存策略** | 基于fetch的缓存 | 基于getStaticProps等 |
+
+**选择建议**：
+- 新项目：推荐使用 App Router（React Server Components）
+- 迁移项目：可逐步从 Pages Router 迁移到 App Router
+
+---
+
+## 2. 渲染模式与策略
+
+### 2.1 什么是SSR（服务端渲染）？
+**考点**：SSR核心概念
+
+**SSR定义**：
+- 在服务器端生成完整的HTML页面
+- 服务器返回已渲染的HTML，浏览器直接展示
+
+**工作流程**：
+```
+1. 用户请求页面
+2. 服务器执行React组件，生成HTML
+3. 返回完整HTML给浏览器
+4. 浏览器展示内容（无需等待JS下载）
+5. JS下载完成后进行"水合"（hydrate）
+```
+
+**实现方式（App Router）**：
+```tsx
+// app/page.tsx - 默认就是SSR（服务端组件）
+export default async function Page() {
+  const data = await fetch('https://api.example.com/data').then(r => r.json());
+  return <div>{data.name}</div>;
+}
+```
+
+**实现方式（Pages Router）**：
+```jsx
+// pages/index.js
+export async function getServerSideProps() {
+  const res = await fetch('https://api.example.com/data');
+  const data = await res.json();
+
+  return {
+    props: { data }, // 将数据传递给组件
+  };
+}
+
+export default function Home({ data }) {
+  return <div>{data.name}</div>;
+}
+```
+
+**适用场景**：
+- 需要SEO的页面（商品详情、博客文章）
+- 实时性要求高的页面（股票行情、新闻）
+- 个性化内容展示
+
+---
+
+### 2.2 什么是SSG（静态站点生成）？
+**考点**：SSG核心概念
+
+**SSG定义**：
+- 在构建时（build time）生成静态HTML文件
+- 构建完成后，页面是预渲染的静态文件
+
+**工作流程**：
+```
+1. 运行 npm run build
+2. Next.js 预渲染所有页面为静态HTML
+3. 生成的HTML保存在 .next/ 目录
+4. 用户请求时直接返回静态文件（CDN友好）
+```
+
+**实现方式（App Router）**：
+```tsx
+// app/blog/[slug]/page.tsx
+export default async function Page({ params }) {
+  // params.slug 可用于数据获取
+  const post = await getPost(params.slug);
+  return <article>{post.content}</article>;
+}
+
+// 标记为静态生成（默认行为，除非使用动态路由）
+export const dynamic = 'force-static';
+```
+
+**实现方式（Pages Router）**：
+```jsx
+// pages/blog/[id].js
+export async function getStaticProps({ params }) {
+  const post = await getPost(params.id);
+
+  return {
+    props: { post },
+    revalidate: 60, // ISR：60秒后重新生成
+  };
+}
+
+export async function getStaticPaths() {
+  const posts = await getAllPosts();
+  return {
+    paths: posts.map((post) => ({
+      params: { id: post.id },
+    })),
+    fallback: 'blocking', // 或 true / false
+  };
+}
+```
+
+**适用场景**：
+- 内容不频繁变化的页面（文档、博客）
+- 营销页面、落地页
+- 需要CDN加速的全球化应用
+
+---
+
+### 2.3 什么是ISR（增量静态再生成）？
+**考点**：ISR核心概念
+
+**ISR定义**：
+- 结合SSG和SSR的优点
+- 页面静态生成，但可以在运行时重新验证更新
+
+**工作流程**：
+```
+1. 首次访问：SSG生成静态页面
+2. 后续请求：返回缓存的静态页面
+3. 过期后：触发后台重新生成
+4. 生成完成：更新缓存
+```
+
+**实现方式（App Router）**：
+```tsx
+// app/blog/[slug]/page.tsx
+export default async function Page({ params }) {
+  const post = await fetch(`https://api.example.com/posts/${params.slug}`, {
+    next: { revalidate: 60 }, // 60秒后重新验证
+  }).then(r => r.json());
+
+  return <article>{post.content}</article>;
+}
+```
+
+**实现方式（Pages Router）**：
+```jsx
+export async function getStaticProps() {
+  const data = await fetchData();
+
+  return {
+    props: { data },
+    revalidate: 60, // ISR：60秒重新生成
+  };
+}
+```
+
+**revalidate 选项**：
+- `0`：不重新验证（永不过期，需要触发）
+- `60`：60秒后重新验证
+- `false`：禁用ISR（等效于0）
+
+**适用场景**：
+- 内容频繁变化但不需要实时的页面（电商商品页）
+- 博客、新闻类网站
+- 需要保持高性能同时兼顾内容更新的场景
+
+---
+
+### 2.4 什么是CSR（客户端渲染）？
+**考点**：CSR核心概念
+
+**CSR定义**：
+- 服务器只返回空HTML shell
+- 实际的DOM渲染完全在浏览器端通过JavaScript完成
+
+**实现方式（App Router）**：
+```tsx
+'use client'; // 标记为客户端组件
+
+import { useState, useEffect } from 'react';
+
+export default function Page() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/data')
+      .then(res => res.json())
+      .then(setData);
+  }, []);
+
+  return <div>{data ? data.name : 'Loading...'}</div>;
+}
+```
+
+**实现方式（Pages Router）**：
+```jsx
+import { useState, useEffect } from 'react';
+
+export default function Page() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/data')
+      .then(res => res.json())
+      .then(setData);
+  }, []);
+
+  return <div>{data ? data.name : 'Loading...'}</div>;
+}
+```
+
+**适用场景**：
+- 需要实时更新的数据（聊天、监控）
+- 用户特定内容的页面（个人仪表盘）
+- SEO要求不高的后台系统
+
+---
+
+## 3. App Router（App Router）
+
+### 3.1 什么是React Server Components？
+**考点**：RSC核心原理
+
+**RSC定义**：
+- React 18引入的新特性
+- 组件默认在服务器端渲染
+- 可以直接访问服务器资源（数据库、文件系统）
+
+**服务端组件 vs 客户端组件**：
+
+| 特性 | 服务端组件 | 客户端组件 |
+|-----|-----------|-----------|
+| **执行环境** | 服务器 | 浏览器 |
+| **访问资源** | 数据库、文件系统 | 浏览器API |
+| **交互能力** | 无（无事件监听） | 有（useState等） |
+| **产物** | 仅JSX（不打包到bundle） | JS bundle |
+| **水合** | 不需要 | 需要 |
+
+**使用示例**：
+```tsx
+// app/page.tsx - 服务端组件（默认）
+// 可以直接访问数据库，无需API
+import { db } from './lib/db';
+
+export default async function Page() {
+  const users = await db.query('SELECT * FROM users');
+
+  return (
+    <ul>
+      {users.map(user => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+}
+
+// app/dashboard/page.tsx
+'use client'; // 客户端组件
+
+import { useState } from 'react';
+
+export default function Dashboard() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(c => c + 1)}>Increment</button>
+    </div>
+  );
+}
+```
+
+---
+
+### 3.2 layout.tsx 和 page.tsx 的关系？
+**考点**：App Router布局系统
+
+**layout.tsx**：
+- 定义共享布局
+- 包裹子路由
+- 保持状态不重新渲染
+
+**page.tsx**：
+- 对应具体路由的页面
+- 是layout的子组件
+
+**嵌套示例**：
+```
+app/
+├── layout.tsx          // 根布局（全局布局）
+├── page.tsx            // 首页 (/)
+├── about/
+│   ├── page.tsx        // 关于页 (/about)
+│   └── layout.tsx      // 关于页专属布局
+└── blog/
+    ├── layout.tsx       // 博客布局
+    ├── page.tsx        // 博客列表 (/blog)
+    └── [slug]/
+        └── page.tsx    // 博客详情 (/blog/:slug)
+```
+
+**代码示例**：
+```tsx
+// app/layout.tsx - 根布局
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <header>全局导航</header>
+        <main>{children}</main>
+        <footer>全局页脚</footer>
+      </body>
+    </html>
+  );
+}
+
+// app/blog/layout.tsx - 博客布局
+export default function BlogLayout({ children }) {
+  return (
+    <aside>
+      <nav>博客导航</nav>
+      <article>{children}</article>
+    </aside>
+  );
+}
+```
+
+---
+
+### 3.3 metadata 如何配置？
+**考点**：SEO优化
+
+**配置方式**：
+```tsx
+// app/page.tsx - 静态metadata
+export const metadata = {
+  title: '首页标题',
+  description: '首页描述',
+  keywords: ['关键词1', '关键词2'],
+};
+
+export default function Page() {
+  return <h1>Hello</h1>;
+}
+
+// app/[slug]/page.tsx - 动态metadata
+export async function generateMetadata({ params }) {
+  const post = await getPost(params.slug);
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      images: [post.thumbnail],
+    },
+  };
+}
+
+export default function Page({ params }) {
+  return <article>{/* ... */}</article>;
+}
+```
+
+**常见配置项**：
+- `title`：页面标题
+- `description`：页面描述
+- `keywords`：关键词（部分搜索引擎支持）
+- `openGraph`：社交分享配置
+- `twitter`：Twitter分享配置
+- `robots`：搜索引擎爬虫配置
+
+---
+
+## 4. Pages Router
+
+### 4.1 getServerSideProps 如何使用？
+**考点**：SSR数据获取
+
+**基本用法**：
+```jsx
+export async function getServerSideProps(context) {
+  const { params, req, res, query } = context;
+
+  // req: 请求对象
+  // res: 响应对象
+  // params: 路由参数
+  // query: 查询参数
+
+  const response = await fetch(`https://api.example.com/data`);
+  const data = await response.json();
+
+  if (!data) {
+    return {
+      notFound: true, // 返回404页面
+    };
+  }
+
+  return {
+    props: { data }, // 传递给组件
+  };
+}
+
+export default function Page({ data }) {
+  return <div>{data.name}</div>;
+}
+```
+
+**重定向**：
+```jsx
+export async function getServerSideProps(context) {
+  const user = await getUser(context.params.id);
+
+  if (!user) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false, // 临时重定向
+      },
+    };
+  }
+
+  return {
+    props: { user },
+  };
+}
+```
+
+---
+
+### 4.2 getStaticProps 和 getStaticPaths 如何配合？
+**考点**：SSG数据获取
+
+**getStaticProps** - 获取页面数据：
+```jsx
+export async function getStaticProps(context) {
+  const { params } = context;
+
+  const post = await getPost(params.slug);
+
+  return {
+    props: { post },
+    revalidate: 60, // ISR：60秒后重新生成
+  };
+}
+```
+
+**getStaticPaths** - 定义静态路径：
+```jsx
+export async function getStaticPaths() {
+  const posts = await getAllPosts();
+
+  return {
+    paths: posts.map((post) => ({
+      params: { slug: post.slug },
+    })),
+    fallback: 'blocking', // 或 true / false
+  };
+}
+```
+
+**fallback 选项**：
+| 值 | 说明 |
+|----|------|
+| `false` | 未匹配的路径返回404 |
+| `true` | 未匹配的路径先生成页面（不阻塞），后续请求返回缓存 |
+| `'blocking'` | 未匹配的路径在服务器端生成页面（阻塞），完成后缓存 |
+
+---
+
+## 5. 数据获取
+
+### 5.1 App Router 如何获取数据？
+**考点**：App Router数据获取模式
+
+**服务端组件直接获取**：
+```tsx
+// 方式1：直接使用async/await
+export default async function Page() {
+  const res = await fetch('https://api.example.com/data');
+  const data = await res.json();
+
+  return <div>{data.name}</div>;
+}
+
+// 方式2：使用数据库SDK（直接访问数据库）
+import { db } from '@/lib/db';
+
+export default async function Page() {
+  const users = await db.select().from(usersTable);
+  return (
+    <ul>
+      {users.map(user => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+**指定缓存策略**：
+```tsx
+export default async function Page() {
+  // 默认：force-cache（缓存优先）
+  const cachedData = await fetch('https://api.example.com/data');
+
+  // 每次都重新获取
+  const freshData = await fetch('https://api.example.com/data', {
+    cache: 'no-store',
+  });
+
+  // 10秒后过期
+  const timedData = await fetch('https://api.example.com/data', {
+    next: { revalidate: 10 },
+  });
+
+  return <div>{/* ... */}</div>;
+}
+```
+
+**缓存标签（Cache Tags）**：
+```tsx
+// 设置缓存标签
+export default async function Page() {
+  await fetch('https://api.example.com/data', {
+    next: { tags: ['products'] },
+  });
+}
+
+// 基于标签重新验证
+import { revalidateTag } from 'next/cache';
+
+revalidateTag('products');
+```
+
+---
+
+### 5.2 如何处理数据请求错误？
+**考点**：错误处理
+
+**App Router 错误处理**：
+```tsx
+// app/blog/[slug]/page.tsx
+import { notFound } from 'next/navigation';
+
+export default async function Page({ params }) {
+  const post = await getPost(params.slug);
+
+  if (!post) {
+    notFound(); // 触发not-found.tsx
+  }
+
+  return <article>{post.content}</article>;
+}
+
+// error.tsx - 错误边界
+'use client';
+
+export default function Error({ error, reset }) {
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button onClick={() => reset()}>Try again</button>
+    </div>
+  );
+}
+
+// not-found.tsx - 404页面
+export default function NotFound() {
+  return <h1>Page not found</h1>;
+}
+```
+
+**Pages Router 错误处理**：
+```jsx
+// pages/404.js
+export default function NotFound() {
+  return <h1>404 - Page Not Found</h1>;
+}
+
+// _error.js - 错误页面
+function Error({ statusCode }) {
+  return (
+    <div>
+      <h1>Error {statusCode}</h1>
+      {statusCode === 404 && <p>Page not found</p>}
+      {statusCode === 500 && <p>Server error</p>}
+    </div>
+  );
+}
+
+Error.getInitialProps = ({ res, err }) => {
+  const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
+  return { statusCode };
+};
+
+export default Error;
+```
+
+---
+
+## 6. 路由系统
+
+### 6.1 如何定义动态路由？
+**考点**：动态路由
+
+**App Router 动态路由**：
+```tsx
+// app/blog/[slug]/page.tsx
+// 访问 /blog/nextjs-guide
+
+export default async function Page({ params }) {
+  // params = { slug: 'nextjs-guide' }
+  return <div>Post: {params.slug}</div>;
+}
+```
+
+**App Router 多层动态路由**：
+```tsx
+// app/blog/[category]/[slug]/page.tsx
+// 访问 /blog/react/nextjs-guide
+
+export default async function Page({ params }) {
+  // params = { category: 'react', slug: 'nextjs-guide' }
+  return <div>{params.category} - {params.slug}</div>;
+}
+```
+
+**Pages Router 动态路由**：
+```jsx
+// pages/blog/[slug].js
+// 访问 /blog/nextjs-guide
+
+export async function getStaticPaths() {
+  return {
+    paths: [{ params: { slug: 'nextjs-guide' } }],
+    fallback: false,
+  };
+}
+
+export async function getStaticProps({ params }) {
+  const post = await getPost(params.slug);
+  return { props: { post } };
+}
+
+export default function BlogPost({ post }) {
+  return <div>{post.title}</div>;
+}
+```
+
+---
+
+### 6.2 路由分组有什么用？
+**考点**：App Router高级路由
+
+**路由分组**（用括号包裹的文件夹）：
+```
+app/
+├── (marketing)/
+│   ├── about/
+│   │   └── page.tsx    // /about
+│   ├── contact/
+│   │   └── page.tsx    // /contact
+│   └── layout.tsx      // 营销布局
+└── (shop)/
+    ├── products/
+    │   └── page.tsx    // /products
+    └── cart/
+        └── page.tsx    // /cart
+```
+
+**特点**：
+- URL 不包含分组文件夹名
+- 可以为不同组设置不同布局
+- 用于组织代码结构，不影响URL
+
+---
+
+### 6.3 parallel routes 和 intercepting routes 是什么？
+**考点**：高级路由模式
+
+**Parallel Routes（并行路由）**：
+- 同一布局中同时渲染多个页面
+- 使用 `@folder` 语法
+
+```tsx
+// app/@feed/page.tsx   - Feed内容
+// app/@sidebar/page.tsx - 侧边栏
+// app/layout.tsx
+
+export default function Layout({ feed, sidebar }) {
+  return (
+    <div>
+      <nav>{sidebar}</nav>
+      <main>{feed}</main>
+    </div>
+  );
+}
+
+// 使用插槽
+export default function Layout({
+  children,
+  feed,
+  sidebar,
+}: {
+  children: React.ReactNode;
+  feed: React.ReactNode;
+  sidebar: React.ReactNode;
+}) {
+  return (
+    <div>
+      <nav>{sidebar}</nav>
+      <main>{feed}</main>
+      {children}
+    </div>
+  );
+}
+```
+
+**Intercepting Routes（拦截路由）**：
+- 从另一个路由"拦截"导航
+- 用于Modal等场景
+
+```tsx
+// app/@modal/(.)photo/[id]/page.tsx
+// 拦截 /photo/[id] 导航，显示为Modal
+
+// 访问 /photo/1 时：
+// - 如果是直接访问 → 显示完整页面
+// - 如果是弹窗打开 → 显示Modal内容
+```
+
+**适用场景**：
+- Photo Gallery（点击图片打开Modal）
+- 通知面板
+- 购物车侧边栏
+
+---
+
+## 7. API Routes
+
+### 7.1 如何创建API Routes？
+**考点**：API Routes基础
+
+**App Router API Routes**：
+```tsx
+// app/api/users/route.ts
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  const users = await db.select().from(usersTable);
+  return NextResponse.json(users);
+}
+
+export async function POST(request: Request) {
+  const body = await request.json();
+
+  const newUser = await db.insert(usersTable).values(body).returning();
+
+  return NextResponse.json(newUser, { status: 201 });
+}
+```
+
+**Pages Router API Routes**：
+```jsx
+// pages/api/users.js
+export default function handler(req, res) {
+  if (req.method === 'GET') {
+    res.status(200).json({ name: 'John' });
+  } else if (req.method === 'POST') {
+    const body = req.body;
+    res.status(201).json({ id: 1, ...body });
+  }
+}
+```
+
+---
+
+### 7.2 如何处理动态API路由？
+**考点**：动态API路由
+
+**App Router**：
+```tsx
+// app/api/users/[id]/route.ts
+import { NextResponse } from 'next/server';
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const user = await getUser(params.id);
+
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  return NextResponse.json(user);
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const body = await request.json();
+  const updated = await updateUser(params.id, body);
+  return NextResponse.json(updated);
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  await deleteUser(params.id);
+  return NextResponse.json({ success: true }, { status: 204 });
+}
+```
+
+---
+
+## 8. 性能优化
+
+### 8.1 next/image 相比普通 img 有什么优势？
+**考点**：图像优化
+
+**优势**：
+1. **自动优化格式** - WebP/AVIF
+2. **响应式图片** - 自动生成多尺寸
+3. **懒加载** - 默认懒加载
+4. **防止布局偏移** - 自动设置宽高
+5. **模糊占位符** - 支持blurDataURL
+
+**使用示例**：
+```tsx
+import Image from 'next/image';
+
+export default function Page() {
+  return (
+    <Image
+      src="/hero.jpg"
+      alt="Hero image"
+      width={800}
+      height={600}
+      priority // 优先加载
+      placeholder="blur" // 模糊占位
+      blurDataURL="data:image/jpeg;base64,..." // base64模糊图
+    />
+  );
+}
+```
+
+**sizes 属性**：
+```tsx
+<Image
+  src="/image.jpg"
+  alt="Responsive"
+  fill // 填充父容器
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+/>
+```
+
+---
+
+### 8.2 next/script 如何优化脚本加载？
+**考点**：脚本优化
+
+**加载策略**：
+| 策略 | 说明 | 使用场景 |
+|-----|------|---------|
+| `afterInteractive` | 页面加载后执行（默认） | 分析工具、聊天Widget |
+| `beforeInteractive` | 页面交互前加载 | 关键脚本 |
+| `lazyOnload` | 所有加载完成后 | 非关键脚本 |
+| `worker` | Web Worker中运行 | 第三方脚本 |
+
+**使用示例**：
+```tsx
+import Script from 'next/script';
+
+export default function Page() {
+  return (
+    <>
+      <h1>My Page</h1>
+
+      {/* Google Analytics - 页面加载后执行 */}
+      <Script
+        src="https://googletagmanager.com/gtag/js?id=GA_ID"
+        strategy="afterInteractive"
+        onLoad={() => {
+          // 加载完成后的回调
+        }}
+      />
+
+      {/* 关键脚本 - 优先加载 */}
+      <Script
+        src="/critical.js"
+        strategy="beforeInteractive"
+      />
+
+      {/* 第三方Widget - 懒加载 */}
+      <Script
+        src="/chat-widget.js"
+        strategy="lazyOnload"
+      />
+    </>
+  );
+}
+```
+
+---
+
+### 8.3 next/font 如何优化字体？
+**考点**：字体优化
+
+**使用示例**：
+```tsx
+import { Inter } from 'next/font/google';
+
+// 加载Google字体
+const inter = Inter({ subsets: ['latin'] });
+
+// 或使用本地字体
+// import localFont from 'next/font/local';
+
+export default function Layout({ children }) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>{children}</body>
+    </html>
+  );
+}
+```
+
+**优势**：
+- 自动下载字体文件到本地
+- 无需额外网络请求到Google
+- 自动设置 `font-display: swap`
+- 预加载关键字体文件
+
+---
+
+### 8.4 如何进行代码分割和懒加载？
+**考点**：性能优化
+
+**React 懒加载**：
+```tsx
+import dynamic from 'next/dynamic';
+
+const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
+  loading: () => <p>Loading...</p>,
+  ssr: true, // 是否在服务端渲染
+});
+
+export default function Page() {
+  return (
+    <div>
+      <h1>Main Content</h1>
+      <HeavyComponent />
+    </div>
+  );
+}
+```
+
+**禁用SSR的懒加载**：
+```tsx
+const NoSSRComponent = dynamic(() => import('./NoSSRComponent'), {
+  ssr: false,
+});
+```
+
+**自定义加载时机**：
+```tsx
+const ChartComponent = dynamic(() => import('./Chart'), {
+  loading: () => <ChartSkeleton />,
+  ssr: false,
+});
+```
+
+---
+
+## 9. Next.js 14/15新特性
+
+### 9.1 Next.js 14 有哪些新特性？
+**考点**：Next.js 14
+
+**主要新特性**：
+
+1. **Server Actions（稳定版）**
+   - 在服务端直接执行数据库操作
+   - 简化表单处理和mutation
+
+```tsx
+// app/actions.ts
+'use server';
+
+export async function createPost(formData: FormData) {
+  const title = formData.get('title');
+
+  await db.insert(postsTable).values({ title });
+
+  revalidatePath('/blog');
+}
+
+// app/blog/new/page.tsx
+import { createPost } from '@/app/actions';
+
+export default function NewPost() {
+  return (
+    <form action={createPost}>
+      <input name="title" type="text" />
+      <button type="submit">Create</button>
+    </form>
+  );
+}
+```
+
+2. **Turbopack（Beta）**
+   - 新的打包工具
+   - 比Webpack快10倍
+
+3. **Partial Prerendering（预览版）**
+   - 静态外壳 + 动态内容
+   - 保持静态性能的同时支持动态内容
+
+---
+
+### 9.2 Next.js 15 有哪些新特性？
+**考点**：Next.js 15
+
+**主要新特性**：
+
+1. **Turbopack 稳定版**
+   - 生产环境支持
+   - 显著的构建速度提升
+
+2. **React 19 支持**
+   - 完整支持 React 19 新特性
+   - 改进的 `use()` hook
+
+3. **缓存策略调整**
+   - `fetch` 请求默认不缓存（`cache: no-store`）
+   - 更加可预测的数据获取行为
+
+4. **改进的错误处理**
+   - 更好的错误消息
+   - 更清晰的调试信息
+
+5. **自托管改进**
+   - 更好的容器化支持
+   - 改进的构建输出
+
+---
+
+## 10. 常见面试题
+
+### 10.1 Next.js 的渲染方式有哪些？如何选择？
+**答案要点**：
+- SSR：服务端渲染，适合SEO和实时性页面
+- SSG：静态生成，适合内容固定的页面，性能最优
+- ISR：增量静态再生成，平衡性能和内容更新
+- CSR：客户端渲染，适合个性化、交互性强的页面
+- 选择依据：SEO需求、内容更新频率、实时性要求
+
+---
+
+### 10.2 App Router 和 Pages Router 有什么区别？
+**答案要点**：
+- 架构：App Router基于React Server Components，Pages Router基于客户端渲染
+- 默认行为：App Router默认服务端渲染，Pages Router默认客户端渲染
+- 布局系统：App Router用layout.tsx，Pages Router用_app.js
+- 数据获取：App Router用async组件，Pages Router用getServerSideProps等
+- 建议：新项目使用App Router
+
+---
+
+### 10.3 Next.js 如何实现SEO优化？
+**答案要点**：
+- 使用App Router的metadata API或Pages Router的Head组件
+- 利用SSR/SSG实现服务端渲染，提升爬虫抓取
+- 使用next/image优化图片，添加alt属性
+- 生成sitemap.xml和robots.txt
+- 使用结构化数据（JSON-LD）
+- 设置合理的meta标签（title、description、keywords）
+
+---
+
+### 10.4 什么是 Server Actions？如何使用？
+**答案要点**：
+- 在服务端执行的异步函数
+- 可以从客户端组件调用
+- 简化表单处理和数据mutation
+- 自动处理CSRF保护
+- 支持乐观更新
+
+---
+
+### 10.5 Next.js 的缓存机制是怎样的？
+**答案要点**：
+- **fetch缓存**：通过 `cache` 选项控制
+- **revalidate**：基于时间的缓存失效
+- **revalidateTag**：基于标签的缓存失效
+- **Router缓存**：客户端对路由的缓存
+- **Full Route Cache**：完整的预渲染路由缓存
+- **Data Cache**：服务端数据缓存
+
+---
+
+### 10.6 Next.js 14 的 Turbopack 相比 Webpack 有什么优势？
+**答案要点**：
+- 构建速度提升10倍
+- 更好的增量编译
+- 原生支持Rust
+- 更少的内存占用
+- 改进的日志和错误提示
+
+---
+
+### 10.7 如何部署 Next.js 应用？
+**答案要点**：
+- **Vercel**（官方推荐）：一键部署，自动配置
+- **自托管**：使用Node.js服务器或Docker
+- **静态导出**：`output: 'export'` 生成纯静态文件
+- **Serverless**：部署到AWS Lambda、Vercel Edge等
+- 部署时注意环境变量、构建命令、输出目录配置
