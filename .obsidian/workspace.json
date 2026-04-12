@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "b6febe532a1a85e9",
+        "id": "4da720fce7446b93",
         "type": "tabs",
         "children": [
           {
-            "id": "6f14f00ec85ed341",
+            "id": "b593d491c7139ffc",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "八股/React篇_高频八股文.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "React篇_高频八股文"
+              "title": "新标签页"
             }
           }
         ]
@@ -138,13 +134,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "八股/React篇_高频八股文.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "React篇_高频八股文 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -195,11 +190,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "6f14f00ec85ed341",
+  "active": "b593d491c7139ffc",
   "lastOpenFiles": [
+    "八股/React篇_高频八股文.md",
     "八股/JavaScript篇_高频八股文.md",
     "八股/react-interview-questions.md",
-    "八股/React篇_高频八股文.md",
     "八股/浏览器篇_高频八股文.md",
     "八股/浏览器篇",
     "八股/浏览器/浏览器篇_高频八股文.md",

@@ -8,8 +8,9 @@
 - [5. 状态管理与通信](#5-状态管理与通信)
 - [6. 性能优化](#6-性能优化)
 - [7. React 18新特性](#7-react-18新特性)
-- [8. 常见面试题](#8-常见面试题)
-- [9. 手写代码](#9-手写代码)
+- [8. React 19新特性](#8-react-19新特性)
+- [9. 常见面试题](#9-常见面试题)
+- [10. 手写代码](#10-手写代码)
 
 ---
 
@@ -2126,9 +2127,402 @@ function Typeahead() {
 
 ---
 
-## 8. 常见面试题
+## 8. React 19新特性
 
-### 8.1 React中的key有什么作用？
+### 8.1 React 19有哪些主要新特性？
+**考点**：React 19核心变化
+
+**React 19 于 2024年12月正式发布**
+
+**1. React Compiler（原React Forget）**：
+- 自动将组件转换为符合编译时规则的代码
+- 不再需要手动useMemo、useCallback
+- 显著提升性能，减少重新渲染
+
+```jsx
+// React 19 Compiler 自动优化
+function ProductPage({ product, addToCart }) {
+  return (
+    <div>
+      <ProductDetails product={product} />
+      <button onClick={() => addToCart(product.id)}>
+        Add to Cart
+      </button>
+    </div>
+  );
+}
+// React Compiler 自动添加 memoization
+```
+
+**2. Actions（操作）**：
+- 简化表单和异步操作
+- 自动处理pending状态、错误处理、乐观更新
+
+**useActionState**：
+```jsx
+import { useActionState } from 'react';
+
+async function submitForm(prevState, formData) {
+  const response = await fetch('/api/submit', {
+    method: 'POST',
+    body: formData
+  });
+  return await response.json();
+}
+
+function Form() {
+  const [state, formAction, isPending] = useActionState(submitForm, null);
+
+  return (
+    <form action={formAction}>
+      <input name="email" type="email" />
+      <button type="submit" disabled={isPending}>
+        {isPending ? '提交中...' : '提交'}
+      </button>
+      {state?.error && <p>{state.error}</p>}
+    </form>
+  );
+}
+```
+
+**useFormStatus**：
+```jsx
+import { useFormStatus } from 'react';
+
+function SubmitButton() {
+  const { pending, method, action, data } = useFormStatus();
+
+  return (
+    <button type="submit" disabled={pending}>
+      {pending ? '提交中...' : '提交'}
+    </button>
+  );
+}
+
+function Form() {
+  return (
+    <form action={async (formData) => {
+      await fetch('/api/submit', { method: 'POST', body: formData });
+    }}>
+      <input name="email" />
+      <SubmitButton />
+    </form>
+  );
+}
+```
+
+**3. use() Hook**：
+- 可以在Hooks中使用Promise和Context
+- 支持条件调用（不再是顶层调用）
+
+```jsx
+import { use, Suspense } from 'react';
+
+// 使用Promise
+function UserProfile({ userPromise }) {
+  const user = use(userPromise); // 类似await，但不会阻塞渲染
+
+  return <div>{user.name}</div>;
+}
+
+// 使用Context
+function ThemeProvider({ theme, children }) {
+  const context = use(ThemeContext);
+  return (
+    <ThemeContext.Provider value={theme}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// 条件调用（React 19新增）
+function Comments({ commentsPromise, showComments }) {
+  // ✅ use()允许条件调用
+  const comments = showComments ? use(commentsPromise) : null;
+
+  return (
+    <div>
+      <h1>Comments</h1>
+      {comments && <CommentList comments={comments} />}
+    </div>
+  );
+}
+```
+
+**4. Server Components（服务端组件）**：
+- 组件默认在服务端渲染
+- 减少客户端JavaScript体积
+- 直接访问服务端资源（数据库、文件系统）
+
+```jsx
+// Server Component - 默认在服务端渲染
+async function UserList() {
+  // 直接访问数据库，不需要API
+  const users = await db.query('SELECT * FROM users');
+
+  return (
+    <ul>
+      {users.map(user => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+}
+
+// Client Component - 需要交互
+'use client'; // 标记为客户端组件
+function LikeButton({ postId }) {
+  const [liked, setLiked] = useState(false);
+
+  return (
+    <button onClick={() => setLiked(!liked)}>
+      {liked ? '❤️' : '🤍'}
+    </button>
+  );
+}
+```
+
+**5. 改进的ref处理**：
+- ref可以作为prop直接传递
+- 不再需要forwardRef（但仍支持）
+
+```jsx
+// React 18 - 需要forwardRef
+const Button = React.forwardRef((props, ref) => {
+  return <button ref={ref}>{props.children}</button>;
+});
+
+// React 19 - ref作为普通prop
+function Button({ ref, children }) {
+  return <button ref={ref}>{children}</button>;
+}
+// 或直接使用
+function Button({ children }) {
+  return <button>{children}</button>;
+}
+
+// ref通过props传递
+<Button ref={buttonRef}>Click</Button>
+```
+
+**6. 新的Meta标签API**：
+```jsx
+function ProductPage() {
+  return (
+    <>
+      <title>Product Name</title>
+      <meta name="description" content="Product description" />
+      <link rel="canonical" href="https://example.com/product" />
+      <html lang="en" />
+      <body>
+        <ProductDetails />
+      </body>
+    </>
+  );
+}
+```
+
+**7. 样式表支持**：
+```jsx
+function Component() {
+  return (
+    <>
+      <style>{`
+        .button {
+          background: blue;
+        }
+      `}</style>
+      <button className="button">Click</button>
+    </>
+  );
+}
+
+// 样式优先级自动处理
+function CSSInJS() {
+  return (
+    <>
+      <link rel="stylesheet" href="base.css" precedence="default" />
+      <link rel="stylesheet" href="theme.css" precedence="high" />
+      <div className="theme">Themed Content</div>
+    </>
+  );
+}
+```
+
+**8. 资源预加载API**：
+```jsx
+import { prefetchDNS, preconnect, preload, preinit } from 'react-dom';
+
+function App() {
+  return (
+    <>
+      {/* 预加载DNS */}
+      <link rel="dns-prefetch" href="https://api.example.com" />
+      {/* 预连接 */}
+      <link rel="preconnect" href="https://cdn.example.com" />
+      {/* 预加载资源 */}
+      <link rel="preload" href="/fonts/custom.woff2" as="font" />
+      {/* 预初始化脚本 */}
+      <script dangerouslySetInnerHTML={{ __html: `
+        __INITIAL_STATE__ = ${JSON.stringify(data)};
+      `}} />
+    </>
+  );
+}
+```
+
+**9. 改进的错误处理**：
+```jsx
+// ErrorBoundary支持更多场景
+class ErrorBoundary extends React.Component {
+  static getDerivedStateFromError(error) {
+    return { error, hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // React 19提供更详细的错误信息
+    console.log('Error:', error);
+    console.log('Component Stack:', errorInfo.componentStack);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>出错了</h1>;
+    }
+    return this.props.children;
+  }
+}
+```
+
+**10. Web Components支持**：
+```jsx
+function WebComponentWrapper() {
+  return (
+    <custom-element
+      prop1="value"
+      onEvent={() => console.log('event')}
+    />
+  );
+}
+```
+
+---
+
+### 8.2 React 19和React 18的区别？
+**考点**：版本对比理解
+
+| 特性 | React 18 | React 19 |
+|-----|----------|----------|
+| **编译器** | 无 | React Compiler（自动优化） |
+| **表单处理** | 手动处理 | Actions（useActionState、useFormStatus） |
+| **Promise处理** | 需要useEffect+state | use() Hook直接使用 |
+| **ref处理** | 需要forwardRef | ref作为普通prop |
+| **Server Components** | 实验性 | 正式支持 |
+| **条件Hooks** | ❌ 不允许 | ✅ 允许（use()） |
+| **错误处理** | 基础 | 改进的组件栈信息 |
+
+**迁移建议**：
+1. **逐步升级** - 先升级到React 18确保兼容
+2. **移除forwardRef** - 改用ref作为prop
+3. **采用Actions** - 简化表单处理
+4. **安装React Compiler** - 自动性能优化
+
+---
+
+### 8.3 React Compiler是什么？如何使用？
+**考点**：React 19核心编译器
+
+**React Compiler（原名React Forget）**：
+- 自动为组件添加memoization
+- 确保组件符合规则（纯函数、不 mutate state）
+- 编译时优化，减少运行时开销
+
+**解决的问题**：
+```jsx
+// 之前：需要手动优化
+function ProductList({ products, filter }) {
+  const filteredProducts = useMemo(() => {
+    return products.filter(p => p.category === filter);
+  }, [products, filter]);
+
+  const handleClick = useCallback((id) => {
+    dispatch({ type: 'SELECT', id });
+  }, []);
+
+  return (
+    <ul>
+      {filteredProducts.map(product => (
+        <ProductItem
+          key={product.id}
+          product={product}
+          onClick={handleClick}
+        />
+      ))}
+    </ul>
+  );
+}
+
+// React Compiler：自动优化
+function ProductList({ products, filter }) {
+  const filteredProducts = products.filter(p => p.category === filter);
+
+  return (
+    <ul>
+      {filteredProducts.map(product => (
+        <ProductItem
+          key={product.id}
+          product={product}
+          onClick={() => dispatch({ type: 'SELECT', id: product.id })}
+        />
+      ))}
+    </ul>
+  );
+}
+```
+
+**使用条件**：
+```jsx
+// 编译器只优化"合规"的组件
+// 合规组件的特点：
+// 1. 不直接修改state（通过setState）
+// 2. 不修改props或外部变量
+// 3. 组件是纯函数
+
+// 违规示例（会导致编译错误）
+function BadComponent({ items }) {
+  const [count, setCount] = useState(0);
+
+  // ❌ 直接修改外部变量
+  window.count = count;
+
+  // ❌ 直接修改props
+  items.push('new');
+
+  return <div>{count}</div>;
+}
+```
+
+**配置**：
+```bash
+# 安装
+npm install @babel/plugin-react-compiler
+
+# babel.config.js
+module.exports = {
+  plugins: [
+    ['@babel/plugin-react-compiler', {
+      // 启用严格模式
+      runtime: 'automatic',
+    }],
+  ],
+};
+```
+
+---
+
+## 9. 常见面试题
+
+### 9.1 React中的key有什么作用？
 **考点**：列表渲染核心
 
 **key的作用**：
@@ -2183,7 +2577,7 @@ const StaticList = () => (
 
 ---
 
-### 8.2 为什么虚拟DOM能提升性能？
+### 9.2 为什么虚拟DOM能提升性能？
 **考点**：虚拟DOM核心原理
 
 **直接操作DOM的问题**：
