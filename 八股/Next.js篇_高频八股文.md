@@ -1839,3 +1839,60 @@ export default function NewPost() {
 - **逻辑不变**：导出的函数从 `middleware` 改名为 `proxy`
 - **原因**：更清晰的命名，明确网络边界
 - **兼容性**：middleware.ts 仍可用于 Edge runtime，但已弃用
+
+---
+
+### 12.11 revalidatePath 和 revalidateTag 有什么区别？
+**答案要点**：
+- **revalidatePath**：重新验证特定路径下的所有缓存
+  - 适合页面级别的缓存失效
+  - 例如：`revalidatePath('/blog')` 会失效 `/blog` 下所有页面的缓存
+- **revalidateTag**：重新验证特定标签关联的所有缓存
+  - 适合跨多个页面的相关数据
+  - 例如：`revalidateTag('products')` 失效所有标记为 'products' 的 fetch 缓存
+- **使用场景**：
+  - 数据变更影响单一页面 → 用 revalidatePath
+  - 数据变更影响多个页面（如同一个组件被多个页面使用）→ 用 revalidateTag
+
+---
+
+### 12.12 什么是 Streaming？适合什么场景？
+**答案要点**：
+- Streaming 允许分块传输页面内容
+- 首屏快速加载，耗时操作后加载
+- 通过 React Suspense 实现
+- **适用场景**：
+  - 数据获取耗时的页面
+  - 需要良好首屏体验的页面
+  - 长列表、评论等次要内容
+
+---
+
+### 12.13 Next.js 如何优化 Core Web Vitals？
+**答案要点**：
+- **LCP (Largest Contentful Paint)**：
+  - 使用 `next/image` 的 `priority` 属性优化首屏图片
+  - 使用 SSG/SSR 预渲染首屏内容
+  - 优化字体加载（`next/font`）
+- **FID/INP (Interaction to Next Paint)**：
+  - 减少客户端 JavaScript
+  - 使用 React Compiler 自动优化重渲染
+  - 代码分割，按需加载
+- **CLS (Cumulative Layout Shift)**：
+  - 为图片指定宽高或使用 `fill` 属性
+  - 使用 `next/font` 优化字体加载
+  - 避免动态插入内容
+
+---
+
+### 12.14 Parallel Routes 和 Intercepting Routes 有什么区别？
+**答案要点**：
+- **Parallel Routes（@slot）**：
+  - 同一布局中同时渲染多个页面
+  - 用于如 Instagram 的照片+点赞+评论同时展示
+  - 使用 `@folder` 语法
+- **Intercepting Routes**：
+  - 从另一个路由"拦截"导航显示
+  - 用于如点击图片打开 Modal 而不是跳转页面
+  - 使用 `(.)folder` 语法
+- **组合使用**：可以实现 Instagram 照片流点击后模态框打开的效果
