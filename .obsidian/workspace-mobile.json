@@ -139,12 +139,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/React/React Router.md",
+                "file": "八股/React篇_高频八股文.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "React Router"
+              "title": "React篇_高频八股文"
             }
           }
         ],
@@ -298,6 +298,17 @@
   },
   "active": "76e0415c2037d895",
   "lastOpenFiles": [
+    "/八股/浏览器篇_高频八股文.md",
+    "/八股/React篇_高频八股文.md",
+    "/八股/Next.js篇_高频八股文.md",
+    "/八股/JavaScript篇_高频八股文.md",
+    "/八股",
+    "Front-end notes/React/React Router.md",
+    "八股/JavaScript篇_高频八股文.md",
+    "八股/React篇_高频八股文.md",
+    "八股/Next.js篇_高频八股文.md",
+    "八股/浏览器篇_高频八股文.md",
+    "八股",
     "Front-end notes/React/构建Mini React.md",
     "Project notes/resonance/需求.canvas",
     "/Project notes/resonance/需求.canvas",
@@ -324,19 +335,8 @@
     "Front-end notes/tRPC.md",
     "/Front-end notes/tRPC.md",
     "Front-end notes/JavaScript/Event Loop.md",
-    "/Project notes/resonance/Resonance.md",
-    "/Front-end notes/JavaScript/Promise.md",
-    "/Project notes/resonance/第四章.md",
-    "Project notes/resonance/第四章.md",
-    "/Front-end notes/JavaScript/Class.md",
-    "Front-end notes/JavaScript/Class.md",
-    "学习/技术栈.md",
-    "Front-end notes/JavaScript/Proto.md",
-    "Front-end notes/TanStack Form.md",
     "/Front-end notes/Next.JS",
     "Front-end notes/JavaScript",
-    "/Front-end notes/Tailwind CSS",
-    "/Excalidraw",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "/Project notes/nextjs-dashboard/添加搜索功能.canvas",
