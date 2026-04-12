@@ -1238,7 +1238,7 @@ export default function Page() {
 
 ---
 
-### 8.3 next/font 如何优化字体？
+### 10.3 next/font 如何优化字体？
 **考点**：字体优化
 
 **使用示例**：
@@ -1268,7 +1268,7 @@ export default function Layout({ children }) {
 
 ---
 
-### 8.4 如何进行代码分割和懒加载？
+### 10.4 如何进行代码分割和懒加载？
 **考点**：性能优化
 
 **React 懒加载**：
@@ -1307,7 +1307,7 @@ const ChartComponent = dynamic(() => import('./Chart'), {
 
 ---
 
-## 9. Next.js 14/15/16新特性
+## 11. Next.js 14/15/16新特性
 
 ### 9.1 Next.js 16 有哪些新特性？
 **考点**：Next.js 16 (2025年10月发布)
@@ -1556,9 +1556,9 @@ export default function NewPost() {
 
 ---
 
-## 10. 常见面试题
+## 12. 常见面试题
 
-### 10.1 Next.js 的渲染方式有哪些？如何选择？
+### 12.1 Next.js 的渲染方式有哪些？如何选择？
 **答案要点**：
 - SSR：服务端渲染，适合SEO和实时性页面
 - SSG：静态生成，适合内容固定的页面，性能最优
@@ -1568,7 +1568,7 @@ export default function NewPost() {
 
 ---
 
-### 10.2 App Router 和 Pages Router 有什么区别？
+### 12.2 App Router 和 Pages Router 有什么区别？
 **答案要点**：
 - 架构：App Router基于React Server Components，Pages Router基于客户端渲染
 - 默认行为：App Router默认服务端渲染，Pages Router默认客户端渲染
@@ -1578,7 +1578,7 @@ export default function NewPost() {
 
 ---
 
-### 10.3 Next.js 如何实现SEO优化？
+### 12.3 Next.js 如何实现SEO优化？
 **答案要点**：
 - 使用App Router的metadata API或Pages Router的Head组件
 - 利用SSR/SSG实现服务端渲染，提升爬虫抓取
@@ -1589,7 +1589,7 @@ export default function NewPost() {
 
 ---
 
-### 10.4 什么是 Server Actions？如何使用？
+### 12.4 什么是 Server Actions？如何使用？
 **答案要点**：
 - 在服务端执行的异步函数
 - 可以从客户端组件调用
@@ -1599,7 +1599,7 @@ export default function NewPost() {
 
 ---
 
-### 10.5 Next.js 的缓存机制是怎样的？
+### 12.5 Next.js 的缓存机制是怎样的？
 **答案要点**：
 - **fetch缓存**：通过 `cache` 选项控制
 - **revalidate**：基于时间的缓存失效
@@ -1610,7 +1610,7 @@ export default function NewPost() {
 
 ---
 
-### 10.6 Next.js 14 的 Turbopack 相比 Webpack 有什么优势？
+### 12.6 Turbopack 相比 Webpack 有什么优势？
 **答案要点**：
 - 构建速度提升10倍
 - 更好的增量编译
@@ -1620,7 +1620,7 @@ export default function NewPost() {
 
 ---
 
-### 10.7 如何部署 Next.js 应用？
+### 12.7 如何部署 Next.js 应用？
 **答案要点**：
 - **Vercel**（官方推荐）：一键部署，自动配置
 - **自托管**：使用Node.js服务器或Docker
@@ -1630,7 +1630,7 @@ export default function NewPost() {
 
 ---
 
-### 10.8 Next.js 16 有哪些重大更新？
+### 12.8 Next.js 16 有哪些重大更新？
 **答案要点**：
 - **Cache Components**：新的缓存编程模型，使用 `"use cache"` 指令
 - **proxy.ts**：取代 middleware.ts，明确网络边界
@@ -1642,7 +1642,7 @@ export default function NewPost() {
 
 ---
 
-### 10.9 什么是 Cache Components？和之前的缓存有什么区别？
+### 12.9 什么是 Cache Components？和之前的缓存有什么区别？
 **答案要点**：
 - 之前的 App Router：隐式缓存，需要理解 fetch 缓存语义
 - Cache Components：显式缓存，完全可选
@@ -1652,7 +1652,7 @@ export default function NewPost() {
 
 ---
 
-### 10.10 Next.js 16 的 proxy.ts 和 middleware.ts 有什么区别？
+### 12.10 proxy.ts 和 middleware.ts 有什么区别？
 **答案要点**：
 - **名称变更**：`middleware.ts` → `proxy.ts`
 - **运行时明确**：proxy.ts 运行在 Node.js 运行时
