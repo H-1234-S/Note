@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -195,8 +194,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b77b28fe2fa2bc19",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
+    "Front-end notes/库/nuqs-基础知识.md",
     "Front-end notes/Next.JS/问题.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/库/use-debounce防抖.md",
@@ -225,7 +225,6 @@
     "Front-end notes/JavaScript/Class.md",
     "Front-end notes/JavaScript/Event Loop.md",
     "Front-end notes/JavaScript/Proto.md",
-    "Front-end notes/Shadcn/cn函数.md",
     "Front-end notes/JavaScript",
     "Pasted image 20260319134418.png",
     "Excalidraw",
