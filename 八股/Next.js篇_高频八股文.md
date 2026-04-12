@@ -3,14 +3,16 @@
 ## 📌 目录
 - [1. Next.js基础概念](#1-nextjs基础概念)
 - [2. 渲染模式与策略](#2-渲染模式与策略)
-- [3. App Router（App Router）](#3-app-routerapp-router)
+- [3. App Router核心概念](#3-app-router核心概念)
 - [4. Pages Router](#4-pages-router)
-- [5. 数据获取](#5-数据获取)
+- [5. 数据获取与缓存](#5-数据获取与缓存)
 - [6. 路由系统](#6-路由系统)
-- [7. API Routes](#7-api-routes)
-- [8. 性能优化](#8-性能优化)
-- [9. Next.js 14/15/16新特性](#9-nextjs-141516新特性)
-- [10. 常见面试题](#10-常见面试题)
+- [7. Server Actions](#7-server-actions)
+- [8. Middleware与proxy](#8-middleware与proxy)
+- [9. API Routes](#9-api-routes)
+- [10. 性能优化](#10-性能优化)
+- [11. Next.js 14/15/16新特性](#11-nextjs-141516新特性)
+- [12. 常见面试题](#12-常见面试题)
 
 ---
 
@@ -311,9 +313,10 @@ export default function Page() {
 
 ---
 
-## 3. App Router（App Router）
+## 3. App Router核心概念
 
-### 3.1 什么是React Server Components？
+### 3.1 服务端组件 vs 客户端组件
+**考点**：RSC核心原理
 **考点**：RSC核心原理
 
 **RSC定义**：
@@ -564,9 +567,9 @@ export async function getStaticPaths() {
 
 ---
 
-## 5. 数据获取
+## 5. 数据获取与缓存
 
-### 5.1 App Router 如何获取数据？
+### 5.1 App Router 数据获取方式？
 **考点**：App Router数据获取模式
 
 **服务端组件直接获取**：
@@ -631,7 +634,7 @@ revalidateTag('products');
 
 ---
 
-### 5.2 如何处理数据请求错误？
+### 5.2 Next.js 的缓存机制是怎样的？
 **考点**：错误处理
 
 **App Router 错误处理**：
@@ -667,35 +670,9 @@ export default function NotFound() {
 }
 ```
 
-**Pages Router 错误处理**：
-```jsx
-// pages/404.js
-export default function NotFound() {
-  return <h1>404 - Page Not Found</h1>;
-}
-
-// _error.js - 错误页面
-function Error({ statusCode }) {
-  return (
-    <div>
-      <h1>Error {statusCode}</h1>
-      {statusCode === 404 && <p>Page not found</p>}
-      {statusCode === 500 && <p>Server error</p>}
-    </div>
-  );
-}
-
-Error.getInitialProps = ({ res, err }) => {
-  const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
-  return { statusCode };
-};
-
-export default Error;
-```
-
 ---
 
-## 6. 路由系统
+### 5.3 如何处理数据请求错误？
 
 ### 6.1 如何定义动态路由？
 **考点**：动态路由
@@ -833,7 +810,265 @@ export default function Layout({
 
 ---
 
-## 7. API Routes
+## 7. Server Actions
+
+### 7.1 什么是 Server Actions？
+**考点**：Server Actions核心概念
+
+**定义**：
+- 在服务端执行的异步函数
+- 可以从客户端组件调用（像调用普通函数一样）
+- 自动处理CSRF保护
+- 支持乐观更新（optimistic updates）
+
+**工作原理**：
+```
+1. 客户端调用 Server Action
+2. 通过 POST 请求发送到服务器
+3. 服务器执行操作（数据库访问等）
+4. 返回结果给客户端
+5. 可选：调用 revalidatePath 或 revalidateTag 重新验证缓存
+```
+
+**基本用法**：
+```tsx
+// app/actions.ts
+'use server';
+
+export async function createPost(formData: FormData) {
+  const title = formData.get('title');
+  const content = formData.get('content');
+
+  // 直接操作数据库
+  const post = await db.insert(postsTable).values({
+    title,
+    content,
+    createdAt: new Date(),
+  }).returning();
+
+  // 重新验证缓存
+  revalidatePath('/blog');
+  revalidateTag('posts');
+
+  return post;
+}
+```
+
+**客户端调用**：
+```tsx
+// app/blog/new/page.tsx
+'use client';
+
+import { createPost } from '@/app/actions';
+
+export default function NewPost() {
+  return (
+    <form action={createPost}>
+      <input name="title" type="text" required />
+      <textarea name="content" required />
+      <button type="submit">Create Post</button>
+    </form>
+  );
+}
+```
+
+---
+
+### 7.2 Server Actions 的进阶用法？
+**考点**：Server Actions高级特性
+
+**乐观更新**：
+```tsx
+'use client';
+
+import { updateItem } from '@/app/actions';
+import { useOptimistic } from 'react';
+
+export function TodoList({ items }) {
+  const [optimisticItems, addOptimisticItem] = useOptimistic(
+    items,
+    (state, newItem) => [...state, { ...newItem, pending: true }]
+  );
+
+  async function handleSubmit(formData: FormData) {
+    const item = { id: Date.now(), text: formData.get('text') };
+    addOptimisticItem(item);
+    await updateItem(item);
+  }
+
+  return (
+    <form action={handleSubmit}>
+      <input name="text" />
+      <button type="submit">Add</button>
+      {optimisticItems.map(item => (
+        <div key={item.id} style={{ opacity: item.pending ? 0.5 : 1 }}>
+          {item.text}
+        </div>
+      ))}
+    </form>
+  );
+}
+```
+
+**错误处理与重置**：
+```tsx
+'use server';
+import { redirect } from 'next/navigation';
+
+export async function createPost(prevState: any, formData: FormData) {
+  const title = formData.get('title');
+
+  if (!title) {
+    return { error: 'Title is required' };
+  }
+
+  await db.insert(postsTable).values({ title });
+  redirect('/blog'); // 重定向
+}
+```
+
+**useActionState Hook**：
+```tsx
+'use client';
+
+import { useActionState } from 'react';
+import { createPost } from '@/app/actions';
+
+export function PostForm() {
+  const [state, formAction, isPending] = useActionState(createPost, null);
+
+  return (
+    <form action={formAction}>
+      <input name="title" />
+      {state?.error && <p style={{ color: 'red' }}>{state.error}</p>}
+      <button type="submit" disabled={isPending}>
+        {isPending ? 'Creating...' : 'Create'}
+      </button>
+    </form>
+  );
+}
+```
+
+---
+
+## 8. Middleware与proxy
+
+### 8.1 Middleware 是什么？如何使用？
+**考点**：Middleware核心概念
+
+**定义**：
+- 在请求到达服务器后、渲染页面之前执行的代码
+- 可以修改请求和响应
+- 用于认证、日志、重定向等
+
+**工作流程**：
+```
+请求 → Middleware → 路由匹配 → 页面渲染 → 响应
+```
+
+**基本用法**：
+```tsx
+// middleware.ts (Next.js 15)
+/ import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  // 获取请求路径
+  const path = request.nextUrl.pathname;
+
+  // 检查认证
+  const isAuthenticated = request.cookies.has('auth-token');
+
+  // 保护路由
+  if (path.startsWith('/dashboard') && !isAuthenticated) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // 添加响应头
+  const response = NextResponse.next();
+  response.headers.set('x-custom-header', 'value');
+
+  return response;
+}
+
+// 配置匹配的路径
+export const config = {
+  matcher: ['/dashboard/:path*', '/profile/:path*'],
+};
+```
+
+**重定向**：
+```tsx
+export function middleware(request: NextRequest) {
+  // HTTP 跳转
+  if (request.nextUrl.pathname === '/old-page') {
+    return NextResponse.redirect(new URL('/new-page', request.url));
+  }
+
+  // 永久重定向 (301)
+  return NextResponse.redirect(
+    new URL('/new-page', request.url),
+    301
+  );
+}
+```
+
+**改写（Rewrite）**：
+```tsx
+export function middleware(request: NextRequest) {
+  // 改写路径，内部跳转到另一个API
+  if (request.nextUrl.pathname.startsWith('/api-docs')) {
+    return NextResponse.rewrite(
+      new URL('https://docs.example.com/nextjs', request.url)
+    );
+  }
+}
+```
+
+---
+
+### 8.2 Next.js 16 的 proxy.ts 是什么？
+**考点**：proxy.ts核心概念
+
+**定义**：
+- 取代 middleware.ts，明确应用网络边界
+- 运行在 Node.js 运行时（不再是 Edge）
+- 更清晰的命名和职责划分
+
+**迁移方式**：
+| middleware.ts | proxy.ts |
+|--------------|----------|
+| 文件名 | `middleware.ts` → `proxy.ts` |
+| 导出函数 | `middleware` → `proxy` |
+| 运行时 | Edge Runtime | Node.js Runtime |
+
+**基本用法**：
+```tsx
+// proxy.ts (Next.js 16)
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export default function proxy(request: NextRequest) {
+  // 认证检查
+  const token = request.cookies.get('auth-token');
+
+  if (!token && request.nextUrl.pathname.startsWith('/protected')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/protected/:path*'],
+};
+```
+
+**注意**：middleware.ts 仍可用于 Edge runtime 场景，但已弃用，将在未来版本移除。
+
+---
+
+## 9. API Routes
 
 ### 7.1 如何创建API Routes？
 **考点**：API Routes基础
@@ -872,7 +1107,7 @@ export default function handler(req, res) {
 
 ---
 
-### 7.2 如何处理动态API路由？
+### 9.2 如何处理动态API路由？
 **考点**：动态API路由
 
 **App Router**：
@@ -913,9 +1148,9 @@ export async function DELETE(
 
 ---
 
-## 8. 性能优化
+## 10. 性能优化
 
-### 8.1 next/image 相比普通 img 有什么优势？
+### 10.1 next/image 相比普通 img 有什么优势？
 **考点**：图像优化
 
 **优势**：
@@ -956,7 +1191,7 @@ export default function Page() {
 
 ---
 
-### 8.2 next/script 如何优化脚本加载？
+### 10.2 next/script 如何优化脚本加载？
 **考点**：脚本优化
 
 **加载策略**：
