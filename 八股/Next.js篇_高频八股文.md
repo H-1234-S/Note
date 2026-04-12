@@ -313,6 +313,46 @@ export default function Page() {
 
 ---
 
+### 2.5 什么是 PPR（Partial Prerendering）？
+**考点**：PPR核心概念
+
+**定义**：
+- Next.js 14 引入的渲染策略
+- 静态外壳 + 动态内容的混合渲染模式
+- 结合 SSG 的速度和 SSR 的灵活性
+
+**工作原理**：
+```
+请求 → 静态HTML外壳（快速）→ 流式发送动态内容
+```
+
+**实现方式**：
+```tsx
+import { Suspense } from 'react';
+
+// 静态外壳（build时预渲染）
+export default function Page() {
+  return (
+    <div>
+      <header>静态头部</header>
+      {/* 动态内容 - Suspense包裹 */}
+      <Suspense fallback={<Skeleton />}>
+        <UserComments />
+      </Suspense>
+      <footer>静态底部</footer>
+    </div>
+  );
+}
+
+// 动态组件（运行时渲染）
+async function UserComments() {
+  const comments = await fetchComments(); // 耗时操作
+  return comments.map(c => <Comment key={c.id} {...c} />);
+}
+```
+
+---
+
 ## 3. App Router核心概念
 
 ### 3.1 服务端组件 vs 客户端组件
@@ -468,6 +508,62 @@ export default function Page({ params }) {
 - `openGraph`：社交分享配置
 - `twitter`：Twitter分享配置
 - `robots`：搜索引擎爬虫配置
+
+---
+
+### 2.6 Next.js 16 的 "use cache" 指令？
+**考点**：Cache Components核心概念
+
+**定义**：
+- Next.js 16 引入的 `"use cache"` 指令
+- 显式缓存函数/组件的返回结果
+- 编译器自动生成缓存键
+
+**基本用法**：
+```tsx
+// 启用 Cache Components
+// next.config.ts
+const nextConfig = {
+  cacheComponents: true,
+};
+
+export default nextConfig;
+```
+
+```tsx
+// app/components/ProductList.tsx
+// 使用 "use cache" 缓存产品列表
+'use cache';
+
+export async function getCachedProducts() {
+  const products = await fetchProductsFromDB();
+  return products;
+}
+
+// 缓存带参数
+'use cache';
+export async function getProductById(id: string) {
+  const product = await db.query('SELECT * FROM products WHERE id = ?', [id]);
+  return product;
+}
+```
+
+**与 revalidate 配合**：
+```tsx
+'use cache';
+// 设置缓存时间
+export const revalidate = 3600; // 1小时
+
+export async function getCachedProducts() {
+  const products = await fetchProductsFromDB();
+  return products;
+}
+```
+
+**优势**：
+- 显式缓存，代码可读性更好
+- 默认动态行为，避免隐式缓存陷阱
+- 编译器优化，生成最优缓存键
 
 ---
 
@@ -670,9 +766,93 @@ export default function NotFound() {
 }
 ```
 
+**Pages Router 错误处理**：
+```jsx
+// pages/404.js
+export default function NotFound() {
+  return <h1>404 - Page Not Found</h1>;
+}
+
+// _error.js - 错误页面
+function Error({ statusCode }) {
+  return (
+    <div>
+      <h1>Error {statusCode}</h1>
+      {statusCode === 404 && <p>Page not found</p>}
+      {statusCode === 500 && <p>Server error</p>}
+    </div>
+  );
+}
+
+Error.getInitialProps = ({ res, err }) => {
+  const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
+  return { statusCode };
+};
+
+export default Error;
+```
+
 ---
 
-### 5.3 如何处理数据请求错误？
+### 5.4 Streaming 和 Suspense 是什么？
+**考点**：Streaming核心概念
+
+**定义**：
+- Streaming 允许将页面内容分块传输给浏览器
+- 首屏内容先展示，耗时内容（如数据库查询）后加载
+- 通过 React Suspense 实现
+
+**实现方式（App Router）**：
+```tsx
+import { Suspense } from 'react';
+
+// 加载组件
+function LoadingComponent() {
+  return <div>Loading...</div>;
+}
+
+// 耗时操作的数据获取
+async function ExpensiveComponent() {
+  const data = await fetchExpensiveData(); // 耗时操作
+  return <div>{data}</div>;
+}
+
+// 页面中使用
+export default function Page() {
+  return (
+    <div>
+      <h1>立即显示的内容</h1>
+      <Suspense fallback={<LoadingComponent />}>
+        <ExpensiveComponent />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+**loading.tsx 特殊文件**：
+```tsx
+// app/blog/loading.tsx
+// 整个路由段加载时的加载状态
+export default function Loading() {
+  return <div>Loading blog posts...</div>;
+}
+
+// app/blog/[slug]/loading.tsx
+// 动态路由的加载状态
+export default function Loading() {
+  return <div>Loading post...</div>;
+}
+```
+
+**优势**：
+- 提升首屏加载速度（FCP）
+- 减少 TTFB (Time To First Byte)
+- 用户体验更好，不需要等待所有数据加载完成
+
+---
+
+## 6. 路由系统
 
 ### 6.1 如何定义动态路由？
 **考点**：动态路由
@@ -1309,7 +1489,7 @@ const ChartComponent = dynamic(() => import('./Chart'), {
 
 ## 11. Next.js 14/15/16新特性
 
-### 9.1 Next.js 16 有哪些新特性？
+### 11.1 Next.js 16 有哪些新特性？
 **考点**：Next.js 16 (2025年10月发布)
 
 **主要新特性**：
@@ -1449,7 +1629,7 @@ export async function markNotificationAsRead(notificationId: string) {
 
 ---
 
-### 9.2 Next.js 14 有哪些新特性？
+### 11.2 Next.js 14 有哪些新特性？
 **考点**：Next.js 14
 
 **主要新特性**：
@@ -1493,7 +1673,7 @@ export default function NewPost() {
 
 ---
 
-### 9.3 Next.js 15 有哪些新特性？
+### 11.3 Next.js 15 有哪些新特性？
 **考点**：Next.js 15
 
 **主要新特性**：
@@ -1520,7 +1700,7 @@ export default function NewPost() {
 
 ---
 
-### 9.4 Next.js 16 Breaking Changes（破坏性更新）
+### 11.4 Next.js 16 Breaking Changes（破坏性更新）
 **考点**：Next.js 16 重大变更
 
 **版本要求变更**：
