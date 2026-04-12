@@ -67,14 +67,20 @@ export default Home;
 
 ## 路由模式
 
-* 在React RouterV7 中，是拥有不同的路由模式，路由模式的选择将直接影响你的整个项目。React Router 提供了四种核心路由创建函数： `createBrowserRouter`、`createHashRouter`、`createMemoryRouter` 和 `createStaticRouter`
+在React RouterV7 中，是拥有不同的路由模式，路由模式的选择将直接影响你的整个项目。
+
+React Router 提供了四种核心路由创建函数： 
+
+`createBrowserRouter`、`createHashRouter`、`createMemoryRouter` 、`createStaticRouter`
 
 ### createBrowserRouter
 
 #### 核心特点
 
 - 使用HTML5的history API (pushState, replaceState, popState)
+
 - 浏览器URL比较纯净 (/search, /about, /user/123)
+
 - 需要服务器端支持(nginx, apache,等)否则会刷新404
 
 ### createHashRouter
@@ -82,7 +88,9 @@ export default Home;
 #### 核心特点
 
 - 使用URL的hash部分(#/search, #/about, #/user/123)
+
 - 不需要服务器端支持
+
 - 刷新页面不会丢失
 
 ### createMemoryRouter
@@ -90,7 +98,9 @@ export default Home;
 #### 核心特点
 
 - 使用内存中的路由表
+
 - 刷新页面会丢失状态
+
 - 切换页面路由不显示URL
 
 ### createStaticRouter
@@ -98,7 +108,9 @@ export default Home;
 #### 核心特点
 
 - 专为服务端渲染（SSR）设计
+
 - 在服务器端匹配请求路径，生成静态 HTML
+
 - 需与客户端路由器（如 createBrowserRouter）配合使用
 
 
@@ -127,7 +139,9 @@ const router = createBrowserRouter([
 #### 注意事项
 
 - 子路由不需要增加`/`了直接写子路由的path即可
-- 子路由默认是不显示的，需要父路由通过 `Outlet` 组件来显示子路由，相当于**子路由的"插槽"**或**占位符**。
+
+- 子路由默认是不显示的，需要父路由通过 `Outlet` 组件来显示子路由，相当于 **子路由的"插槽"** 或**占位符**。
+
   - 避免组件重复渲染，react-router只渲染子路由
 
 ~~~jsx
@@ -150,7 +164,9 @@ import { Outlet } from 'react-router';
 ### 布局路由
 
 * 布局路由是一种特殊的嵌套路由，父路由可以省略 `path`，这样不会向 URL 添加额外的路径段：
+
   * **父路由本身不会被单独访问**，只会渲染子路由。
+
   * 搭配索引路由使用
 
 ~~~url
@@ -252,6 +268,7 @@ export default router;
 ~~~
 
 * url是localhost/index/home/abc
+
 * abc是所谓的id，原来的url访问不到该页面，动态动态
 
 ## 路由传参
@@ -323,7 +340,7 @@ console.log(searchParams.get('id')) //获取id参数
 
 配置url
 
-~~~react
+~~~ js
 import { createBrowserRouter } from 'react-router';
 import Layout from '../laout';
 import Home from '../laout/Home';
@@ -351,7 +368,7 @@ export default router;
 
 #### 跳转方式
 
-~~~react
+~~~ jsx
 <NavLink to="/home/xiaoman/18">User</NavLink> //1. NavLink 跳转
 <Link to="/home/xiaoman/18">User</Link> //2. Link 跳转
 
@@ -371,17 +388,19 @@ console.log(name) //获取name参数
 ##### useParams
 
 * useParams返回一个对象
+
 * **useParams 是只读的！**，不能直接修改对象的属性值
 
 
 ### State
 
 * state传递的参数在url中不显示
+
 * 可以传递**复杂数据类型**
 
 #### 跳转方式
 
-~~~react
+~~~ jsx
 <Link to="/user" state={{ name: '小满zs', age: 18 }}>User</Link> //1. Link 跳转
 <NavLink to="/user" state={{ name: '小满zs', age: 18 }}>User</NavLink> //2. NavLink 跳转
 

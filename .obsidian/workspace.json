@@ -4,21 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "4da720fce7446b93",
+        "id": "65e2fc25e7fe047e",
         "type": "tabs",
         "children": [
           {
-            "id": "b593d491c7139ffc",
+            "id": "94b014e705938fa6",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "八股/React篇_高频八股文.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/resonance/需求.canvas",
+                "viewState": {
+                  "x": 181.94523838588145,
+                  "y": 1358.2941877037078,
+                  "zoom": -1.4405725913859817
+                }
               },
-              "icon": "lucide-file",
-              "title": "React篇_高频八股文"
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
             }
           }
         ]
@@ -78,7 +81,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -137,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "八股/React篇_高频八股文.md",
+                "file": "Project notes/resonance/需求.canvas",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "React篇_高频八股文 的大纲"
+              "title": "需求 的大纲"
             }
           },
           {
@@ -180,7 +184,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 268.5
+    "width": 200,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -194,31 +199,15 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b593d491c7139ffc",
+  "active": "94b014e705938fa6",
   "lastOpenFiles": [
-    "八股/Next.js篇_高频八股文.md",
-    "八股/JavaScript篇_高频八股文.md",
-    "八股/浏览器篇_高频八股文.md",
-    "八股/React篇_高频八股文.md",
-    "八股/react-interview-questions.md",
-    "八股/浏览器篇",
-    "八股/浏览器/浏览器篇_高频八股文.md",
-    "八股/浏览器",
-    "八股",
-    "Front-end notes/库/wavesurfer.js-基础知识.md",
-    "Front-end notes/库/nuqs-基础知识.md",
-    "Front-end notes/库/use-debounce防抖.md",
-    "Front-end notes/Next.JS/问题.md",
-    "Front-end notes/Next.JS/Next.js.md",
-    "学习/技术栈.md",
-    "Project notes/polaris/claude prompt.md",
     "Project notes/resonance/Resonance.md",
-    "Project notes/polaris",
-    "conflict-files-obsidian-git.md",
-    "Project notes/resonance/需求.canvas",
     "Front-end notes/tRPC.md",
     "Front-end notes/Zod.md",
     "Front-end notes/知识内容.md",
+    "Front-end notes/Next.JS/Next.js.md",
+    "conflict-files-obsidian-git.md",
+    "Project notes/resonance/需求.canvas",
     "Front-end notes/Prisma.md",
     "Project notes/resonance/trpc.md",
     "Front-end notes/TanStack Form.md",
@@ -226,8 +215,20 @@
     "Pasted image 20260328115001.png",
     "计算机网络.md",
     "Front-end notes/React/构建Mini React.md",
+    "学习/技术栈.md",
     "Front-end notes/React/深入学习React.md",
     "Front-end notes/Shadcn/Sidebar.md",
+    "Front-end notes/JavaScript/闭包.md",
+    "Front-end notes/JavaScript/执行机制与内存篇.md",
+    "Project notes/resonance/第四章.md",
+    "Front-end notes/JavaScript/Promise.md",
+    "Front-end notes/JavaScript/Class.md",
+    "Front-end notes/JavaScript/Event Loop.md",
+    "Front-end notes/JavaScript/Proto.md",
+    "Front-end notes/Shadcn/cn函数.md",
+    "Front-end notes/Shadcn/Tabs.md",
+    "Front-end notes/Shadcn/Slider.md",
+    "Project notes/resonance/知识点.md",
     "Front-end notes/JavaScript",
     "Pasted image 20260319134418.png",
     "Excalidraw",
@@ -237,7 +238,11 @@
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
     "Front-end notes/库",
     "Front-end notes/React",
+    "学习",
+    "Project notes/nextjs-dashboard",
     "思考.canvas",
+    "Front-end notes/Next.JS",
+    "Front-end notes/Tailwind CSS",
     "Project notes/react-firebase/最后一条消息.canvas",
     "Project notes/react-firebase/注册、登录.canvas",
     "Project notes/react-firebase/消息同步.canvas",
