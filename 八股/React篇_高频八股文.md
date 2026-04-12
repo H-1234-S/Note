@@ -2612,7 +2612,7 @@ function update() {
 
 ---
 
-### 8.3 React中的受控组件和非受控组件？
+### 9.3 React中的受控组件和非受控组件？
 **考点**：表单处理方式
 
 **受控组件（Controlled Component）**：
@@ -2671,7 +2671,7 @@ function UncontrolledInput() {
 
 ---
 
-### 8.4 如何理解React的"约定大于配置"？
+### 9.4 如何理解React的"约定大于配置"？
 **考点**：React设计思想
 
 **约定vs配置**：
@@ -2712,7 +2712,7 @@ const store = createStore({
 
 ---
 
-### 8.5 React的未来发展趋势？
+### 9.5 React的未来发展趋势？
 **考点**：技术视野
 
 **当前趋势**：
@@ -2740,9 +2740,9 @@ const store = createStore({
 
 ---
 
-## 9. 手写代码
+## 10. 手写代码
 
-### 9.1 手写useState
+### 10.1 手写useState
 **考点**：Hooks原理实现
 
 ```javascript
@@ -2792,7 +2792,7 @@ function render() {
 
 ---
 
-### 9.2 手写useEffect
+### 10.2 手写useEffect
 **考点**：副作用管理原理
 
 ```javascript
@@ -2854,7 +2854,7 @@ function Component() {
 
 ---
 
-### 9.3 手写useMemo/useCallback
+### 10.3 手写useMemo/useCallback
 **考点**：记忆化原理
 
 ```javascript
@@ -2897,7 +2897,7 @@ function render() {
 
 ---
 
-### 9.4 手写React.memo
+### 10.4 手写React.memo
 **考点**：高阶组件原理
 
 ```javascript
