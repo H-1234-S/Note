@@ -9,7 +9,7 @@
 - [6. 路由系统](#6-路由系统)
 - [7. API Routes](#7-api-routes)
 - [8. 性能优化](#8-性能优化)
-- [9. Next.js 14/15新特性](#9-nextjs-1415新特性)
+- [9. Next.js 14/15/16新特性](#9-nextjs-141516新特性)
 - [10. 常见面试题](#10-常见面试题)
 
 ---
@@ -1072,9 +1072,149 @@ const ChartComponent = dynamic(() => import('./Chart'), {
 
 ---
 
-## 9. Next.js 14/15新特性
+## 9. Next.js 14/15/16新特性
 
-### 9.1 Next.js 14 有哪些新特性？
+### 9.1 Next.js 16 有哪些新特性？
+**考点**：Next.js 16 (2025年10月发布)
+
+**主要新特性**：
+
+1. **Cache Components**
+   - 新的缓存模型，基于 Partial Prerendering (PPR)
+   - 使用 `"use cache"` 指令缓存页面、组件和函数
+   - 缓存完全可选，默认所有动态代码在请求时执行
+   - 完成 PPR 故事，静态页面可以局部动态渲染
+
+```tsx
+// next.config.ts
+const nextConfig = {
+  cacheComponents: true,
+};
+
+export default nextConfig;
+```
+
+2. **Next.js Devtools MCP**
+   - Model Context Protocol 集成
+   - AI辅助调试，提供应用上下文洞察
+   - 统一日志：浏览器和服务器日志无需切换上下文
+   - 自动错误访问：详细堆栈跟踪无需手动复制
+
+3. **proxy.ts（formerly middleware.ts）**
+   - 替换 middleware.ts，明确应用网络边界
+   - 运行在 Node.js 运行时
+   - 迁移方式：将 `middleware.ts` 重命名为 `proxy.ts`，导出函数改为 `proxy`
+
+```tsx
+// proxy.ts
+export default function proxy(request: NextRequest) {
+  return NextResponse.redirect(new URL('/home', request.url));
+}
+```
+
+4. **Logging Improvements**
+   - 开发请求日志扩展，显示时间花费
+   - Compile：路由和编译
+   - Render：运行代码和React渲染
+   - 构建步骤显示每个步骤的耗时
+
+5. **Turbopack（稳定版）**
+   - 开发环境默认 bundler
+   - 2-5x 更快的产品构建
+   - 最高 10x 更快的 Fast Refresh
+   - 超过 50% 的开发会话和 20% 的生产构建已在使用
+
+```tsx
+// next.config.ts
+const nextConfig = {
+  turbopack: {}, // 默认启用
+};
+```
+
+6. **Turbopack File System Caching（Beta）**
+   - 开发环境文件系统缓存
+   - 编译产物存储在磁盘，显著加快大型项目启动和编译时间
+
+```tsx
+// next.config.ts
+const nextConfig = {
+  experimental: {
+    turbopackFileSystemCacheForDev: true,
+  },
+};
+```
+
+7. **React Compiler Support（稳定版）**
+   - 内置 React Compiler 1.0 支持
+   - 自动 memoization，减少不必要的重渲染
+   - 配置从 experimental 升级到稳定
+
+```tsx
+// next.config.ts
+const nextConfig = {
+  reactCompiler: true,
+};
+
+// npm install babel-plugin-react-compiler@latest
+```
+
+8. **Build Adapters API（Alpha）**
+   - 创建自定义适配器，钩入构建过程
+   - 部署平台和自定义构建集成可修改 Next.js 配置或处理构建输出
+
+9. **Enhanced Routing（增强路由）**
+   - **Layout deduplication**：共享布局只下载一次，50个产品链接场景从50次下载变为1次
+   - **Incremental prefetching**：只预取缓存中不存在的部分
+   - 链接离开视口时取消请求
+   - 悬停或重新进入视口时优先预取
+   - 数据失效时重新预取
+
+10. **Improved Caching APIs**
+    - **revalidateTag()**（更新）：现在需要第二个参数 `cacheLife` profile
+
+```tsx
+import { revalidateTag } from 'next/cache';
+
+// ✅ 使用内置 cacheLife profile
+revalidateTag('blog-posts', 'max');
+revalidateTag('news-feed', 'hours');
+revalidateTag('products', { expire: 3600 });
+```
+
+    - **updateTag()**（新）：Server Actions 专用，提供 read-your-writes 语义
+
+```tsx
+'use server';
+import { updateTag } from 'next/cache';
+
+export async function updateUserProfile(userId: string, profile: Profile) {
+  await db.users.update(userId, profile);
+  // 失效并立即读取新数据
+  updateTag(`user-${userId}`);
+}
+```
+
+    - **refresh()**（新）：Server Actions 专用，仅刷新未缓存的数据
+
+```tsx
+'use server';
+import { refresh } from 'next/cache';
+
+export async function markNotificationAsRead(notificationId: string) {
+  await db.notifications.markAsRead(notificationId);
+  // 刷新未缓存的动态数据（如通知计数）
+  refresh();
+}
+```
+
+11. **React 19.2 支持**
+    - View Transitions：动画化 Transition 或导航中的元素更新
+    - useEffectEvent：从 Effects 提取非响应式逻辑
+    - `<Activity/>`：渲染"后台活动"，用 display:none 隐藏 UI 同时保持状态和清理 Effects
+
+---
+
+### 9.2 Next.js 14 有哪些新特性？
 **考点**：Next.js 14
 
 **主要新特性**：
@@ -1118,7 +1258,7 @@ export default function NewPost() {
 
 ---
 
-### 9.2 Next.js 15 有哪些新特性？
+### 9.3 Next.js 15 有哪些新特性？
 **考点**：Next.js 15
 
 **主要新特性**：
@@ -1142,6 +1282,42 @@ export default function NewPost() {
 5. **自托管改进**
    - 更好的容器化支持
    - 改进的构建输出
+
+---
+
+### 9.4 Next.js 16 Breaking Changes（破坏性更新）
+**考点**：Next.js 16 重大变更
+
+**版本要求变更**：
+| 要求 | 变更 |
+|-----|------|
+| Node.js | 最低 20.9.0（不再是 18） |
+| TypeScript | 最低 5.1.0 |
+| 浏览器 | Chrome 111+, Edge 111+, Firefox 111+, Safari 16.4+ |
+
+**已移除的功能**：
+| 移除 | 替代 |
+|-----|------|
+| AMP support | - |
+| `next lint` | 使用 Biome 或 ESLint 直接 |
+| `appIsrStatus`, `buildActivity` | - |
+| `serverRuntimeConfig`, `publicRuntimeConfig` | 使用环境变量 |
+| `experimental.turbopack` | 移到顶层 `turbopack` |
+| `experimental.dynamicIO` | 重命名为 `cacheComponents` |
+| `experimental.ppr` | Cache Components 编程模型 |
+| `unstable_rootParams()` | 替代 API 开发中 |
+
+**行为变更**：
+| 变更 | 新行为 |
+|-----|-------|
+| 默认 bundler | Turbopack（可用 `--webpack` 退出） |
+| `images.minimumCacheTTL` | 默认从 60s 改为 4 小时 |
+| `images.imageSizes` | 默认移除 16 |
+| `images.qualities` | 默认从 [1..100] 改为 [75] |
+| `images.dangerouslyAllowLocalIP` | 默认禁用 |
+| `images.maximumRedirects` | 默认限制 3 个重定向 |
+| Parallel routes | 所有插槽需要显式 `default.js` |
+| `revalidateTag()` | 现在需要第二个 `cacheLife` 参数 |
 
 ---
 
@@ -1216,3 +1392,35 @@ export default function NewPost() {
 - **静态导出**：`output: 'export'` 生成纯静态文件
 - **Serverless**：部署到AWS Lambda、Vercel Edge等
 - 部署时注意环境变量、构建命令、输出目录配置
+
+---
+
+### 10.8 Next.js 16 有哪些重大更新？
+**答案要点**：
+- **Cache Components**：新的缓存编程模型，使用 `"use cache"` 指令
+- **proxy.ts**：取代 middleware.ts，明确网络边界
+- **Turbopack 稳定版**：成为默认 bundler，2-5x 构建加速
+- **React Compiler**：内置支持，自动 memoization
+- **增强路由**：Layout deduplication 和 Incremental prefetching
+- **新缓存 API**：`updateTag()` 和 `refresh()` Server Actions 专用
+- **Breaking Changes**：Node.js 20.9+、并行路由需 default.js 等
+
+---
+
+### 10.9 什么是 Cache Components？和之前的缓存有什么区别？
+**答案要点**：
+- 之前的 App Router：隐式缓存，需要理解 fetch 缓存语义
+- Cache Components：显式缓存，完全可选
+- 默认行为：所有动态代码在请求时执行
+- 使用 `"use cache"` 指令标记需要缓存的函数/组件
+- 完成 Partial Prerendering (PPR) 故事：静态外壳 + 局部动态
+
+---
+
+### 10.10 Next.js 16 的 proxy.ts 和 middleware.ts 有什么区别？
+**答案要点**：
+- **名称变更**：`middleware.ts` → `proxy.ts`
+- **运行时明确**：proxy.ts 运行在 Node.js 运行时
+- **逻辑不变**：导出的函数从 `middleware` 改名为 `proxy`
+- **原因**：更清晰的命名，明确网络边界
+- **兼容性**：middleware.ts 仍可用于 Edge runtime，但已弃用
