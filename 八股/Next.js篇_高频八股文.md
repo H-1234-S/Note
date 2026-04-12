@@ -728,10 +728,56 @@ import { revalidateTag } from 'next/cache';
 revalidateTag('products');
 ```
 
+**Next.js 16 的缓存策略**：
+```tsx
+// Next.js 16 推荐使用 cacheComponents 模式
+// next.config.ts
+const nextConfig = {
+  cacheComponents: true,
+};
+```
+
 ---
 
 ### 5.2 Next.js 的缓存机制是怎样的？
-**考点**：错误处理
+**考点**：缓存机制
+
+**缓存层级**：
+| 缓存类型 | 说明 |
+|---------|------|
+| **fetch缓存** | 通过 fetch 的 cache 选项控制 |
+| **Data Cache** | 服务端数据缓存，按 fetch 请求键值存储 |
+| **Full Route Cache** | 预渲染的完整页面（静态页面） |
+| **Router Cache** | 客户端路由缓存，存储预取链接 |
+| **Asset Cache** | 静态文件（JS、CSS、图片） |
+
+**缓存失效方式**：
+| 方式 | 说明 |
+|-----|------|
+| `revalidatePath()` | 按路径失效缓存 |
+| `revalidateTag()` | 按标签失效缓存（需指定 cacheLife） |
+| `updateTag()` | Server Actions专用，立即失效并读取新数据 |
+| `refresh()` | Server Actions专用，刷新未缓存数据 |
+
+**示例**：
+```tsx
+import { revalidatePath, revalidateTag } from 'next/cache';
+
+// 失效整个路径下的缓存
+revalidatePath('/blog');
+revalidatePath('/blog/[slug]', 'page');
+
+// 按标签失效
+revalidateTag('posts', 'max');
+
+// 在 Server Action 中使用 updateTag
+import { updateTag } from 'next/cache';
+updateTag(`user-${userId}`);
+```
+
+---
+
+### 5.3 如何处理数据请求错误？
 
 **App Router 错误处理**：
 ```tsx
@@ -1250,7 +1296,7 @@ export const config = {
 
 ## 9. API Routes
 
-### 7.1 如何创建API Routes？
+### 9.1 如何创建API Routes？
 **考点**：API Routes基础
 
 **App Router API Routes**：
