@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "61880953407df117",
+        "id": "b6febe532a1a85e9",
         "type": "tabs",
         "children": [
           {
-            "id": "e8eb0855b014ca02",
+            "id": "6f14f00ec85ed341",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/库/nuqs-基础知识.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "nuqs-基础知识"
+              "title": "新标签页"
             }
           }
         ]
@@ -137,13 +133,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/nuqs-基础知识.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "nuqs-基础知识 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -194,11 +189,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "e8eb0855b014ca02",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
+    "八股/浏览器",
+    "八股",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
-    "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/库/nuqs-基础知识.md",
+    "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/Next.JS/问题.md",
     "Front-end notes/Next.JS/Next.js.md",
     "学习/技术栈.md",
@@ -224,7 +221,6 @@
     "Project notes/resonance/第四章.md",
     "Front-end notes/JavaScript/Promise.md",
     "Front-end notes/JavaScript/Class.md",
-    "Front-end notes/JavaScript/Event Loop.md",
     "Front-end notes/JavaScript",
     "Pasted image 20260319134418.png",
     "Excalidraw",
@@ -237,7 +233,6 @@
     "学习",
     "Project notes/nextjs-dashboard",
     "思考.canvas",
-    "Front-end notes/Next.JS",
     "Project notes/react-firebase/最后一条消息.canvas",
     "Project notes/react-firebase/注册、登录.canvas",
     "Project notes/react-firebase/消息同步.canvas",
