@@ -1,7 +1,4 @@
-# 脚本分析无序列表间距
-
-# 读取文件内容
-content = """## 1. 浏览器基础架构
+## 1. 浏览器基础架构
 
 ### 1.1 什么是同源策略？为什么要有同源策略？
 **考点**：浏览器安全机制的核心概念
@@ -11,7 +8,9 @@ content = """## 1. 浏览器基础架构
 - `http://example.com` 和 `https://example.com` ❌（协议不同）
 
 
+
 - `http://example.com:80` 和 `http://example.com:8080` ❌（端口不同）
+
 
 
 - `http://example.com` 和 `http://www.example.com` ❌（域名不同）
@@ -21,10 +20,13 @@ content = """## 1. 浏览器基础架构
 - 防止恶意网站读取其他网站的敏感数据
 
 
+
 - 保护Cookie、LocalStorage等用户数据
 
 
+
 - 防止CSRF攻击
+
 
 ---
 
@@ -37,7 +39,9 @@ content = """## 1. 浏览器基础架构
 
    - 控制主界面：地址栏、前进后退按钮
 
+
    - 管理其他进程的创建和销毁
+
 
    - 处理文件存储、网络请求等
 
@@ -45,9 +49,12 @@ content = """## 1. 浏览器基础架构
 
    - 每个标签页通常有独立的渲染进程（进程隔离）
 
+
    - 负责HTML解析、CSS样式计算、布局、绘制
 
+
    - 执行JavaScript代码
+
 
    - 管理DOM树、CSSOM树
 
@@ -55,11 +62,13 @@ content = """## 1. 浏览器基础架构
 
    - 专门处理3D绘制、图像解码等需要GPU加速的任务
 
+
    - 所有标签页共享同一个GPU进程
 
 4. **网络进程（Network Process）**
 
    - 处理所有网络请求
+
 
    - 资源缓存、HTTP协议处理
 
@@ -76,6 +85,7 @@ content = """## 1. 浏览器基础架构
 
 
 - 性能：充分利用多核CPU
+
 
 ---
 
@@ -113,6 +123,7 @@ content = """## 1. 浏览器基础架构
 
 - **Chakra**（老版Edge）
 
+
 ---
 
 ## 2. 页面加载过程
@@ -124,6 +135,7 @@ content = """## 1. 浏览器基础架构
 1. **DNS解析**
 
    - 浏览器缓存 → 系统缓存 → 路由器缓存 → ISP DNS → 根域名服务器
+
 
    - 最终获取IP地址
 
@@ -139,19 +151,25 @@ content = """## 1. 浏览器基础架构
 
    - 服务器接收请求、处理、返回响应
 
+
    - 响应报文（状态行、响应头、响应体）
 
 5. **浏览器解析渲染**
 
    - 解析HTML构建DOM树
 
+
    - 解析CSS构建CSSOM树
+
 
    - 合并DOM和CSSOM生成渲染树（Render Tree）
 
+
    - 布局（Layout/Reflow）：计算元素位置和大小
 
+
    - 绘制（Paint）：生成像素数据
+
 
    - 合成（Composite）：合并图层并显示
 
@@ -168,6 +186,7 @@ content = """## 1. 浏览器基础架构
 
 
 - 了解浏览器预加载、预解析等优化机制
+
 
 ---
 
@@ -203,6 +222,7 @@ content = """## 1. 浏览器基础架构
 
 - 优化关键路径长度（减少往返次数）
 
+
 ---
 
 ### 2.3 浏览器的缓存机制有哪些？
@@ -214,7 +234,9 @@ content = """## 1. 浏览器基础架构
 
    - 不向服务器发送请求，直接使用本地缓存
 
+
    - HTTP 1.0：`Expires`（绝对时间）
+
 
    - HTTP 1.1：`Cache-Control`（相对时间，优先级更高）
 
@@ -222,7 +244,9 @@ content = """## 1. 浏览器基础架构
 
    - 向服务器发送请求，服务器决定是否使用缓存
 
+
    - `Last-Modified` / `If-Modified-Since`
+
 
    - `ETag` / `If-None-Match`（优先级更高）
      ```http
@@ -245,6 +269,7 @@ content = """## 1. 浏览器基础架构
 
 
 - 了解Service Worker缓存（PWA）
+
 
 ---
 
@@ -272,17 +297,24 @@ content = """## 1. 浏览器基础架构
 
 - 当页面布局或几何属性改变时发生
 
+
 - 重新计算元素位置、大小
+
 
 - **触发条件**：
 
+
   - 添加/删除可见DOM元素
+
 
   - 元素位置、尺寸改变（width、height、padding、margin）
 
+
   - 内容改变（文字、图片）
 
+
   - 浏览器窗口大小改变
+
 
   - 获取某些属性（offsetTop、clientWidth、getComputedStyle等）
 
@@ -290,11 +322,15 @@ content = """## 1. 浏览器基础架构
 
 - 当元素样式改变但不影响布局时发生
 
+
 - **触发条件**：
+
 
   - 改变颜色（color、background-color）
 
+
   - 改变visibility
+
 
   - 改变outline、box-shadow
 
@@ -302,11 +338,13 @@ content = """## 1. 浏览器基础架构
 
 - 重排必定触发重绘
 
+
 - 重绘不一定触发重排
 
 **性能影响**：
 
 - 重排 > 重绘（重排成本更高）
+
 
 ---
 
@@ -378,27 +416,35 @@ content = """## 1. 浏览器基础架构
 
 - 浏览器为了提升渲染性能，将页面分成多个图层
 
+
 - 某个图层的变化不会影响其他图层
 
 **触发图层的条件**（提升为合成层）：
 
 - 3D或透视变换（transform: translateZ(0), perspective）
 
+
 - 使用加速视频解码的video元素
+
 
 - 3D或混合插件（Flash）
 
+
 - 对opacity、transform应用动画
+
 
 - 拥有加速CSS过滤器（filter）
 
+
 - 元素有包含复合层的后代节点
+
 
 - 元素有z-index比它小且包含复合层的兄弟元素
 
 **查看图层的方法**：
 
 - Chrome DevTools → Layers面板
+
 
 - `will-change: transform`（显式提升图层）
 
@@ -415,13 +461,16 @@ content = """## 1. 浏览器基础架构
 
 - 不触发重排和重绘
 
+
 - 利用GPU加速，性能更高
+
 
 - 动画更流畅
 
 **合成属性**（不会触发重排重绘）：
 
 - `transform`
+
 
 - `opacity`
 
@@ -484,9 +533,12 @@ console.log('sync');  // 同步代码
 
 - **即时编译（JIT）**：解释执行 + 编译优化
 
+
 - **内联缓存（Inline Cache）**：缓存属性访问
 
+
 - **隐藏类（Hidden Class）**：优化对象属性访问
+
 
 - **垃圾回收（GC）**：新生代（Scavenge）、老生代（Mark-Sweep + Mark-Compact）
 
@@ -500,6 +552,7 @@ console.log('sync');  // 同步代码
 
 - 知道垃圾回收的不同算法
 
+
 ---
 
 ### 4.2 什么是垃圾回收（GC）？V8的GC策略？
@@ -510,29 +563,36 @@ console.log('sync');  // 同步代码
 1. **标记清除（Mark-Sweep）**
    - 标记所有可达对象
 
+
    - 清除未标记对象
+
 
    - **缺点**：产生内存碎片
 
 2. **标记整理（Mark-Compact）**
    - 标记后将存活对象移到一端
 
+
    - 避免内存碎片
 
 3. **引用计数（Reference Counting）**
    - 统计对象引用次数
 
+
    - 引用为0时回收
+
 
    - **缺点**：无法解决循环引用
 
 **V8的分代回收**：
 - **新生代（New Space）**：Scavenge算法（From/To空间）
 
+
 - **老生代（Old Space）**：Mark-Sweep + Mark-Compact
 
 **V8内存限制**：
 - 64位系统：约1.4GB
+
 
 - 32位系统：约0.7GB
 
@@ -548,6 +608,7 @@ console.log('sync');  // 同步代码
 
 
 - 大数据及时释放引用
+
 
 ---
 
@@ -629,7 +690,9 @@ console.log(5);
 
 - 用途：身份认证（Session ID）、个性化设置
 
+
 - 缺点：容量小、每次请求都携带、安全性问题
+
 
 - 注意：`HttpOnly`（防止XSS）、`Secure`（HTTPS）、`SameSite`（防CSRF）
 
@@ -637,7 +700,9 @@ console.log(5);
 
 - 用途：持久化存储（用户偏好、缓存数据）
 
+
 - 特点：同步API、简单键值对
+
 
 - 缺点：无法存储复杂数据结构（需JSON.stringify）
 
@@ -645,15 +710,19 @@ console.log(5);
 
 - 用途：临时数据（表单数据、页面状态）
 
+
 - 特点：关闭窗口即清除、不同窗口数据独立
 
 **IndexedDB**：
 
 - 用途：大型数据存储（离线应用、PWA）
 
+
 - 特点：异步API、支持索引、事务机制
 
+
 - 缺点：API复杂
+
 
 ---
 
@@ -665,6 +734,7 @@ console.log(5);
 1. **HttpOnly**
    - JavaScript无法通过`document.cookie`访问
 
+
    - 防止XSS攻击窃取Cookie
    ```javascript
    Set-Cookie: sessionId=abc123; HttpOnly
@@ -672,6 +742,7 @@ console.log(5);
 
 2. **Secure**
    - 只在HTTPS连接下发送
+
 
    - 防止中间人攻击
    ```javascript
@@ -681,9 +752,12 @@ console.log(5);
 3. **SameSite**
    - 控制跨站发送行为
 
+
    - `Strict`：完全禁止跨站发送
 
+
    - `Lax`（默认）：允许GET请求跨站发送
+
 
    - `None`：允许跨站发送（必须配合Secure）
    ```javascript
@@ -692,6 +766,7 @@ console.log(5);
 
 4. **Domain** / **Path**
    - 限制Cookie的作用范围
+
 
 ---
 
@@ -728,7 +803,9 @@ sessionStorage.setItem('token', 'abc123');
 **同源策略限制**：
 - 无法读取非同源网页的Cookie、LocalStorage、IndexedDB
 
+
 - 无法接触非同源DOM
+
 
 - 无法向非同源地址发送AJAX请求
 
@@ -742,11 +819,13 @@ sessionStorage.setItem('token', 'abc123');
 
    - 利用`<script>`标签不受同源限制
 
+
    - 只能发送GET请求
 
 3. **代理服务器**
 
    - 开发环境：webpack-dev-server proxy
+
 
    - 生产环境：Nginx反向代理
 
@@ -766,7 +845,9 @@ sessionStorage.setItem('token', 'abc123');
 **触发条件**（简单请求不会触发）：
 - 使用`PUT`、`DELETE`等非简单方法
 
+
 - 设置自定义请求头（如`Authorization`）
+
 
 - Content-Type为`application/json`等非简单类型
 
@@ -779,6 +860,7 @@ sessionStorage.setItem('token', 'abc123');
 
 **简单请求（不会触发预检）**：
 - 方法：GET、POST、HEAD
+
 
 - Content-Type：`application/x-www-form-urlencoded`、`multipart/form-data`、`text/plain`
 
@@ -803,6 +885,7 @@ fetch('https://api.example.com/data', {
 **并发限制**：
 - **HTTP/1.1**：同一域名下最多**6个**并发连接
 
+
 - **HTTP/2**：多路复用，理论上无限制（实际浏览器有限制）
 
 **解决方案**：
@@ -810,6 +893,7 @@ fetch('https://api.example.com/data', {
 1. **域名分片（Domain Sharding）**
 
    - 将资源分散到多个子域名
+
 
    - 如：`static1.example.com`、`static2.example.com`
 
@@ -838,10 +922,12 @@ fetch('https://api.example.com/data', {
 2. **多路复用（Multiplexing）**
    - 一个TCP连接上并行发送多个请求
 
+
    - 解决HTTP/1.1队头阻塞问题
 
 3. **头部压缩（HPACK）**
    - 使用Huffman编码压缩头部
+
 
    - 减少传输体积
 
@@ -860,6 +946,7 @@ fetch('https://api.example.com/data', {
 
 - 提升页面加载速度
 
+
 ---
 
 ## 7. 安全机制
@@ -873,17 +960,20 @@ fetch('https://api.example.com/data', {
 
    - 恶意脚本存储在服务器（如评论、文章）
 
+
    - 所有访问该页面的用户都会执行
 
 2. **反射型XSS**
 
    - 恶意脚本在URL中，服务器反射回页面
 
+
    - 需要用户点击恶意链接
 
 3. **DOM型XSS**
 
    - 恶意脚本通过DOM操作注入
+
 
    - 不经过服务器
 
@@ -899,6 +989,7 @@ fetch('https://api.example.com/data', {
 
    - React、Vue默认对插入内容进行转义
 
+
 ---
 
 ### 7.2 什么是CSRF攻击？如何防范？
@@ -906,6 +997,7 @@ fetch('https://api.example.com/data', {
 
 **CSRF（跨站请求伪造）**：
 - 攻击者诱导用户在已登录的网站执行非本意操作
+
 
 - 利用浏览器自动发送Cookie的特性
 
@@ -934,6 +1026,7 @@ fetch('https://api.example.com/data', {
 4. **验证Referer**
    - 检查请求来源
 
+
 ---
 
 ### 7.3 什么是CSP（内容安全策略）？
@@ -944,7 +1037,9 @@ fetch('https://api.example.com/data', {
 **作用**：
 - 防止XSS攻击
 
+
 - 防止数据注入
+
 
 - 控制资源加载来源
 
@@ -960,11 +1055,15 @@ Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.examp
 **常用指令**：
 - `default-src`：默认策略
 
+
 - `script-src`：JavaScript来源
+
 
 - `style-src`：CSS来源
 
+
 - `img-src`：图片来源
+
 
 - `connect-src`：AJAX、WebSocket来源
 
@@ -974,6 +1073,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.examp
 
 - 理解`nonce`和`hash`的使用
 
+
 ---
 
 ### 7.4 浏览器的沙箱机制是什么？
@@ -982,19 +1082,24 @@ Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.examp
 **沙箱（Sandbox）定义**：
 - 将不可信代码运行在隔离环境中
 
+
 - 限制对系统资源的访问
 
 **浏览器沙箱机制**：
 - 每个渲染进程运行在独立沙箱中
 
+
 - 无法直接访问文件系统、网络
+
 
 - 通过IPC与浏览器进程通信
 
 **沙箱级别**：
 - **高**：完全隔离（如iframe的sandbox）
 
+
 - **中**：部分限制
+
 
 - **低**：较少限制
 
@@ -1006,11 +1111,15 @@ Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.examp
 **sandbox可选值**：
 - `allow-scripts`：允许执行脚本
 
+
 - `allow-same-origin`：允许同源访问
+
 
 - `allow-forms`：允许表单提交
 
+
 - `allow-top-navigation`：允许跳转顶层页面
+
 
 ---
 
@@ -1025,13 +1134,16 @@ Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.examp
 
    - 压缩合并CSS/JS
 
+
    - 删除未使用的代码（Tree Shaking）
+
 
    - 使用CDN加速
 
 2. **优化CSS加载**
 
    - 内联关键CSS（Critical CSS）
+
 
    - 异步加载非关键CSS
 
@@ -1043,7 +1155,9 @@ Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.examp
 
    - 使用WebP格式
 
+
    - 图片懒加载
+
 
    - 响应式图片（srcset）
 
@@ -1104,10 +1218,12 @@ Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.examp
 **防抖（Debounce）**：
 - 多次触发只执行最后一次
 
+
 - **适用场景**：搜索框输入、窗口resize、scroll事件
 
 **节流（Throttle）**：
 - 规定时间内只执行一次
+
 
 - **适用场景**：按钮点击、鼠标移动、滚动加载
 
@@ -1210,20 +1326,27 @@ window.addEventListener('scroll', scrollHandler);
 **特性**：
 - 独立于页面运行
 
+
 - 可离线工作
+
 
 - 可拦截和处理网络请求
 
+
 - 支持推送通知
+
 
 - 支持后台同步
 
 **典型应用**：
 - 离线缓存（Cache API）
 
+
 - 推送通知
 
+
 - 后台同步
+
 
 - 请求拦截和修改
 
@@ -1267,16 +1390,21 @@ self.addEventListener('fetch', event => {
 **特点**：
 - 独立于主线程
 
+
 - 无法访问DOM
 
+
 - 通过`postMessage`通信
+
 
 - 适用于计算密集型任务
 
 **使用场景**：
 - 复杂计算（数据处理、加密解密）
 
+
 - 大文件处理
+
 
 - 游戏逻辑
 
@@ -1308,14 +1436,18 @@ self.onmessage = (e) => {
 **相比MutationEvents的优势**：
 - 异步执行，不会阻塞主线程
 
+
 - 性能更好
+
 
 - 可以监听批量变化
 
 **使用场景**：
 - 监听DOM结构变化
 
+
 - 实现虚拟DOM差异化更新
+
 
 - 监控第三方库对DOM的修改
 
@@ -1363,13 +1495,18 @@ observer.observe(document.body, config);
 **选择建议**：
 - 小量配置：LocalStorage
 
+
 - 大量结构化数据：IndexedDB
+
 
 - 离线资源：Cache Storage + Service Worker
 
+
 - 临时数据：SessionStorage
 
+
 - 身份认证：HttpOnly Cookie
+
 
 ---
 
@@ -1403,6 +1540,7 @@ observer.observe(document.body, config);
 
 - 理解`preload`、`prefetch`、`preconnect`的区别
 
+
 ---
 
 ### 9.6 什么是回流（Reflow）优化中的"布局抖动"（Layout Thrashing）？
@@ -1434,6 +1572,7 @@ for (let i = 0; i < 100; i++) {
 **工具检测**：
 - Chrome DevTools → Performance → 查看重排次数
 
+
 ---
 
 ## 📚 推荐学习资料
@@ -1441,26 +1580,33 @@ for (let i = 0; i < 100; i++) {
 1. **书籍**
    - 《高性能网站建设指南》
 
+
    - 《Web性能权威指南》
+
 
    - 《深入理解浏览器内核》
 
 2. **官方文档**
    - [MDN Web Docs](https://developer.mozilla.org/)
 
+
    - [Google Web Fundamentals](https://developers.google.com/web/fundamentals)
 
 3. **调试工具**
    - Chrome DevTools（Performance、Lighthouse、Layers）
 
+
    - WebPageTest
+
 
    - Lighthouse CI
 
 4. **在线课程**
    - Google Web Performance Course
 
+
    - Frontend Masters - Performance
+
 
 ---
 
@@ -1469,34 +1615,45 @@ for (let i = 0; i < 100; i++) {
 1. **基础必问**：
    - 页面加载流程
 
+
    - 重排重绘
 
+
    - 事件循环
+
 
    - 存储方式对比
 
 2. **进阶常问**：
    - 关键渲染路径
 
+
    - 图层与合成
 
+
    - CSP、XSS、CSRF
+
 
    - 性能监控指标
 
 3. **高阶问题**：
    - V8引擎原理
 
+
    - Service Worker
+
 
    - 浏览器架构
 
 4. **实战题目**：
    - 如何优化首屏加载？
 
+
    - 如何减少重排重绘？
 
+
    - 如何防范XSS/CSRF？
+
 
 ---
 

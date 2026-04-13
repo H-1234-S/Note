@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "八股/浏览器篇_高频八股文.md",
+                "file": "八股/浏览器篇_高频八股文_修复_final.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "浏览器篇_高频八股文"
+              "title": "浏览器篇_高频八股文_修复_final"
             }
           }
         ]
@@ -137,13 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "八股/浏览器篇_高频八股文.md",
+                "file": "八股/浏览器篇_高频八股文_修复_final.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "浏览器篇_高频八股文 的大纲"
+              "title": "浏览器篇_高频八股文_修复_final 的大纲"
             }
           },
           {
@@ -196,22 +196,26 @@
   },
   "active": "b593d491c7139ffc",
   "lastOpenFiles": [
-    "八股/fix_spacing_regex.py",
-    "八股/浏览器篇_高频八股文_修复_v2.md",
-    "八股/fix_list_spacing_v2.py",
     "八股/浏览器篇_高频八股文_修复.md",
-    "八股/fix_list_spacing.py",
+    "八股/浏览器篇_高频八股文_修复_final.md",
+    "八股/浏览器篇_高频八股文_间距修复版.md",
+    "八股/浏览器篇_高频八股文.md",
+    "八股/浏览器篇_高频八股文_修复_v2.md",
+    "八股/浏览器篇_高频八股文_修复_simple.md",
+    "八股/JavaScript篇_高频八股文.md",
+    "八股/Next.js篇_高频八股文.md",
+    "八股/React篇_高频八股文.md",
     "八股/temp_analysis.md",
+    "八股/fix_spacing_final.py",
+    "八股/fix_spacing_simple.py",
+    "八股/fix_spacing_regex.py",
+    "八股/fix_list_spacing_v2.py",
+    "八股/fix_list_spacing.py",
     "八股/sedVT2gRb",
     "八股/sedB64q4b",
     "八股/sedMQ7uOn",
     "八股/sedU4IkyS",
     "八股/sediSvX79",
-    "八股/sednviHRz",
-    "八股/sedfQo2oU",
-    "八股/adjust_lists.py",
-    "八股/React篇_高频八股文.md",
-    "八股/浏览器篇_高频八股文.md",
     "Front-end notes/React/深入学习React.md",
     "Front-end notes/Web API.md",
     "Front-end notes/Zod.md",
@@ -219,8 +223,6 @@
     "Front-end notes/TypeScript.md",
     "Front-end notes/Prisma.md",
     "Front-end notes/React/构建Mini React.md",
-    "八股/JavaScript篇_高频八股文.md",
-    "八股/Next.js篇_高频八股文.md",
     "conflict-files-obsidian-git.md",
     "Project notes/resonance/Resonance.md",
     "八股/浏览器/浏览器篇_高频八股文.md",
@@ -230,8 +232,6 @@
     "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/Next.JS/问题.md",
     "Front-end notes/Next.JS/Next.js.md",
-    "学习/技术栈.md",
-    "Project notes/polaris/claude prompt.md",
     "Project notes/resonance/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
