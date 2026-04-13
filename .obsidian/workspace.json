@@ -78,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -196,6 +197,7 @@
   },
   "active": "b593d491c7139ffc",
   "lastOpenFiles": [
+    "八股/sedVT2gRb",
     "八股/sedB64q4b",
     "八股/sedMQ7uOn",
     "八股/sedU4IkyS",
@@ -220,7 +222,6 @@
     "Project notes/resonance/Resonance.md",
     "八股/浏览器/浏览器篇_高频八股文.md",
     "八股/浏览器",
-    "八股",
     "八股/react-interview-questions.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/库/nuqs-基础知识.md",
