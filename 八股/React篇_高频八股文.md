@@ -1,20 +1,25 @@
----
-
 ## 1. React基础概念
 
 ### 1.1 React是什么？有什么特点？
+
 **考点**：React基础认知
 
 **React定义**：
+
 - Facebook开发的用于构建用户界面的JavaScript库
+
 - 专注于视图层（View层）
+
 - 采用组件化开发模式
 
 **核心特点**：
 
 1. **虚拟DOM（Virtual DOM）**
+
    - 用JavaScript对象模拟真实DOM
+
    - 通过Diff算法最小化更新真实DOM
+
    - 提升渲染性能
 
 2. **组件化**

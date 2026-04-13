@@ -1,22 +1,3 @@
-# 前端面试 - Next.js篇
-
-## 📌 目录
-
-- [1. Next.js基础概念](#nextjs基础概念)
-- [2. 渲染模式与策略](#渲染模式与策略)
-- [3. App Router核心概念](#app-router核心概念)
-- [4. Pages Router](#pages-router)
-- [5. 数据获取与缓存](#数据获取与缓存)
-- [6. 路由系统](#路由系统)
-- [7. Server Actions](#server-actions)
-- [8. Middleware与proxy](#middleware与proxy)
-- [9. API Routes](#api-routes)
-- [10. 性能优化](#性能优化)
-- [11. Next.js 14/15/16新特性](#nextjs-141516新特性)
-- [12. 常见面试题](#常见面试题)
-
----
-
 ## 1. Next.js基础概念
 
 ### 1.1 Next.js是什么？有什么特点？
