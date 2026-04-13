@@ -80,6 +80,7 @@ function Welcome(props) {
 
 **核心思想差异**：
 - React：All in JavaScript，函数式编程思想
+
 - Vue：模板语法，响应式数据绑定
 
 ---
@@ -89,6 +90,7 @@ function Welcome(props) {
 
 **虚拟DOM定义**：
 - 用普通JavaScript对象描述真实DOM结构
+
 - 是真实DOM的轻量级拷贝
 
 **为什么需要虚拟DOM**：
@@ -164,7 +166,9 @@ function createDOM(vdom) {
 
 **JSX定义**：
 - JavaScript的语法扩展
+
 - 让你可以在JS中写HTML-like代码
+
 - 编译后变成`React.createElement()`调用
 
 **JSX编译示例**：
@@ -206,8 +210,11 @@ function List() {
 
 **React元素**：
 - 不可变对象
+
 - 描述真实DOM或组件
+
 - `React.createElement()`的返回值
+
 - 比作"虚拟DOM的最小单位"
 
 ```jsx
@@ -220,7 +227,9 @@ element.props.children = 'World'; // ❌ 不要这样做
 
 **React组件**：
 - 可复用、独立的功能单元
+
 - 接受props，返回元素
+
 - 可以是函数或class
 
 ```jsx
@@ -261,6 +270,7 @@ setState() → 批量更新 → 组件更新 → render() → Diff → 更新DOM
 
 **React 18前的 batching（自动批量）**：
 - 只有React事件处理中的setState会批量更新
+
 - 异步代码（setTimeout、Promise.then）中的setState不会批量
 
 ```javascript
@@ -389,12 +399,16 @@ setCount(prev => prev + 1); // 基于前一个状态计算
 **两种工作阶段**：
 1. **render阶段（可中断）**
    - 计算需要更新的内容
+
    - 构建Fiber树
+
    - 可以暂停和恢复
 
 2. **commit阶段（不可中断）**
    - 应用更新到DOM
+
    - 必须一次性完成
+
    - 调用生命周期、hooks
 
 ---
@@ -455,7 +469,9 @@ setCount(prev => prev + 1); // 基于前一个状态计算
 
 **合成事件（SyntheticEvent）**：
 - React封装的跨浏览器事件对象
+
 - 兼容所有浏览器
+
 - 提供统一的API
 
 **事件绑定原理**：
@@ -473,10 +489,15 @@ root.addEventListener('click', ...); // 挂在React根容器上
 
 **事件分类**：
 - 焦点事件：`onFocus`、`onBlur`
+
 - 表单事件：`onChange`、`onSubmit`、`onInput`
+
 - 鼠标事件：`onClick`、`onMouseEnter`
+
 - 触摸事件：`onTouchStart`、`onTouchMove`
+
 - 键盘事件：`onKeyDown`、`onKeyUp`
+
 - 拖拽事件：`onDrag`、`onDrop`
 
 **事件处理函数的this**：
@@ -574,7 +595,9 @@ const Welcome = ({ name }) => <div>Hello, {name}</div>;
 
 **现代React推荐**：
 - 函数组件 + Hooks是现代React的标准
+
 - 类组件正在被逐步淘汰
+
 - 新项目应使用函数组件
 
 ---
@@ -875,7 +898,9 @@ function UserProfile() {
 
 **单向数据流定义**：
 - 数据只能从父组件流向子组件
+
 - 子组件不能直接修改父组件传来的props
+
 - 数据变化必须通过"向上通知"的方式
 
 **数据流动示意**：
@@ -925,6 +950,7 @@ function Child({ count, onIncrement }) {
 
 **对比Vue的双向绑定**：
 - Vue：数据变化会自动更新视图，视图变化也会更新数据
+
 - React：必须显式调用setState来更新数据
 
 ---
@@ -981,6 +1007,7 @@ const [data, setData] = useState(() => expensiveCalculation(props));
 
 **原因**：
 - Hooks通过链表实现，顺序很重要
+
 - 条件或循环会导致顺序不一致
 
 ```jsx
@@ -1021,7 +1048,9 @@ useEffect(() => {
 
 **执行时机**：
 - **没有依赖**：每次渲染后执行
+
 - **空数组[]**：只在挂载时执行（类似componentDidMount）
+
 - **有依赖[deps]**：依赖变化时执行
 
 **常见使用场景**：
@@ -1766,6 +1795,7 @@ const AppContext = React.createContext({});
 
 2. **适合存储"全局"但"不常变"的数据**
    - 主题、语言、用户信息
+
    - 不适合存储频繁变化的数据（表单输入等）
 
 3. **无法精确订阅某个属性**
@@ -1988,6 +2018,7 @@ class MyComponent extends React.PureComponent {
 
 **React DevTools - Components**：
 - 查看组件props、state
+
 - 高亮更新时重新渲染的组件
 
 **console.log调试**：
@@ -2052,7 +2083,9 @@ setTimeout(() => {
 
 **2. Concurrent Rendering（并发渲染）**：
 - 新的并发模式
+
 - 可中断的渲染
+
 - 更好的用户体验
 
 **3. useTransition**：
@@ -2124,7 +2157,9 @@ root.render(<App />);
 
 **7. 新的Hooks**：
 - `useId` - 生成唯一ID
+
 - `useSyncExternalStore` - 外部store订阅
+
 - `useInsertionEffect` - CSS-in-JS库使用
 
 ---
@@ -2185,7 +2220,9 @@ function Typeahead() {
 
 **1. React Compiler（原React Forget）**：
 - 自动将组件转换为符合编译时规则的代码
+
 - 不再需要手动useMemo、useCallback
+
 - 显著提升性能，减少重新渲染
 
 ```jsx
@@ -2205,6 +2242,7 @@ function ProductPage({ product, addToCart }) {
 
 **2. Actions（操作）**：
 - 简化表单和异步操作
+
 - 自动处理pending状态、错误处理、乐观更新
 
 **useActionState**：
@@ -2262,6 +2300,7 @@ function Form() {
 
 **3. use() Hook**：
 - 可以在Hooks中使用Promise和Context
+
 - 支持条件调用（不再是顶层调用）
 
 ```jsx
@@ -2300,7 +2339,9 @@ function Comments({ commentsPromise, showComments }) {
 
 **4. Server Components（服务端组件）**：
 - 组件默认在服务端渲染
+
 - 减少客户端JavaScript体积
+
 - 直接访问服务端资源（数据库、文件系统）
 
 ```jsx
@@ -2333,6 +2374,7 @@ function LikeButton({ postId }) {
 
 **5. 改进的ref处理**：
 - ref可以作为prop直接传递
+
 - 不再需要forwardRef（但仍支持）
 
 ```jsx
@@ -2483,7 +2525,9 @@ function WebComponentWrapper() {
 
 **React Compiler（原名React Forget）**：
 - 自动为组件添加memoization
+
 - 确保组件符合规则（纯函数、不 mutate state）
+
 - 编译时优化，减少运行时开销
 
 **解决的问题**：
@@ -2666,7 +2710,9 @@ function update() {
 
 **受控组件（Controlled Component）**：
 - 表单数据由React state管理
+
 - value由props传入
+
 - 状态变化通过onChange事件
 
 ```jsx
@@ -2686,7 +2732,9 @@ function ControlledInput() {
 
 **非受控组件（Uncontrolled Component）**：
 - 表单数据由DOM本身管理
+
 - 使用ref获取DOM元素的值
+
 - 不需要双向绑定
 
 ```jsx
@@ -2716,6 +2764,7 @@ function UncontrolledInput() {
 
 **实际建议**：
 - 大多数情况使用受控组件
+
 - 非受控组件适合：文件上传、第三方表单库集成
 
 ---
@@ -2725,6 +2774,7 @@ function UncontrolledInput() {
 
 **约定vs配置**：
 - **配置** - 需要显式声明（Vuex mutation types、Redux action types）
+
 - **约定** - 有默认的命名和结构（React Hooks规则、文件组织）
 
 **React的"约定"示例**：
@@ -2767,14 +2817,17 @@ const store = createStore({
 **当前趋势**：
 1. **Server Components** - 服务端渲染组件
    - 减少客户端JavaScript体积
+
    - 数据获取更简单
 
 2. **Concurrent Mode完善** - 并发模式
    - useTransition/useDeferredValue普及
+
    - 自动批处理成为默认
 
 3. **ReactForget** - 自动记忆化
    - 不需要手动useMemo/useCallback
+
    - 编译器自动优化
 
 4. **更好的DevTools** - 开发工具改进
@@ -3290,17 +3343,23 @@ Accordion.Content = AccordionContent;
 
 1. **官方文档**
    - [React官方文档](https://react.dev/)
+
    - [React Hooks API Reference](https://react.dev/reference/react)
+
    - [React Beta文档](https://beta.reactjs.org/)
 
 2. **书籍**
    - 《深入React技术栈》
+
    - 《React设计原理》
+
    - 《React状态管理与同构实战》
 
 3. **进阶资源**
    - [React Fiber架构解析](https://github.com/acdlite/react-fiber-architecture)
+
    - [React团队博客](https://react.dev/blog)
+
    - [React RFCs](https://github.com/reactjs/rfcs)
 
 ---

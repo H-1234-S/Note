@@ -5,7 +5,9 @@
 
 **Next.js定义**：
 - Vercel开发的React全栈框架
+
 - 支持服务端渲染（SSR）、静态生成（SSG）、增量静态再生成（ISR）
+
 - 内置文件系统路由、API Routes、图像优化等功能
 
 **核心特点**：
@@ -74,6 +76,7 @@ export default function Page() {
 
 **核心思想差异**：
 - React：客户端UI库，专注于构建 SPA
+
 - Next.js：基于React的全栈方案，提供服务端渲染能力和API层
 
 ---
@@ -94,6 +97,7 @@ export default function Page() {
 
 **选择建议**：
 - 新项目：推荐使用 App Router（React Server Components）
+
 - 迁移项目：可逐步从 Pages Router 迁移到 App Router
 
 ---
@@ -146,7 +150,9 @@ export default function Home({ data }) {
 
 **适用场景**：
 - 需要SEO的页面（商品详情、博客文章）
+
 - 实时性要求高的页面（股票行情、新闻）
+
 - 个性化内容展示
 
 ---
@@ -156,6 +162,7 @@ export default function Home({ data }) {
 
 **SSG定义**：
 - 在构建时（build time）生成静态HTML文件
+
 - 构建完成后，页面是预渲染的静态文件
 
 **工作流程**：
@@ -223,6 +230,7 @@ export async function getStaticPaths() {
 
 **ISR定义**：
 - 结合SSG和SSR的优点
+
 - 页面静态生成，但可以在运行时重新验证更新
 
 **工作流程**：
@@ -287,6 +295,7 @@ export async function getStaticProps() {
 
 **CSR定义**：
 - 服务器只返回空HTML shell
+
 - 实际的DOM渲染完全在浏览器端通过JavaScript完成
 
 **实现方式（App Router）**：
@@ -327,7 +336,9 @@ export default function Page() {
 
 **适用场景**：
 - 需要实时更新的数据（聊天、监控）
+
 - 用户特定内容的页面（个人仪表盘）
+
 - SEO要求不高的后台系统
 
 ---
@@ -337,7 +348,9 @@ export default function Page() {
 
 **定义**：
 - Next.js 14 引入的渲染策略
+
 - 静态外壳 + 动态内容的混合渲染模式
+
 - 结合 SSG 的速度和 SSR 的灵活性
 
 **工作原理**：
@@ -380,7 +393,9 @@ async function UserComments() {
 
 **RSC定义**：
 - React 18引入的新特性
+
 - 组件默认在服务器端渲染
+
 - 可以直接访问服务器资源（数据库、文件系统）
 
 **服务端组件 vs 客户端组件**：
@@ -435,11 +450,14 @@ export default function Dashboard() {
 
 **layout.tsx**：
 - 定义共享布局
+
 - 包裹子路由
+
 - 保持状态不重新渲染
 
 **page.tsx**：
 - 对应具体路由的页面
+
 - 是layout的子组件
 
 **嵌套示例**：
@@ -522,10 +540,15 @@ export default function Page({ params }) {
 
 **常见配置项**：
 - `title`：页面标题
+
 - `description`：页面描述
+
 - `keywords`：关键词（部分搜索引擎支持）
+
 - `openGraph`：社交分享配置
+
 - `twitter`：Twitter分享配置
+
 - `robots`：搜索引擎爬虫配置
 
 ---
@@ -535,7 +558,9 @@ export default function Page({ params }) {
 
 **定义**：
 - Next.js 16 引入的 `"use cache"` 指令
+
 - 显式缓存函数/组件的返回结果
+
 - 编译器自动生成缓存键
 
 **基本用法**：
@@ -581,7 +606,9 @@ export async function getCachedProducts() {
 
 **优势**：
 - 显式缓存，代码可读性更好
+
 - 默认动态行为，避免隐式缓存陷阱
+
 - 编译器优化，生成最优缓存键
 
 ---
@@ -864,7 +891,9 @@ export default Error;
 
 **定义**：
 - Streaming 允许将页面内容分块传输给浏览器
+
 - 首屏内容先展示，耗时内容（如数据库查询）后加载
+
 - 通过 React Suspense 实现
 
 **实现方式（App Router）**：
@@ -912,7 +941,9 @@ export default function Loading() {
 
 **优势**：
 - 提升首屏加载速度（FCP）
+
 - 减少 TTFB (Time To First Byte)
+
 - 用户体验更好，不需要等待所有数据加载完成
 
 ---
@@ -989,7 +1020,9 @@ app/
 
 **特点**：
 - URL 不包含分组文件夹名
+
 - 可以为不同组设置不同布局
+
 - 用于组织代码结构，不影响URL
 
 ---
@@ -999,6 +1032,7 @@ app/
 
 **Parallel Routes（并行路由）**：
 - 同一布局中同时渲染多个页面
+
 - 使用 `@folder` 语法
 
 ```tsx
@@ -1037,6 +1071,7 @@ export default function Layout({
 
 **Intercepting Routes（拦截路由）**：
 - 从另一个路由"拦截"导航
+
 - 用于Modal等场景
 
 ```tsx
@@ -1050,7 +1085,9 @@ export default function Layout({
 
 **适用场景**：
 - Photo Gallery（点击图片打开Modal）
+
 - 通知面板
+
 - 购物车侧边栏
 
 ---
@@ -1062,8 +1099,11 @@ export default function Layout({
 
 **定义**：
 - 在服务端执行的异步函数
+
 - 可以从客户端组件调用（像调用普通函数一样）
+
 - 自动处理CSRF保护
+
 - 支持乐观更新（optimistic updates）
 
 **工作原理**：
@@ -1203,7 +1243,9 @@ export function PostForm() {
 
 **定义**：
 - 在请求到达服务器后、渲染页面之前执行的代码
+
 - 可以修改请求和响应
+
 - 用于认证、日志、重定向等
 
 **工作流程**：
@@ -1277,7 +1319,9 @@ export function middleware(request: NextRequest) {
 
 **定义**：
 - 取代 middleware.ts，明确应用网络边界
+
 - 运行在 Node.js 运行时（不再是 Edge）
+
 - 更清晰的命名和职责划分
 
 **迁移方式**：
@@ -1507,8 +1551,11 @@ export default function Layout({ children }) {
 
 **优势**：
 - 自动下载字体文件到本地
+
 - 无需额外网络请求到Google
+
 - 自动设置 `font-display: swap`
+
 - 预加载关键字体文件
 
 ---
@@ -1561,8 +1608,11 @@ const ChartComponent = dynamic(() => import('./Chart'), {
 
 1. **Cache Components**
    - 新的缓存模型，基于 Partial Prerendering (PPR)
+
    - 使用 `"use cache"` 指令缓存页面、组件和函数
+
    - 缓存完全可选，默认所有动态代码在请求时执行
+
    - 完成 PPR 故事，静态页面可以局部动态渲染
 
 ```tsx
@@ -1576,13 +1626,18 @@ export default nextConfig;
 
 2. **Next.js Devtools MCP**
    - Model Context Protocol 集成
+
    - AI辅助调试，提供应用上下文洞察
+
    - 统一日志：浏览器和服务器日志无需切换上下文
+
    - 自动错误访问：详细堆栈跟踪无需手动复制
 
 3. **proxy.ts（formerly middleware.ts）**
    - 替换 middleware.ts，明确应用网络边界
+
    - 运行在 Node.js 运行时
+
    - 迁移方式：将 `middleware.ts` 重命名为 `proxy.ts`，导出函数改为 `proxy`
 
 ```tsx
@@ -1594,14 +1649,20 @@ export default function proxy(request: NextRequest) {
 
 4. **Logging Improvements**
    - 开发请求日志扩展，显示时间花费
+
    - Compile：路由和编译
+
    - Render：运行代码和React渲染
+
    - 构建步骤显示每个步骤的耗时
 
 5. **Turbopack（稳定版）**
    - 开发环境默认 bundler
+
    - 2-5x 更快的产品构建
+
    - 最高 10x 更快的 Fast Refresh
+
    - 超过 50% 的开发会话和 20% 的生产构建已在使用
 
 ```tsx
@@ -1613,6 +1674,7 @@ const nextConfig = {
 
 6. **Turbopack File System Caching（Beta）**
    - 开发环境文件系统缓存
+
    - 编译产物存储在磁盘，显著加快大型项目启动和编译时间
 
 ```tsx
@@ -1626,7 +1688,9 @@ const nextConfig = {
 
 7. **React Compiler Support（稳定版）**
    - 内置 React Compiler 1.0 支持
+
    - 自动 memoization，减少不必要的重渲染
+
    - 配置从 experimental 升级到稳定
 
 ```tsx
@@ -1640,13 +1704,18 @@ const nextConfig = {
 
 8. **Build Adapters API（Alpha）**
    - 创建自定义适配器，钩入构建过程
+
    - 部署平台和自定义构建集成可修改 Next.js 配置或处理构建输出
 
 9. **Enhanced Routing（增强路由）**
    - **Layout deduplication**：共享布局只下载一次，50个产品链接场景从50次下载变为1次
+
    - **Incremental prefetching**：只预取缓存中不存在的部分
+
    - 链接离开视口时取消请求
+
    - 悬停或重新进入视口时优先预取
+
    - 数据失效时重新预取
 
 10. **Improved Caching APIs**
@@ -1689,7 +1758,9 @@ export async function markNotificationAsRead(notificationId: string) {
 
 11. **React 19.2 支持**
     - View Transitions：动画化 Transition 或导航中的元素更新
+
     - useEffectEvent：从 Effects 提取非响应式逻辑
+
     - `<Activity/>`：渲染"后台活动"，用 display:none 隐藏 UI 同时保持状态和清理 Effects
 
 ---
@@ -1701,6 +1772,7 @@ export async function markNotificationAsRead(notificationId: string) {
 
 1. **Server Actions（稳定版）**
    - 在服务端直接执行数据库操作
+
    - 简化表单处理和mutation
 
 ```tsx
@@ -1730,10 +1802,12 @@ export default function NewPost() {
 
 2. **Turbopack（Beta）**
    - 新的打包工具
+
    - 比Webpack快10倍
 
 3. **Partial Prerendering（预览版）**
    - 静态外壳 + 动态内容
+
    - 保持静态性能的同时支持动态内容
 
 ---
@@ -1745,22 +1819,27 @@ export default function NewPost() {
 
 1. **Turbopack 稳定版**
    - 生产环境支持
+
    - 显著的构建速度提升
 
 2. **React 19 支持**
    - 完整支持 React 19 新特性
+
    - 改进的 `use()` hook
 
 3. **缓存策略调整**
    - `fetch` 请求默认不缓存（`cache: no-store`）
+
    - 更加可预测的数据获取行为
 
 4. **改进的错误处理**
    - 更好的错误消息
+
    - 更清晰的调试信息
 
 5. **自托管改进**
    - 更好的容器化支持
+
    - 改进的构建输出
 
 ---
@@ -1806,9 +1885,13 @@ export default function NewPost() {
 ### 12.1 Next.js 的渲染方式有哪些？如何选择？
 **答案要点**：
 - SSR：服务端渲染，适合SEO和实时性页面
+
 - SSG：静态生成，适合内容固定的页面，性能最优
+
 - ISR：增量静态再生成，平衡性能和内容更新
+
 - CSR：客户端渲染，适合个性化、交互性强的页面
+
 - 选择依据：SEO需求、内容更新频率、实时性要求
 
 ---
@@ -1816,9 +1899,13 @@ export default function NewPost() {
 ### 12.2 App Router 和 Pages Router 有什么区别？
 **答案要点**：
 - 架构：App Router基于React Server Components，Pages Router基于客户端渲染
+
 - 默认行为：App Router默认服务端渲染，Pages Router默认客户端渲染
+
 - 布局系统：App Router用layout.tsx，Pages Router用_app.js
+
 - 数据获取：App Router用async组件，Pages Router用getServerSideProps等
+
 - 建议：新项目使用App Router
 
 ---
@@ -1826,10 +1913,15 @@ export default function NewPost() {
 ### 12.3 Next.js 如何实现SEO优化？
 **答案要点**：
 - 使用App Router的metadata API或Pages Router的Head组件
+
 - 利用SSR/SSG实现服务端渲染，提升爬虫抓取
+
 - 使用next/image优化图片，添加alt属性
+
 - 生成sitemap.xml和robots.txt
+
 - 使用结构化数据（JSON-LD）
+
 - 设置合理的meta标签（title、description、keywords）
 
 ---
@@ -1837,9 +1929,13 @@ export default function NewPost() {
 ### 12.4 什么是 Server Actions？如何使用？
 **答案要点**：
 - 在服务端执行的异步函数
+
 - 可以从客户端组件调用
+
 - 简化表单处理和数据mutation
+
 - 自动处理CSRF保护
+
 - 支持乐观更新
 
 ---
@@ -1847,10 +1943,15 @@ export default function NewPost() {
 ### 12.5 Next.js 的缓存机制是怎样的？
 **答案要点**：
 - **fetch缓存**：通过 `cache` 选项控制
+
 - **revalidate**：基于时间的缓存失效
+
 - **revalidateTag**：基于标签的缓存失效
+
 - **Router缓存**：客户端对路由的缓存
+
 - **Full Route Cache**：完整的预渲染路由缓存
+
 - **Data Cache**：服务端数据缓存
 
 ---
@@ -1858,9 +1959,13 @@ export default function NewPost() {
 ### 12.6 Turbopack 相比 Webpack 有什么优势？
 **答案要点**：
 - 构建速度提升10倍
+
 - 更好的增量编译
+
 - 原生支持Rust
+
 - 更少的内存占用
+
 - 改进的日志和错误提示
 
 ---
@@ -1868,9 +1973,13 @@ export default function NewPost() {
 ### 12.7 如何部署 Next.js 应用？
 **答案要点**：
 - **Vercel**（官方推荐）：一键部署，自动配置
+
 - **自托管**：使用Node.js服务器或Docker
+
 - **静态导出**：`output: 'export'` 生成纯静态文件
+
 - **Serverless**：部署到AWS Lambda、Vercel Edge等
+
 - 部署时注意环境变量、构建命令、输出目录配置
 
 ---
@@ -1878,11 +1987,17 @@ export default function NewPost() {
 ### 12.8 Next.js 16 有哪些重大更新？
 **答案要点**：
 - **Cache Components**：新的缓存编程模型，使用 `"use cache"` 指令
+
 - **proxy.ts**：取代 middleware.ts，明确网络边界
+
 - **Turbopack 稳定版**：成为默认 bundler，2-5x 构建加速
+
 - **React Compiler**：内置支持，自动 memoization
+
 - **增强路由**：Layout deduplication 和 Incremental prefetching
+
 - **新缓存 API**：`updateTag()` 和 `refresh()` Server Actions 专用
+
 - **Breaking Changes**：Node.js 20.9+、并行路由需 default.js 等
 
 ---
@@ -1890,9 +2005,13 @@ export default function NewPost() {
 ### 12.9 什么是 Cache Components？和之前的缓存有什么区别？
 **答案要点**：
 - 之前的 App Router：隐式缓存，需要理解 fetch 缓存语义
+
 - Cache Components：显式缓存，完全可选
+
 - 默认行为：所有动态代码在请求时执行
+
 - 使用 `"use cache"` 指令标记需要缓存的函数/组件
+
 - 完成 Partial Prerendering (PPR) 故事：静态外壳 + 局部动态
 
 ---
@@ -1900,9 +2019,13 @@ export default function NewPost() {
 ### 12.10 proxy.ts 和 middleware.ts 有什么区别？
 **答案要点**：
 - **名称变更**：`middleware.ts` → `proxy.ts`
+
 - **运行时明确**：proxy.ts 运行在 Node.js 运行时
+
 - **逻辑不变**：导出的函数从 `middleware` 改名为 `proxy`
+
 - **原因**：更清晰的命名，明确网络边界
+
 - **兼容性**：middleware.ts 仍可用于 Edge runtime，但已弃用
 
 ---
@@ -1910,13 +2033,21 @@ export default function NewPost() {
 ### 12.11 revalidatePath 和 revalidateTag 有什么区别？
 **答案要点**：
 - **revalidatePath**：重新验证特定路径下的所有缓存
+
   - 适合页面级别的缓存失效
+
   - 例如：`revalidatePath('/blog')` 会失效 `/blog` 下所有页面的缓存
+
 - **revalidateTag**：重新验证特定标签关联的所有缓存
+
   - 适合跨多个页面的相关数据
+
   - 例如：`revalidateTag('products')` 失效所有标记为 'products' 的 fetch 缓存
+
 - **使用场景**：
+
   - 数据变更影响单一页面 → 用 revalidatePath
+
   - 数据变更影响多个页面（如同一个组件被多个页面使用）→ 用 revalidateTag
 
 ---
@@ -1924,11 +2055,17 @@ export default function NewPost() {
 ### 12.12 什么是 Streaming？适合什么场景？
 **答案要点**：
 - Streaming 允许分块传输页面内容
+
 - 首屏快速加载，耗时操作后加载
+
 - 通过 React Suspense 实现
+
 - **适用场景**：
+
   - 数据获取耗时的页面
+
   - 需要良好首屏体验的页面
+
   - 长列表、评论等次要内容
 
 ---
@@ -1936,16 +2073,27 @@ export default function NewPost() {
 ### 12.13 Next.js 如何优化 Core Web Vitals？
 **答案要点**：
 - **LCP (Largest Contentful Paint)**：
+
   - 使用 `next/image` 的 `priority` 属性优化首屏图片
+
   - 使用 SSG/SSR 预渲染首屏内容
+
   - 优化字体加载（`next/font`）
+
 - **FID/INP (Interaction to Next Paint)**：
+
   - 减少客户端 JavaScript
+
   - 使用 React Compiler 自动优化重渲染
+
   - 代码分割，按需加载
+
 - **CLS (Cumulative Layout Shift)**：
+
   - 为图片指定宽高或使用 `fill` 属性
+
   - 使用 `next/font` 优化字体加载
+
   - 避免动态插入内容
 
 ---
@@ -1953,11 +2101,19 @@ export default function NewPost() {
 ### 12.14 Parallel Routes 和 Intercepting Routes 有什么区别？
 **答案要点**：
 - **Parallel Routes（@slot）**：
+
   - 同一布局中同时渲染多个页面
+
   - 用于如 Instagram 的照片+点赞+评论同时展示
+
   - 使用 `@folder` 语法
+
 - **Intercepting Routes**：
+
   - 从另一个路由"拦截"导航显示
+
   - 用于如点击图片打开 Modal 而不是跳转页面
+
   - 使用 `(.)folder` 语法
+
 - **组合使用**：可以实现 Instagram 照片流点击后模态框打开的效果

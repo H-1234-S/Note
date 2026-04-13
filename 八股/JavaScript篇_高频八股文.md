@@ -66,6 +66,7 @@ console.log(null === undefined); // false (严格相等)
 
 **面试加分点**：
 - 了解`typeof null`返回`"object"`是历史遗留问题
+
 - 知道在实际开发中，`null`用于显式表示空值，`undefined`表示未初始化
 
 ---
@@ -133,10 +134,12 @@ console.log(null === undefined); // false (严格相等)
 
 **==（宽松相等）**：
 - 会进行**类型转换**，再比较值
+
 - 转换规则复杂，容易出错
 
 **===（严格相等）**：
 - 不进行类型转换
+
 - 类型和值都必须相同
 
 **类型转换规则（==）**：
@@ -187,7 +190,9 @@ console.log(0.1 + 0.2);          // 0.30000000000000004
 
 **原因**：
 - JavaScript使用IEEE 754双精度浮点数标准
+
 - 0.1和0.2的二进制表示是**无限循环**的
+
 - 计算机只能截取有限位，产生精度丢失
 
 **解决方案**：
@@ -219,8 +224,11 @@ console.log(0.1 + 0.2);          // 0.30000000000000004
 
 **NaN特点**：
 - `NaN` = Not a Number
+
 - **类型是`number`**
+
 - **不等于任何值，包括自己**
+
 - 任何涉及`NaN`的运算都返回`NaN`
 
 **判断NaN的方法**：
@@ -444,7 +452,9 @@ console.log(Object.prototype.__proto__);  // null
 
 **查找规则**：
 - 访问属性时，先在对象自身查找
+
 - 找不到则沿着`__proto__`向上查找
+
 - 直到找到或到达`Object.prototype.__proto__`（null）
 
 ---
@@ -474,6 +484,7 @@ child.sayHi();  // "parent"
 ```
 **缺点**：
 - 引用类型属性被所有实例共享
+
 - 无法向父类构造函数传参
 
 ---
@@ -629,6 +640,7 @@ child.sayAge();  // 18
 
 **原理**：
 - 判断左边对象的`__proto__`是否等于右边构造函数的`prototype`
+
 - 一直向上查找，直到找到或到达`null`
 
 **手写实现**：
@@ -652,6 +664,7 @@ console.log(myInstanceof(123, Number));      // false (原始类型)
 
 **注意事项**：
 - `instanceof`只能判断引用类型
+
 - 跨iframe会失效（不同窗口的构造函数不同）
 
 ---
@@ -736,7 +749,9 @@ boundFn();       // 1
 
 **区别**：
 - `call`：立即执行，参数逐个传入
+
 - `apply`：立即执行，参数以数组形式传入
+
 - `bind`：返回新函数，不立即执行
 
 ---
@@ -782,6 +797,7 @@ function fn() {
 
 **箭头函数的this**：
 - **不绑定自己的this**
+
 - **继承外层作用域的this**
 ```javascript
 const obj = {
@@ -919,7 +935,9 @@ console.log(alice.age);   // 18
 
 **事件循环定义**：
 - JavaScript是**单线程**语言
+
 - 通过事件循环机制实现异步操作
+
 - 调用栈（Call Stack） + 任务队列（Task Queue） + 事件循环
 
 **执行机制**：
@@ -934,14 +952,20 @@ console.log(alice.age);   // 18
 
 1. **宏任务（Macro Task）**
    - `setTimeout`、`setInterval`
+
    - `requestAnimationFrame`（浏览器）
+
    - `setImmediate`（Node.js）
+
    - I/O、UI渲染
 
 2. **微任务（Micro Task）**
    - `Promise.then/catch/finally`
+
    - `MutationObserver`（浏览器）
+
    - `process.nextTick()`（Node.js）
+
    - `queueMicrotask()`
 
 **执行顺序**：
@@ -991,10 +1015,12 @@ Poll（轮询）→ Check（setImmediate）→ Close callbacks
 **Node.js与浏览器的区别**：
 1. **微任务执行时机**：
    - 浏览器：每个宏任务后执行所有微任务
+
    - Node.js（旧版本）：每个阶段结束后执行微任务
 
 2. **`process.nextTick()`**：
    - Node.js特有，优先级高于`Promise`
+
    - 在当前操作完成后、事件循环继续之前执行
 
 **代码示例（Node.js）**：
@@ -1019,6 +1045,7 @@ setImmediate(() => {
 
 **async/await本质**：
 - `async`函数返回`Promise`
+
 - `await`相当于`Promise.then`
 
 **执行顺序**：
@@ -1074,6 +1101,7 @@ console.log('script end');
 
 **Promise定义**：
 - 表示异步操作的最终完成或失败
+
 - 有三种状态：
   1. **pending**（等待中）：初始状态
   2. **fulfilled**（已成功）：操作成功完成
@@ -1081,7 +1109,9 @@ console.log('script end');
 
 **状态转换**：
 - `pending` → `fulfilled`：调用`resolve()`
+
 - `pending` → `rejected`：调用`reject()`或抛出异常
+
 - **状态一旦改变，不可逆转**
 
 **基本用法**：
@@ -1443,8 +1473,11 @@ function myPromiseAll(promises) {
 
 **Generator函数特点**：
 - 函数定义时使用`function*`
+
 - 可以暂停和恢复执行
+
 - 使用`yield`关键字暂停
+
 - 返回迭代器对象
 
 **基本用法**：
@@ -1882,8 +1915,11 @@ student.sayHi();
 
 **Class的本质**：
 - Class只是**语法糖**，底层还是基于原型
+
 - `constructor`对应构造函数
+
 - 实例方法在`prototype`上
+
 - 静态方法在构造函数本身上
 
 **验证**：
@@ -2045,7 +2081,9 @@ delete proxy.age; // "Deleting age"
 
 **Reflect**：
 - 提供拦截操作的默认行为
+
 - 与Proxy方法一一对应
+
 - 返回操作结果（而不是抛出异常）
 
 **为什么需要Reflect**：
@@ -2071,10 +2109,15 @@ const proxy = new Proxy(obj, {
 
 **Reflect常用方法**：
 - `Reflect.get(target, propertyKey[, receiver])`
+
 - `Reflect.set(target, propertyKey, value[, receiver])`
+
 - `Reflect.has(target, propertyKey)` - 对应`in`操作符
+
 - `Reflect.deleteProperty(target, propertyKey)` - 对应`delete`
+
 - `Reflect.construct(target, argumentsList[, newTarget])` - 对应`new`
+
 - `Reflect.apply(target, thisArgument, argumentsList)` - 对应`Function.prototype.apply`
 
 ---
@@ -2140,6 +2183,7 @@ import info from './a.js';  // default导出
 
 1. **加载方式**：
    - CommonJS：运行时加载，同步
+
    - ES6 Module：编译时加载，异步
 
 2. **值的引用**：
@@ -2170,10 +2214,12 @@ import info from './a.js';  // default导出
 
 3. **this指向**：
    - CommonJS：`this`指向当前模块
+
    - ES6 Module：`this`为`undefined`
 
 4. **循环引用**：
    - CommonJS：返回已执行部分
+
    - ES6 Module：不会执行，保持引用
 
 ---
@@ -3372,6 +3418,7 @@ myFetch('/api/users', {
 
 **检测工具**：
 - Chrome DevTools → Memory → Heap Snapshot
+
 - `performance.memory` API
 
 ---
@@ -3578,16 +3625,21 @@ myFetch('/api/users', {
 
 1. **书籍**
    - 《JavaScript高级程序设计》（红宝书）
+
    - 《你不知道的JavaScript》系列
+
    - 《深入理解ES6》
 
 2. **官方文档**
    - [MDN Web Docs](https://developer.mozilla.org/)
+
    - [ECMAScript Specification](https://tc39.es/ecma262/)
 
 3. **在线资源**
    - [JavaScript.info](https://javascript.info/)
+
    - [30 Seconds of Code](https://www.30secondsofcode.org/)
+
    - [Frontend Masters](https://frontendmasters.com/)
 
 ---
