@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "八股/浏览器篇_高频八股文.md",
+                "file": "八股/JavaScript篇_高频八股文.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "浏览器篇_高频八股文"
+              "title": "JavaScript篇_高频八股文"
             }
           }
         ]
@@ -137,13 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "八股/浏览器篇_高频八股文.md",
+                "file": "八股/JavaScript篇_高频八股文.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "浏览器篇_高频八股文 的大纲"
+              "title": "JavaScript篇_高频八股文 的大纲"
             }
           },
           {
@@ -194,11 +194,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "b593d491c7139ffc",
   "lastOpenFiles": [
+    "八股/浏览器篇_高频八股文.md",
     "八股/浏览器篇_高频八股文_修复_final.md",
     "八股/浏览器篇_高频八股文_修复.md",
-    "八股/浏览器篇_高频八股文.md",
     "八股/浏览器篇_高频八股文_间距修复版.md",
     "八股/浏览器篇_高频八股文_修复_simple.md",
     "八股/浏览器篇_高频八股文_修复_v2.md",
