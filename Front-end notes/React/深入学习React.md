@@ -11,7 +11,7 @@ React 的底层机制（如 Fiber 和 Diff）初看确实像天书，但只要�
 ### 第一阶段：深刻理解“并发模式 (Concurrent Mode)”与 Fiber
 
 - **重点：** 为什么 React 要从 Stack Reconciler 演进到 Fiber？（解决长任务卡顿）。
-    
+	
 - **概念：** 调度（Schedule）、协调（Reconcile）、渲染（Render）。
     
 - **关键点：** 理解 **Fiber 是一种链表结构**，它如何支持任务的“暂停”和“恢复”。
