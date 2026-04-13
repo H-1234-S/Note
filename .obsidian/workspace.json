@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -197,6 +196,12 @@
   },
   "active": "b593d491c7139ffc",
   "lastOpenFiles": [
+    "八股/fix_spacing_regex.py",
+    "八股/浏览器篇_高频八股文_修复_v2.md",
+    "八股/fix_list_spacing_v2.py",
+    "八股/浏览器篇_高频八股文_修复.md",
+    "八股/fix_list_spacing.py",
+    "八股/temp_analysis.md",
     "八股/sedVT2gRb",
     "八股/sedB64q4b",
     "八股/sedMQ7uOn",
@@ -205,8 +210,6 @@
     "八股/sednviHRz",
     "八股/sedfQo2oU",
     "八股/adjust_lists.py",
-    "八股/sedwEsqxu",
-    "八股/sedHt41tW",
     "八股/React篇_高频八股文.md",
     "八股/浏览器篇_高频八股文.md",
     "Front-end notes/React/深入学习React.md",
@@ -221,7 +224,6 @@
     "conflict-files-obsidian-git.md",
     "Project notes/resonance/Resonance.md",
     "八股/浏览器/浏览器篇_高频八股文.md",
-    "八股/浏览器",
     "八股/react-interview-questions.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/库/nuqs-基础知识.md",
@@ -231,9 +233,6 @@
     "学习/技术栈.md",
     "Project notes/polaris/claude prompt.md",
     "Project notes/resonance/需求.canvas",
-    "Front-end notes/tRPC.md",
-    "Front-end notes/知识内容.md",
-    "Project notes/resonance/trpc.md",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
