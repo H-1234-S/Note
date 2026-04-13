@@ -22,19 +22,31 @@
 
    - 提升渲染性能
 
+
 2. **组件化**
+
    - 函数组件和类组件
+
    - 组件可复用、可组合
+
    - 单向数据流
 
+
 3. **JSX**
+
    - JavaScript的语法扩展
+
    - 可以在JS中写HTML-like语法
+
    - 编译后变为createElement调用
 
+
 4. **单向数据流**
+
    - 数据从父组件流向子组件（props）
+
    - 子组件不能直接修改props
+
    - 状态提升到公共祖先
 
 **代码示例**：
@@ -333,13 +345,19 @@ setCount(prev => prev + 1); // 基于前一个状态计算
 **考点**：React 16+核心架构
 
 **Fiber解决的问题**：
+
 - React 15及以前：更新是同步的，一旦开始不能中断
+
 - 大列表更新时，可能造成页面卡顿
+
 - 无法优先级处理更新
 
 **Fiber核心思想**：
+
 1. **可中断** - 把渲染工作拆成小单元，可以暂停、恢复
+
 2. **优先级** - 用户交互优先，背景更新可以延迟
+
 3. **增量渲染** - 不需要一次性完成所有更新
 
 **Fiber结构**：
@@ -385,9 +403,13 @@ setCount(prev => prev + 1); // 基于前一个状态计算
 **考点**：虚拟DOM核心算法
 
 **Diff策略**：
+
 1. **同层对比** - 只比较同一层级的节点，不跨层级比较
+
 2. **不同类型节点** - 类型不同，直接替换
+
 3. **同类型节点** - 类型相同，只更新属性
+
 4. **列表对比** - 通过key标识节点
 
 **对比规则**：
@@ -561,67 +583,97 @@ const Welcome = ({ name }) => <div>Hello, {name}</div>;
 **考点**：类组件生命周期（正在被Hooks替代，但仍是高频考点）
 
 **挂载阶段（Mounting）**：
+
 ```
 constructor → static getDerivedStateFromProps → render → componentDidMount
 ```
 
 1. **constructor(props)**
+
    - 初始化state
+
    - 绑定事件处理函数
+
    - 不要调用setState
 
 2. **render()**
+
    - 返回JSX
+
    - 纯函数，不应修改组件状态
 
 3. **componentDidMount()**
+
    - 组件挂载后调用
+
    - 进行DOM操作、发起网络请求、设置订阅
 
+
 **更新阶段（Updating）**：
+
 ```
 props变化 → static getDerivedStateFromProps → shouldComponentUpdate → render → getSnapshotBeforeUpdate → componentDidUpdate
 state变化 → shouldComponentUpdate → render → getSnapshotBeforeUpdate → componentDidUpdate
 ```
 
 4. **static getDerivedStateFromProps(props, state)**
+
    - 从props派生state（很少用）
+
    - 返回新state对象或null
 
 5. **shouldComponentUpdate(nextProps, nextState)**
+
    - 性能优化
+
    - 返回false可以阻止更新
+
    - 不要在此调用setState
 
 6. **getSnapshotBeforeUpdate(prevProps, prevState)**
+
    - DOM更新前获取快照
+
    - 返回值传给componentDidUpdate
 
 7. **componentDidUpdate(prevProps, prevState, snapshot)**
+
    - 组件更新后调用
+
    - 进行DOM操作
+
    - 必须在条件语句中调用setState
 
+
 **卸载阶段（Unmounting）**：
+
 ```
 componentWillUnmount
 ```
 
 8. **componentWillUnmount()**
+
    - 组件卸载前调用
+
    - 清理定时器、取消订阅、解绑事件
 
+
 **错误处理（Error Handling）**：
+
 ```
 getDerivedStateFromError → componentDidCatch
 ```
 
 9. **static getDerivedStateFromError(error)**
+
    - 子组件出错时调用
+
    - 返回新state显示降级UI
 
 10. **componentDidCatch(error, info)**
+
     - 记录错误信息
+
     - 副作用操作
 
 **生命周期图示**：

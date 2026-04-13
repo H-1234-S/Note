@@ -5,23 +5,39 @@
 
 **数据类型分类**：
 
+
 **原始类型（7种）**：
+
+**原始类型（7种）**：
+
 1. `number` - 数字（包含NaN）
+
 2. `string` - 字符串
+
 3. `boolean` - 布尔值
+
 4. `undefined` - 未定义
+
 5. `null` - 空对象
+
 6. `symbol` - ES6，唯一标识符
+
 7. `bigint` - ES2020，大整数
 
 **引用类型**：
+
 1. `object` - 对象（包含数组、函数、正则、日期等）
+
 2. `array` - 数组
+
 3. `function` - 函数
+
 4. `regexp` - 正则表达式
+
 5. `date` - 日期
 
 **特殊值**：
+
 - `NaN` - Not a Number（类型为number，但不等于任何值，包括自己）
 
 ---
@@ -124,6 +140,7 @@ console.log(null === undefined); // false (严格相等)
 - 类型和值都必须相同
 
 **类型转换规则（==）**：
+
 ```javascript
 // 布尔值转数字
 true == 1;      // true
@@ -241,35 +258,31 @@ console.log(0.1 + 0.2);          // 0.30000000000000004
 **作用域类型**：
 
 1. **全局作用域**
+
    - 最外层定义的变量
+
    - 在任何地方都可以访问
 
 2. **函数作用域（Function Scope）**
+
    - 函数内部定义的变量
+
    - 只能在函数内部访问
-   ```javascript
-   function fn() {
-     var a = 1;  // 函数作用域
-   }
-   console.log(a); // ReferenceError
-   ```
 
 3. **块级作用域（Block Scope）** - ES6
+
    - `{}`块内部定义的变量
+
    - 使用`let`和`const`声明
-   ```javascript
-   if (true) {
-     let a = 1;  // 块级作用域
-     const b = 2;
-   }
-   console.log(a); // ReferenceError
-   ```
 
 4. **模块作用域（Module Scope）**
+
    - ES6模块中的变量
 
 **变量提升（Hoisting）**：
+
 - `var`和`function`声明会提升到作用域顶部
+
 - `let`和`const`也提升，但存在**暂时性死区**（TDZ）
 
 ```javascript
@@ -296,8 +309,11 @@ var foo = function() {};
 **闭包定义**：函数能够访问其词法作用域外的变量
 
 **形成条件**：
+
 1. 函数嵌套
+
 2. 内部函数引用了外部函数的变量
+
 3. 外部函数返回内部函数（或内部函数在外部被调用）
 
 **经典示例**：
@@ -321,47 +337,15 @@ console.log(counter());  // 3
 **闭包的用途**：
 
 1. **数据私有化**
-   ```javascript
-   function createPerson(name) {
-     let privateName = name;
-
-     return {
-       getName: () => privateName,
-       setName: (newName) => { privateName = newName; }
-     };
-   }
-
-   const person = createPerson('Alice');
-   console.log(person.getName());  // "Alice"
-   // 无法直接访问privateName
-   ```
 
 2. **函数柯里化（Currying）**
-   ```javascript
-   function add(a) {
-     return function(b) {
-       return a + b;
-     };
-   }
-   const add5 = add(5);
-   console.log(add5(3));  // 8
-   ```
 
 3. **防抖节流**
-   ```javascript
-   function debounce(fn, delay) {
-     let timer = null;
-     return function(...args) {
-       clearTimeout(timer);
-       timer = setTimeout(() => {
-         fn.apply(this, args);
-       }, delay);
-     };
-   }
-   ```
 
 **闭包的缺点**：
+
 - 内存泄漏（变量无法被垃圾回收）
+
 - 解决方案：使用完后置为`null`，解除引用
 
 ---
@@ -419,9 +403,11 @@ for (let j = 0; j < 3; j++) {
 **核心概念**：
 
 1. **每个函数都有`prototype`属性**（原型对象）
+
    - 原型对象包含`constructor`属性，指向函数本身
 
 2. **每个对象都有`__proto__`属性**（隐式原型）
+
    - 指向创建该对象的构造函数的`prototype`
 
 3. **原型链**：通过`__proto__`逐级向上查找，直到`null`
@@ -467,6 +453,7 @@ console.log(Object.prototype.__proto__);  // null
 **考点**：面向对象编程
 
 **继承的几种方式**：
+
 
 #### 1. **原型链继承**
 ```javascript
