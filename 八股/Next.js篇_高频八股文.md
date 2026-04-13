@@ -159,12 +159,14 @@ export default function Home({ data }) {
 - 构建完成后，页面是预渲染的静态文件
 
 **工作流程**：
+
 ```
 1. 运行 npm run build
 2. Next.js 预渲染所有页面为静态HTML
 3. 生成的HTML保存在 .next/ 目录
 4. 用户请求时直接返回静态文件（CDN友好）
 ```
+
 
 **实现方式（App Router）**：
 ```tsx
@@ -180,6 +182,7 @@ export const dynamic = 'force-static';
 ```
 
 **实现方式（Pages Router）**：
+
 ```jsx
 // pages/blog/[id].js
 export async function getStaticProps({ params }) {
@@ -202,9 +205,15 @@ export async function getStaticPaths() {
 }
 ```
 
+
 **适用场景**：
+
 - 内容不频繁变化的页面（文档、博客）
+
+
 - 营销页面、落地页
+
+
 - 需要CDN加速的全球化应用
 
 ---
@@ -217,12 +226,14 @@ export async function getStaticPaths() {
 - 页面静态生成，但可以在运行时重新验证更新
 
 **工作流程**：
+
 ```
 1. 首次访问：SSG生成静态页面
 2. 后续请求：返回缓存的静态页面
 3. 过期后：触发后台重新生成
 4. 生成完成：更新缓存
 ```
+
 
 **实现方式（App Router）**：
 ```tsx
@@ -249,13 +260,24 @@ export async function getStaticProps() {
 ```
 
 **revalidate 选项**：
+
 - `0`：不重新验证（永不过期，需要触发）
+
+
 - `60`：60秒后重新验证
+
+
 - `false`：禁用ISR（等效于0）
 
+
 **适用场景**：
+
 - 内容频繁变化但不需要实时的页面（电商商品页）
+
+
 - 博客、新闻类网站
+
+
 - 需要保持高性能同时兼顾内容更新的场景
 
 ---

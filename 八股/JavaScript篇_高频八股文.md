@@ -2021,40 +2021,12 @@ delete proxy.age; // "Deleting age"
 ```
 
 **应用场景**：
-1. **数据验证**
-   ```javascript
-   const validator = {
-     set(target, prop, value) {
-       if (prop === 'age' && typeof value !== 'number') {
-         throw new Error('Age must be a number');
-       }
-       target[prop] = value;
-       return true;
-     }
-   };
 
-   const person = new Proxy({}, validator);
-   person.age = '18';  // Error: Age must be a number
-   ```
+1. **数据验证**
+
 
 2. **双向绑定（Vue3响应式原理）**
-   ```javascript
-   function reactive(target) {
-     return new Proxy(target, {
-       get(target, key, receiver) {
-         console.log(`Getting ${key}`);
-         return Reflect.get(target, key, receiver);
-       },
-       set(target, key, value, receiver) {
-         console.log(`Setting ${key} to ${value}`);
-         const result = Reflect.set(target, key, value, receiver);
-         // 触发更新
-         updateView();
-         return result;
-       }
-     });
-   }
-   ```
+
 
 3. **缓存/计算属性**
    ```javascript

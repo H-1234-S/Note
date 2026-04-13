@@ -736,6 +736,7 @@ getDerivedStateFromError → componentDidCatch
 **考点**：组件间数据传递
 
 **1. Props（父→子）**：
+
 ```jsx
 // 父组件
 <ChildComponent name="Alice" age={18} />
@@ -746,7 +747,9 @@ function ChildComponent({ name, age }) {
 }
 ```
 
+
 **2. 回调函数（子→父）**：
+
 ```jsx
 // 父组件
 function Parent() {
@@ -762,7 +765,9 @@ function Child({ onData }) {
 }
 ```
 
+
 **3. Context（跨层级）**：
+
 ```jsx
 // 创建Context
 const ThemeContext = React.createContext('light');
@@ -791,6 +796,7 @@ function Toolbar() {
   return <div theme={theme}>Toolbar</div>;
 }
 ```
+
 
 **4. 发布订阅模式**：
 ```jsx
