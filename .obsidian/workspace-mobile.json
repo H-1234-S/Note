@@ -137,17 +137,14 @@
             "id": "76e0415c2037d895",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/resonance/需求.canvas",
-                "viewState": {
-                  "x": -1003.0005848837164,
-                  "y": -682.329346673733,
-                  "zoom": -0.9337628309643391
-                }
+                "file": "八股/浏览器篇_高频八股文.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "需求"
+              "icon": "lucide-file",
+              "title": "浏览器篇_高频八股文"
             }
           }
         ],
@@ -301,6 +298,7 @@
   },
   "active": "76e0415c2037d895",
   "lastOpenFiles": [
+    "Project notes/resonance/需求.canvas",
     "八股/React篇_高频八股文.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "/八股/浏览器篇_高频八股文.md",
@@ -321,7 +319,6 @@
     "八股/浏览器篇_高频八股文.md",
     "八股",
     "Front-end notes/React/构建Mini React.md",
-    "Project notes/resonance/需求.canvas",
     "/Project notes/resonance/需求.canvas",
     "/Project notes/resonance",
     "/Project notes",
@@ -339,7 +336,6 @@
     "/Front-end notes/JavaScript/执行机制与内存篇.md",
     "/Front-end notes/JavaScript",
     "Front-end notes/JavaScript/Promise.md",
-    "/Front-end notes/JavaScript/执行上下文.md",
     "/Front-end notes/Next.JS",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
