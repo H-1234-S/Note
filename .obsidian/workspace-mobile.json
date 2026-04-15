@@ -153,12 +153,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "八股/浏览器篇_高频八股文.md",
+                "file": "Front-end notes/JavaScript/Proto.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "浏览器篇_高频八股文"
+              "title": "Proto"
             }
           }
         ],
@@ -286,7 +286,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "八股/浏览器篇_高频八股文.md",
+            "file": "Front-end notes/JavaScript/Proto.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -312,16 +312,21 @@
   },
   "active": "d23a707179ac6c3f",
   "lastOpenFiles": [
-    "我.md.md",
+    "/八股/浏览器篇_高频八股文.md",
+    "/八股/前端工程化篇_高频八股文.md",
+    "/八股/TypeScript篇_高频八股文.md",
+    "八股/TypeScript篇_高频八股文.md",
+    "/八股",
+    "八股/JavaScript篇_高频八股文.md",
+    "Front-end notes/JavaScript/Proto.md",
     "八股/浏览器篇_高频八股文.md",
+    "我.md.md",
     "Project notes/resonance/需求.canvas",
     "八股/React篇_高频八股文.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
-    "/八股/浏览器篇_高频八股文.md",
     "/八股/React篇_高频八股文.md",
     "/八股/Next.js篇_高频八股文.md",
     "/八股/JavaScript篇_高频八股文.md",
-    "/八股",
     "/Front-end notes/库/wavesurfer.js-基础知识.md",
     "/Front-end notes/库/nuqs-基础知识.md",
     "Front-end notes/库/nuqs-基础知识.md",
@@ -330,7 +335,6 @@
     "/Front-end notes/React",
     "/Front-end notes",
     "Front-end notes/React/React Router.md",
-    "八股/JavaScript篇_高频八股文.md",
     "八股/Next.js篇_高频八股文.md",
     "八股",
     "Front-end notes/React/构建Mini React.md",
@@ -346,11 +350,7 @@
     "/Front-end notes/Shadcn",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/JavaScript/执行机制与内存篇.md",
-    "Front-end notes/JavaScript/闭包.md",
-    "/Front-end notes/JavaScript/闭包.md",
-    "/Front-end notes/JavaScript/执行机制与内存篇.md",
     "/Front-end notes/JavaScript",
-    "Front-end notes/JavaScript/Promise.md",
     "/Front-end notes/Next.JS",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
     "Project notes/nextjs-dashboard/添加搜索功能.canvas",
