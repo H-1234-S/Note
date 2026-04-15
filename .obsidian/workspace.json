@@ -11,17 +11,14 @@
             "id": "9ea109996f15c5fb",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/resonance/需求.canvas",
-                "viewState": {
-                  "x": -32.092667158664256,
-                  "y": -117.42821379825828,
-                  "zoom": -1.6236703770176037
-                }
+                "file": "八股/浏览器篇_高频八股文.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "需求"
+              "icon": "lucide-file",
+              "title": "浏览器篇_高频八股文"
             }
           }
         ]
@@ -141,13 +138,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/需求.canvas",
+                "file": "八股/浏览器篇_高频八股文.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "需求 的大纲"
+              "title": "浏览器篇_高频八股文 的大纲"
             }
           },
           {
@@ -184,7 +181,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 268.5
+    "width": 268.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -200,6 +198,8 @@
   },
   "active": "9ea109996f15c5fb",
   "lastOpenFiles": [
+    "八股/TypeScript篇_高频八股文.md",
+    "Project notes/resonance/需求.canvas",
     "我.md.md",
     "Front-end notes/Zod.md",
     "Front-end notes/Next.JS/Next.js.md",
@@ -234,9 +234,6 @@
     "Front-end notes/Prisma.md",
     "Front-end notes/React/构建Mini React.md",
     "conflict-files-obsidian-git.md",
-    "Project notes/resonance/Resonance.md",
-    "八股/浏览器/浏览器篇_高频八股文.md",
-    "Project notes/resonance/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
