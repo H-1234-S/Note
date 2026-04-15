@@ -153,12 +153,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "我.md.md",
+                "file": "八股/浏览器篇_高频八股文.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "我.md"
+              "title": "浏览器篇_高频八股文"
             }
           }
         ],
@@ -312,8 +312,8 @@
   },
   "active": "d23a707179ac6c3f",
   "lastOpenFiles": [
-    "八股/浏览器篇_高频八股文.md",
     "我.md.md",
+    "八股/浏览器篇_高频八股文.md",
     "Project notes/resonance/需求.canvas",
     "八股/React篇_高频八股文.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
