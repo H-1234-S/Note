@@ -11,14 +11,17 @@
             "id": "9ea109996f15c5fb",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Front-end notes/Zod.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/resonance/需求.canvas",
+                "viewState": {
+                  "x": -32.092667158664256,
+                  "y": -117.42821379825828,
+                  "zoom": -1.6236703770176037
+                }
               },
-              "icon": "lucide-file",
-              "title": "Zod"
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
             }
           }
         ]
@@ -78,7 +81,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334
+    "width": 263.504695892334,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -137,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Zod.md",
+                "file": "Project notes/resonance/需求.canvas",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Zod 的大纲"
+              "title": "需求 的大纲"
             }
           },
           {
@@ -196,8 +200,9 @@
   },
   "active": "9ea109996f15c5fb",
   "lastOpenFiles": [
-    "Front-end notes/Next.JS/Next.js.md",
+    "我.md.md",
     "Front-end notes/Zod.md",
+    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/知识内容.md",
     "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
@@ -231,7 +236,6 @@
     "conflict-files-obsidian-git.md",
     "Project notes/resonance/Resonance.md",
     "八股/浏览器/浏览器篇_高频八股文.md",
-    "八股/react-interview-questions.md",
     "Project notes/resonance/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
