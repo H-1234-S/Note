@@ -151,14 +151,17 @@
             "id": "d23a707179ac6c3f",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "八股/浏览器篇_高频八股文.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/resonance/需求.canvas",
+                "viewState": {
+                  "x": -188.88492507120782,
+                  "y": 781.318574764882,
+                  "zoom": -2.7660058757972004
+                }
               },
-              "icon": "lucide-file",
-              "title": "浏览器篇_高频八股文"
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
             }
           }
         ],
@@ -312,9 +315,9 @@
   },
   "active": "d23a707179ac6c3f",
   "lastOpenFiles": [
+    "八股/浏览器篇_高频八股文.md",
     "八股/前端工程化篇_高频八股文.md",
     "Front-end notes/TanStack Form.md",
-    "八股/浏览器篇_高频八股文.md",
     "Front-end notes/JavaScript/Proto.md",
     "/八股/浏览器篇_高频八股文.md",
     "/八股/前端工程化篇_高频八股文.md",
