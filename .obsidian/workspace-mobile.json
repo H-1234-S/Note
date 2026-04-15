@@ -153,12 +153,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/JavaScript/Proto.md",
+                "file": "八股/浏览器篇_高频八股文.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Proto"
+              "title": "浏览器篇_高频八股文"
             }
           }
         ],
@@ -286,7 +286,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "Front-end notes/JavaScript/Proto.md",
+            "file": "八股/浏览器篇_高频八股文.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -312,13 +312,14 @@
   },
   "active": "d23a707179ac6c3f",
   "lastOpenFiles": [
+    "八股/前端工程化篇_高频八股文.md",
+    "Front-end notes/JavaScript/Proto.md",
     "/八股/浏览器篇_高频八股文.md",
     "/八股/前端工程化篇_高频八股文.md",
     "/八股/TypeScript篇_高频八股文.md",
     "八股/TypeScript篇_高频八股文.md",
     "/八股",
     "八股/JavaScript篇_高频八股文.md",
-    "Front-end notes/JavaScript/Proto.md",
     "八股/浏览器篇_高频八股文.md",
     "我.md.md",
     "Project notes/resonance/需求.canvas",
@@ -349,7 +350,6 @@
     "/Front-end notes/Shadcn/Sidebar.md",
     "/Front-end notes/Shadcn",
     "Front-end notes/Next.JS/Next.js.md",
-    "Front-end notes/JavaScript/执行机制与内存篇.md",
     "/Front-end notes/JavaScript",
     "/Front-end notes/Next.JS",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
