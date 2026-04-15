@@ -155,9 +155,9 @@
               "state": {
                 "file": "Project notes/resonance/需求.canvas",
                 "viewState": {
-                  "x": -725.2972669244189,
-                  "y": -483.2566625532291,
-                  "zoom": -1.4238128387363125
+                  "x": -611.2821054982207,
+                  "y": -221.96339193572894,
+                  "zoom": -1.414130224989713
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -315,6 +315,8 @@
   },
   "active": "d23a707179ac6c3f",
   "lastOpenFiles": [
+    "Front-end notes/TypeScript.md",
+    "Project notes/resonance/需求.canvas",
     "八股/浏览器篇_高频八股文.md",
     "八股/前端工程化篇_高频八股文.md",
     "Front-end notes/TanStack Form.md",
@@ -326,7 +328,6 @@
     "/八股",
     "八股/JavaScript篇_高频八股文.md",
     "我.md.md",
-    "Project notes/resonance/需求.canvas",
     "八股/React篇_高频八股文.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "/八股/React篇_高频八股文.md",
@@ -351,7 +352,6 @@
     "/Front-end notes/React/构建Mini React.md",
     "Front-end notes/Pasted image 20260328115001.png",
     "/Pasted image 20260328115001.png",
-    "/Front-end notes/Shadcn/Sidebar.md",
     "/Front-end notes/Shadcn",
     "/Front-end notes/JavaScript",
     "/Front-end notes/Next.JS",
