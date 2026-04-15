@@ -1,7 +1,3 @@
-
-如果你之前用过 React Hook Form 或者 Formik，你会发现 TanStack Form 的思路非常超前：它是**类型驱动（Type-safe）** 且**框架无关（Framework agnostic）** 的。这意味着无论你是在 React、Vue、Solid 还是 Svelte 中，逻辑几乎是一样的，而且它对 TypeScript 的支持好到让人惊叹。
-
----
 # 核心知识
 
 ## 1. 安装与初始化
