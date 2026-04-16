@@ -151,17 +151,14 @@
             "id": "d23a707179ac6c3f",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/resonance/需求.canvas",
-                "viewState": {
-                  "x": -611.2821054982207,
-                  "y": -221.96339193572894,
-                  "zoom": -1.414130224989713
-                }
+                "file": "八股/浏览器篇_高频八股文.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "需求"
+              "icon": "lucide-file",
+              "title": "浏览器篇_高频八股文"
             }
           }
         ],
@@ -313,10 +310,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "d23a707179ac6c3f",
+  "active": "102de034f2482a52",
   "lastOpenFiles": [
-    "Front-end notes/TypeScript.md",
     "Project notes/resonance/需求.canvas",
+    "Front-end notes/TypeScript.md",
     "八股/浏览器篇_高频八股文.md",
     "八股/前端工程化篇_高频八股文.md",
     "Front-end notes/TanStack Form.md",
@@ -349,7 +346,6 @@
     "/Project notes",
     "Front-end notes/知识内容.md",
     "计算机网络.md",
-    "/Front-end notes/React/构建Mini React.md",
     "Front-end notes/Pasted image 20260328115001.png",
     "/Pasted image 20260328115001.png",
     "/Front-end notes/Shadcn",
