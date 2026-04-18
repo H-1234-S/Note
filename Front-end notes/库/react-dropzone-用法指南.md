@@ -1,7 +1,6 @@
 
-# react-dropzone 完全指南
+react-dropzone 是一个简洁强大的 React 库，用于实现 HTML5 标准的拖拽文件上传功能。
 
-react-dropzone 是一个简洁强大的 React 库，用于实现 HTML5 标准的拖拽文件上传功能。当前版本：15.0.0（2026年2月）
 ## 1. 安装
 
 ```bash
