@@ -331,6 +331,7 @@ function App() {
 
 ``` TypeScript
 import { z } from 'zod'
+import { zodValidator } from '@tanstack/zod-form-adapter'
 
 const userSchema = z.object({
   email: z.string().email('无效的邮箱格式'),
@@ -344,6 +345,10 @@ const form = useForm({
   },
   onSubmit: ({ value }) => console.log(value),
 })
+
+
+// 错误message
+{field.state.meta.errors ? <FieldError>{field.state.meta.errors.map(e => e?.message ?? '').join(', ')}</FieldError> : null}
 ```
 
 ---
