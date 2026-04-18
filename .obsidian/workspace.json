@@ -4,39 +4,20 @@
     "type": "split",
     "children": [
       {
-        "id": "4aa1db5511190559",
+        "id": "35862ea2db86e31b",
         "type": "tabs",
         "children": [
           {
-            "id": "9ea109996f15c5fb",
+            "id": "0fd5ff25b1ddd337",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "八股/浏览器篇_高频八股文.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "浏览器篇_高频八股文"
-            }
-          },
-          {
-            "id": "4d3b1fa4d89b203f",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/库/react-dropzone-用法指南.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "react-dropzone-用法指南"
+              "title": "新标签页"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -153,13 +134,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/react-dropzone-用法指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "react-dropzone-用法指南 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -196,8 +176,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 268.5,
-    "collapsed": true
+    "width": 268.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -211,11 +190,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "4d3b1fa4d89b203f",
+  "active": "0fd5ff25b1ddd337",
   "lastOpenFiles": [
-    "Front-end notes/库/locale-codes-用法指南.md",
     "八股/浏览器篇_高频八股文.md",
     "Front-end notes/库/react-dropzone-用法指南.md",
+    "Front-end notes/库/wavesurfer.js-基础知识.md",
+    "Front-end notes/库/use-debounce防抖.md",
+    "Front-end notes/库/locale-codes-用法指南.md",
     "Front-end notes/TanStack Form.md",
     "Front-end notes/库/react-dropzone.txt",
     "Front-end notes/库/新建 文本文档.txt",
@@ -229,8 +210,6 @@
     "我.md.md",
     "Front-end notes/Zod.md",
     "Front-end notes/知识内容.md",
-    "Front-end notes/库/use-debounce防抖.md",
-    "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/库/nuqs-基础知识.md",
     "八股/浏览器篇_高频八股文_修复_final.md",
     "八股/浏览器篇_高频八股文_修复.md",

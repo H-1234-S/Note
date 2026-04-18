@@ -239,8 +239,11 @@ const { getRootProps, getInputProps } = useDropzone({
 ```
 
 字节换算：
+
 - 1 KB = 1024 字节
+
 - 1 MB = 1024 * 1024 = 1,048,576 字节
+
 - 1 GB = 1024 * 1024 * 1024 = 1,073,741,824 字节
 
 ### 6.2 minSize - 单个文件最小大小

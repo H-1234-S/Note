@@ -1,7 +1,5 @@
 
-# locale-codes 完全指南
-
-locale-codes 是一个用于获取语言代码和国家代码的 npm 库，基于 ISO 639 和 ISO 3166 标准。当前版本：1.3.1
+locale-codes 是一个用于获取语言代码和国家代码的 npm 库，基于 ISO 639 和 ISO 3166 标准。
 
 ## 1. 安装
 
