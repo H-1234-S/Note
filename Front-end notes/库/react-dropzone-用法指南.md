@@ -70,42 +70,42 @@ export default MyDropzone;
 
 useDropzone 接受一个配置对象作为参数，以下是所有可用的配置选项：
 
-| 配置项 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| `onDrop` | `(acceptedFiles: File[], rejectedFiles: FileRejection[]) => void` | - | **最常用**。当文件被放下时触发，无论是接受还是拒绝 |
-| `onDropAccepted` | `(acceptedFiles: File[]) => void` | - | 只在文件被接受时触发 |
-| `onDropRejected` | `(rejectedFiles: FileRejection[]) => void` | - | 只在文件被拒绝时触发 |
-| `accept` | `Record<string, string[]> \| string` | - | 限制接受的文件类型（MIME 类型或扩展名） |
-| `multiple` | `boolean` | `true` | 是否允许多选多个文件 |
-| `maxSize` | `number` | `Infinity` | 单个文件最大大小（字节） |
-| `minSize` | `number` | `0` | 单个文件最小大小（字节） |
-| `maxFiles` | `number` | `Infinity` | 最多接受的文件数量 |
-| `disabled` | `boolean` | `false` | 是否禁用，禁用后无法选择文件 |
-| `noClick` | `boolean` | `false` | 是否禁用点击打开文件对话框 |
-| `noKeyboard` | `boolean` | `false` | 是否禁用键盘支持（Enter/Space 打开对话框） |
-| `noDrag` | `boolean` | `false` | 是否禁用拖拽功能 |
-| `preventDropOnDocument` | `boolean` | `true` | 是否阻止文档上的默认拖放行为 |
-| `onFileDialogOpen` | `() => void` | - | 打开文件对话框时触发 |
-| `onFileDialogCancel` | `() => void` | - | 关闭文件对话框时触发 |
-| `validator` | `(file: File) => FileError[] \| null` | - | 自定义文件验证函数 |
+| 配置项                     | 类型                                                                | 默认值        | 说明                          |
+| ----------------------- | ----------------------------------------------------------------- | ---------- | --------------------------- |
+| `onDrop`                | `(acceptedFiles: File[], rejectedFiles: FileRejection[]) => void` | -          | **最常用**。当文件被放下时触发，无论是接受还是拒绝 |
+| `onDropAccepted`        | `(acceptedFiles: File[]) => void`                                 | -          | 只在文件被接受时触发                  |
+| `onDropRejected`        | `(rejectedFiles: FileRejection[]) => void`                        | -          | 只在文件被拒绝时触发                  |
+| `accept`                | `Record<string, string[]> \| string`                              | -          | 限制接受的文件类型（MIME 类型或扩展名）      |
+| `multiple`              | `boolean`                                                         | `true`     | 是否允许多选多个文件                  |
+| `maxSize`               | `number`                                                          | `Infinity` | 单个文件最大大小（字节）                |
+| `minSize`               | `number`                                                          | `0`        | 单个文件最小大小（字节）                |
+| `maxFiles`              | `number`                                                          | `Infinity` | 最多接受的文件数量                   |
+| `disabled`              | `boolean`                                                         | `false`    | 是否禁用，禁用后无法选择文件              |
+| `noClick`               | `boolean`                                                         | `false`    | 是否禁用点击打开文件对话框               |
+| `noKeyboard`            | `boolean`                                                         | `false`    | 是否禁用键盘支持（Enter/Space 打开对话框） |
+| `noDrag`                | `boolean`                                                         | `false`    | 是否禁用拖拽功能                    |
+| `preventDropOnDocument` | `boolean`                                                         | `true`     | 是否阻止文档上的默认拖放行为              |
+| `onFileDialogOpen`      | `() => void`                                                      | -          | 打开文件对话框时触发                  |
+| `onFileDialogCancel`    | `() => void`                                                      | -          | 关闭文件对话框时触发                  |
+| `validator`             | `(file: File) => FileError[] \| null`                             | -          | 自定义文件验证函数                   |
 
 ### 3.3 useDropzone 返回的内容
 
 useDropzone 返回一个对象，包含以下属性：
 
-| 返回值 | 类型 | 说明 |
-|--------|------|------|
-| `getRootProps` | `() => Props` | 获取根元素的属性，需要展开（...）给包裹拖拽区域的 div |
-| `getInputProps` | `() => Props` | 获取 input 元素的属性，需要展开（...）给 input 元素 |
-| `isDragActive` | `boolean` | 是否正在拖拽文件到区域上方（文件悬停）在区域上方 |
-| `isDragAccept` | `boolean` | 当前拖拽的文件符合 accept 条件 |
-| `isDragReject` | `boolean` | 当前拖拽的文件不符合 accept 条件 |
-| `isFocused` | `boolean` | 拖拽区域是否获得焦点 |
-| `acceptedFiles` | `File[]` | 被接受的文件列表 |
-| `rejectedFiles` | `FileRejection[]` | 被拒绝的文件列表 |
-| `rootRef` | `RefObject<HTMLElement>` | 根元素的 ref |
-| `inputRef` | `RefObject<HTMLInputElement>` | input 的 ref |
-| `open` | `() => void` | 手动打开文件对话框（可用于 noClick 时） |
+| 返回值             | 类型                            | 说明                                 |
+| --------------- | ----------------------------- | ---------------------------------- |
+| `getRootProps`  | `() => Props`                 | 获取根元素的属性，需要展开（...）给包裹拖拽区域的 div     |
+| `getInputProps` | `() => Props`                 | 获取 input 元素的属性，需要展开（...）给 input 元素 |
+| `isDragActive`  | `boolean`                     | 是否正在拖拽文件到区域上方（文件悬停）在区域上方           |
+| `isDragAccept`  | `boolean`                     | 当前拖拽的文件符合 accept 条件                |
+| `isDragReject`  | `boolean`                     | 当前拖拽的文件不符合 accept 条件               |
+| `isFocused`     | `boolean`                     | 拖拽区域是否获得焦点                         |
+| `acceptedFiles` | `File[]`                      | 被接受的文件列表                           |
+| `rejectedFiles` | `FileRejection[]`             | 被拒绝的文件列表                           |
+| `rootRef`       | `RefObject<HTMLElement>`      | 根元素的 ref                           |
+| `inputRef`      | `RefObject<HTMLInputElement>` | input 的 ref                        |
+| `open`          | `() => void`                  | 手动打开文件对话框（可用于 noClick 时）           |
 
 ## 4. accept 配置详解
 
