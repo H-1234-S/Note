@@ -1,5 +1,7 @@
 
-locale-codes 是一个用于获取语言代码和国家代码的 npm 库，基于 ISO 639 和 ISO 3166 标准。
+# locale-codes 完全指南
+
+locale-codes 是一个用于获取语言代码和国家代码的 npm 库，基于 ISO 639 和 ISO 3166 标准。当前版本：1.3.1
 
 ## 1. 安装
 
@@ -37,11 +39,14 @@ locale-codes 提供了语言代码（Language Code）和国家代码（Country C
 
 ### 3.1 引入库
 
+**ES6 方式（推荐）：**
+```javascript
+import * as locale from 'locale-codes';
+```
+
+**CommonJS 方式：**
 ```javascript
 const locale = require('locale-codes');
-
-// ES6 方式
-// import * as locale from 'locale-codes';
 ```
 
 ### 3.2 locale.all - 获取所有语言
