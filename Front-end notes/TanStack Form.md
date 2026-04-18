@@ -331,7 +331,6 @@ function App() {
 
 ``` TypeScript
 import { z } from 'zod'
-import { zodValidator } from '@tanstack/zod-form-adapter'
 
 const userSchema = z.object({
   email: z.string().email('无效的邮箱格式'),
@@ -340,8 +339,6 @@ const userSchema = z.object({
 
 const form = useForm({
   defaultValues: { email: '', password: '' },
-  // 使用 zodValidator 适配器
-  validatorAdapter: zodValidator(),
   validators: {
     onChange: userSchema, // 表单级实时校验
   },
