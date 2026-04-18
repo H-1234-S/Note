@@ -238,7 +238,7 @@ console.log(getLanguageName('en-US'));  // 'English'
 console.log(getLanguageName('ja-JP'));  // 'Japanese'
 ```
 
-### 5.2 从 locale tag 获取本���语��名称
+### 5.2 从 locale tag 获取本地语言名称
 
 ```javascript
 const locale = require('locale-codes');
@@ -407,7 +407,7 @@ locale.getByISO6391(code)  // = where('iso639-1', code)
 
 ## 8. 常见问题
 
-### 8.1 locale.all 返回���数���量
+### 8.1 locale.all 返回数量
 
 ```javascript
 const locale = require('locale-codes');

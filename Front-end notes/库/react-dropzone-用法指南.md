@@ -395,7 +395,7 @@ function ImagePreview() {
         {isDragActive ? (
           <p>松开鼠标放置文件...</p>
         ) : (
-          <p>���拽图片到这里，或点击选择</p>
+          <p>拖拽图片到这里，或点击选择</p>
         )}
       </div>
 
@@ -800,7 +800,7 @@ const { getRootProps, getInputProps } = useDropzone({
 });
 ```
 
-### 12.4 如何上传文件���服���器？
+### 12.4 如何上传文件到服务器？
 
 ```jsx
 const uploadFiles = async (files: File[]) => {
