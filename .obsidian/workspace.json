@@ -11,10 +11,14 @@
             "id": "6d004918826b6eb2",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/tRPC/tRPC学习指南.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "tRPC学习指南"
             }
           }
         ]
@@ -74,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334
+    "width": 263.504695892334,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -133,13 +138,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/tRPC/tRPC.md",
+                "file": "Front-end notes/tRPC/tRPC学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "tRPC 的大纲"
+              "title": "tRPC学习指南 的大纲"
             }
           },
           {
@@ -190,8 +195,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "6d004918826b6eb2",
   "lastOpenFiles": [
+    "Front-end notes/tRPC/tRPC.md",
+    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Zod.md",
     "Front-end notes/JavaScript/Web API.md",
     "Front-end notes/TypeScript.md",
@@ -221,8 +228,6 @@
     "八股/浏览器篇_高频八股文_修复.md",
     "八股/浏览器篇_高频八股文_间距修复版.md",
     "八股/浏览器篇_高频八股文_修复_simple.md",
-    "八股/浏览器篇_高频八股文_修复_v2.md",
-    "八股/temp_analysis.md",
     "八股/fix_spacing_final.py",
     "八股/fix_spacing_simple.py",
     "八股/fix_spacing_regex.py",
