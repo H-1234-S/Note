@@ -891,8 +891,11 @@ export const trpc = createTRPCReact<AppRouter>();
 ### 11.2 tRPC 能用于微服务吗？
 
 可以，但需要额外配置：
+
 - 使用多个 tRPC 服务器
+
 - 通过服务网关转发
+
 - 或考虑使用 tRPC Proxy 项目
 
 ### 11.3 如何处理 CORS？
@@ -929,7 +932,9 @@ const t = initTRPC.create({
 ### 11.5 tRPC 支持哪些框架？
 
 - **后端**: Express, Fastify, AWS Lambda, Azure Functions, Next.js API Routes, NestJS
+
 - **前端**: React, React Native, SolidJS, Svelte, Vue
+
 - **传输**: HTTP, WebSocket, Streaming
 
 ---
