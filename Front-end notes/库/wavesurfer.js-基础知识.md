@@ -348,6 +348,41 @@ window.addEventListener('resize', () => {
 
 ## 插件使用
 
+### registerPlugin 方法
+
+用于注册插件扩展 wavesurfer.js 的功能。
+
+```javascript
+wavesurfer.registerPlugin(pluginInstance)
+```
+
+**参数：**
+- `pluginInstance` - 通过 `PluginName.create(options)` 创建的插件实例
+
+**返回值：**
+- 返回注册的插件实例，用于监听事件和调用方法
+
+**常用选项：**
+
+| 选项 | 类型 | 默认值 | 说明 |
+|-----|------|--------|------|
+| `plugins` | Plugin[] | - | 创建实例时同时注册多个插件 |
+
+```javascript
+// 方式1：分别注册
+const wsRegions = wavesurfer.registerPlugin(Regions.create())
+const wsTimeline = wavesurfer.registerPlugin(Timeline.create())
+
+// 方式2：创建时同时注册多个插件
+const wavesurfer = WaveSurfer.create({
+  container: '#waveform',
+  plugins: [
+    Regions.create(),
+    Timeline.create(),
+  ],
+})
+```
+
 ### Regions - 区域标记
 
 用于标记音频的特定区域（如歌词片段）：
