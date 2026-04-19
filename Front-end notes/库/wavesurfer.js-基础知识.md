@@ -531,7 +531,7 @@ envelope.getPoints().then((points) => {
 
 ```javascript
 import WaveSurfer from 'wavesurfer.js'
-import Record from 'wavesurfer.js/dist/plugins/record.esm.js'
+import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js'
 
 const wavesurfer = WaveSurfer.create({
   container: '#waveform',
@@ -539,7 +539,11 @@ const wavesurfer = WaveSurfer.create({
   progressColor: '#383351',
 })
 
-const record = wavesurfer.registerPlugin(Record.create())
+const record = wavesurfer.registerPlugin(
+  RecordPlugin.create({
+    scrollingWaveform: true,  // 录音时波形滚动
+  })
+)
 
 // 开始录音
 document.getElementById('recordBtn').addEventListener('click', () => {
