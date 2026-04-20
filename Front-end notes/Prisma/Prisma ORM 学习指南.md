@@ -102,17 +102,11 @@ npm install @prisma/client @prisma/adapter-pg pg dotenv
 - **`@types/pg`** - node-postgres 的 TypeScript 类型定义
 
 - **`dotenv`** - 从您的 `.env` 文件加载环境变量
-
-``` bash
-npx prisma init --db
-```
-
-
 ### 3.2 初始化 Prisma
 
 ```bash
 # 初始化,创建 prisma/schema.prisma
-npx prisma init
+npx prisma init --db
 ```
 
 ### 3.3 配置数据库连接
