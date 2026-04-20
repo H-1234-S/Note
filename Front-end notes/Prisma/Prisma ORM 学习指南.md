@@ -167,16 +167,16 @@ model User {
 
 ### 4.3 标量类型映射
 
-| Prisma | PostgreSQL | MySQL | SQLite |
-|--------|------------|-------|--------|
-| String | text | varchar(191) | text |
-| Int | integer | int | integer |
-| BigInt | bigint | bigint | integer |
-| Float | double precision | double | real |
-| Boolean | boolean | tinyint(1) | integer |
-| DateTime | timestamp(3) | datetime(3) | datetime |
-| Json | jsonb | json | text |
-| Decimal | decimal(65,30) | decimal(65,30) | text |
+| Prisma   | PostgreSQL       | MySQL          | SQLite   |
+| -------- | ---------------- | -------------- | -------- |
+| String   | text             | varchar(191)   | text     |
+| Int      | integer          | int            | integer  |
+| BigInt   | bigint           | bigint         | integer  |
+| Float    | double precision | double         | real     |
+| Boolean  | boolean          | tinyint(1)     | integer  |
+| DateTime | timestamp(3)     | datetime(3)    | datetime |
+| Json     | jsonb            | json           | text     |
+| Decimal  | decimal(65,30)   | decimal(65,30) | text     |
 
 ---
 
