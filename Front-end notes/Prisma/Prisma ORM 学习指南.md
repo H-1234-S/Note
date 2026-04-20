@@ -115,12 +115,12 @@ npx prisma init --db
 // prisma/schema.prisma
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"  // 或 mysql, sqlite, mongodb 等
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
 }
 ```
 
