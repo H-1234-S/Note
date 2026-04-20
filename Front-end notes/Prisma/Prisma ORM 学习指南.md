@@ -1,4 +1,4 @@
-## 第一章：Prisma 简介
+## 1. Prisma 简介
 
 > **学习目标**：了解 Prisma 是什么，能做什么，以及它与其他 ORM 的区别
 
@@ -76,7 +76,7 @@ Prisma 是一个现代化的 **开源 ORM (Object-Relational Mapping，对象关
 
 ---
 
-## 第二章：核心概念
+## 2. 核心概念
 
 > **学习目标**：理解 Prisma 的三要素和工作流程，为后续实践打下基础
 
@@ -196,7 +196,7 @@ const user = await prisma.user.create({
 
 ---
 
-## 第三章：安装与配置
+## 3. 安装与配置
 
 > **学习目标**：掌握 Prisma 项目的初始化和配置，能够搭建完整的开发环境
 
@@ -446,7 +446,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 ---
 
-## 第四章：数据模型定义
+## 4. 数据模型定义
 
 > **学习目标**：掌握 Prisma Schema 语法，能够定义各种数据模型
 
@@ -567,7 +567,7 @@ model User {
 
 ---
 
-## 第五章：关系处理
+## 5. 关系处理
 
 > **学习目标**：掌握 Prisma 中各种关系模型的定义和查询方法
 
@@ -748,11 +748,11 @@ model User {
 
 ---
 
-## 第六章：Prisma Client 查询
+## 6. Prisma Client 查询
 
 > **学习目标**：掌握 Prisma Client 的 CRUD 操作，能够进行各种数据库查询
 
-> **前置知识**：请先阅读 [第三章第 3.5 节 - 驱动适配器](./#35-驱动适配器-prisma-7-核心)，确保 Prisma Client 已正确初始化
+> **前置知识**：请先阅读 [3第 3.5 节 - 驱动适配器](./#35-驱动适配器-prisma-7-核心)，确保 Prisma Client 已正确初始化
 
 ### 6.1 初始化 Prisma Client
 
