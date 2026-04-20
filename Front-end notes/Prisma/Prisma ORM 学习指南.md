@@ -1,12 +1,20 @@
-## 1. Prisma 简介
+## 第一章：Prisma 简介
+
+> **学习目标**：了解 Prisma 是什么，能做什么，以及它与其他 ORM 的区别
 
 ### 1.1 什么是 Prisma
 
-Prisma 是一个现代化的 **开源 ORM (对象关系映射)** 工具，用于 Node.js 和 TypeScript。它提供了一种类型安全的方式来访问数据库。
+Prisma 是一个现代化的 **开源 ORM (Object-Relational Mapping，对象关系映射)** 工具，用于 Node.js 和 TypeScript。
 
-**官网**: https://www.prisma.io
+**核心特点**：
+- **类型安全**：自动生成 TypeScript 类型定义，编译时即可发现类型错误
+- **声明式 Schema**：用 DSL 定义数据模型，而非编写 SQL
+- **内置迁移系统**：Schema 变更自动生成数据库迁移
+- **可视化工具**：提供 Prisma Studio 管理数据库
 
-**GitHub**: https://github.com/prisma/prisma
+**官网**: https://www.prisma.io  
+**GitHub**: https://github.com/prisma/prisma  
+**Star**: 45K+
 
 ### 1.2 Prisma 的组成
 
@@ -22,38 +30,59 @@ Prisma 是一个现代化的 **开源 ORM (对象关系映射)** 工具，用于
 └─────────────────────────────────────────────────────┘
 ```
 
-### 1.3 支持的数据库
+| 组件 | 说明 |
+|------|------|
+| **Prisma CLI** | 命令行工具，用于 `init`、`generate`、`migrate`、`db push` 等命令 |
+| **Prisma Client** | 自动生成的类型安全数据库客户端，代码中直接使用 |
+| **Prisma Studio** | Web 版数据库管理界面（`npx prisma studio`） |
 
-> **Prisma 7+ 重要变化**：Prisma 7 开始必须使用驱动适配器（Driver Adapter）来连接数据库。
-
-| 数据库 | 驱动适配器 | 状态 |
-|--------|-----------|------|
-| PostgreSQL | `@prisma/adapter-pg` | 稳定 |
-| MySQL | `@prisma/adapter-mysql` 或 `@prisma/adapter-mariadb` | 稳定 |
-| SQLite | `@prisma/adapter-better-sqlite3` | 稳定 |
-| MongoDB | `@prisma/adapter-mongodb` | 预览 |
-| SQL Server | `@prisma/adapter-turso` | 预览 |
-| CockroachDB | `@prisma/adapter-pg` (使用 CockroachDB 驱动) | 预览 |
-
-### 1.4 Prisma vs 其他 ORM
+### 1.3 为什么选择 Prisma
 
 ```
 ┌──────────────┬──────────────┬──────────────┬──────────────┐
 │    特性       │   Prisma    │    TypeORM   │    Drizzle   │
 ├──────────────┼──────────────┼──────────────┼──────────────┤
-│   类型安全    │    ✅        │    ⚠️        │    ✅       │
-│   学习曲线    │    平滑      │    陡峭      │    平滑        │
-│   迁移系统    │    内置      │    内置      │    内置        │
-│   查询性能    │    良好      │    良好      │    优秀        │
-│   Studio     │    ✅        │    ❌        │    ❌       │
+│   类型安全    │    ✅ 完整   │    ⚠️ 部分   │    ✅ 完整   │
+│   学习曲线    │    ⭐ 平滑   │    ⭐ 陡峭   │    ⭐ 一般   │
+│   迁移系统    │    ✅ 内置   │    ✅ 内置   │    ✅ 内置   │
+│   查询性能    │    ⭐ 良好   │    ⭐ 良好   │    ⭐ 优秀  │
+│   Studio     │    ✅        │    ❌        │    ❌        │
+│   驱动适配器  │    ✅ 必须   │    内置      │    必须     │
 └──────────────┴──────────────┴──────────────┴──────────────┘
 ```
 
+**Prisma 优势**：
+1. **零样板代码**：不需要写 entity/decorator，直接定义 Schema
+2. **类型安全最完善**：所有查询都有完整的 TypeScript 类型推导
+3. **Schema 即文档**：数据模型是自描述的
+4. **迁移简单可靠**：版本控制数据库变更
+
+**Prisma 劣势**：
+1. 包体积相对较大（但 Prisma 7 已优化）
+2. 需要额外学习 Schema 语法
+
+### 1.4 支持的数据库
+
+> **⚠️ Prisma 7+ 重要变化**：Prisma 7 开始必须使用驱动适配器（Driver Adapter）来连接数据库
+
+| 数据库 | 驱动适配器 | 状态 | 适用场景 |
+|--------|-----------|------|----------|
+| PostgreSQL | `@prisma/adapter-pg` | 🟢 稳定 | 生产环境首选 |
+| MySQL | `@prisma/adapter-mysql` | 🟢 稳定 | Web 应用 |
+| MariaDB | `@prisma/adapter-mariadb` | 🟢 稳定 | 兼容 MySQL |
+| SQLite | `@prisma/adapter-better-sqlite3` | 🟢 稳定 | 开发/测试/嵌入式 |
+| MongoDB | `@prisma/adapter-mongodb` | 🟡 预览 | NoSQL 迁移 |
+| CockroachDB | `@prisma/adapter-pg` | 🟡 预览 | 分布式数据库 |
+
 ---
 
-## 2. 核心概念
+## 第二章：核心概念
+
+> **学习目标**：理解 Prisma 的三要素和工作流程，为后续实践打下基础
 
 ### 2.1 三驾马车
+
+Prisma 由三个核心组件构成：
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
@@ -62,66 +91,214 @@ Prisma 是一个现代化的 **开源 ORM (对象关系映射)** 工具，用于
 └─────────────┘    └─────────────┘    └─────────────┘
 ```
 
-1. **Prisma Schema** - 定义数据模型和数据库连接
+| 组件 | 说明 | 类比 |
+|------|------|------|
+| **Prisma Schema** | 定义数据模型（表结构、字段、关系） | 建筑图纸 |
+| **Prisma Client** | 自动生成的类型安全客户端 | 建筑工人 |
+| **Database** | 实际的数据库 | 建筑工地 |
 
-2. **Prisma Client** - 自动生成的类型安全客户端
-
-3. **Database** - 实际的数据库
-
-### 2.2 工作流程
+### 2.2 Schema vs Client vs Database
 
 ```
-1. 编写 schema.prisma
-        ↓
-2. 运行 prisma generate (生成 Client)
-        ↓
-3. 使用 Client 查询数据库
-        ↓
-4. 运行 prisma db push / migrate 同步数据库
+┌─────────────────────────────────────────────────────────────────┐
+│                        实际开发流程                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                         │
+│  1. 编写 schema.prisma                                   │
+│     ┌──────────────────────────────────┐               │
+│     │ model User {                      │               │
+│     │   id     Int @id @default(autoincrement()) │       │
+│     │   name   String                   │               │
+│     │   email  String @unique            │               │
+│     │ }                                │               │
+│     └──────────────────────────────────┘               │
+│                    ↓ npx prisma migrate dev              │
+│                                                         │
+│  2. 数据库生成表                                         │
+│     ┌──────────────────────────────────┐               │
+│     │ CREATE TABLE "User" (            │               │
+│     │   id SERIAL PRIMARY KEY,         │               │
+│     │   name TEXT NOT NULL,            │               │
+│     │   email TEXT UNIQUE               │               │
+│     │ );                              │               │
+│     └──────────────────────────────────┘               │
+│                    ↓ prisma generate                    │
+│                                                         │
+│  3. 生成 Client (类型安全)                               │
+│     ┌──────────────────────────────────┐               │
+│     │ const user = await prisma.user...   │               │
+│     │ // ← 编辑器自动提示                │               │
+│     └──────────────────────────────────┘               │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+### 2.3 工作流程
+
+```
+1. 编写 schema.prisma        ← 定义数据结构
+        ↓
+2. 运行 prisma migrate      ← 同步到数据库创建/修改表
+        ↓
+3. 运行 prisma generate    ← 生成 Prisma Client
+        ↓
+4. 使用 Client 查询      ← 在代码中调用
+        ↓
+5. 循环迭代            ← 修改 schema -> migrate -> generate
+```
+
+### 2.4 快速上手示例
+
+假设我们要创建一个用户管理系统：
+
+**Step 1: 定义 Schema**
+
+```prisma
+// prisma/schema.prisma
+model User {
+  id      Int     @id @default(autoincrement())
+  name    String
+  email   String  @unique
+  created DateTime @default(now())
+}
+```
+
+**Step 2: 执行迁移**
+
+```bash
+npx prisma migrate dev --name init
+```
+
+**Step 3: 生成 Client**
+
+```bash
+npx prisma generate
+```
+
+**Step 4: 使用**
+
+```typescript
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+// 创建用户 (类型安全!)
+const user = await prisma.user.create({
+  data: {
+    name: '张三',
+    email: 'zhangsan@example.com'
+  }
+})
+//          ↑
+//   ← 编辑器自动补全提示
+```
+
+这就是 Prisma 的核心工作流：**定义 → 迁移 → 生成 → 使用**
 
 ---
 
-## 3. 安装与配置
+## 第三章：安装与配置
 
-### 3.1 初始化项目
+> **学习目标**：掌握 Prisma 项目的初始化和配置，能够搭建完整的开发环境
+
+### 3.1 安装依赖
+
+> **⚠️ Prisma 7+ 重要变化**：必须安装驱动适配器
 
 ```bash
-npm install prisma @types/node --save-dev
+# 开发依赖
+npm install prisma @types/node typescript --save-dev
+
+# 生产依赖 (PostgreSQL 示例)
 npm install @prisma/client @prisma/adapter-pg pg dotenv
 ```
 
-> **注意**：Prisma 7+ 版本需要使用驱动适配器（Driver Adapter）来连接数据库，不能使用内置驱动。
+**各包作用说明**：
 
-每个包的作用如下：
+| 包名 | 作用 | 是否必需 |
+|------|------|----------|
+| `prisma` | CLI 命令行工具 | ✅ 开发依赖 |
+| `@prisma/client` | 客户端库，用于查询 | ✅ 生产依赖 |
+| `@prisma/adapter-pg` | PostgreSQL 适配器 | ✅ **Prisma 7+ 必需** |
+| `pg` | PostgreSQL 驱动 | ✅ 配合适配器使用 |
+| `dotenv` | 环境变量管理 | 推荐 |
+| `typescript` | 类型支持 | 推荐 |
 
-- **`prisma`** - 用于运行 `prisma init`、`prisma db pull` 和 `prisma generate 等命令的 Prisma 命令行工具`
+> **不同数据库的安装命令**：
+> ```bash
+> # MySQL
+> npm install @prisma/adapter-mysql mysql2
+> 
+> # SQLite
+> npm install @prisma/adapter-better-sqlite3 better-sqlite3
+> ```
 
-- **`@prisma/client`** - 用于查询数据库的 Prisma Client 库
-
-- **`@prisma/adapter-pg`** - **必需**。连接 Prisma Client 到您数据库的 [`node-postgres` 驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/postgresql#using-driver-adapters)
-
-- **`pg`** - node-postgres 数据库驱动
-
-- **`dotenv`** - 从您的 `.env` 文件加载环境变量
-### 3.2 初始化 Prisma
+### 3.2 初始化 Prisma 项目
 
 ```bash
-# 初始化,创建 prisma/schema.prisma
+# 方式1: 初始化并连接现有数据库
 npx prisma init --db
+
+# 方式2: 初始化 (不指定数据库)
+npx prisma init
 ```
 
-- **是什么**：初始化 Prisma 项目环境。
-    
-- **有什么用**：
-    
-    - **创建目录**：在项目根目录生成一个 `prisma` 文件夹。
-        
-    - **生成 Schema**：创建 `prisma/schema.prisma` 文件。这是整个项目的**灵魂**，你所有的数据表（User, Audio, Task 等）都在这里定义。
-        
-    - **配置文件**：自动在 `.env` 文件中添加 `DATABASE_URL` 变量。
-        
-- **注意**：`--db` 是为了指定你正在连接现有的数据库。
+`prisma init` 会执行以下操作：
+
+```
+项目根目录/
+├── prisma/
+│   └── schema.prisma    ← 创建 Schema 文件
+└── .env                 ← 创建环境变量文件
+```
+
+### 3.3 配置数据库连接
+
+**PostgreSQL 连接字符串格式**：
+
+```env
+# 格式: postgresql://用户名:密码@主机:端口/数据库名?参数
+DATABASE_URL="postgresql://postgres:password@localhost:5432/mydb?schema=public"
+
+# 常用参数
+?schema=public           # 指定 schema
+?sslmode=require        # 启用 SSL
+?connection_limit=5    # 连接池数量
+```
+
+**MySQL 连接字符串格式**：
+
+```env
+DATABASE_URL="mysql://root:password@localhost:3306/mydb"
+```
+
+**SQLite 连接字符串格式**：
+
+```env
+DATABASE_URL="file:./dev.db"
+```
+
+### 3.4 Prisma Schema 基础配置
+
+```prisma
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"  // mysql, sqlite, mongodb 等
+  url      = env("DATABASE_URL")
+}
+```
+
+**配置说明**：
+
+| 配置项 | 说明 |
+|--------|------|
+| `generator client` | 指定生成客户端的类型，`prisma-client-js` 是默认值 |
+| `provider` | 数据库类型：`postgresql`, `mysql`, `sqlite`, `mongodb` |
+| `url` | 数据库连接地址，从环境变量读取 |
 
 ``` bash
 npx prisma migrate dev --name init
@@ -150,39 +327,13 @@ npx prisma generate
 - **消除报错**：有时候你明明在 Schema 里加了字段，但代码里写这个字段却报红线，这就是因为你还没运行 `generate`，代码助手还不知道这个新字段的存在。
     
 
-每当你**修改**了 `schema.prisma` 文件，你都需要运行它。具体场景包括：
+ 每当你**修改**了 `schema.prisma` 文件，你都需要运行它。具体场景包括：
 
 1. **添加了新模型**（比如新加了 `User` 表）。
-    
 2. **修改了字段**（比如把 `description` 改成了必填）。
-    
 3. **初次下载项目**：当你从 GitHub 克隆一个项目，运行完 `npm install` 后，通常也要运行一次这个命令来初始化本地的 Client 类型。
 
-### 3.3 配置 Prisma Schema
-
-```prisma
-// prisma/schema.prisma
-
-generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-}
-
-datasource db {
-  provider = "postgresql"
-}
-```
-
-### 3.4 环境变量
-
-```env
-# .env 文件
-DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
-
-// 运行 npx prisma init --db 会自动生成
-```
-
-### 3.5 驱动适配器
+### 3.5 驱动适配器 (Prisma 7+ 核心)
 
 > **Prisma 7+ 重大变化**：Prisma 7 开始必须使用驱动适配器（Driver Adapter）来连接数据库。
 
@@ -295,39 +446,82 @@ if (process.env.NODE_ENV !== 'production') {
 
 ---
 
-## 4. 数据模型定义
+## 第四章：数据模型定义
 
-### 4.1 基本字段类型
+> **学习目标**：掌握 Prisma Schema 语法，能够定义各种数据模型
+
+### 4.1 快速入门：一个完整的 User 模型
 
 ```prisma
 model User {
   id        String   @id @default(uuid())      // 字符串主键
-  id        Int      @id @default(autoincrement()) // 整数主键
   name      String                           // 必填字符串
   email     String?                          // 可选字符串
   age       Int?                             // 可选整数
   balance   Decimal @db.Decimal(10, 2)       // 精确小数
-  createdAt DateTime @default(now())        // 默认时间戳
-  updatedAt DateTime @updatedAt              // 自动更新时间戳
+  createdAt DateTime @default(now())        // 创建时间
+  updatedAt DateTime @updatedAt              // 更新时间
   isActive  Boolean @default(true)           // 布尔默认值
-  bio       String? @db.VarChar(500)         // MySQL VarChar
 }
 ```
 
-### 4.2 字段修饰符
+### 4.2 常用字段类型
 
-| 修饰符               | 说明      | 示例                                   |
-| ----------------- | ------- | ------------------------------------ |
-| `?`               | 可选字段    | `name String?`                       |
-| `[]`              | 数组字段    | `tags String[]`                      |
-| `@default()`      | 默认值     | `@default(true)`                     |
-| `@id`             | 主键      | `id String @id`                      |
-| `@unique`         | 唯一约束    | `email String @unique`               |
-| `@updatedAt`      | 自动更新    | `updatedAt DateTime @updatedAt`      |
-| `@default(now())` | 默认当前时间  | `createdAt DateTime @default(now())` |
-| `@db.X`           | 数据库特定类型 | `@db.VarChar(255)`                   |
+Prisma 内置以下标量类型：
 
-### 4.3 标量类型映射
+| Prisma 类型 | 说明 | 示例 |
+|------------|------|------|
+| `String` | 字符串 | `name String` |
+| `Int` | 整数 | `age Int` |
+| `BigInt` | 大整数 | `bigNumber BigInt` |
+| `Float` | 浮点数 | `price Float` |
+| `Decimal` | 精确小数 | `price Decimal @db.Decimal(10, 2)` |
+| `Boolean` | 布尔值 | `isActive Boolean` |
+| `DateTime` | 日期时间 | `createdAt DateTime` |
+| `Json` | JSON 数据 | `metadata Json` |
+| `Bytes` | 二进制数据 | `avatar Bytes` |
+
+### 4.3 字段修饰符
+
+| 修饰符 | 说明 | 示例 |
+|--------|------|------|
+| `?` | 可选字段（可为空） | `name String?` |
+| `@default(value)` | 默认值 | `isActive Boolean @default(true)` |
+| `@id` | 主键 | `id Int @id` |
+| `@unique` | 唯一约束 | `email String @unique` |
+| `@updatedAt` | 自动更新 | `updatedAt DateTime @updatedAt` |
+| `@default(now())` | 默认当前时间 | `createdAt DateTime @default(now())` |
+| `@default(cuid())` | CUID 作为默认 | `id String @default(cuid())` |
+| `@default(uuid())` | UUID 作为默认 | `id String @default(uuid())` |
+| `@default(autoincrement())` | 自增 ID | `id Int @id @default(autoincrement())` |
+| `@db.X` | 数据库特定类型 | `bio String @db.VarChar(500)` |
+| `[]` | 数组类型 | `tags String[]` |
+| `@map("column_name")` | 映射到数据库列名 | `name String @map("user_name")` |
+
+### 4.4 主键类型选择
+
+```prisma
+model User {
+  // 方式1: 自增整数主键 (常用)
+  id        Int      @id @default(autoincrement())
+  
+  // 方式2: UUID 主键 (分布式系统推荐)
+  id        String   @id @default(uuid())
+  
+  // 方式3: CUID 主键 (性能更好)
+  id        String   @id @default(cuid())
+}
+```
+
+**主键类型对比**：
+
+| 类型 | 优点 | 缺点 | 适用场景 |
+|------|------|------|----------|
+| `autoincrement()` | 简单、紧凑 | 单点瓶颈 | 单机应用 |
+| `uuid()` | 全球唯一、安全 | 36 字符、随机 | 分布式系统 |
+| `cuid()` | 高性能、简短 | 较新、生态少 | 现代应用 |
+
+### 4.5 标量类型映射
 
 | Prisma   | PostgreSQL       | MySQL          | SQLite   |
 | -------- | ---------------- | -------------- | -------- |
@@ -340,54 +534,111 @@ model User {
 | Json     | jsonb            | json           | text     |
 | Decimal  | decimal(65,30)   | decimal(65,30) | text     |
 
----
-
-## 5. 关系处理
-
-### 5.1 一对多 (One-to-Many)
+### 4.6 表名和字段名映射
 
 ```prisma
-// 用户和文章 - 一个用户有多篇文章
 model User {
-  id    String  @id @default(uuid())
-  name  String
-  posts Post[]  // 关系字段:一个用户有多篇帖子
-}
+  id        String @id @default(uuid())
+  fullName  String @map("full_name")   // 映射到数据库列名
+  email     String @unique
 
-model Post {
-  id       String @id @default(uuid())
-  title    String
-  author   User   @relation(fields: [authorId], references: [id])
-  authorId String // 外键
+  @@map("users")  // 映射到数据库表名
+  @@index([email])  // 添加索引
 }
 ```
 
-### 5.2 一对一 (One-to-One)
+### 4.7 忽略字段
 
 ```prisma
 model User {
-  id        String  @id @default(uuid())
+  id        String @id @default(uuid())
   name      String
-  profile   Profile? // 一对一关系
+  password  String  // 不会被迁移
+  
+  @@ignore  // 迁移时忽略此模型
+}
+
+// 查询时忽略字段
+model User {
+  id       String @id
+  password String @ignore  // 字段保留在 Schema 但不迁移到数据库
+}
+```
+
+---
+
+## 第五章：关系处理
+
+> **学习目标**：掌握 Prisma 中各种关系模型的定义和查询方法
+
+### 5.1 一对多关系 (One-to-Many)
+
+一个用户可以发布多篇文章：
+
+```prisma
+model User {
+  id    String  @id @default(uuid())
+  name  String
+  posts Post[]  // 关系字段：一对多
+}
+
+model Post {
+  id       String  @id @default(uuid())
+  title    String
+  author   User    @relation(fields: [authorId], references: [id])
+  authorId String  // 外键
+}
+```
+
+**查询示例**：
+
+```typescript
+// 查询用户及其所有文章
+const userWithPosts = await prisma.user.findUnique({
+  where: { id: 'xxx' },
+  include: { posts: true }
+})
+
+// 创建用户时同时创建文章
+const user = await prisma.user.create({
+  data: {
+    name: '张三',
+    posts: {
+      create: { title: '我的第一篇文章' }
+    }
+  },
+  include: { posts: true }
+})
+```
+
+### 5.2 一对一关系 (One-to-One)
+
+每个用户只能有一个个人资料：
+
+```prisma
+model User {
+  id       String   @id @default(uuid())
+  name     String
+  profile  Profile? // 可选的一对一
 }
 
 model Profile {
   id     String @id @default(uuid())
   bio    String
   user   User   @relation(fields: [userId], references: [id])
-  userId String @unique // 一对一需要唯一外键
+  userId String @unique // 一对一必须加唯一约束
 }
 ```
 
-### 5.3 多对多 (Many-to-Many)
+### 5.3 多对多关系 (Many-to-Many)
 
-**隐式多对多 (Prisma 自动管理中间表)**
+**方式1：隐式多对多 (Prisma 自动管理)**
 
 ```prisma
 model Post {
   id    String   @id @default(uuid())
   title String
-  tags  Tag[]
+  tags  Tag[]    // Prisma 自动创建中间表
 }
 
 model Tag {
@@ -397,7 +648,7 @@ model Tag {
 }
 ```
 
-**显式多对多 (手动管理)**
+**方式2：显式多对多 (手动控制)**
 
 ```prisma
 model Post {
@@ -424,6 +675,56 @@ model PostTag {
 
 ### 5.4 自引用关系
 
+实现评论回复功能（树形结构）：
+
+```prisma
+model Comment {
+  id        String    @id @default(uuid())
+  content   String
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  parentId  String?
+  replies   Comment[] @relation("CommentReplies")
+}
+```
+
+### 5.5 关系字段修饰符
+
+```prisma
+model User {
+  id     String @id @default(uuid())
+  name   String
+  posts  Post[]        // 可选（用户可以没有文章）
+  // posts Post?      // 必选（每篇文章必须有作者）
+  // posts Post!      // 非空
+}
+```
+
+### 5.6 关系删除行为
+
+```prisma
+model User {
+  id    String @id @default(uuid())
+  name  String
+  posts Post[]
+}
+
+model Post {
+  id       String @id @default(uuid())
+  title    String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+}
+```
+
+**删除行为选项**：
+
+| 行为 | 说明 |
+|------|------|
+| `Cascade` | 删除父记录时自动删除子记录 |
+| `Restrict` | 阻止删除（有子记录时） |
+| `SetNull` | 删除时将外键设为 null |
+| `SetDefault` | 删除时将外键设为默认值 |
+
 ```prisma
 // 评论可以回复其他评论
 model Comment {
@@ -447,13 +748,33 @@ model User {
 
 ---
 
-## 6. Prisma Client 查询
+## 第六章：Prisma Client 查询
 
-> **提示**：Prisma Client 初始化请参考 [第 3.5 节 - 驱动适配器](#35-驱动适配器-prisma-7-核心)
+> **学习目标**：掌握 Prisma Client 的 CRUD 操作，能够进行各种数据库查询
 
-### 6.1 基本 CRUD
+> **前置知识**：请先阅读 [第三章第 3.5 节 - 驱动适配器](./#35-驱动适配器-prisma-7-核心)，确保 Prisma Client 已正确初始化
+
+### 6.1 初始化 Prisma Client
 
 ```typescript
+// lib/prisma.ts
+import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL
+})
+
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+
+export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter })
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
+```
+
+### 6.2 Create - 创建数据
 import prisma from './lib/prisma'
 
 // ============ CREATE (创建) ============
@@ -475,34 +796,38 @@ const users = await prisma.user.createMany({
   ]
 })
 
-// ============ READ (读取) ============
+### 6.3 Read - 读取数据
 
-// 查询单条
+```typescript
+// 查询单条（唯一约束字段）
 const user = await prisma.user.findUnique({
-  where: { id: 1 }  // 或 { email: 'zhangsan@example.com' }
+  where: { id: 1 }
+  // 或 { email: 'zhangsan@example.com' }
 })
 
 // 查询多条
 const users = await prisma.user.findMany({
-  where: { age: { gte: 18 } },  // age >= 18
+  where: { age: { gte: 18 } },
   orderBy: { createdAt: 'desc' },
-  take: 10,  // 限制10条
-  skip: 0    // 跳过0条
+  take: 10,
+  skip: 0
 })
 
-// 条件查询
+// 条件组合查询
 const users = await prisma.user.findMany({
   where: {
     OR: [
-      { name: { contains: '张' } },      // 包含"张"
-      { email: { endsWith: '@example.com' } }  // 以@example.com结尾
+      { name: { contains: '张' } },
+      { email: { endsWith: '@example.com' } }
     ],
-    age: { in: [18, 20, 25] }  // IN 查询
+    age: { in: [18, 20, 25] }
   }
 })
+```
 
-// ============ UPDATE (更新) ============
+### 6.4 Update - 更新数据
 
+```typescript
 // 更新单条
 const user = await prisma.user.update({
   where: { id: 1 },
@@ -515,8 +840,17 @@ await prisma.user.updateMany({
   data: { isActive: false }
 })
 
-// ============ DELETE (删除) ============
+// 原子递增
+await prisma.user.update({
+  where: { id: 1 },
+  data: { age: { increment: 1 } }
+})
+// 支持: increment, decrement, multiply, divide
+```
 
+### 6.5 Delete - 删除数据
+
+```typescript
 // 删除单条
 await prisma.user.delete({ where: { id: 1 } })
 
@@ -524,7 +858,7 @@ await prisma.user.delete({ where: { id: 1 } })
 await prisma.user.deleteMany({ where: { isActive: false } })
 ```
 
-### 6.3 关系查询
+### 6.6 关系查询
 
 ```typescript
 // 包含关联数据 (JOIN)

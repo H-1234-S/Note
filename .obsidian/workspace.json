@@ -49,8 +49,7 @@
               "title": "Prisma ORM 学习指南"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -167,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Prisma/Prisma ORM 学习指南.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Prisma ORM 学习指南 的大纲"
+              "title": "Resonance 的大纲"
             }
           },
           {
@@ -224,10 +223,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "f0de3e60aad501fa",
+  "active": "ba3bf092920b973d",
   "lastOpenFiles": [
-    "Project notes/resonance/Resonance.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
+    "Project notes/resonance/Resonance.md",
     "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
