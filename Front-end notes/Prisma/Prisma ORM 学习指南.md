@@ -932,5 +932,3 @@ await prisma.user.create({ data: validated })
 - 示例项目: https://github.com/prisma/prisma-examples
 
 ---
-
-*文档整理时间: 2026-04-19*
