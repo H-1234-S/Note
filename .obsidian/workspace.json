@@ -25,14 +25,17 @@
             "id": "d816abae62166dbf",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Front-end notes/tRPC/tRPC学习指南.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/resonance/需求.canvas",
+                "viewState": {
+                  "x": 419.80284229611186,
+                  "y": 1778.2845198605764,
+                  "zoom": -1.3677123308243957
+                }
               },
-              "icon": "lucide-file",
-              "title": "tRPC学习指南"
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
             }
           },
           {
@@ -50,7 +53,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -167,13 +170,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/tRPC/tRPC学习指南.md",
+                "file": "Front-end notes/Prisma/Prisma ORM 学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "tRPC学习指南 的大纲"
+              "title": "Prisma ORM 学习指南 的大纲"
             }
           },
           {
@@ -224,12 +227,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "d816abae62166dbf",
+  "active": "f0de3e60aad501fa",
   "lastOpenFiles": [
+    "Project notes/resonance/需求.canvas",
+    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Project notes/resonance/Resonance.md",
     "Front-end notes/库/RecordRTC-用法指南.md",
-    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/TypeScript/TypeScript学习指南.md",
     "Front-end notes/TypeScript.md",
@@ -261,8 +265,6 @@
     "八股/TypeScript篇_高频八股文.md",
     "八股/JavaScript篇_高频八股文.md",
     "八股/Next.js篇_高频八股文.md",
-    "八股/React篇_高频八股文.md",
-    "Project notes/resonance/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",

@@ -766,6 +766,7 @@ if (process.env.NODE_ENV !== 'production') {
 ```
 
 ### 6.2 Create - 创建数据
+``` ts
 import prisma from './lib/prisma'
 
 // ============ CREATE (创建) ============
@@ -786,6 +787,7 @@ const users = await prisma.user.createMany({
     { name: '李四', email: 'lisi@example.com' }
   ]
 })
+```
 
 ### 6.3 Read - 读取数据
 
