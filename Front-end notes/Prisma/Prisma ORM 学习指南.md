@@ -1432,34 +1432,6 @@ const prisma = new PrismaClient({ adapter })
 ```
 
 ---
-
-## 学习路径推荐
-
-```
-第一阶段: 入门 (1-2天)
-  ├── 安装配置 Prisma
-  ├── 定义简单数据模型
-  └── 掌握基本 CRUD
-
-第二阶段: 进阶 (3-5天)
-  ├── 关系模型 (一对多、一对一、多对多)
-  ├── 复杂查询 (过滤、排序、分页)
-  └── 迁移系统
-
-第三阶段: 高级 (5-7天)
-  ├── 事务处理
-  ├── 原始 SQL
-  ├── 性能优化
-  └── 错误处理
-
-第四阶段: 实战 (持续)
-  ├── 构建完整项目
-  ├── 集成到现有项目
-  └── 深入源码理解
-```
-
----
-
 ## 参考资源
 
 - 官方文档: https://www.prisma.io/docs
@@ -1468,5 +1440,3 @@ const prisma = new PrismaClient({ adapter })
 - 示例项目: https://github.com/prisma/prisma-examples
 - Prisma Next (新架构): https://github.com/prisma/prisma-next
 - Prisma Changelog: https://www.prisma.io/changelog
-
----
