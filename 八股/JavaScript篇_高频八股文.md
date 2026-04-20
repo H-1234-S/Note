@@ -108,6 +108,18 @@ console.log(null === undefined); // false (严格相等)
    Object.prototype.toString.call(new Date());    // "[object Date]"
    Object.prototype.toString.call(/abc/);         // "[object RegExp]"
    Object.prototype.toString.call(function(){});  // "[object Function]"
+   
+   // 类型判断封装
+   function getType(value) {
+	  return Object.prototype.toString
+			    .call(value)
+			    .slice(8, -1)
+			    .toLowerCase();
+	}
+
+	getType([]);        // "array"
+	getType(null);      // "null"
+	getType(123n);      // "bigint"
    ```
 
 4. **constructor**
