@@ -182,11 +182,11 @@ DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
 // 运行 npx prisma init --db 会自动生成
 ```
 
-## 驱动适配器 (Prisma 7+ 核心)
+### 3.5 驱动适配器
 
 > **Prisma 7+ 重大变化**：Prisma 7 开始必须使用驱动适配器（Driver Adapter）来连接数据库。
 
-### 3.5.1 为什么需要驱动适配器
+#### 3.5.1 为什么需要驱动适配器
 
 驱动适配器充当 **Prisma Client** 和 **JavaScript 数据库驱动** 之间的桥梁：
 
@@ -202,7 +202,7 @@ DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
 - 更灵活的连接管理
 - 支持边缘计算环境
 
-### 3.5.2 不同数据库的适配器
+#### 3.5.2 不同数据库的适配器
 
 | 数据库 | 适配器包 | JavaScript 驱动 | 安装命令 |
 |--------|---------|----------------|---------|
@@ -213,7 +213,7 @@ DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
 | MongoDB | `@prisma/adapter-mongodb` | `mongodb` | `npm i @prisma/adapter-mongodb mongodb` |
 | CockroachDB | `@prisma/adapter-pg` | `pg` | `npm i @prisma/adapter-pg pg` |
 
-### 3.5.3 使用驱动适配器
+#### 3.5.3 使用驱动适配器
 
 ```typescript
 import { PrismaClient } from '@prisma/client'
@@ -245,7 +245,7 @@ export default prisma
 | `connectionString` | 数据库连接字符串，如 `postgresql://user:pass@localhost:5432/db` |
 | `pool` | 连接池对象，用于管理数据库连接 |
 
-### 3.5.4 数据流动过程
+#### 3.5.4 数据流动过程
 
 ```
 prisma.user.findMany()
@@ -257,12 +257,12 @@ prisma.user.findMany()
          │
          ▼
 ┌──────────────────┐
-│  驱动适配器      │  转换为 SQL 语句
+│  驱动适配器        │  转换为 SQL 语句
 └────────┬─────────┘
          │
          ▼
 ┌──────────────────┐
-│  数据库驱动      │  通过 connectionString 连接数据库
+│  数据库驱动        │  通过 connectionString 连接数据库
 └────────┬─────────┘
          │
          ▼
@@ -271,7 +271,7 @@ prisma.user.findMany()
 └──────────────────┘
 ```
 
-### 3.5.5 全局单例模式 (重要)
+#### 3.5.5 全局单例模式 (重要)
 
 在开发环境中，每次实例化 PrismaClient 都会创建新的连接池，可能导致连接耗尽。务必使用单例模式：
 
