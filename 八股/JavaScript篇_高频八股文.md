@@ -122,7 +122,7 @@ console.log(null === undefined); // false (严格相等)
 	getType(123n);      // "bigint"
    ```
 
-4. **constructor**
+4. **constructor** - 一个属性，用来指向“创建这个对象的构造函数”
    ```javascript
    (123).constructor === Number;      // true
    'abc'.constructor === String;      // true
