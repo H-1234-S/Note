@@ -223,15 +223,6 @@ npm install @prisma/client @prisma/adapter-pg pg dotenv
 | `dotenv` | 环境变量管理 | 推荐 |
 | `typescript` | 类型支持 | 推荐 |
 
-> **不同数据库的安装命令**：
-> ```bash
-> # MySQL
-> npm install @prisma/adapter-mysql mysql2
-> 
-> # SQLite
-> npm install @prisma/adapter-better-sqlite3 better-sqlite3
-> ```
-
 ### 3.2 初始化 Prisma 项目
 
 ```bash
