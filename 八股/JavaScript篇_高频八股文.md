@@ -97,7 +97,7 @@ console.log(null === undefined); // false (严格相等)
    // 跨iframe会失效
    ```
 
-3. **Object.prototype.toString.call()** - 最准确 ✅
+3. **Object.prototype.toString.call()** - 获取任何值的**底层真实类型**
    ```javascript
    Object.prototype.toString.call(123);           // "[object Number]"
    Object.prototype.toString.call('abc');         // "[object String]"
