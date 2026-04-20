@@ -625,4 +625,3 @@ export default function Tabspage() {
 }
 ```
 
-claude mcp add -s user MiniMax --env MINIMAX_API_KEY=sk-api-M4S01qUa-mt_C3ZtcjE7lm8_MyRFvXiGQl4wMdReBwWjH9Pjq5Tq4X5x2AeDowpCdk8cKV9r8XISzVAbRCa132RnIyCbvl3H7Movx30ziCkBxS50a0Z-sHo --env MINIMAX_API_HOST=https://api.minimaxi.com -- uvx minimax-coding-plan-mcp -y
