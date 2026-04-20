@@ -158,7 +158,7 @@ npx prisma generate
     
 3. **初次下载项目**：当你从 GitHub 克隆一个项目，运行完 `npm install` 后，通常也要运行一次这个命令来初始化本地的 Client 类型。
 
-### 3.3 配置数据库连接
+### 3.3 配置 Prisma Schema
 
 ```prisma
 // prisma/schema.prisma
@@ -182,69 +182,117 @@ DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
 // 运行 npx prisma init --db 会自动生成
 ```
 
-## [驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/database-drivers#driver-adapters)
+## 驱动适配器 (Prisma 7+ 核心)
 
-Prisma Client 可以通过 **驱动程序适配器** 使用 **JavaScript 数据库驱动程序**连接到数据库并执行查询。
+> **Prisma 7+ 重大变化**：Prisma 7 开始必须使用驱动适配器（Driver Adapter）来连接数据库。
 
-适配器充当 Prisma Client 和 JavaScript 数据库驱动程序之间的 _翻译器_ 。
-### [使用驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/postgresql#using-driver-adapters)
+### 3.5.1 为什么需要驱动适配器
 
-程序连接数据库：
-``` ts
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "./generated/prisma";
+驱动适配器充当 **Prisma Client** 和 **JavaScript 数据库驱动** 之间的桥梁：
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ Prisma Client│◄──►│  驱动适配器   │◄──►│ JS 数据库驱动│
+└──────────────┘    └──────────────┘    └──────────────┘
 ```
 
-**`PrismaPg`**: 这是 Prisma 官方提供的 **PostgreSQL 适配器**。
+**优势**：
+- 更好的类型安全
+- 更轻量的 bundle 体积
+- 更灵活的连接管理
+- 支持边缘计算环境
 
-#### 初始化适配器 
+### 3.5.2 不同数据库的适配器
 
-``` TypeScript
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+| 数据库 | 适配器包 | JavaScript 驱动 | 安装命令 |
+|--------|---------|----------------|---------|
+| PostgreSQL | `@prisma/adapter-pg` | `pg` | `npm i @prisma/adapter-pg pg` |
+| MySQL | `@prisma/adapter-mysql` | `mysql2` | `npm i @prisma/adapter-mysql mysql2` |
+| MariaDB | `@prisma/adapter-mariadb` | `mariadb` | `npm i @prisma/adapter-mariadb mariadb` |
+| SQLite | `@prisma/adapter-better-sqlite3` | `better-sqlite3` | `npm i @prisma/adapter-better-sqlite3 better-sqlite3` |
+| MongoDB | `@prisma/adapter-mongodb` | `mongodb` | `npm i @prisma/adapter-mongodb mongodb` |
+| CockroachDB | `@prisma/adapter-pg` | `pg` | `npm i @prisma/adapter-pg pg` |
+
+### 3.5.3 使用驱动适配器
+
+```typescript
+import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+
+// 方式1: 直接使用连接字符串
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL
+})
+
+// 方式2: 使用连接池 (推荐生产环境)
+import { Pool } from 'pg'
+const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL,
+  max: 20  // 连接池最大连接数
+})
+const adapter = new PrismaPg(pool)
+
+// 创建 Prisma Client
+const prisma = new PrismaClient({ adapter })
+
+export default prisma
 ```
 
-这一步是在配置 **“连接方式”**。
+**核心参数说明**：
 
-- **接收的参数**：一个包含 `connectionString` 的对象。
-    
-    - **`connectionString`**: 数据库的“完整地址”。它通常长这样：`postgresql://用户名:密码@主机地址:端口号/数据库名`。
-        
-    - **`process.env.DATABASE_URL`**: 这是一个安全实践。我们不直接把密码写在代码里，而是从 `.env` 环境变量文件中读取。
-        
-- **作用**：创建了一个适配器实例。它负责处理底层的网络协议、连接池（Pooling）以及如何把数据发给 PostgreSQL。
-    
-#### 实例化客户端 
+| 参数 | 说明 |
+|------|------|
+| `connectionString` | 数据库连接字符串，如 `postgresql://user:pass@localhost:5432/db` |
+| `pool` | 连接池对象，用于管理数据库连接 |
 
-``` TypeScript
-const prisma = new PrismaClient({ adapter });
+### 3.5.4 数据流动过程
+
+```
+prisma.user.findMany()
+       │
+       ▼
+┌──────────────────┐
+│  PrismaClient    │  验证查询语法、类型检查
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  驱动适配器      │  转换为 SQL 语句
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  数据库驱动      │  通过 connectionString 连接数据库
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│   PostgreSQL     │  执行 SQL，返回结果
+└──────────────────┘
 ```
 
-这一步是真正创建 **“操作手”**。
+### 3.5.5 全局单例模式 (重要)
 
-- **接收的参数**：一个配置对象，其中最重要的属性就是 `adapter`。
-    
-    - **`adapter`**: 就是我们在上一行创建的那个适配器。
-        
-- **作用**：将“操作逻辑”（Prisma Client）与“物理连接”（Adapter）捆绑在一起。
-    
-    - **不传 adapter 会怎样？** Prisma 会尝试使用默认的内置驱动。
-        
-    - **为什么要传？** 在 Next.js 这种现代架构中，手动传入适配器可以让你更灵活地控制数据库连接，特别是在处理 Serverless 环境（如 Vercel）或边缘计算时，性能和稳定性更好。
-        
-#### 数据是如何流动的？
+在开发环境中，每次实例化 PrismaClient 都会创建新的连接池，可能导致连接耗尽。务必使用单例模式：
 
-当你以后在代码里写 `prisma.user.findMany()` 时，内部发生了以下链式反应：
+```typescript
+// lib/prisma.ts
+import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
 
-1. **`PrismaClient`**：收到指令，验证语法是否正确（是否有类型错误）。
-    
-2. **`adapter`**：接过指令，把 TypeScript 转换成 SQL 语句。
-    
-3. **`connectionString`**：适配器沿着这个地址，把 SQL 寄信给 PostgreSQL 数据库。
-    
-4. **数据库**：回信，数据顺着原路返回。
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL
+})
+
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+
+export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter })
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
+```
+
 ---
 
 ## 4. 数据模型定义
@@ -401,35 +449,9 @@ model User {
 
 ## 6. Prisma Client 查询
 
-### 6.1 初始化 Client (Prisma 7+)
+> **提示**：Prisma Client 初始化请参考 [第 3.5 节 - 驱动适配器](#35-驱动适配器-prisma-7-核心)
 
-```typescript
-// lib/prisma.ts
-import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import { Pool } from 'pg'
-
-// 方式1: 使用 connection string
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL
-})
-
-// 方式2: 使用连接池 (推荐生产环境)
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-const adapter = new PrismaPg(pool)
-
-// 全局单例模式 (避免开发环境连接池耗尽)
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
-const prisma = globalForPrisma.prisma || new PrismaClient({ adapter })
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma
-}
-
-export default prisma
-```
-
-### 6.2 基本 CRUD
+### 6.1 基本 CRUD
 
 ```typescript
 import prisma from './lib/prisma'
