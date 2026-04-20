@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "1718fba6d6948dc0",
+        "id": "56a6634a0c6d134f",
         "type": "tabs",
         "children": [
           {
-            "id": "f0de3e60aad501fa",
+            "id": "019fdec32f6fef0a",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/Prisma/Prisma ORM 学习指南.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Prisma ORM 学习指南"
+              "title": "新标签页"
             }
           }
         ]
@@ -137,13 +133,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Prisma/Prisma ORM 学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Prisma ORM 学习指南 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -194,9 +189,28 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "f0de3e60aad501fa",
+  "active": "019fdec32f6fef0a",
   "lastOpenFiles": [
     "Front-end notes/库/openapi-fetch-完全指南.md",
+    "Front-end notes/TypeScript/README.md",
+    "Front-end notes/TypeScript/12-练习答案.md",
+    "Front-end notes/TypeScript/11-工程化与配置.md",
+    "Front-end notes/TypeScript/10-实用技巧与最佳实践.md",
+    "Front-end notes/TypeScript/09-命名空间与声明合并.md",
+    "Front-end notes/TypeScript/08-模块系统.md",
+    "Front-end notes/TypeScript/07-高级类型.md",
+    "Front-end notes/TypeScript/06-装饰器.md",
+    "Front-end notes/TypeScript/05-枚举.md",
+    "Front-end notes/TypeScript/04-泛型.md",
+    "Front-end notes/TypeScript/03-函数.md",
+    "Front-end notes/TypeScript/02-接口与类型.md",
+    "Front-end notes/TypeScript/01-基础类型.md",
+    "Front-end notes/库/locale-codes-用法指南.md",
+    "Front-end notes/库/node_modules/openapi-fetch/README.md",
+    "Front-end notes/库/node_modules/openapi-fetch/CONTRIBUTING.md",
+    "Front-end notes/库/node_modules/openapi-fetch/CHANGELOG.md",
+    "Front-end notes/库/node_modules/openapi-typescript-helpers/README.md",
+    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/库/package-lock.json",
     "Front-end notes/库/package.json",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.mjs.map",
@@ -207,32 +221,13 @@
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.cjs.map",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.cjs",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist",
-    "Front-end notes/库/node_modules/openapi-typescript-helpers/README.md",
-    "Front-end notes/库/node_modules/openapi-fetch/README.md",
-    "Front-end notes/库/node_modules/openapi-fetch/CONTRIBUTING.md",
-    "Front-end notes/库/node_modules/openapi-fetch/CHANGELOG.md",
     "Front-end notes/TypeScript/TypeScript学习指南.md",
-    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Project notes/resonance/需求.canvas",
     "Project notes/resonance/Resonance.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/TypeScript.md",
-    "Front-end notes/Tanstack/TanStack Form.md",
-    "Front-end notes/Prisma.md",
-    "Front-end notes/tRPC/tRPC-demo/README.md",
-    "Front-end notes/tRPC/tRPC.md",
-    "Front-end notes/Zod.md",
-    "Front-end notes/JavaScript/Web API.md",
-    "Project notes/resonance/知识内容.md",
-    "Front-end notes/未命名.md",
-    "学习/我.md.md",
-    "八股/浏览器篇_高频八股文.md",
-    "Front-end notes/库/react-dropzone-用法指南.md",
-    "Front-end notes/库/use-debounce防抖.md",
-    "Front-end notes/库/locale-codes-用法指南.md",
-    "八股/前端工程化篇_高频八股文.md",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
