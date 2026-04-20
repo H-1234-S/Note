@@ -122,11 +122,12 @@ console.log(null === undefined); // false (严格相等)
 	getType(123n);      // "bigint"
    ```
 
-4. **constructor** - 一个属性，用来指向“创建这个对象的构造函数”
+4. **constructor** - 一个属性，用来指向“创建这个对象的构造函数”，其实这个属性来自于原型
    ```javascript
    (123).constructor === Number;      // true
    'abc'.constructor === String;      // true
    [].constructor === Array;          // true
+   
    // 可以被修改，不可靠
 	function A() {}
 	function B() {}
