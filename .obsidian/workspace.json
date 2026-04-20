@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/库/RecordRTC-用法指南.md",
+                "file": "Project notes/resonance/Resonance.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "RecordRTC-用法指南"
+              "title": "Resonance"
             }
           },
           {
@@ -226,13 +226,14 @@
   },
   "active": "f0de3e60aad501fa",
   "lastOpenFiles": [
+    "Project notes/resonance/Resonance.md",
+    "Front-end notes/库/RecordRTC-用法指南.md",
+    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
-    "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/TypeScript/TypeScript学习指南.md",
     "Front-end notes/TypeScript.md",
     "Front-end notes/TypeScript",
-    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/Tanstack/TanStack Form.md",
     "Front-end notes/Prisma",
     "Front-end notes/Prisma.md",
@@ -262,7 +263,6 @@
     "八股/Next.js篇_高频八股文.md",
     "八股/React篇_高频八股文.md",
     "Project notes/resonance/需求.canvas",
-    "Front-end notes/库/nuqs-基础知识.md",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",

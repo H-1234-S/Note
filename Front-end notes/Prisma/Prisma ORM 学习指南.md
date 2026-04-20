@@ -85,19 +85,28 @@ Prisma 是一个现代化的 **开源 ORM (对象关系映射)** 工具，用于
 ### 3.1 初始化项目
 
 ```bash
-# 创建项目
-mkdir my-prisma-project
-
-cd my-prisma-project
-
-npm init -y
-
-# 安装 Prisma CLI (开发依赖)
-npm install prisma --save-dev
-
-# 安装 Prisma Client
-npm install @prisma/client
+npm install prisma @types/node @types/pg --save-dev
+npm install @prisma/client @prisma/adapter-pg pg dotenv
 ```
+
+每个包的作用如下：
+
+- **`prisma`** - 用于运行 `prisma init`、`prisma db pull` 和 `prisma generate 等命令的 Prisma 命令行工具`
+
+- **`@prisma/client`** - 用于查询数据库的 Prisma Client 库
+
+- **`@prisma/adapter-pg`** - 连接 Prisma Client 到您数据库的 [`node-postgres` 驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/postgresql#using-driver-adapters)
+
+- **`pg`** - node-postgres 数据库驱动
+
+- **`@types/pg`** - node-postgres 的 TypeScript 类型定义
+
+- **`dotenv`** - 从您的 `.env` 文件加载环境变量
+
+``` bash
+npx prisma init --db
+```
+
 
 ### 3.2 初始化 Prisma
 
