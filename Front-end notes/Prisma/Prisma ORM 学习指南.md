@@ -723,16 +723,20 @@ my-project/
 
 ```typescript
 // src/lib/prisma.ts
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
-export const prisma = globalForPrisma.prisma || new PrismaClient({
-  log: ['query', 'info', 'warn', 'error']  // 日志级别
-})
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+});
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma
-}
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+
+const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+export { prisma };
 ```
 
 ```typescript
@@ -817,12 +821,20 @@ npx prisma studio --port 5555
 **A**: 推荐使用单例模式,避免连接池耗尽。
 
 ```typescript
-// 错误
-const prisma = new PrismaClient()
+import { PrismaClient } from "@/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-// 推荐
-const prisma = new PrismaClient()
-export default prisma
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+});
+
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+
+const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+export { prisma };
 ```
 
 ### Q2: 如何处理时区问题?
