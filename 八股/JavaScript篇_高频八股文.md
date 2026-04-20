@@ -128,6 +128,12 @@ console.log(null === undefined); // false (严格相等)
    'abc'.constructor === String;      // true
    [].constructor === Array;          // true
    // 可以被修改，不可靠
+	function A() {}
+	function B() {}
+
+	A.prototype = {};
+	const a = new A();
+	console.log(a.constructor === A); // ❌ false
    ```
 
 5. **Array.isArray()** - 判断数组
