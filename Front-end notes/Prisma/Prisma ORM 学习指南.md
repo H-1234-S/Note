@@ -24,14 +24,16 @@ Prisma 是一个现代化的 **开源 ORM (对象关系映射)** 工具，用于
 
 ### 1.3 支持的数据库
 
-| 数据库 | 状态 |
-|--------|------|
-| PostgreSQL | 稳定 |
-| MySQL | 稳定 |
-| SQLite | 稳定 |
-| MongoDB | 预览 |
-| SQL Server | 预览 |
-| CockroachDB | 预览 |
+> **Prisma 7+ 重要变化**：Prisma 7 开始必须使用驱动适配器（Driver Adapter）来连接数据库。
+
+| 数据库 | 驱动适配器 | 状态 |
+|--------|-----------|------|
+| PostgreSQL | `@prisma/adapter-pg` | 稳定 |
+| MySQL | `@prisma/adapter-mysql` 或 `@prisma/adapter-mariadb` | 稳定 |
+| SQLite | `@prisma/adapter-better-sqlite3` | 稳定 |
+| MongoDB | `@prisma/adapter-mongodb` | 预览 |
+| SQL Server | `@prisma/adapter-turso` | 预览 |
+| CockroachDB | `@prisma/adapter-pg` (使用 CockroachDB 驱动) | 预览 |
 
 ### 1.4 Prisma vs 其他 ORM
 
@@ -85,23 +87,23 @@ Prisma 是一个现代化的 **开源 ORM (对象关系映射)** 工具，用于
 ### 3.1 初始化项目
 
 ```bash
-npm install prisma @types/node @types/pg --save-dev
+npm install prisma @types/node --save-dev
 npm install @prisma/client @prisma/adapter-pg pg dotenv
 ```
 
+> **注意**：Prisma 7+ 版本需要使用驱动适配器（Driver Adapter）来连接数据库，不能使用内置驱动。
+
 每个包的作用如下：
 
-- **`prisma`** - 用于运行 `prisma init`、`prisma db pull` 和 `prisma generate 等命令的 Prisma 命令行工具`
+- **`prisma`** - 用于运行 `prisma init`、`prisma db pull` 和 `prisma generate 等命令的 Prisma 命令行工具`
 
-- **`@prisma/client`** - 用于查询数据库的 Prisma Client 库
+- **`@prisma/client`** - 用于查询数据库的 Prisma Client 库
 
-- **`@prisma/adapter-pg`** - 连接 Prisma Client 到您数据库的 [`node-postgres` 驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/postgresql#using-driver-adapters)
+- **`@prisma/adapter-pg`** - **必需**。连接 Prisma Client 到您数据库的 [`node-postgres` 驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/postgresql#using-driver-adapters)
 
-- **`pg`** - node-postgres 数据库驱动
+- **`pg`** - node-postgres 数据库驱动
 
-- **`@types/pg`** - node-postgres 的 TypeScript 类型定义
-
-- **`dotenv`** - 从您的 `.env` 文件加载环境变量
+- **`dotenv`** - 从您的 `.env` 文件加载环境变量
 ### 3.2 初始化 Prisma
 
 ```bash
@@ -399,13 +401,30 @@ model User {
 
 ## 6. Prisma Client 查询
 
-### 6.1 初始化 Client
+### 6.1 初始化 Client (Prisma 7+)
 
 ```typescript
 // lib/prisma.ts
 import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { Pool } from 'pg'
 
-const prisma = new PrismaClient()
+// 方式1: 使用 connection string
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL
+})
+
+// 方式2: 使用连接池 (推荐生产环境)
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+const adapter = new PrismaPg(pool)
+
+// 全局单例模式 (避免开发环境连接池耗尽)
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+const prisma = globalForPrisma.prisma || new PrismaClient({ adapter })
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
 
 export default prisma
 ```
@@ -758,9 +777,67 @@ prisma.$use(async (params, next) => {
 
 ---
 
-## 9. 实战项目结构
+## 9. Prisma 7 新特性
 
-### 9.1 推荐的目录结构
+### 9.1 prisma bootstrap 命令
+
+Prisma 7.7.0 引入了新的 `bootstrap` 命令，可以一键完成 Prisma Postgres 的完整设置。
+
+```bash
+# 基本用法
+npx prisma@latest bootstrap
+
+# 使用 starter template
+npx prisma@latest bootstrap --template nextjs
+
+# 非交互模式 (CI/CD)
+npx prisma@latest bootstrap --api-key "$PRISMA_API_KEY" --database "db_abc123"
+```
+
+### 9.2 Prisma Postgres Link
+
+Prisma 7.6.0 引入了 `prisma postgres link` 命令，用于连接本地项目到 Prisma Postgres 数据库。
+
+```bash
+npx prisma postgres link
+```
+
+### 9.3 嵌套事务保存点
+
+Prisma 7.5.0 开始支持嵌套事务的回滚行为，通过保存点实现。
+
+```typescript
+await prisma.$transaction(async (tx) => {
+  // 外层事务
+  await tx.user.create({ data: { name: '张三' } })
+  
+  try {
+    await tx.$transaction(async (innerTx) => {
+      // 内层事务 - 失败时只回滚内层
+      await innerTx.post.create({ data: { title: '文章1' } })
+      throw new Error('模拟错误')
+    })
+  } catch (e) {
+    // 内层事务已回滚，外层继续
+  }
+  
+  // 外层事务继续执行
+  await tx.post.create({ data: { title: '文章2' } })
+})
+```
+
+### 9.4 Prisma Studio 改进
+
+- 深色模式支持
+- 多选单元格
+- 关联记录链接跳转
+- AI 生成 SQL
+
+---
+
+## 10. 实战项目结构
+
+### 10.1 推荐的目录结构
 
 ```
 my-project/
@@ -782,7 +859,7 @@ my-project/
 └── package.json
 ```
 
-### 9.2 完整示例
+### 10.2 完整示例
 
 ```typescript
 // src/lib/prisma.ts
@@ -865,7 +942,7 @@ export class UserService {
 export const userService = new UserService()
 ```
 
-### 9.3 Prisma Studio
+### 10.3 Prisma Studio
 
 ```bash
 # 启动 Prisma Studio
@@ -877,7 +954,7 @@ npx prisma studio --port 5555
 
 ---
 
-## 10. 常见问题
+## 11. 常见问题
 
 ### Q1: Prisma Client 每次都要实例化吗?
 
@@ -970,6 +1047,34 @@ const validated = UserSchema.parse(userInput)
 await prisma.user.create({ data: validated })
 ```
 
+### Q8: Prisma 7 必须使用驱动适配器吗?
+
+**A**: 是的，Prisma 7+ 版本要求使用驱动适配器（Driver Adapter）来连接数据库。
+
+```bash
+# PostgreSQL
+npm install @prisma/adapter-pg pg
+
+# MySQL
+npm install @prisma/adapter-mysql mysql2
+
+# SQLite
+npm install @prisma/adapter-better-sqlite3 better-sqlite3
+```
+
+初始化方式：
+
+```typescript
+import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL
+})
+
+const prisma = new PrismaClient({ adapter })
+```
+
 ---
 
 ## 学习路径推荐
@@ -1005,5 +1110,7 @@ await prisma.user.create({ data: validated })
 - GitHub: https://github.com/prisma/prisma
 - Prisma Studio: https://github.com/prisma/studio
 - 示例项目: https://github.com/prisma/prisma-examples
+- Prisma Next (新架构): https://github.com/prisma/prisma-next
+- Prisma Changelog: https://www.prisma.io/changelog
 
 ---
