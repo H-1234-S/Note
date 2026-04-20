@@ -109,6 +109,53 @@ npm install @prisma/client @prisma/adapter-pg pg dotenv
 npx prisma init --db
 ```
 
+- **是什么**：初始化 Prisma 项目环境。
+    
+- **有什么用**：
+    
+    - **创建目录**：在项目根目录生成一个 `prisma` 文件夹。
+        
+    - **生成 Schema**：创建 `prisma/schema.prisma` 文件。这是整个项目的**灵魂**，你所有的数据表（User, Audio, Task 等）都在这里定义。
+        
+    - **配置文件**：自动在 `.env` 文件中添加 `DATABASE_URL` 变量。
+        
+- **注意**：`--db` 是为了指定你正在连接现有的数据库。
+
+``` bash
+npx prisma migrate dev --name init
+```
+
+- **是什么**：执行“数据库迁移”（Migration）。
+    
+- **有什么用**：
+    
+    - **同步结构**：它会读取 `schema.prisma` 中的模型定义，并自动生成对应的 **SQL 语句**。
+        
+    - **真实建表**：在你的 PostgreSQL 数据库中真正创建那些表。
+        
+    - **版本控制**：在 `prisma/migrations` 文件夹下生成一个带时间戳的文件夹（名字叫 `..._init`）。这记录了数据库结构的变更历史，就像 Git 的 commit 一样。
+        
+    - **更新 Client**：命令完成后，它会自动触发 `prisma generate`，更新你的 `@prisma/client`。这样你在代码里写 `prisma.user` 时，TS 才会给你精准的代码提示。
+
+``` bash
+npx prisma generate
+```
+
+- **生成查询库**：它会在 `node_modules/.prisma/client`（或者你自定义的 `output` 路径）下生成一堆 JavaScript/TypeScript 代码。
+    
+- **提供类型安全**：这是它最大的功劳。如果你在模型里定义了一个字段叫 `voiceName`，运行该命令后，你在代码里输入 `db.generation.create({ data: { ... } })` 时，编辑器会自动提示你填入 `voiceName`。
+    
+- **消除报错**：有时候你明明在 Schema 里加了字段，但代码里写这个字段却报红线，这就是因为你还没运行 `generate`，代码助手还不知道这个新字段的存在。
+    
+
+每当你**修改**了 `schema.prisma` 文件，你都需要运行它。具体场景包括：
+
+1. **添加了新模型**（比如新加了 `User` 表）。
+    
+2. **修改了字段**（比如把 `description` 改成了必填）。
+    
+3. **初次下载项目**：当你从 GitHub 克隆一个项目，运行完 `npm install` 后，通常也要运行一次这个命令来初始化本地的 Client 类型。
+
 ### 3.3 配置数据库连接
 
 ```prisma
@@ -129,6 +176,8 @@ datasource db {
 ```env
 # .env 文件
 DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
+
+// 运行 npx prisma init --db 会自动生成
 ```
 
 ---
