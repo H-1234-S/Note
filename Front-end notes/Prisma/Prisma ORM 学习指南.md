@@ -180,6 +180,69 @@ DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
 // 运行 npx prisma init --db 会自动生成
 ```
 
+## [驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/database-drivers#driver-adapters)
+
+Prisma Client 可以通过 **驱动程序适配器** 使用 **JavaScript 数据库驱动程序**连接到数据库并执行查询。
+
+适配器充当 Prisma Client 和 JavaScript 数据库驱动程序之间的 _翻译器_ 。
+### [使用驱动适配器](https://www.prisma.io/docs/orm/core-concepts/supported-databases/postgresql#using-driver-adapters)
+
+程序连接数据库：
+``` ts
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "./generated/prisma";
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
+```
+
+**`PrismaPg`**: 这是 Prisma 官方提供的 **PostgreSQL 适配器**。
+
+#### 初始化适配器 
+
+``` TypeScript
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+```
+
+这一步是在配置 **“连接方式”**。
+
+- **接收的参数**：一个包含 `connectionString` 的对象。
+    
+    - **`connectionString`**: 数据库的“完整地址”。它通常长这样：`postgresql://用户名:密码@主机地址:端口号/数据库名`。
+        
+    - **`process.env.DATABASE_URL`**: 这是一个安全实践。我们不直接把密码写在代码里，而是从 `.env` 环境变量文件中读取。
+        
+- **作用**：创建了一个适配器实例。它负责处理底层的网络协议、连接池（Pooling）以及如何把数据发给 PostgreSQL。
+    
+#### 实例化客户端 
+
+``` TypeScript
+const prisma = new PrismaClient({ adapter });
+```
+
+这一步是真正创建 **“操作手”**。
+
+- **接收的参数**：一个配置对象，其中最重要的属性就是 `adapter`。
+    
+    - **`adapter`**: 就是我们在上一行创建的那个适配器。
+        
+- **作用**：将“操作逻辑”（Prisma Client）与“物理连接”（Adapter）捆绑在一起。
+    
+    - **不传 adapter 会怎样？** Prisma 会尝试使用默认的内置驱动。
+        
+    - **为什么要传？** 在 Next.js 这种现代架构中，手动传入适配器可以让你更灵活地控制数据库连接，特别是在处理 Serverless 环境（如 Vercel）或边缘计算时，性能和稳定性更好。
+        
+#### 数据是如何流动的？
+
+当你以后在代码里写 `prisma.user.findMany()` 时，内部发生了以下链式反应：
+
+1. **`PrismaClient`**：收到指令，验证语法是否正确（是否有类型错误）。
+    
+2. **`adapter`**：接过指令，把 TypeScript 转换成 SQL 语句。
+    
+3. **`connectionString`**：适配器沿着这个地址，把 SQL 寄信给 PostgreSQL 数据库。
+    
+4. **数据库**：回信，数据顺着原路返回。
 ---
 
 ## 4. 数据模型定义
