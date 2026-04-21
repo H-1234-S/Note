@@ -39,14 +39,32 @@
             "id": "6127e974eddccf57",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/Prisma/Prisma ORM 学习指南.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "Prisma ORM 学习指南"
+            }
+          },
+          {
+            "id": "7fc6f6e864c84d0a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/库/nuqs-基础知识.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "nuqs-基础知识"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -163,12 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Front-end notes/库/nuqs-基础知识.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "nuqs-基础知识 的大纲"
             }
           },
           {
@@ -219,8 +238,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "6127e974eddccf57",
+  "active": "7fc6f6e864c84d0a",
   "lastOpenFiles": [
+    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
@@ -247,7 +267,6 @@
     "Front-end notes/TypeScript/05-枚举.md",
     "Front-end notes/TypeScript/04-泛型.md",
     "Front-end notes/TypeScript/03-函数.md",
-    "Front-end notes/TypeScript/02-接口与类型.md",
     "Front-end notes/库/package-lock.json",
     "Front-end notes/库/package.json",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.mjs.map",

@@ -91,7 +91,9 @@ const [count] = useQueryState('count', parseAsInteger.withDefault(0))
 ```
 
 注意：
+
 - 默认值仅存在于 React 状态中，**不会自动写入 URL**
+
 - 设置值为 `null` 会清除 URL 参数，并返回默认值
 
 ## 内置解析器
