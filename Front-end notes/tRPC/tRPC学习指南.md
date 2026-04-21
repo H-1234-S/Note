@@ -1,6 +1,8 @@
 
 tRPC（TypeScript Remote Procedure Call）是一个 TypeScript 优先的 RPC 框架
 
+RPC（Remote Procedure Call，远程过程调用）框架是一种**让程序像调用本地函数一样调用远程服务**的技术框架
+
 允许前端直接调用后端函数并获得端到端的类型安全，无需编写 API 文档或生成代码。
 
 ---
@@ -9,6 +11,12 @@ tRPC（TypeScript Remote Procedure Call）是一个 TypeScript 优先的 RPC 框
 ### 1.1 什么是 tRPC？
 
 tRPC 是一个允许你在 TypeScript 前端和后端之间进行类型安全通信的框架。它消除了 API 契约、代码生成和模式验证的需要。
+
+### 1.2 解决了什么痛点？
+
+- 消除了前后端类型不同步的问题，类型从后端自动推导至前端
+
+- 不需要手动写fetch请求，前端像调用本地函数一样调用后端
 
 ### 1.2 核心特点
 
