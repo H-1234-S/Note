@@ -157,7 +157,7 @@ const form = useForm({
 | `field.state.meta.isValidating` | `boolean` | 是否正在异步验证 |
 | `field.state.meta.isPristine` | `boolean` | 字段是否从未修改过 |
 
-### field.handle* 方法
+### field.handle 方法
 
 | 方法 | 描述 |
 |------|------|
