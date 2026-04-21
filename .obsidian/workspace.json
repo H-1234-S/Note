@@ -35,8 +35,7 @@
               "title": "TanStack Form 完整指南"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -153,13 +152,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
+                "file": "Front-end notes/tRPC/tRPC学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "TanStack Form 完整指南 的大纲"
+              "title": "tRPC学习指南 的大纲"
             }
           },
           {
@@ -210,10 +209,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "4a8c178c42a55853",
+  "active": "69c34c57bcb5ee28",
   "lastOpenFiles": [
-    "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
+    "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/Tanstack Form/TanStack Form.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/TanStack Query",
