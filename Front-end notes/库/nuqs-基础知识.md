@@ -529,46 +529,6 @@ function ClientComponent() {
 
 ### createSearchParamsCache
 
-在深层嵌套的 Server Component 中，如果需要读取 searchParams，可以使用 `createSearchParamsCache` 来实现类型安全访问：
-
-```tsx
-// lib/searchParams.ts
-import { createSearchParamsCache, parseAsInteger, parseAsString } from 'nuqs/server'
-
-// 创建一个类型安全的 searchParams 缓存
-export const searchParamsCache = createSearchParamsCache({
-  query: parseAsString.withDefault(''),
-  page: parseAsInteger.withDefault(1)
-})
-```
-
-在嵌套的 Server Component 中使用：
-
-```tsx
-// app/posts/_components/PostList.tsx
-import { searchParamsCache } from '@/lib/searchParams'
-
-// 不需要从 props 接收 searchParams，可以直接使用
-export default async function PostList() {
-  const { query, page } = await searchParamsCache.get(searchParams)
-
-  // 可以在这里进行数据获取
-  const posts = await fetchPosts({ query, page })
-
-  return <div>{/* 渲染 posts */}</div>
-}
-```
-
-**注意**：
-
-- `createSearchParamsCache` 只能用于 **Server Components**
-
-- 缓存实例应放在单独的文件中导出复用
-
-- 在 Page 组件中可以直接从 `searchParams` prop 获取参数
-
-### getQueryState
-
 在 Next.js App Router 的服务端组件中使用：
 
 ```tsx
