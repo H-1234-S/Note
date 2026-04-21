@@ -560,8 +560,11 @@ export default async function PostList() {
 ```
 
 **注意**：
+
 - `createSearchParamsCache` 只能用于 **Server Components**
+
 - 缓存实例应放在单独的文件中导出复用
+
 - 在 Page 组件中可以直接从 `searchParams` prop 获取参数
 
 ### getQueryState
