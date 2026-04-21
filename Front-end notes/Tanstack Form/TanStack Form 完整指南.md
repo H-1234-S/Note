@@ -1,7 +1,7 @@
 
 TanStack Form 是一个**高性能**、**类型安全**的 React 表单管理库，采用原子化更新架构。
 
-# 一、快速开始
+# 1. 快速开始
 
 ## 1.1 安装
 
@@ -49,7 +49,7 @@ function App() {
 
 ---
 
-# 二、核心概念
+# 2. 核心概念
 
 ## 2.1 原子化更新架构
 
@@ -74,7 +74,7 @@ TanStack Form 的核心理念：**每个字段独立订阅**。
 
 ---
 
-# 三、基础用法
+# 3. 基础用法
 
 ## 3.1 创建表单实例 (`useForm`)
 
@@ -167,7 +167,7 @@ const form = useForm({
 
 ---
 
-# 四、表单验证
+# 4. 表单验证
 
 ## 4.1 内置验证器
 
@@ -299,7 +299,7 @@ const form = useForm({
 
 ---
 
-# 五、数组处理
+# 5. 数组处理
 
 ## 5.1 基础数组字段
 
@@ -411,7 +411,7 @@ const form = useForm({
 
 ---
 
-# 六、进阶特性
+# 6. 进阶特性
 
 ## 6.1 值转换 (Transform)
 
@@ -517,7 +517,7 @@ onSubmit: async ({ value, form }) => {
 
 ---
 
-# 七、Context 模式
+# 7. Context 模式
 
 当表单和字段不在同一组件时，使用 Context 模式避免层层传递 props。
 
@@ -604,7 +604,7 @@ function SubmitButton() {
 
 ---
 
-# 八、状态订阅
+# 8. 状态订阅
 
 ## 8.1 useStore 基础
 
@@ -674,7 +674,7 @@ const { canSubmit, isDirty, isSubmitting } = useStore(
 
 ---
 
-# 九、完整案例
+# 9. 完整案例
 
 一个包含所有核心特性的用户注册表单：
 
