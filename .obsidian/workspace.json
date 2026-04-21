@@ -34,8 +34,19 @@
               "icon": "lucide-file",
               "title": "TanStack Form 完整指南"
             }
+          },
+          {
+            "id": "6127e974eddccf57",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -152,13 +163,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/tRPC/tRPC学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "tRPC学习指南 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -209,12 +219,12 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "69c34c57bcb5ee28",
+  "active": "6127e974eddccf57",
   "lastOpenFiles": [
+    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/Tanstack Form/TanStack Form.md",
-    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/TanStack Query",
     "Front-end notes/Tanstack/TanStack Form v1 完全指南.md",
     "Project notes/resonance/Resonance.md",
