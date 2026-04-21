@@ -1,6 +1,8 @@
 
 tRPC（TypeScript Remote Procedure Call）是一个 TypeScript 优先的 RPC 框架
 
+RPC（Remote Procedure Call，远程过程调用）框架是一种**让程序像调用本地函数一样调用远程服务**的技术框架
+
 允许前端直接调用后端函数并获得端到端的类型安全，无需编写 API 文档或生成代码。
 
 ---
@@ -10,7 +12,13 @@ tRPC（TypeScript Remote Procedure Call）是一个 TypeScript 优先的 RPC 框
 
 tRPC 是一个允许你在 TypeScript 前端和后端之间进行类型安全通信的框架。它消除了 API 契约、代码生成和模式验证的需要。
 
-### 1.2 核心特点
+### 1.2 解决了什么痛点？
+
+- 消除了前后端类型不同步的问题，类型从后端自动推导至前端
+
+- 不需要手动写fetch请求，前端像调用本地函数一样调用后端
+
+### 1.3 核心特点
 
 | 特点 | 描述 |
 |------|------|
@@ -20,13 +28,27 @@ tRPC 是一个允许你在 TypeScript 前端和后端之间进行类型安全通
 | **高性能** | 基于 HTTP/2 或 WebSocket，轻量级传输 |
 | **开发者友好** | 提供 IDE 自动补全和实时类型检查 |
 
-### 1.3 工作原理
+### 1.4 工作原理
 
 ```
 前端调用函数 → tRPC 传输 → 服务端路由 → 执行逻辑 → 返回结果 → 前端获得类型提示
 ```
 
 tRPC 使用 Zod 进行运行时验证，使用 TypeScript 的类型推断确保编译时安全。
+
+### 1.5 tRPC请求流程
+
+发送 tRPC 请求的流程：
+
+ * 1. 组件调用 useTRPC hook 发起请求（如 trpc.voices.getAll.query()）
+
+ * 2. 在组件树中找到 TRPCProvider，获取 tRPC Client 和 QueryClient
+
+ * 3. tRPC Client 通过 httpBatchLink 将请求发送到 /api/trpc 端点
+
+ * 4. 服务端 fetchRequestHandler 接收请求，解析路由和参数
+
+ * 5. 调用对应的过程（Procedure）执行业务逻辑，返回结果
 
 ---
 
@@ -145,6 +167,8 @@ const isAuthenticated = t.middleware(({ ctx, next }) => {
 
 const protectedProcedure = t.procedure.use(isAuthenticated);
 ```
+
+next() 函数用于执行之后的middleware，同时还可以把新的context注入到下游
 
 ---
 
