@@ -146,6 +146,8 @@ const isAuthenticated = t.middleware(({ ctx, next }) => {
 const protectedProcedure = t.procedure.use(isAuthenticated);
 ```
 
+next() 函数用于执行之后的middleware，同时还可以把新的context注入到下游
+
 ---
 
 ## 3. 环境搭建
