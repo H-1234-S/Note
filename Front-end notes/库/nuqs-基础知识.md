@@ -529,6 +529,101 @@ function ClientComponent() {
 
 ### createSearchParamsCache
 
+在深层嵌套的 Server Component 中访问 searchParams（无法直接从 props 传递时），可以使用 `createSearchParamsCache` 实现类型安全访问。它类似于客户端的 Context，将解析后的值传递到 RSC 树中。
+
+**步骤 1：创建搜索参数缓存**
+
+```tsx
+// searchParams.ts
+import { createSearchParamsCache, parseAsInteger, parseAsString } from 'nuqs/server'
+
+export const searchParamsCache = createSearchParamsCache({
+  q: parseAsString.withDefault(''),
+  maxResults: parseAsInteger.withDefault(10)
+})
+```
+
+**步骤 2：在 Page 组件中解析**
+
+```tsx
+// app/page.tsx
+import { searchParamsCache } from './searchParams'
+import { type SearchParams } from 'nuqs/server'
+
+type PageProps = {
+  searchParams: Promise<SearchParams> // Next.js 15+: async searchParams prop
+}
+
+export default async function Page({ searchParams }: PageProps) {
+  // ⚠️ 必须调用 parse 方法
+  const { q: query } = await searchParamsCache.parse(searchParams)
+
+  return (
+    <div>
+      <h1>Search Results for {query}</h1>
+      <Results />
+    </div>
+  )
+}
+```
+
+**步骤 3：在子组件中获取值**
+
+```tsx
+// app/Results.tsx
+function Results() {
+  // 在子 Server Component 中直接使用 .get() 获取类型安全的值
+  const maxResults = searchParamsCache.get('maxResults')
+  return <span>Showing up to {maxResults} results</span>
+}
+```
+
+**两种解析方法：**
+
+| 方法 | 用法 | 说明 |
+|---|---|---|
+| `.parse(searchParams)` | `await searchParamsCache.parse(searchParams)` | 在 Page 组件中使用，返回解析后的对象 |
+| `.get('key')` | `searchParamsCache.get('maxResults')` | 在子组件中使用，从缓存中获取值 |
+
+**注意**：
+- `createSearchParamsCache` 只能用于 **Server Components**
+- 缓存在每次页面渲染时有效（基于 React 的 `cache` 函数）
+- 可以与 `useQueryStates` 共享解析器定义以保持类型安全
+
+---
+
+### createLoader
+
+`createLoader` 是另一种服务端解析方式，返回的状态变量类型与 `useQueryStates` 相同：
+
+```tsx
+// searchParams.ts
+import { parseAsFloat, createLoader } from 'nuqs/server'
+
+export const coordinatesSearchParams = {
+  latitude: parseAsFloat.withDefault(0),
+  longitude: parseAsFloat.withDefault(0)
+}
+
+export const loadSearchParams = createLoader(coordinatesSearchParams)
+```
+
+在 Page 组件中使用：
+
+```tsx
+import { loadSearchParams } from './searchParams'
+
+export default async function Page({ searchParams }) {
+  const { latitude, longitude } = await loadSearchParams(searchParams)
+  // latitude 和 longitude 类型为 number
+  return <Map lat={latitude} lng={longitude} />
+}
+```
+
+---
+
+### getQueryState
+
 在 Next.js App Router 的服务端组件中使用：
 
 ```tsx
