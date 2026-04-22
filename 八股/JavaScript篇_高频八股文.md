@@ -342,7 +342,7 @@ var foo = function() {};
 
 - `var` 和 `function` 的变量提升发生在**预编译**阶段，`var` 声明被提前，但是赋值没有被提前，初始化为undefined
 
-- `let` 和 `const` 也会在预编译阶段发生bian'l
+- `let` 和 `const` 也会在预编译阶段发生变量提升，但没有初始化，提前访问会触发**暂时性死区**
 
 ---
 
