@@ -527,14 +527,23 @@ onSubmit: async ({ value, form }) => {
 import { createFormHookContexts, createFormHook } from '@tanstack/react-form'
 
 // 1. 创建 Context 容器
-export const { formContext, fieldContext, useFormContext, useFieldContext } =
-  createFormHookContexts()
+export const {
+  fieldContext,
+  formContext,
+  useFieldContext,
+  useFormContext,
+} = createFormHookContexts();
 
 // 2. 生成自定义 Hook
-export const { useAppForm, useTypedAppFormContext, AppForm } = createFormHook({
-  formContext,
-  fieldContext,
-})
+export const {
+  useAppForm,
+  useTypedAppFormContext,
+} = createFormHook({
+  fieldContext,
+  formContext,
+  fieldComponents: {},
+  formComponents: {},
+});
 ```
 
 ## 7.2 父组件使用
