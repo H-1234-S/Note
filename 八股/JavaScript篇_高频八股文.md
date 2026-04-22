@@ -428,11 +428,97 @@ console.log(myCounter.increment()); // 2
 
 2. **函数柯里化（Currying）**
 
-	定义：把接受多个参数的函数，转换成一系列接受单个参数的函数。
+定义：把接受多个参数的函数，转换成一系列接受单个参数的函数。
 
+**基本示例**：
+```javascript
+// 普通函数
+function sum(a, b, c) {
+  return a + b + c;
+}
+sum(1, 2, 3);  // 6
+
+// 柯里化版本
+function curriedSum(a) {
+  return function(b) {
+    return function(c) {
+      return a + b + c;
+    };
+  };
+}
+curriedSum(1)(2)(3);  // 6
 ```
 
+**通用柯里化函数**：
+```javascript
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) {
+      return fn.apply(this, args);
+    } else {
+      return function(...args2) {
+        return curried.apply(this, args.concat(args2));
+      };
+    }
+  };
+}
+
+// 使用
+function sum(a, b, c) {
+  return a + b + c;
+}
+
+const curriedSum = curry(sum);
+curriedSum(1)(2)(3);     // 6
+curriedSum(1, 2)(3);    // 6
+curriedSum(1)(2, 3);    // 6
 ```
+
+**柯里化用到了闭包**：
+
+1. **返回的函数引用了外层参数** - 参数被内层函数长期持有，不会被销毁
+```javascript
+function curriedSum(a) {
+  // 闭包：这里的 a 被内层函数引用，不会被销毁
+  return function(b) {
+    return function(c) {
+      return a + b + c;
+    };
+  };
+}
+
+const step1 = curriedSum(1);  // a=1 被 step1 引用
+const step2 = step1(2);       // b=2 被 step2 引用
+const result = step2(3);      // 1+2+3=6
+```
+
+2. **缓存参数** - args数组被返回函数长期持有，累加所有参数
+
+**柯里化的实际应用**：
+
+1. **延迟计算**
+```javascript
+function multiply(a) {
+  return function(b) {
+    return a * b;
+  };
+}
+
+const multiplyBy2 = multiply(2);
+multiplyBy2(3);  // 6
+multiplyBy2(5);  // 10
+```
+
+2. **bind的实现就用到了柯里化**
+```javascript
+function bind(fn, context, ...args) {
+  return function(...newArgs) {
+    return fn.apply(context, [...args, ...newArgs]);
+  };
+}
+```
+
+3. **防抖节流**
 
 3. **防抖节流**
 
