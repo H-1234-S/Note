@@ -219,19 +219,26 @@ console.log(0.1 + 0.2);          // 0.30000000000000004
      return Math.abs(a - b) < Number.EPSILON;
    }
    console.log(isEqual(0.1 + 0.2, 0.3));  // true
+   
+   function isEqual(a, b) {
+	  return Math.abs(a - b) < 
+				  Number.EPSILON * Math.max(Math.abs(a), Math.abs(b));
+	}
    ```
 
-2. **转为整数计算**
+EPSILON 是 JavaScript 能识别的最小误差单位
+
+1. **转为整数计算**
    ```javascript
    (0.1 * 10 + 0.2 * 10) / 10 === 0.3;  // true
    ```
 
-3. **使用toFixed**（注意：返回字符串）
+2. **使用toFixed**（注意：返回字符串）
    ```javascript
    (0.1 + 0.2).toFixed(1) === '0.3';  // true
    ```
 
-4. **使用第三方库**（如decimal.js、big.js）
+3. **使用第三方库**（如decimal.js、big.js）
 
 ---
 
