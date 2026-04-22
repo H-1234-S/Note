@@ -406,11 +406,8 @@ console.log(counter());  // 3
 // count变量被inner函数闭包住，不会被销毁
 ```
 
-**闭包的用途**：
-
-1. **数据私有化**
-
-``` js
+#### 2.2.1 数据私有化
+```javascript
 function createCounter() {
   let count = 0; // 私有变量，外部无法直接修改
   return {
@@ -426,9 +423,11 @@ console.log(myCounter.increment()); // 2
 // console.log(count); // 报错：count is not defined
 ```
 
-2. **函数柯里化（Currying）**
+---
 
-定义：把接受多个参数的函数，转换成一系列接受单个参数的函数。
+#### 2.2.2 函数柯里化（Currying）
+
+**定义**：把接受多个参数的函数，转换成一系列接受单个参数的函数。
 
 **基本示例**：
 ```javascript
@@ -518,7 +517,10 @@ function bind(fn, context, ...args) {
 }
 ```
 
-3. **防抖节流**
+---
+
+#### 2.2.3 防抖节流
+（详见9.1节）
 
 **闭包的缺点**：
 
