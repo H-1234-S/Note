@@ -180,14 +180,14 @@ form.setFieldValue('profile.age', 25)
 form.setFieldValue('friends[0]', '张三')
 ```
 
-### 与 handleChange 的区别
+#### 与 handleChange 的区别
 
 | 特性 | `setFieldValue` | `handleChange` |
 |------|-----------------|----------------|
 | 触发验证 | 默认不触发 | 自动触发 |
 | 适用场景 | 程序化设置值 | 用户输入更新 |
 
-### 实际应用场景
+#### 实际应用场景
 
 **1. 初始化默认值**
 ```typescript
@@ -782,11 +782,11 @@ const { canSubmit, isDirty, isSubmitting } = useStore(
 
 ### 完整 API
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `selector` | `(state: FormState) => T` | 状态选择器，返回需要订阅的数据 |
+| 属性         | 类型                        | 描述                    |
+| ---------- | ------------------------- | --------------------- |
+| `selector` | `(state: FormState) => T` | 状态选择器，返回需要订阅的数据       |
 | `children` | `(value: T) => ReactNode` | 渲染函数，接收 selector 返回的值 |
-| `尉` | `boolean` | 是否保持渲染（可选） |
+| `尉`        | `boolean`                 | 是否保持渲染（可选）            |
 
 ### 使用场景
 
