@@ -452,6 +452,7 @@ curriedSum(1)(2)(3);  // 6
 ```javascript
 function curry(fn) {
   return function curried(...args) {
+	// fn.length 表示函数需要多少个参数
     if (args.length >= fn.length) {
       return fn.apply(this, args);
     } else {
@@ -920,6 +921,7 @@ boundFn();       // 1
 ```
 
 **区别**：
+
 - `call`：立即执行，参数逐个传入
 
 - `apply`：立即执行，参数以数组形式传入
