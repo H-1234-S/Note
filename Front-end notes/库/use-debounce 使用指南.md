@@ -1,17 +1,5 @@
-# use-debounce 使用指南
 
 > 一个用于 React 的防抖（debounce） Hook 库
-
-## 目录
-
-1. [快速开始](#快速开始)
-2. [API 详解](#api-详解)
-   - [useDebounce - 防抖值](#usedebounce---防抖值)
-   - [useDebouncedCallback - 防抖回调](#usedebouncedcallback---防抖回调)
-3. [进阶用法](#进阶用法)
-4. [实用场景](#实用场景)
-
----
 
 ## 快速开始
 
