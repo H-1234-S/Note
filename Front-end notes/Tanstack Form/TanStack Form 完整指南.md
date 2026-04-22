@@ -723,7 +723,7 @@ const { canSubmit, isDirty, isSubmitting } = useStore(
 
 ## 8.5 form.Subscribe 组件
 
-将订阅逻辑内联在 JSX 中：
+将订阅逻辑内联在 JSX 中，适合在 JSX 中直接使用订阅状态的场景：
 
 ```typescript
 <form.Subscribe
@@ -731,6 +731,54 @@ const { canSubmit, isDirty, isSubmitting } = useStore(
   children={([canSubmit, isSubmitting]) => (
     <button type="submit" disabled={!canSubmit}>
       {isSubmitting ? '提交中...' : '提交'}
+    </button>
+  )}
+/>
+```
+
+### 完整 API
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `selector` | `(state: FormState) => T` | 状态选择器，返回需要订阅的数据 |
+| `children` | `(value: T) => ReactNode` | 渲染函数，接收 selector 返回的值 |
+| `尉` | `boolean` | 是否保持渲染（可选） |
+
+### 使用场景
+
+1. **条件渲染**：根据表单状态显示/隐藏元素
+```typescript
+<form.Subscribe
+  selector={(s) => s.isDirty}
+  children={(isDirty) => (
+    <span>{isDirty ? '有未保存的更改' : '已保存'}</span>
+  )}
+/>
+```
+
+2. **动态样式**：根据状态应用不同样式
+```typescript
+<form.Subscribe
+  selector={(s) => s.isSubmitting}
+  children={(isSubmitting) => (
+    <div className={isSubmitting ? 'loading' : ''}>
+      {/* 内容 */}
+    </div>
+  )}
+/>
+```
+
+3. **组合多个状态**：同时订阅多个状态
+```typescript
+<form.Subscribe
+  selector={(s) => ({
+    isSubmitting: s.isSubmitting,
+    canSubmit: s.canSubmit,
+    isValid: s.isValid,
+  })}
+  children={({ isSubmitting, canSubmit, isValid }) => (
+    <button type="submit" disabled={!canSubmit || isSubmitting}>
+      {isSubmitting ? '提交中...' : isValid ? '提交' : '请完善表单'}
     </button>
   )}
 />
