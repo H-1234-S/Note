@@ -410,6 +410,22 @@ console.log(counter());  // 3
 
 1. **数据私有化**
 
+``` js
+function createCounter() {
+  let count = 0; // 私有变量，外部无法直接修改
+  return {
+    increment() { count++; return count; },
+    decrement() { count--; return count; },
+    getCount() { return count; }
+  };
+}
+
+const myCounter = createCounter();
+console.log(myCounter.increment()); // 1
+console.log(myCounter.increment()); // 2
+// console.log(count); // 报错：count is not defined
+```
+
 2. **函数柯里化（Currying）**
 
 3. **防抖节流**
