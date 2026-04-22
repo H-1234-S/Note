@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
+                "file": "Front-end notes/JavaScript/闭包.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "TanStack Form 完整指南 的大纲"
+              "title": "闭包 的大纲"
             }
           },
           {
@@ -252,12 +252,12 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "57df715f8fbe7609",
+  "active": "8d804d29a37a1a1d",
   "lastOpenFiles": [
+    "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "八股/JavaScript篇_高频八股文.md",
     "Front-end notes/JavaScript/闭包.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
-    "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "Front-end notes/库/nuqs-基础知识.md",
     "Front-end notes/库/use-debounce 使用指南.md",
     "Front-end notes/库/use-debounce防抖.md",

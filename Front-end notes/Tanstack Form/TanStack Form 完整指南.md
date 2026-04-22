@@ -786,7 +786,7 @@ const { canSubmit, isDirty, isSubmitting } = useStore(
 | ---------- | ------------------------- | --------------------- |
 | `selector` | `(state: FormState) => T` | 状态选择器，返回需要订阅的数据       |
 | `children` | `(value: T) => ReactNode` | 渲染函数，接收 selector 返回的值 |
-| `尉`        | `boolean`                 | 是否保持渲染（可选）            |
+|            |                           |                       |
 
 ### 使用场景
 
