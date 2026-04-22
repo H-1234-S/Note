@@ -546,6 +546,15 @@ export const {
 });
 ```
 
+| Hook                     | 使用场景         | 说明                  |
+| ------------------------ | ------------ | ------------------- |
+| `useAppForm`             | 父组件（定义表单的地方） | 替代 `useForm`，创建表单实例 |
+| `useTypedAppFormContext` | 深层子组件        | 获取表单实例，类型自动推断       |
+
+1. **`createFormHookContexts` 只需定义一次**，放在单独的文件（如 `form-context.ts`）中导出，全局共享
+2. **适用场景**：表单和字段不在同一组件树中、需要将表单逻辑和 UI 分离
+3. 子组件使用 `useTypedAppFormContext` 时，**传入相同配置可获得完整类型提示**，不传入则为基础类型
+
 ## 7.2 父组件使用
 
 ```typescript
@@ -610,6 +619,7 @@ function SubmitButton() {
   return <button onClick={() => form.handleSubmit()}>提交</button>
 }
 ```
+
 
 ---
 
