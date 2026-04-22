@@ -340,9 +340,9 @@ var foo = function() {};
 
 **预编译阶段：**
 
-- `var` 和 `function` 的变量提升发生在**预编译**阶段，`var` 声明被提前，但是赋值没有被提前，提前访问值为undefined
+- `var` 和 `function` 的变量提升发生在**预编译**阶段，`var` 声明被提前，但是赋值没有被提前，初始化为undefined
 
-- 
+- `let` 和 `const` 也会在预编译阶段发生bian'l
 
 ---
 
