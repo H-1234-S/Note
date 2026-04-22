@@ -596,6 +596,8 @@ function DeepNestedInput() {
 
 ## 7.4 formOptions 复用配置
 
+`formOptions` 用于创建可复用的表单配置，常与 Context 模式配合使用。
+
 ```typescript
 import { formOptions } from '@tanstack/react-form'
 
@@ -620,6 +622,49 @@ function SubmitButton() {
 }
 ```
 
+### formOptions 完整 API
+
+| 属性 | 类型 | 描述 | 默认值 |
+|------|------|------|--------|
+| `defaultValues` | `T` | 表单初始值 | 必填 |
+| `onSubmit` | `(params: { value: T, form: FormApi }) => Promise<void>` | 提交回调 | - |
+| `onInvalid` | `(params: { value: T, form: FormApi, errors: Record<string, any> }) => void` | 验证失败回调 | - |
+| `defaultState` | `Partial<FormState<T>>` | 默认状态覆盖 | - |
+| `formId` | `string` | 表单唯一标识 | 自动生成 |
+| `validatorAdapter` | `ValidatorAdapter \| null` | 验证器适配器（如 zodValidator） | 内置验证器 |
+| `validators` | `FormValidators<T>` | 表单级验证配置 | - |
+| `revalidateMode` | `'onSubmit' \| 'onChange' \| 'onBlur'` | 重新验证触发模式 | `'onSubmit'` |
+| `submitMode` | `'onSubmit' \| 'onChange'` | 值变更时的提交模式 | `'onSubmit'` |
+| `shouldEnableReAttach` | `boolean` | 是否启用字段重新附加 | `false` |
+| `removeValue` | `(name: FieldSlice) => void` | 删除字段值 | - |
+| `replaceValues` | `(values: T) => void` | 替换所有值 | - |
+| `fieldPositions` | `FieldPosition[]` | 字段位置信息 | - |
+
+### 完整配置
+
+```typescript
+export const userFormOptions = formOptions({
+  defaultValues: {
+    username: '',
+    email: '',
+    profile: {
+      age: 0,
+    },
+  },
+  formId: 'user-form',
+  validators: {
+    onSubmit: ({ value }) => (value.username.length < 3 ? { username: '至少3个字符' } : undefined),
+  },
+  revalidateMode: 'onBlur',
+  submitMode: 'onSubmit',
+})
+
+// 使用
+function UserForm() {
+  const form = useAppForm(userFormOptions)
+  // ...
+}
+```
 
 ---
 
