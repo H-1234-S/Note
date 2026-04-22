@@ -22,20 +22,6 @@
             }
           },
           {
-            "id": "4a8c178c42a55853",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "TanStack Form 完整指南"
-            }
-          },
-          {
             "id": "6127e974eddccf57",
             "type": "leaf",
             "state": {
@@ -48,9 +34,23 @@
               "icon": "lucide-file",
               "title": "Prisma ORM 学习指南"
             }
+          },
+          {
+            "id": "d346573a57ae1668",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "八股/JavaScript篇_高频八股文.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "JavaScript篇_高频八股文"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
+                "file": "八股/JavaScript篇_高频八股文.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "TanStack Form 完整指南 的大纲"
+              "title": "JavaScript篇_高频八股文 的大纲"
             }
           },
           {
@@ -224,15 +224,15 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "4a8c178c42a55853",
+  "active": "d346573a57ae1668",
   "lastOpenFiles": [
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
+    "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "Front-end notes/库/nuqs-基础知识.md",
     "Front-end notes/库/use-debounce 使用指南.md",
     "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/库/use-debounce",
     "Front-end notes/tRPC/tRPC学习指南.md",
-    "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/Tanstack Form/TanStack Form.md",
     "Front-end notes/TanStack Query",
