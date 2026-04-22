@@ -586,8 +586,11 @@ function Results() {
 | `.get('key')` | `searchParamsCache.get('maxResults')` | 在子组件中使用，从缓存中获取值 |
 
 **注意**：
+
 - `createSearchParamsCache` 只能用于 **Server Components**
+
 - 缓存在每次页面渲染时有效（基于 React 的 `cache` 函数）
+
 - 可以与 `useQueryStates` 共享解析器定义以保持类型安全
 
 ---
