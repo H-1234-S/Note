@@ -165,6 +165,50 @@ const form = useForm({
 | `field.handleBlur()` | 标记字段为 touched |
 | `field.validate()` | 手动触发验证 |
 
+### setFieldValue 用法详解
+
+`form.setFieldValue(name, value)` 用于程序化设置字段值，**不会自动触发验证**。
+
+```typescript
+// 基础用法：设置普通字段
+form.setFieldValue('email', 'test@example.com')
+
+// 嵌套字段：使用点号路径
+form.setFieldValue('profile.age', 25)
+
+// 数组字段：使用索引
+form.setFieldValue('friends[0]', '张三')
+```
+
+### 与 handleChange 的区别
+
+| 特性 | `setFieldValue` | `handleChange` |
+|------|-----------------|----------------|
+| 触发验证 | 默认不触发 | 自动触发 |
+| 适用场景 | 程序化设置值 | 用户输入更新 |
+
+### 实际应用场景
+
+**1. 初始化默认值**
+```typescript
+useEffect(() => {
+  if (prefillEmail) {
+    form.setFieldValue('email', prefillEmail)
+  }
+}, [prefillEmail])
+```
+
+**2. 联动赋值**
+```typescript
+<select
+  value={province}
+  onChange={(e) => {
+    form.setFieldValue('province', e.target.value)
+    form.setFieldValue('city', '') // 联动清空城市
+  }}
+/>
+```
+
 ---
 
 # 4. 表单验证
