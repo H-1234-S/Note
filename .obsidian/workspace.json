@@ -62,9 +62,23 @@
               "icon": "lucide-file",
               "title": "nuqs-基础知识"
             }
+          },
+          {
+            "id": "b850a379b53629c8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/库/use-debounce/README.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "README"
+            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -121,8 +135,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334,
-    "collapsed": true
+    "width": 263.504695892334
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -181,13 +194,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/nuqs-基础知识.md",
+                "file": "Front-end notes/库/use-debounce/README.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "nuqs-基础知识 的大纲"
+              "title": "README 的大纲"
             }
           },
           {
@@ -238,9 +251,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "7fc6f6e864c84d0a",
+  "active": "b850a379b53629c8",
   "lastOpenFiles": [
+    "Front-end notes/库/use-debounce防抖.md",
+    "Front-end notes/库/use-debounce/README.md",
+    "Front-end notes/库/use-debounce",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
+    "Front-end notes/库/nuqs-基础知识.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
@@ -251,10 +268,8 @@
     "Front-end notes/TypeScript/TypeScript完全指南.md",
     "Front-end notes/库/openapi-fetch-完全指南.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
-    "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/库/react-dropzone-用法指南.md",
-    "Front-end notes/库/nuqs-基础知识.md",
     "Front-end notes/库/locale-codes-用法指南.md",
     "Front-end notes/TypeScript/README.md",
     "Front-end notes/TypeScript/12-练习答案.md",
@@ -266,7 +281,6 @@
     "Front-end notes/TypeScript/06-装饰器.md",
     "Front-end notes/TypeScript/05-枚举.md",
     "Front-end notes/TypeScript/04-泛型.md",
-    "Front-end notes/TypeScript/03-函数.md",
     "Front-end notes/库/package-lock.json",
     "Front-end notes/库/package.json",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.mjs.map",
@@ -275,7 +289,6 @@
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.d.mts",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.d.cts",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.cjs.map",
-    "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.cjs",
     "Project notes/resonance/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
