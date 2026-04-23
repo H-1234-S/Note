@@ -34,7 +34,6 @@ App Router 的路由本质上是由一个个**特定文件（Layout, Template, E
 ### page
 
 - app目录下每个文件夹都应该有page.tsx/page.jsx文件，作为当前路由的页面
-
 #### props
 
 对于 `page.tsx` 来说，`props` 对象通常包含两个固定的“大件”：
@@ -44,10 +43,12 @@ App Router 的路由本质上是由一个个**特定文件（Layout, Template, E
 2. **`searchParams` (Promise)：** 用于 URL 问号后面的参数。
 		
 	- 在 Next.js 15 及更高版本（也就是你现在教程里的代码）中，`searchParams` 被定义为一个 **Promise**。
+	
+	- 服务端获取 searchParams 是 App Router 的推荐模式。
 
-**注意：** 当searchParams发生变化时会触发page组件的重新渲染，但是子组件不一定会重新渲染，只有使用了该searchParams的组件会重新渲染，这是因为React Diff算法
+	- **注意：** 当searchParams发生变化时会触发page组件的重新渲染，但是子组件不一定会重新渲染，只有使用了该searchParams的组件会重新渲染，这是因为React Diff算法
 
-**Server Component特殊性：** 在 App Router 中，Server Components 的重新渲染发生在服务端。客户端收到的是一种特殊的描述格式（JSON-like），React 客户端运行时会根据这个描述“缝补”受影响的部分，而不是销毁整个页面重新加载。
+	- **Server Component特殊性：** 在 App Router 中，Server Components 的重新渲染发生在服务端。客户端收到的是一种特殊的描述格式（JSON-like），React 客户端运行时会根据这个描述“缝补”受影响的部分，而不是销毁整个页面重新加载。
 
 ### layout与template
 
