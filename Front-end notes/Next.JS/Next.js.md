@@ -45,7 +45,9 @@ App Router 的路由本质上是由一个个**特定文件（Layout, Template, E
 		
 	- 在 Next.js 15 及更高版本（也就是你现在教程里的代码）中，`searchParams` 被定义为一个 **Promise**。
 
-**注意：** 当searchParams发生变化时会触发page组件的重新渲染，但是子组件不一定会重新渲染，只有使用了该searchParams的组件会重新渲染，这是因为React Diff
+**注意：** 当searchParams发生变化时会触发page组件的重新渲染，但是子组件不一定会重新渲染，只有使用了该searchParams的组件会重新渲染，这是因为React Diff算法
+
+**Server Component特殊性：** 在 App Router 中，Server Components 的重新渲染发生在服务端。客户端收到的是一种特殊的描述格式（JSON-like），React 客户端运行时会根据这个描述“缝补”受影响的部分，而不是销毁整个页面重新加载。
 
 ### layout与template
 
