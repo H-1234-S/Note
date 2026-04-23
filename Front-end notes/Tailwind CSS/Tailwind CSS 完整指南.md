@@ -7,16 +7,46 @@ Tailwind CSS 是一个功能性（utility-first）CSS 框架，它提供了一�
 **特点：**
 
 - **utility-first**：通过组合小型工具类来构建复杂界面
-
 - **原子化**：每个类名只做一件事
-
 - **响应式**：内置断点系统
-
 - **状态变体**：支持 hover、focus 等状态
+- **JIT 编译器**：按需生成 CSS
+- **Oxide 引擎**（v4）：Rust 编写的全新构建引擎，性能提升高达 100x
 
--  **JIT编译器** ：按需生成 CSS
+### 1.2 安装方式（v4 推荐）
 
-### 1.2 安装方式
+**Vite 项目（推荐）：**
+
+```bash
+npm install tailwindcss @tailwindcss/vite
+```
+
+```js
+// vite.config.js
+import tailwindcss from '@tailwindcss/vite'
+
+export default {
+  plugins: [tailwindcss()],
+}
+```
+
+```css
+/* src/index.css */
+@import "tailwindcss";
+```
+
+**传统项目：**
+
+```bash
+npm install -D tailwindcss
+```
+
+```css
+/* src/index.css */
+@import "tailwindcss";
+```
+
+### 1.3 安装方式（v3 传统方式）
 
 ```html
 <!-- CDN 引入（仅用于开发） -->
@@ -31,7 +61,7 @@ npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
 ```
 
-### 1.3 基础配置
+### 1.4 基础配置（v3 版本）
 
 ```js
 // tailwind.config.js
@@ -50,6 +80,41 @@ module.exports = {
 @tailwind components;
 @tailwind utilities;
 ```
+
+### 1.5 v4 新配置方式（CSS-first）
+
+v4 移除了 `tailwind.config.js`，改用 CSS 配置：
+
+```css
+/* src/index.css */
+@import "tailwindcss";
+
+@theme {
+  /* 自定义颜色 */
+  --color-primary: #1da1f2;
+  --color-secondary: #f7f9fa;
+
+  /* 自定义间距 */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+
+  /* 自定义字体 */
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+
+  /* 自定义动画 */
+  --animate-spin-slow: spin 3s linear infinite;
+}
+```
+
+### 1.6 v4 新增指令
+
+| 指令 | 作用 |
+|------|------|
+| `@import "tailwindcss"` | 引入 Tailwind（替代旧的 @tailwind 指令） |
+| `@theme { }` | 定义自定义主题变量 |
+| `@utility` | 定义自定义工具类 |
+| `@source` | 显式指定内容源路径 |
 
 ---
 
@@ -1234,17 +1299,104 @@ Tailwind 内置了一套精心设计的设计系统：
 |------|------|
 | `dark:` | 暗色模式下的样式 |
 
+**v3 配置方式：**
+
+```js
+// tailwind.config.js
+module.exports = {
+  darkMode: 'class', // 或 'media'
+}
+```
+
+**v4 配置方式：**
+
+```css
+/* src/index.css */
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+```
+
+**使用示例：**
+
 ```html
 <div class="bg-white dark:bg-gray-900">
   <h1 class="text-black dark:text-white">标题</h1>
 </div>
+
+<!-- 需要在 HTML 标签上添加 dark 类 -->
+<html class="dark">
+  ...
+</html>
 ```
 
 ---
 
 ## 7. 自定义配置
 
-### 7.1 扩展主题
+### 7.1 v4 CSS-first 配置（推荐）
+
+```css
+/* src/index.css */
+@import "tailwindcss";
+
+@theme {
+  /* 自定义颜色 */
+  --color-primary: #1da1f2;
+  --color-secondary: #f7f9fa;
+
+  /* 自定义间距 */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+
+  /* 自定义字体 */
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+
+  /* 自定义动画 */
+  --animate-spin-slow: spin 3s linear infinite;
+
+  /* 自定义圆角 */
+  --radius-*.****: 1rem;
+
+  /* 自定义阴影 */
+  --shadow-*: ...;
+}
+```
+
+### 7.2 v4 自定义工具类
+
+```css
+@utility btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: 0.5rem;
+}
+```
+
+使用：`<button class="btn">按钮</button>`
+
+### 7.3 v4 自定义变体
+
+```css
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 使用 */
+<div class="dark:bg-gray-900">...</div>
+```
+
+### 7.4 v4 使用任意值
+
+```html
+<!-- 任意值语法：方括号内直接写 CSS 值 -->
+<div class="w-[calc(100%-1rem)]">自定义宽度</div>
+<div class="text-[#1da1f2]">自定义颜色</div>
+<div class="grid-cols-[1fr,2fr,1fr]">自定义网格列</div>
+<div class="top-[calc(100%-2rem)]">自定义位置</div>
+```
+
+### 7.5 v3 传统配置方式
 
 ```js
 // tailwind.config.js
@@ -1275,32 +1427,22 @@ module.exports = {
 }
 ```
 
-### 7.2 使用任意值
+### 7.6 添加插件
 
-```html
-<!-- 任意值语法：方括号内直接写CSS值 -->
-<div class="w-[calc(100%-1rem)]">
-  自定义宽度
-</div>
-
-<div class="text-[#1da1f2]">
-  自定义颜色
-</div>
-
-<div class="grid-cols-[1fr,2fr,1fr]">
-  自定义网格列
-</div>
-
-<div class="top-[calc(100%-2rem)]">
-  自定义位置
-</div>
-```
-
-### 7.3 添加插件
+**v4 方式：**
 
 ```bash
 npm install @tailwindcss/forms @tailwindcss/typography
 ```
+
+```css
+/* src/index.css */
+@import "tailwindcss";
+@import "@tailwindcss/forms";
+@import "@tailwindcss/typography";
+```
+
+**v3 方式：**
 
 ```js
 // tailwind.config.js
