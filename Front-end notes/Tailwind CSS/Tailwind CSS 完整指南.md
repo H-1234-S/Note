@@ -631,68 +631,68 @@ Tailwind 内置了一套精心设计的设计系统：
 
 #### 4.9.1 父容器
 
-| 类名 | 作用 |
-|------|------|
-| `grid` | display: grid |
-| `inline-grid` | display: inline-grid |
-| `grid-cols-1` | grid-template-columns: repeat(1, minmax(0, 1fr)) |
-| `grid-cols-2` | grid-template-columns: repeat(2, minmax(0, 1fr)) |
-| `grid-cols-3` | grid-template-columns: repeat(3, minmax(0, 1fr)) |
-| `grid-cols-4` | grid-template-columns: repeat(4, minmax(0, 1fr)) |
-| `grid-cols-5` | grid-template-columns: repeat(5, minmax(0, 1fr)) |
-| `grid-cols-6` | grid-template-columns: repeat(6, minmax(0, 1fr)) |
-| `grid-cols-7` | grid-template-columns: repeat(7, minmax(0, 1fr)) |
-| `grid-cols-8` | grid-template-columns: repeat(8, minmax(0, 1fr)) |
-| `grid-cols-9` | grid-template-columns: repeat(9, minmax(0, 1fr)) |
-| `grid-cols-10` | grid-template-columns: repeat(10, minmax(0, 1fr)) |
-| `grid-cols-11` | grid-template-columns: repeat(11, minmax(0, 1fr)) |
-| `grid-cols-12` | grid-template-columns: repeat(12, minmax(0, 1fr)) |
-| `grid-cols-none` | grid-template-columns: none |
-| `grid-rows-1` | grid-template-rows: repeat(1, minmax(0, 1fr)) |
-| `grid-rows-none` | grid-template-rows: none |
+| 类名 | 解释 | 作用 |
+|------|------|------|
+| `grid` | 块级网格容器 | display: grid |
+| `inline-grid` | 行内网格容器 | display: inline-grid |
+| `grid-cols-1` | 1列网格 | grid-template-columns: repeat(1, minmax(0, 1fr)) |
+| `grid-cols-2` | 2列网格 | grid-template-columns: repeat(2, minmax(0, 1fr)) |
+| `grid-cols-3` | 3列网格 | grid-template-columns: repeat(3, minmax(0, 1fr)) |
+| `grid-cols-4` | 4列网格 | grid-template-columns: repeat(4, minmax(0, 1fr)) |
+| `grid-cols-5` | 5列网格 | grid-template-columns: repeat(5, minmax(0, 1fr)) |
+| `grid-cols-6` | 6列网格 | grid-template-columns: repeat(6, minmax(0, 1fr)) |
+| `grid-cols-7` | 7列网格 | grid-template-columns: repeat(7, minmax(0, 1fr)) |
+| `grid-cols-8` | 8列网格 | grid-template-columns: repeat(8, minmax(0, 1fr)) |
+| `grid-cols-9` | 9列网格 | grid-template-columns: repeat(9, minmax(0, 1fr)) |
+| `grid-cols-10` | 10列网格 | grid-template-columns: repeat(10, minmax(0, 1fr)) |
+| `grid-cols-11` | 11列网格 | grid-template-columns: repeat(11, minmax(0, 1fr)) |
+| `grid-cols-12` | 12列网格 | grid-template-columns: repeat(12, minmax(0, 1fr)) |
+| `grid-cols-none` | 不定义列轨道 | grid-template-columns: none |
+| `grid-rows-1` | 1行网格 | grid-template-rows: repeat(1, minmax(0, 1fr)) |
+| `grid-rows-none` | 不定义行轨道 | grid-template-rows: none |
 
 #### 4.9.2 网格间隙
 
-| 类名 | 作用 |
-|------|------|
-| `gap-0` | gap: 0 |
-| `gap-1` | gap: 0.25rem |
-| `gap-2` | gap: 0.5rem |
-| `gap-3` | gap: 0.75rem |
-| `gap-4` | gap: 1rem |
-| `gap-5` | gap: 1.25rem |
-| `gap-6` | gap: 1.5rem |
-| `gap-8` | gap: 2rem |
-| `gap-10` | gap: 2.5rem |
-| `gap-12` | gap: 3rem |
-| `gap-16` | gap: 4rem |
-| `gap-px` | gap: 1px |
-| `gap-x-4` | column-gap: 1rem |
-| `gap-y-4` | row-gap: 1rem |
+| 类名 | 解释 | 作用 |
+|------|------|------|
+| `gap-0` | 无间隙 | gap: 0 |
+| `gap-1` | 间隙 4px | gap: 0.25rem |
+| `gap-2` | 间隙 8px | gap: 0.5rem |
+| `gap-3` | 间隙 12px | gap: 0.75rem |
+| `gap-4` | 间隙 16px | gap: 1rem |
+| `gap-5` | 间隙 20px | gap: 1.25rem |
+| `gap-6` | 间隙 24px | gap: 1.5rem |
+| `gap-8` | 间隙 32px | gap: 2rem |
+| `gap-10` | 间隙 40px | gap: 2.5rem |
+| `gap-12` | 间隙 48px | gap: 3rem |
+| `gap-16` | 间隙 64px | gap: 4rem |
+| `gap-px` | 间隙 1px | gap: 1px |
+| `gap-x-4` | 水平间隙 16px | column-gap: 1rem |
+| `gap-y-4` | 垂直间隙 16px | row-gap: 1rem |
 
 #### 4.9.3 子元素跨越
 
-| 类名 | 作用 |
-|------|------|
-| `col-auto` | grid-column: auto |
-| `col-span-1` | grid-column: span 1 / span 1 |
-| `col-span-2` | grid-column: span 2 / span 2 |
-| `col-span-3` | grid-column: span 3 / span 3 |
-| `col-span-4` | grid-column: span 4 / span 4 |
-| `col-span-5` | grid-column: span 5 / span 5 |
-| `col-span-6` | grid-column: span 6 / span 6 |
-| `col-span-full` | grid-column: 1 / -1 |
-| `col-start-1` | grid-column-start: 1 |
-| `col-start-2` | grid-column-start: 2 |
-| `col-start-3` | grid-column-start: 3 |
-| `col-start-auto` | grid-column-start: auto |
-| `col-end-1` | grid-column-end: 1 |
-| `col-end-auto` | grid-column-end: auto |
-| `row-auto` | grid-row: auto |
-| `row-span-1` | grid-row: span 1 / span 1 |
-| `row-span-2` | grid-row: span 2 / span 2 |
-| `row-span-3` | grid-row: span 3 / span 3 |
-| `row-span-full` | grid-row: 1 / -1 |
+| 类名 | 解释 | 作用 |
+|------|------|------|
+| `col-auto` | 自动列 | grid-column: auto |
+| `col-span-1` | 跨越1列 | grid-column: span 1 / span 1 |
+| `col-span-2` | 跨越2列 | grid-column: span 2 / span 2 |
+| `col-span-3` | 跨越3列 | grid-column: span 3 / span 3 |
+| `col-span-4` | 跨越4列 | grid-column: span 4 / span 4 |
+| `col-span-5` | 跨越5列 | grid-column: span 5 / span 5 |
+| `col-span-6` | 跨越6列 | grid-column: span 6 / span 6 |
+| `col-span-full` | 跨越全部列 | grid-column: 1 / -1 |
+| `col-start-1` | 从第1列开始 | grid-column-start: 1 |
+| `col-start-2` | 从第2列开始 | grid-column-start: 2 |
+| `col-start-3` | 从第3列开始 | grid-column-start: 3 |
+| `col-start-auto` | 自动定位 | grid-column-start: auto |
+| `col-end-1` | 结束于第1列 | grid-column-end: 1 |
+| `col-end-auto` | 自动结束 | grid-column-end: auto |
+| `row-auto` | 自动行 | grid-row: auto |
+| `row-span-1` | 跨越1行 | grid-row: span 1 / span 1 |
+| `row-span-2` | 跨越2行 | grid-row: span 2 / span 2 |
+| `row-span-3` | 跨越3行 | grid-row: span 3 / span 3 |
+| `row-span-full` | 跨越全部行 | grid-row: 1 / -1 |
 
 ---
 
