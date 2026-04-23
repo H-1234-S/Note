@@ -62,9 +62,19 @@
               "icon": "lucide-file",
               "title": "TanStack Query 完全指南"
             }
+          },
+          {
+            "id": "e24a121b5bb2adfe",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -181,13 +191,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "TanStack Query 完全指南 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -238,8 +247,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "49312203f14ba6b3",
+  "active": "e24a121b5bb2adfe",
   "lastOpenFiles": [
+    "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/JavaScript/闭包.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "Front-end notes/Next.JS/Next.js.md",
@@ -252,7 +262,6 @@
     "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/库/use-debounce",
     "Front-end notes/tRPC/tRPC学习指南.md",
-    "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/Tanstack Form/TanStack Form.md",
     "Front-end notes/TanStack Query",
     "Front-end notes/Tanstack/TanStack Form v1 完全指南.md",
