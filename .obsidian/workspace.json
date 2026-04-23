@@ -251,8 +251,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "6127e974eddccf57",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
+    "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/JavaScript/闭包.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
@@ -280,7 +281,6 @@
     "Front-end notes/TypeScript/09-命名空间与声明合并.md",
     "Front-end notes/TypeScript/08-模块系统.md",
     "Front-end notes/TypeScript/07-高级类型.md",
-    "Front-end notes/TypeScript/06-装饰器.md",
     "Front-end notes/库/package-lock.json",
     "Front-end notes/库/package.json",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.mjs.map",
