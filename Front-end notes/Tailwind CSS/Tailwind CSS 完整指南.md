@@ -547,83 +547,83 @@ Tailwind 内置了一套精心设计的设计系统：
 
 #### 4.8.1 父容器属性
 
-| 类名 | 作用 |
-|------|------|
-| `flex` | display: flex |
-| `inline-flex` | display: inline-flex |
-| `flex-row` | flex-direction: row |
-| `flex-row-reverse` | flex-direction: row-reverse |
-| `flex-col` | flex-direction: column |
-| `flex-col-reverse` | flex-direction: column-reverse |
-| `flex-wrap` | flex-wrap: wrap |
-| `flex-wrap-reverse` | flex-wrap: wrap-reverse |
-| `flex-nowrap` | flex-wrap: nowrap |
+| 类名 | 解释 | 作用 |
+|------|------|------|
+| `flex` | 块级弹性盒 | display: flex |
+| `inline-flex` | 行内弹性盒 | display: inline-flex |
+| `flex-row` | 水平排列（默认） | flex-direction: row |
+| `flex-row-reverse` | 水平反向排列 | flex-direction: row-reverse |
+| `flex-col` | 垂直排列 | flex-direction: column |
+| `flex-col-reverse` | 垂直反向排列 | flex-direction: column-reverse |
+| `flex-wrap` | 允许换行 | flex-wrap: wrap |
+| `flex-wrap-reverse` | 允许换行且反向 | flex-wrap: wrap-reverse |
+| `flex-nowrap` | 不允许换行（默认） | flex-wrap: nowrap |
 
 #### 4.8.2 主轴对齐 (justify-content)
 
-| 类名 | 作用 |
-|------|------|
-| `justify-start` | justify-content: flex-start |
-| `justify-end` | justify-content: flex-end |
-| `justify-center` | justify-content: center |
-| `justify-between` | justify-content: space-between |
-| `justify-around` | justify-content: space-around |
-| `justify-evenly` | justify-content: space-evenly |
+| 类名 | 解释 | 作用 |
+|------|------|------|
+| `justify-start` | 左对齐 | justify-content: flex-start |
+| `justify-end` | 右对齐 | justify-content: flex-end |
+| `justify-center` | 居中对齐 | justify-content: center |
+| `justify-between` | 两端对齐（项目间间距相等） | justify-content: space-between |
+| `justify-around` | 项目两侧间距相等 | justify-content: space-around |
+| `justify-evenly` | 项目间距完全相等 | justify-content: space-evenly |
 
 #### 4.8.3 交叉轴对齐 (align-items)
 
-| 类名 | 作用 |
-|------|------|
-| `items-start` | align-items: flex-start |
-| `items-end` | align-items: flex-end |
-| `items-center` | align-items: center |
-| `items-baseline` | align-items: baseline |
-| `items-stretch` | align-items: stretch |
+| 类名 | 解释 | 作用 |
+|------|------|------|
+| `items-start` | 交叉轴起点对齐 | align-items: flex-start |
+| `items-end` | 交叉轴终点对齐 | align-items: flex-end |
+| `items-center` | 交叉轴居中对齐 | align-items: center |
+| `items-baseline` | 项目基线对齐 | align-items: baseline |
+| `items-stretch` | 项目拉伸填充（默认） | align-items: stretch |
 
 #### 4.8.4 多行对齐 (align-content)
 
-| 类名 | 作用 |
-|------|------|
-| `content-start` | align-content: flex-start |
-| `content-end` | align-content: flex-end |
-| `content-center` | align-content: center |
-| `content-between` | align-content: space-between |
-| `content-around` | align-content: space-around |
-| `content-evenly` | align-content: space-evenly |
+| 类名 | 解释 | 作用 |
+|------|------|------|
+| `content-start` | 行聚拢在交叉轴起点 | align-content: flex-start |
+| `content-end` | 行聚拢在交叉轴终点 | align-content: flex-end |
+| `content-center` | 行聚拢在交叉轴居中 | align-content: center |
+| `content-between` | 行两端对齐 | align-content: space-between |
+| `content-around` | 行两侧间距相等 | align-content: space-around |
+| `content-evenly` | 行间距完全相等 | align-content: space-evenly |
 
 #### 4.8.5 子元素属性
 
-| 类名 | 作用 |
-|------|------|
-| `flex-1` | flex: 1 1 0% |
-| `flex-auto` | flex: 1 1 auto |
-| `flex-initial` | flex: 0 1 auto |
-| `flex-none` | flex: none |
-| `flex-grow` | flex-grow: 1 |
-| `flex-shrink` | flex-shrink: 1 |
-| `flex-grow-0` | flex-grow: 0 |
-| `flex-shrink-0` | flex-shrink: 0 |
+| 类名 | 解释 | 作用 |
+|------|------|------|
+| `flex-1` | 项目占满剩余空间（扩展=1 收缩=0 基准=0） | flex: 1 1 0% |
+| `flex-auto` | 项目占满剩余空间（扩展=1 收缩=1 基准=auto） | flex: 1 1 auto |
+| `flex-initial` | 项目不扩展但可收缩（扩展=0 收缩=1 基准=auto） | flex: 0 1 auto |
+| `flex-none` | 项目不扩展不收缩 | flex: none |
+| `flex-grow` | 项目可扩展 | flex-grow: 1 |
+| `flex-shrink` | 项目可收缩 | flex-shrink: 1 |
+| `flex-grow-0` | 项目不可扩展 | flex-grow: 0 |
+| `flex-shrink-0` | 项目不可收缩 | flex-shrink: 0 |
 
 #### 4.8.6 单独对齐 (align-self)
 
-| 类名 | 作用 |
-|------|------|
-| `self-auto` | align-self: auto |
-| `self-start` | align-self: flex-start |
-| `self-end` | align-self: flex-end |
-| `self-center` | align-self: center |
-| `self-stretch` | align-self: stretch |
-| `self-baseline` | align-self: baseline |
+| 类名 | 解释 | 作用 |
+|------|------|------|
+| `self-auto` | 继承父容器 align-items（默认） | align-self: auto |
+| `self-start` | 在交叉轴起点对齐 | align-self: flex-start |
+| `self-end` | 在交叉轴终点对齐 | align-self: flex-end |
+| `self-center` | 在交叉轴居中对齐 | align-self: center |
+| `self-stretch` | 拉伸填充交叉轴 | align-self: stretch |
+| `self-baseline` | 按基线对齐 | align-self: baseline |
 
 #### 4.8.7 排序
 
-| 类名 | 作用 |
-|------|------|
-| `order-1` | order: 1 |
-| `order-2` | order: 2 |
-| `order-first` | order: -9999 |
-| `order-last` | order: 9999 |
-| `order-none` | order: 0 |
+| 类名 | 解释 | 作用 |
+|------|------|------|
+| `order-1` | 排序为第1位 | order: 1 |
+| `order-2` | 排序为第2位 | order: 2 |
+| `order-first` | 排在最前面 | order: -9999 |
+| `order-last` | 排在最后面 | order: 9999 |
+| `order-none` | 按文档顺序（默认） | order: 0 |
 
 ---
 
