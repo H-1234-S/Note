@@ -1484,18 +1484,99 @@ module.exports = {
 }
 ```
 
-### 8.3 多值属性
+### 8.3 v4 新增：容器查询 (Container Queries)
+
+无需依赖屏幕大小，基于容器自身尺寸来响应式设计：
 
 ```html
-<!-- 支持一个类设置多个值 -->
-<div class="grid grid-cols-2 gap-4">
-  <!-- 组合多个效果 -->
-  <div class="p-4 mx-auto max-w-md">
+<div class="@container">
+  <div class="@md:w-1/2 @lg:w-1/3">
+    容器查询响应式内容
   </div>
 </div>
 ```
 
-### 8.4 条件类名
+配置容器尺寸：
+
+```css
+@theme {
+  --container-sm: 320px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+}
+```
+
+### 8.4 v4 新增：3D 变换
+
+直接在 HTML 中实现 3D 空间变换：
+
+| 类名 | 作用 |
+|------|------|
+| `rotate-y-45` | rotateY(45deg) |
+| `rotate-y-90` | rotateY(90deg) |
+| `rotate-x-45` | rotateX(45deg) |
+| `perspective-1000` | perspective(1000px) |
+| `preserve-3d` | transform-style: preserve-3d |
+| `backface-hidden` | backface-visibility: hidden |
+
+### 8.5 v4 新增：扩展渐变 API
+
+支持径向渐变和锥形渐变：
+
+```html
+<!-- 线性渐变 -->
+<div class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+  渐变背景
+</div>
+```
+
+### 8.6 v4 新增：@starting-style 变体
+
+创建进入和退出过渡效果，无需 JavaScript：
+
+```html
+<div class="opacity-0 transition-opacity duration-300 hover:opacity-100 starting-opacity-0">
+  悬停显示
+</div>
+```
+
+### 8.7 v4 新增：not-* 变体
+
+为不匹配的元素添加样式：
+
+```html
+<div class="not-hover:text-gray-500">非悬停时灰色</div>
+<div class="not-focus:outline-none">非聚焦时无轮廓</div>
+```
+
+### 8.8 v4 RTL 支持
+
+v4 自动支持 RTL（从右到左）布局，自动转换类名：
+
+```html
+<div dir="rtl" class="pl-4">RTL 布局自动转换</div>
+```
+
+### 8.9 v4 :has() 伪类支持
+
+基于子元素状态应用样式：
+
+```html
+<div class="has-checked:bg-blue-100">
+  <input type="checkbox" />
+</div>
+```
+
+### 8.10 多值属性
+
+```html
+<!-- 支持一个类设置多个值 -->
+<div class="grid grid-cols-2 gap-4">
+  <div class="p-4 mx-auto max-w-md"></div>
+</div>
+```
+
+### 8.11 条件类名
 
 ```html
 <!-- React/Vue 中使用 -->
@@ -1509,7 +1590,7 @@ module.exports = {
 </button>
 ```
 
-### 8.5 常见布局模板
+### 8.12 常见布局模板
 
 ```html
 <!-- 水平垂直居中 -->
@@ -1536,14 +1617,6 @@ module.exports = {
   <div class="bg-white rounded-lg shadow p-4">卡片3</div>
 </div>
 ```
-
-### 8.6 Tailwind JIT 工作原理
-
-JIT (Just-In-Time) 编译器会：
-1. 按需生成 CSS，而不是生成全部
-2. 支持任意值：`w-[123px]`
-3. 扫描 HTML 文件找到使用的类
-4. 在构建时生成对应 CSS
 
 ---
 
