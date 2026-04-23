@@ -67,10 +67,14 @@
             "id": "e24a121b5bb2adfe",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "Tailwind CSS 完整指南"
             }
           }
         ],
@@ -191,12 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "Tailwind CSS 完整指南 的大纲"
             }
           },
           {
@@ -249,26 +254,27 @@
   },
   "active": "e24a121b5bb2adfe",
   "lastOpenFiles": [
+    "Front-end notes/库/wavesurfer.js-基础知识.md",
+    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
+    "Front-end notes/JavaScript/Web API.md",
+    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/JavaScript/闭包.md",
-    "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
-    "Front-end notes/Next.JS/Next.js.md",
     "八股/JavaScript篇_高频八股文.md",
+    "Front-end notes/tRPC/tRPC学习指南.md",
+    "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
     "八股/浏览器篇_高频八股文.md",
-    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/库/nuqs-基础知识.md",
     "Front-end notes/库/use-debounce 使用指南.md",
     "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/库/use-debounce",
-    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Tanstack Form/TanStack Form.md",
     "Front-end notes/TanStack Query",
     "Front-end notes/Tanstack/TanStack Form v1 完全指南.md",
     "Project notes/resonance/Resonance.md",
     "Front-end notes/TypeScript/TypeScript完全指南.md",
     "Front-end notes/库/openapi-fetch-完全指南.md",
-    "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/库/react-dropzone-用法指南.md",
     "Front-end notes/库/locale-codes-用法指南.md",
@@ -276,7 +282,6 @@
     "Front-end notes/TypeScript/12-练习答案.md",
     "Front-end notes/TypeScript/11-工程化与配置.md",
     "Front-end notes/TypeScript/10-实用技巧与最佳实践.md",
-    "Front-end notes/TypeScript/09-命名空间与声明合并.md",
     "Front-end notes/库/package-lock.json",
     "Front-end notes/库/package.json",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.mjs.map",

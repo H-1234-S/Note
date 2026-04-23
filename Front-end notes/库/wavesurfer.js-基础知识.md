@@ -1,4 +1,3 @@
-# wavesurfer.js 基础知识
 
 > wavesurfer.js - Web 音频波形可视化与播放库
 
