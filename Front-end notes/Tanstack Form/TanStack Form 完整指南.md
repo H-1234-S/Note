@@ -98,13 +98,13 @@ const form = useForm({
 
 #### 状态获取类
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `form.state.values` | `object` | 所有字段的当前值 |
-| `form.state.isSubmitting` | `boolean` | 是否正在提交 |
-| `form.state.canSubmit` | `boolean` | 表单是否有效可提交 |
-| `form.state.isDirty` | `boolean` | 是否有字段被修改过 |
-| `form.state.isValid` | `boolean` | 表单是否通过验证 |
+| 属性                        | 类型        | 描述        |
+| ------------------------- | --------- | --------- |
+| `form.state.values`       | `object`  | 所有字段的当前值  |
+| `form.state.isSubmitting` | `boolean` | 是否正在提交    |
+| `form.state.canSubmit`    | `boolean` | 表单是否有效可提交 |
+| `form.state.isDirty`      | `boolean` | 是否有字段被修改过 |
+| `form.state.isValid`      | `boolean` | 表单是否通过验证  |
 
 #### 字段操作类
 
