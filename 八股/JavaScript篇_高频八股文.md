@@ -556,6 +556,22 @@ for (let j = 0; j < 3; j++) {
 // let有块级作用域，每次循环创建新的j
 ```
 
+**相当于：**
+``` js
+{
+  let i = 0;
+  setTimeout(() => console.log(i));
+}
+{
+  let i = 1;
+  setTimeout(() => console.log(i));
+}
+{
+  let i = 2;
+  setTimeout(() => console.log(i));
+}
+```
+
 **var的解决方案**（ES6之前）：
 
 1. **IIFE（立即执行函数）**
