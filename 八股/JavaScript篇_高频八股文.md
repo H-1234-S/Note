@@ -698,6 +698,7 @@ child1.colors.push('green');
 console.log(child1.colors);  // ['red', 'blue', 'green']
 console.log(child2.colors);  // ['red', 'blue'] (不共享)
 ```
+
 **优点**：避免了引用类型共享
 **缺点**：无法继承原型上的方法
 
