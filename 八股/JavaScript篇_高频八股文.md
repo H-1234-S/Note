@@ -656,8 +656,6 @@ console.log(Object.prototype.__proto__);  // null
 **考点**：面向对象编程
 
 **继承的几种方式**：
-
-
 #### 1. **原型链继承**
 ```javascript
 function Parent() {
