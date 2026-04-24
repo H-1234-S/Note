@@ -149,13 +149,14 @@ const form = useForm({
 
 ### field.state 常用属性
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `field.state.value` | `any` | 当前字段值 |
-| `field.state.meta.errors` | `string[]` | 验证错误信息数组 |
-| `field.state.meta.isTouched` | `boolean` | 字段是否失焦过 |
-| `field.state.meta.isValidating` | `boolean` | 是否正在异步验证 |
-| `field.state.meta.isPristine` | `boolean` | 字段是否从未修改过 |
+| 属性                              | 类型         | 描述        |
+| ------------------------------- | ---------- | --------- |
+| `field.state.value`             | `any`      | 当前字段值     |
+| `field.state.meta.errors`       | `string[]` | 验证错误信息数组  |
+| `field.state.meta.isTouched`    | `boolean`  | 字段是否失焦过   |
+| `field.state.meta.isValidating` | `boolean`  | 是否正在异步验证  |
+| `field.state.meta.isPristine`   | `boolean`  | 字段是否从未修改过 |
+| `field.state.meta.isValid`      | `boolean`  | 字段值是否有效   |
 
 ### field.handle 方法
 
