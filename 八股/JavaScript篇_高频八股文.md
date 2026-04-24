@@ -596,7 +596,7 @@ for (let j = 0; j < 3; j++) {
 
 ---
 
-## 3. 原型与继承 {#prototype-inheritance}
+## 3. 原型与继承
 
 ### 3.1 什么是原型（Prototype）和原型链？
 **考点**：JavaScript继承机制
