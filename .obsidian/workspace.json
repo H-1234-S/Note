@@ -64,35 +64,31 @@
             }
           },
           {
-            "id": "e24a121b5bb2adfe",
+            "id": "bbb1009c02a81f99",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
+                "file": "Front-end notes/React/React.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Tailwind CSS 完整指南"
+              "title": "React"
             }
           },
           {
-            "id": "cfef94ae0c61d43d",
+            "id": "6d87af0752f4d03c",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/库/wavesurfer.js-基础知识.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "wavesurfer.js-基础知识"
+              "title": "新标签页"
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -150,8 +146,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334,
-    "collapsed": true
+    "width": 263.504695892334
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -210,13 +205,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Tailwind CSS 完整指南 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -267,17 +261,18 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "e24a121b5bb2adfe",
+  "active": "6d87af0752f4d03c",
   "lastOpenFiles": [
+    "Front-end notes/React/React.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
-    "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
+    "八股/JavaScript篇_高频八股文.md",
+    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
+    "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/JavaScript/Web API.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/JavaScript/闭包.md",
-    "八股/JavaScript篇_高频八股文.md",
-    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "八股/浏览器篇_高频八股文.md",
     "Front-end notes/库/nuqs-基础知识.md",
@@ -296,7 +291,6 @@
     "Front-end notes/TypeScript/README.md",
     "Front-end notes/TypeScript/12-练习答案.md",
     "Front-end notes/TypeScript/11-工程化与配置.md",
-    "Front-end notes/TypeScript/10-实用技巧与最佳实践.md",
     "Front-end notes/库/package-lock.json",
     "Front-end notes/库/package.json",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.mjs.map",
