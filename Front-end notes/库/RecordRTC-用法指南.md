@@ -1,4 +1,4 @@
-RecordRTC 是一个强大的 WebRTC JavaScript 库，用于在浏览器中录制音频、视频、屏幕以及 Canvas（2D/3D 动画）。它支持 Chrome、Firefox、Opera、Android 和 Microsoft Edge。
+RecordRTC 是一个强大的 WebRTC JavaScript 库，用于在浏览器中录制音频、视频、屏幕以及 Canvas（2D/3D 动画）。
 
 ## 1. 安装
 
