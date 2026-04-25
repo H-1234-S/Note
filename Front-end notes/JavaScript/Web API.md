@@ -1,7 +1,3 @@
-
-> 本文档按循循渐进的方式整理常用的 Web API，每个 API 都配有详细的代码示例和用法解释。
-
----
 ## 1. URL API
 
 URL（Uniform Resource Locator）是用于解析和操作 URL 的接口，比 `location` 对象更强大。
