@@ -64,7 +64,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -121,7 +121,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334
+    "width": 263.504695892334,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -180,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React/Zustand.md",
+                "file": "Front-end notes/JavaScript/Web API.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Zustand 的大纲"
+              "title": "Web API 的大纲"
             }
           },
           {
@@ -237,8 +238,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "0a0e2c3c46beb547",
   "lastOpenFiles": [
+    "Front-end notes/React/Zustand.md",
     "Front-end notes/库/Zod.md",
     "Front-end notes/TypeScript/TypeScript完全指南.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
@@ -266,7 +268,6 @@
     "Project notes/resonance/Resonance.md",
     "Front-end notes/库/openapi-fetch-完全指南.md",
     "Front-end notes/库/locale-codes-用法指南.md",
-    "Front-end notes/TypeScript/README.md",
     "Front-end notes/库/package-lock.json",
     "Front-end notes/库/package.json",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.mjs.map",
