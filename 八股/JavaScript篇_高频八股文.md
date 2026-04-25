@@ -855,20 +855,24 @@ child.sayAge();  // 18
 **手写实现**：
 ```javascript
 function myInstanceof(left, right) {
-  let proto = left.__proto__;
+  // 防御性检查：
+  // 如果 left 是基本数据类型（如 number, string, boolean, symbol）或者是 null
+  // 则它一定不是 right 的实例
+  if (typeof left !== 'object' || left === null) {
+    return false;
+  }
+
+  // 获取对象的原型
+  let proto = Object.getPrototypeOf(left); // 使用标准方法替代 __proto__
   const prototype = right.prototype;
 
   while (true) {
     if (proto === null) return false;
     if (proto === prototype) return true;
-    proto = proto.__proto__;
+    // 沿着原型链继续向上寻找
+    proto = Object.getPrototypeOf(proto);
   }
 }
-
-// 测试
-console.log(myInstanceof([], Array));        // true
-console.log(myInstanceof({}, Object));       // true
-console.log(myInstanceof(123, Number));      // false (原始类型)
 ```
 
 **注意事项**：

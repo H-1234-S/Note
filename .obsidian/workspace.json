@@ -91,8 +91,7 @@
               "title": "RecordRTC-用法指南"
             }
           }
-        ],
-        "currentTab": 5
+        ]
       }
     ],
     "direction": "vertical"
@@ -209,13 +208,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/RecordRTC-用法指南.md",
+                "file": "八股/JavaScript篇_高频八股文.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "RecordRTC-用法指南 的大纲"
+              "title": "JavaScript篇_高频八股文 的大纲"
             }
           },
           {
@@ -266,8 +265,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2ce771d837a4c66f",
+  "active": "83dcf772281bc9f9",
   "lastOpenFiles": [
+    "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/库/react-dropzone-用法指南.md",
     "Front-end notes/库/Zod.md",
     "未命名.md",
@@ -280,7 +280,6 @@
     "Front-end notes/React/Zustand.md",
     "八股/JavaScript篇_高频八股文.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
-    "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/库/use-debounce 使用指南.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
