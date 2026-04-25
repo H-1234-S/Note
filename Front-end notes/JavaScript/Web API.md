@@ -2,7 +2,406 @@
 > 本文档按循循渐进的方式整理常用的 Web API，每个 API 都配有详细的代码示例和用法解释。
 
 ---
-## 1. DOM API
+## 1. URL API
+
+URL（Uniform Resource Locator）是用于解析和操作 URL 的接口，比 `location` 对象更强大。
+
+### 1.1 创建 URL 对象
+
+```javascript
+// 方式1：使用完整 URL
+const url = new URL('https://example.com:8080/path/name?id=123&name=John#section')
+
+// 方式2：相对于基础 URL
+const base = new URL('/path', 'https://example.com')  // https://example.com/path
+
+// 方式3：使用当前页面地址
+const currentUrl = new URL(window.location.href)
+```
+
+### 1.2 URL 对象属性
+
+```javascript
+const url = new URL('https://john:password@example.com:8080/path/name?id=123&name=John#section')
+
+// 完整 URL
+url.href        // 'https://john:password@example.com:8080/path/name?id=123&name=John#section'
+
+// 协议（包含冒号）
+url.protocol    // 'https:'
+
+// 主机名（包含端口）
+url.host        // 'example.com:8080'
+
+// 仅主机名
+url.hostname    // 'example.com'
+
+// 端口号
+url.port        // '8080'
+
+// 用户名
+url.username    // 'john'
+
+// 密码
+url.password    // 'password'
+
+// 路径
+url.pathname    // '/path/name'
+
+// 查询字符串（包含问号）
+url.search       // '?id=123&name=John'
+
+// 锚点（包含井号）
+url.hash        // '#section'
+
+// 来源（只读，格式：协议//用户名:密码@主机名:端口）
+url.origin      // 'https://example.com:8080'
+```
+
+### 1.3 操作 URL 参数
+
+```javascript
+const url = new URL('https://example.com/search?id=123&name=John')
+
+// 获取 URLSearchParams 对象
+const params = url.searchParams
+
+// 添加参数
+url.searchParams.append('category', 'book')  // ?id=123&name=John&category=book
+
+// 设置参数（如果已存在则覆盖）
+url.searchParams.set('id', '456')  // ?id=456&name=John&category=book
+
+// 删除参数
+url.searchParams.delete('name')  // ?id=456&category=book
+
+// 获取单个参数值
+url.searchParams.get('id')       // '456'
+
+// 获取所有参数值（同名参数有多个值时）
+url.searchParams.getAll('id')    // ['456']
+
+// 检查参数是否存在
+url.searchParams.has('name')     // false
+
+// 获取参数个数
+url.searchParams.length          // 2
+
+// 获取所有参数键值对
+[...url.searchParams.entries()]  // [['id', '456'], ['category', 'book']]
+
+// 获取所有参数名
+[...url.searchParams.keys()]      // ['id', 'category']
+
+// 获取所有参数值
+[...url.searchParams.values()]    // ['456', 'book']
+
+// 排序参数键（常用于缓存）
+url.searchParams.sort()
+// 结果：?category=book&id=456
+
+// 遍历参数
+url.searchParams.forEach((value, key) => {
+  console.log(`${key} = ${value}`)
+})
+```
+
+### 1.4 URL 编解码
+
+```javascript
+const url = new URL('https://example.com/path')
+
+// 设置查询参数（自动编码）
+url.searchParams.set('name', '张三')
+url.searchParams.set('query', 'hello world')
+console.log(url.href)
+// https://example.com/path?name=%E5%BC%A0%E4%B8%89&query=hello%20world
+
+// 获取参数（自动解码）
+url.searchParams.get('name')  // '张三'
+
+// 手动编码
+encodeURIComponent('张三')      // '%E5%BC%A0%E4%B8%89'
+decodeURIComponent('%E5%BC%A0%E4%B8%89')  // '张三'
+
+// 注意：encodeURI 不会编码以下字符
+// A-Z a-z 0-9 - _ . ! ~ * ' ( )
+// encodeURIComponent 会编码所有非字母数字字符
+```
+
+### 1.5 URL 对象方法
+
+```javascript
+const url = new URL('https://example.com/path')
+
+// 解析相对路径
+console.log(url.resolve('/new-path'))  // 'https://example.com/new-path'
+console.log(url.resolve('./other'))    // 'https://example.com/other'
+console.log(url.resolve('../parent'))  // 'https://example.com/parent'
+
+// 解析 URL（类似 <a> 标签的 href 解析）
+const base = new URL('https://example.com/a/b/')
+console.log(new URL('c', base).href)   // 'https://example.com/a/c'
+console.log(new URL('./c', base).href) // 'https://example.com/a/c'
+console.log(new URL('/c', base).href)  // 'https://example.com/c'
+
+// 转换为字符串（隐式调用）
+console.log(url.toString())  // 'https://example.com/path'
+
+// 转换为 JSON
+console.log(url.toJSON())     // 'https://example.com/path'
+```
+
+### 1.6 实用工具函数
+
+```javascript
+// 解析 URL 参数为对象
+function parseURLParams(url) {
+  const params = new URL(url).searchParams
+  const result = {}
+  for (const [key, value] of params) {
+    result[key] = value
+  }
+  return result
+}
+parseURLParams('https://example.com?id=1&name=John')
+// { id: '1', name: 'John' }
+
+// 构建带参数的 URL
+function buildURL(base, params) {
+  const url = new URL(base)
+  Object.entries(params).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach(v => url.searchParams.append(key, v))
+    } else {
+      url.searchParams.set(key, value)
+    }
+  })
+  return url.href
+}
+buildURL('https://example.com', { id: 1, tags: ['a', 'b'] })
+// 'https://example.com?id=1&tags=a&tags=b'
+
+// 检测 URL 是否有效
+function isValidURL(string) {
+  try {
+    new URL(string)
+    return true
+  } catch {
+    return false
+  }
+}
+isValidURL('https://example.com')  // true
+isValidURL('not-a-url')            // false
+
+// 提取域名
+function extractDomain(url) {
+  return new URL(url).hostname
+}
+extractDomain('https://www.example.com/path')
+// 'www.example.com'
+```
+
+---
+
+## 2. URLSearchParams API
+
+URLSearchParams 是专门用于处理 URL 查询字符串的 API。
+
+### 2.1 创建方式
+
+```javascript
+// 方式1：从字符串创建
+const params1 = new URLSearchParams('id=123&name=John&name=Jane')
+// name 参数有多个值：['John', 'Jane']
+
+// 方式2：从对象创建（使用 & 分隔）
+const params2 = new URLSearchParams({
+  id: '123',
+  name: 'John'
+})
+// 自动编码：'id=123&name=John'
+
+// 方式3：使用已有的 searchParams
+const url = new URL('https://example.com?id=123')
+const params3 = url.searchParams
+
+// 方式4：从键值对数组创建
+const params4 = new URLSearchParams([
+  ['id', '1'],
+  ['name', 'John']
+])
+```
+
+### 2.2 查询方法
+
+```javascript
+const params = new URLSearchParams('id=123&name=John&name=Jane&age=25')
+
+// 获取第一个匹配的值
+params.get('name')      // 'John'
+
+// 获取所有匹配的值
+params.getAll('name')   // ['John', 'Jane']
+
+// 检查键是否存在
+params.has('id')        // true
+params.has('city')      // false
+
+// 获取参数个数
+params.size             // 3（注意：size 是属性不是方法）
+```
+
+### 2.3 修改方法
+
+```javascript
+const params = new URLSearchParams('id=123&name=John')
+
+// 添加参数（追加到末尾）
+params.append('city', 'Beijing')
+// 'id=123&name=John&city=Beijing'
+
+// 添加参数（插入到开头）
+params.prepend('lang', 'zh')
+// 'lang=zh&id=123&name=John&city=Beijing'
+
+// 设置参数（不存在则添加，存在则覆盖第一个）
+params.set('id', '456')
+// 'lang=zh&id=456&name=John&city=Beijing'
+
+// 设置同名参数（会覆盖所有）
+params.set('city', 'Shanghai')
+params.set('city', 'Guangzhou')
+// 'lang=zh&id=456&name=John&city=Guangzhou'
+
+// 删除参数
+params.delete('lang')
+// 'id=456&name=John&city=Guangzhou'
+
+// 清空所有参数
+params.toString()  // ''
+```
+
+### 2.4 遍历方法
+
+```javascript
+const params = new URLSearchParams('id=123&name=John&city=Beijing')
+
+// for...of 遍历（键值对）
+for (const [key, value] of params) {
+  console.log(`${key}: ${value}`)
+}
+// id: 123
+// name: John
+// city: Beijing
+
+// keys()
+for (const key of params.keys()) {
+  console.log(key)
+}
+// id
+// name
+// city
+
+// values()
+for (const value of params.values()) {
+  console.log(value)
+}
+// 123
+// John
+// Beijing
+
+// entries()
+for (const [key, value] of params.entries()) {
+  console.log(`${key} = ${value}`)
+}
+
+// forEach
+params.forEach((value, key) => {
+  console.log(`${key} -> ${value}`)
+})
+```
+
+### 2.5 排序与迭代
+
+```javascript
+const params = new URLSearchParams('z=3&a=1&m=2')
+
+// 排序（按字母顺序）
+params.sort()
+// params.toString() => 'a=1&m=2&z=3'
+
+// Symbol.iterator（默认迭代器）
+const [firstKey, firstValue] = params
+console.log(firstKey, firstValue)  // 'z' '3'
+
+// 转换为普通对象
+function paramsToObject(params) {
+  const obj = {}
+  for (const [key, value] of params) {
+    obj[key] = value
+  }
+  return obj
+}
+
+// 转换回字符串
+params.toString()  // 'z=3&a=1&m=2'
+```
+
+### 2.6 构造 URL
+
+```javascript
+// 从 params 构造带参数的 URL
+function buildURLWithParams(baseURL, params) {
+  const url = new URL(baseURL)
+  params.forEach((value, key) => {
+    url.searchParams.append(key, value)
+  })
+  return url.href
+}
+
+// 完整示例
+const base = 'https://api.example.com/endpoint'
+const params = new URLSearchParams({
+  api_key: 'abc123',
+  limit: 10,
+  offset: 0
+})
+buildURLWithParams(base, params)
+// 'https://api.example.com/endpoint?api_key=abc123&limit=10&offset=0'
+
+// 处理数组参数
+function buildURLWithArrayParams(baseURL, key, values) {
+  const url = new URL(baseURL)
+  values.forEach(value => {
+    url.searchParams.append(key, value)
+  })
+  return url.href
+}
+buildURLWithArrayParams('https://example.com', 'tags', ['js', 'css', 'html'])
+// 'https://example.com?tags=js&tags=css&tags=html'
+```
+
+### 2.7 与 FormData 配合
+
+```javascript
+// 从表单创建 URLSearchParams
+const form = document.querySelector('form')
+const params = new URLSearchParams(new FormData(form))
+
+// 从 URLSearchParams 创建查询字符串
+const params = new URLSearchParams('id=123&name=John')
+params.toString()  // 'id=123&name=John'
+
+// 编码注意事项
+const params = new URLSearchParams()
+params.set('name', '张三&李四')  // 自动编码特殊字符
+params.toString()  // 'name=%E5%BC%A0%E4%B8%89%26%E6%9D%8E%E5%9B%9B'
+```
+
+---
+
+## 3. DOM API
 
 DOM（Document Object Model）是将 HTML/XML 文档当作树形结构操作的接口。
 
