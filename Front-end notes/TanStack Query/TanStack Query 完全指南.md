@@ -933,7 +933,7 @@ const mutation = useMutation<Todo, Error, CreateTodoInput>({
 
 ---
 
-## 附录：常见问题
+## 10. 常见问题
 
 ### Q: staleTime 和 cacheTime 的区别？
 
@@ -962,8 +962,3 @@ onError: (_err, _newTodo, context) => {
 },
 ```
 
----
-
-> 文档版本: TanStack Query v5
->
-> 最后更新: 2026-04-21
