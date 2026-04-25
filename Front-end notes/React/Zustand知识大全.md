@@ -1,7 +1,3 @@
-# Zustand 完全指南 (2026最新版)
-
----
-
 ## 1. 简介与核心概念
 
 ### 1.1 什么是 Zustand
@@ -874,25 +870,3 @@ src/
     └── useStore.ts           # 重新导出类型化 store
 ```
 
----
-
-## 14. 框架对比
-
-| 特性 | Zustand | Redux | Jotai | Recoil |
-|------|---------|-------|-------|--------|
-| 体积 | ~1.5KB | ~7KB | ~3KB | ~5KB |
-| API 风格 | Hooks | Hooks + TS | Atoms | Selectors |
-| 学习曲线 | 低 | 中 | 低 | 中 |
-| Boilerplate | 少 | 多 | 少 | 中 |
-| DevTools | 支持 | 支持 | 支持 | 支持 |
-| 状态范式 | Flux | Flux | Atomic | Atomic |
-| SSR 支持 | 好 | 好 | 好 | 一般 |
-
----
-
-## 相关资源
-
-- 官网：https://zustand.docs.pmnd.rs
-- GitHub：https://github.com/pmndrs/zustand
-- 在线 Demo：https://zustand-demo.pmnd.rs
-- zustand-slices：https://github.com/zustandjs/zustand-slices
