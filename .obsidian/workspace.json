@@ -55,12 +55,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/React/Zustand.md",
+                "file": "Front-end notes/库/Zustand知识大全.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Zustand"
+              "title": "Zustand知识大全"
             }
           },
           {
@@ -254,12 +254,12 @@
   },
   "active": "faa7ddd5371d4413",
   "lastOpenFiles": [
-    "Front-end notes/React/Zustand知识大全.md",
-    "Front-end notes/React/Zustand.md",
+    "Front-end notes/库/Zustand知识大全.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
+    "Front-end notes/库/Zod.md",
+    "Front-end notes/React/Zustand.md",
     "八股/JavaScript篇_高频八股文.md",
     "Front-end notes/JavaScript/Web API.md",
-    "Front-end notes/库/Zod.md",
     "Front-end notes/TypeScript/TypeScript完全指南.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/库/react-dropzone-用法指南.md",

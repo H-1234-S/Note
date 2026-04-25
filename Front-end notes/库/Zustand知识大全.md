@@ -1,27 +1,8 @@
-# Zustand 知识大全 (2026最新版)
-
-## 目录
-
-- [一、Zustand 简介](#一zustand-简介)
-- [二、基础使用](#二基础使用)
-- [三、核心概念](#三核心概念)
-- [四、中间件](#四中间件)
-- [五、TypeScript 支持](#五typescript-支持)
-- [六、切片模式](#六切片模式)
-- [七、在组件外使用 Store](#七在组件外使用-store)
-- [八、Computed State](#八computed-state)
-- [九、Context 集成](#九context-集成)
-- [十、性能优化](#十性能优化)
-- [十一、常见问题](#十一常见问题)
-- [十二、zustand/vanilla](#十二zustandvanilla)
-- [十三、目录结构建议](#十三目录结构建议)
-- [十四、Zustand vs Redux vs Jotai vs Recoil](#十四zustand-vs-redux-vs-jotai-vs-recoil)
-
----
-
 ## 一、Zustand 简介
 
-Zustand 是一个轻量级、快速、可扩展的状态管理解决方案，基于简化的 Flux 原则。它具有友好的 Hooks API，无需像 Redux 那样包裹 Provider。
+Zustand 是一个轻量级、快速、可扩展的状态管理解决方案，基于简化的 Flux 原则。
+
+它具有友好的 Hooks API，无需像 Redux 那样包裹 Provider。
 
 **核心特点：**
 - 轻量级（压缩后约 1.5KB）
