@@ -914,6 +914,19 @@ console.log(alice.name);  // "Alice"
 console.log(alice instanceof Person);  // true
 ```
 
+**注意：**
+
+- 在 `Object.create(proto)` 的执行过程中，JS 引擎会创建一个全新的对象，并将这个新对象的内部属性 `[[Prototype]]`（也就是我们常说的 `__proto__`）直接指向传入的第一个参数。
+
+``` js
+// Object.create 的模拟实现
+Object.create = function (proto) {
+  function F() {}     // 1. 创建一个临时的构造函数
+  F.prototype = proto; // 2. 将该函数的 prototype 指向传入的 proto 对象
+  return new F();      // 3. 返回这个函数的实例
+};
+```
+
 **简化版本**：
 ```javascript
 function myNew() {
