@@ -20,8 +20,37 @@
               "icon": "lucide-file",
               "title": "JavaScript篇_高频八股文"
             }
+          },
+          {
+            "id": "0ba492988d4da7de",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "TanStack Form 完整指南"
+            }
+          },
+          {
+            "id": "0a0e2c3c46beb547",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/JavaScript/Web API.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Web API"
+            }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -138,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "八股/JavaScript篇_高频八股文.md",
+                "file": "Front-end notes/JavaScript/Web API.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "JavaScript篇_高频八股文 的大纲"
+              "title": "Web API 的大纲"
             }
           },
           {
@@ -195,15 +224,17 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "83dcf772281bc9f9",
+  "active": "0a0e2c3c46beb547",
   "lastOpenFiles": [
-    "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
-    "Front-end notes/Zod.md",
+    "Front-end notes/库/react-dropzone-用法指南.md",
     "Front-end notes/库/RecordRTC-用法指南.md",
+    "Front-end notes/库/use-debounce 使用指南.md",
+    "Front-end notes/库/wavesurfer.js-基础知识.md",
+    "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
+    "八股/JavaScript篇_高频八股文.md",
+    "Front-end notes/Zod.md",
     "zode.md",
     "Front-end notes/React/React.md",
-    "Front-end notes/库/wavesurfer.js-基础知识.md",
-    "八股/JavaScript篇_高频八股文.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
@@ -213,7 +244,6 @@
     "Front-end notes/JavaScript/闭包.md",
     "八股/浏览器篇_高频八股文.md",
     "Front-end notes/库/nuqs-基础知识.md",
-    "Front-end notes/库/use-debounce 使用指南.md",
     "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/库/use-debounce",
     "Front-end notes/Tanstack Form/TanStack Form.md",
@@ -222,7 +252,6 @@
     "Project notes/resonance/Resonance.md",
     "Front-end notes/TypeScript/TypeScript完全指南.md",
     "Front-end notes/库/openapi-fetch-完全指南.md",
-    "Front-end notes/库/react-dropzone-用法指南.md",
     "Front-end notes/库/locale-codes-用法指南.md",
     "Front-end notes/TypeScript/README.md",
     "Front-end notes/库/package-lock.json",
