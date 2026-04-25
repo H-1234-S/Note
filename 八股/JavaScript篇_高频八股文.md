@@ -731,7 +731,22 @@ const child = new Child('Alice', 18);
 child.sayHi();   // "Alice"
 child.sayAge();  // 18
 ```
+
 **缺点**：父类构造函数被调用了两次
+
+**内存结构：**
+```
+child
+ ├── name: "Alice"
+ ├── age: 18
+ ├── colors: ['red', 'blue']   ✅ 自己的
+ └── __proto__ → Child.prototype
+                      ├── name: undefined   ⚠️ 没用
+                      ├── colors: [...]    ⚠️ 被覆盖
+                      ├── sayAge
+                      └── __proto__ → Parent.prototype
+                                            └── sayHi
+```
 
 ---
 
