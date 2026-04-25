@@ -1,3 +1,39 @@
+# Web API 全面指南
+
+> 本文档按循循渐进的方式整理常用的 Web API，每个 API 都配有详细的代码示例和用法解释。
+
+---
+
+## 目录
+
+1. [URL API](#1-url-api)
+2. [URLSearchParams API](#2-urlsearchparams-api)
+3. [DOM API](#3-dom-api)
+4. [BOM 浏览器对象模型](#4-bom-浏览器对象模型)
+5. [事件 API](#5-事件-api)
+6. [Fetch 与网络请求](#6-fetch-与网络请求)
+7. [存储 API](#7-存储-api)
+8. [Canvas 绘图 API](#8-canvas-绘图-api)
+9. [拖拽 API](#9-拖拽-api)
+10. [地理位置 API](#10-地理位置-api)
+11. [音视频 API](#11-音视频-api)
+12. [剪贴板与文件 API](#12-剪贴板与文件-api)
+13. [通知与摇一摇](#13-通知与摇一摇)
+14. [Web Worker](#14-web-worker)
+15. [常用工具函数](#15-常用工具函数)
+16. [FormData API](#16-formdata-api)
+17. [IntersectionObserver API](#17-intersectionobserver-api)
+18. [MutationObserver API](#18-mutationobserver-api)
+19. [BroadcastChannel API](#19-broadcastchannel-api)
+20. [WebSocket API](#20-websocket-api)
+21. [Server-Sent Events (SSE)](#21-server-sent-events-sse)
+22. [Performance API](#22-performance-api)
+23. [requestIdleCallback API](#23-requestidlecallback-api)
+24. [Visual Viewport API](#24-visual-viewport-api)
+25. [Pointer Lock API](#25-pointer-lock-api)
+
+---
+
 ## 1. URL API
 
 URL（Uniform Resource Locator）是用于解析和操作 URL 的接口，比 `location` 对象更强大。
@@ -541,7 +577,7 @@ const offsetLeft = element.offsetLeft
 
 ---
 
-## 2. BOM 浏览器对象模型
+## 4. BOM 浏览器对象模型
 
 BOM（Browser Object Model）提供与浏览器交互的接口。
 
@@ -664,7 +700,7 @@ screen.pixelDepth   // 像素深度
 
 ---
 
-## 3. 事件 API
+## 5. 事件 API
 
 ### 3.1 绑定事件
 
@@ -869,7 +905,7 @@ form.reportValidity()  // 显示浏览器提示
 
 ---
 
-## 4. Fetch 与网络请求
+## 6. Fetch 与网络请求
 
 ### 4.1 基础用法
 
@@ -1045,7 +1081,7 @@ xhr.abort()
 
 ---
 
-## 5. 存储 API
+## 7. 存储 API
 
 ### 5.1 localStorage
 
@@ -1215,7 +1251,7 @@ async function cursorQuery(db, storeName, callback) {
 
 ---
 
-## 6. Canvas 绘图 API
+## 8. Canvas 绘图 API
 
 ### 6.1 基础用法
 
@@ -1387,7 +1423,7 @@ requestAnimationFrame(animate)
 
 ---
 
-## 7. 拖拽 API
+## 9. 拖拽 API
 
 ### 7.1 原生拖拽
 
@@ -1478,7 +1514,7 @@ dropzone.addEventListener('drop', function(e) {
 
 ---
 
-## 8. 地理位置 API
+## 10. 地理位置 API
 
 ### 8.1 获取位置
 
@@ -1545,7 +1581,7 @@ navigator.geolocation.clearWatch(watchId)
 
 ---
 
-## 9. 音视频 API
+## 11. 音视频 API
 
 ### 9.1 HTMLAudioElement / HTMLVideoElement
 
@@ -1715,7 +1751,7 @@ function stopStream(stream) {
 
 ---
 
-## 10. 剪贴板与文件 API
+## 12. 剪贴板与文件 API
 
 ### 10.1 剪贴板 API
 
@@ -1903,7 +1939,7 @@ function downloadJSON(obj, filename) {
 
 ---
 
-## 11. 通知与摇一摇
+## 13. 通知与摇一摇
 
 ### 11.1 Notification API
 
@@ -2016,7 +2052,7 @@ if ('vibrate' in navigator) {
 
 ---
 
-## 12. Web Worker
+## 14. Web Worker
 
 Web Worker 允许在后台线程运行脚本，不阻塞 UI。
 
@@ -2112,7 +2148,7 @@ worker.onmessage = function(e) {
 
 ---
 
-## 13. 常用工具函数
+## 15. 常用工具函数
 
 ### 13.1 防抖（Debounce）
 
@@ -2372,7 +2408,7 @@ function copyToClipboard(text) {
     return navigator.clipboard.writeText(text)
   }
 
-  // 兼容旧浏览器
+  // 兼容旧浏览器（已废弃，但仍有使用场景）
   const textarea = document.createElement('textarea')
   textarea.value = text
   textarea.style.position = 'fixed'
@@ -2386,6 +2422,807 @@ function copyToClipboard(text) {
     document.body.removeChild(textarea)
   }
 }
+```
+
+---
+
+## 16. FormData API
+
+FormData 是用于处理表单数据的 API，常与 Fetch API 配合使用。
+
+### 14.1 创建 FormData
+
+```javascript
+// 方式1：从表单创建
+const form = document.querySelector('form')
+const formData = new FormData(form)
+
+// 方式2：空 FormData
+const formData = new FormData()
+
+// 方式3：从已有数据创建
+const formData = new FormData()
+formData.append('name', 'John')
+formData.append('age', 30)
+```
+
+### 14.2 操作数据
+
+```javascript
+const formData = new FormData()
+
+// 添加字段
+formData.append('name', 'John')
+formData.append('age', 30)
+
+// 添加多个值（同名参数）
+formData.append('tags', 'js')
+formData.append('tags', 'css')
+
+// 设置字段（覆盖已有值）
+formData.set('name', 'Jane')  // 替换 'John'
+
+// 获取单个值
+formData.get('name')   // 'Jane'
+
+// 获取所有值
+formData.getAll('tags') // ['js', 'css']
+
+// 检查字段是否存在
+formData.has('name')    // true
+
+// 删除字段
+formData.delete('age')
+
+// 遍历所有字段
+for (const [key, value] of formData.entries()) {
+  console.log(`${key}: ${value}`)
+}
+
+// 遍历所有键
+for (const key of formData.keys()) {
+  console.log(key)
+}
+
+// 遍历所有值
+for (const value of formData.values()) {
+  console.log(value)
+}
+```
+
+### 14.3 文件处理
+
+```javascript
+const formData = new FormData()
+const fileInput = document.querySelector('input[type="file"]')
+
+// 添加单个文件
+formData.append('avatar', fileInput.files[0])
+
+// 添加多个文件
+for (let i = 0; i < fileInput.files.length; i++) {
+  formData.append('files[]', fileInput.files[i])
+}
+
+// 创建文件切片（用于断点续传）
+function sliceFile(file, chunkSize = 1024 * 1024) {  // 1MB per chunk
+  const chunks = []
+  let start = 0
+  while (start < file.size) {
+    const end = Math.min(start + chunkSize, file.size)
+    chunks.push(file.slice(start, end))
+    start = end
+  }
+  return chunks
+}
+```
+
+### 14.4 发送 FormData
+
+```javascript
+// 与 Fetch 配合
+async function submitForm(formData) {
+  const response = await fetch('/api/submit', {
+    method: 'POST',
+    body: formData  // 不需要设置 Content-Type，Fetch 会自动设置
+  })
+  return response.json()
+}
+
+// 模拟表单提交（multipart/form-data）
+const form = document.querySelector('form')
+form.addEventListener('submit', async (e) => {
+  e.preventDefault()
+  const formData = new FormData(form)
+  // 处理提交...
+})
+```
+
+---
+
+## 17. IntersectionObserver API
+
+IntersectionObserver 用于检测元素进入/离开视口，是懒加载和无限滚动的基础。
+
+### 15.1 基础用法
+
+```javascript
+// 创建观察者
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      console.log('元素进入视口:', entry.target)
+    } else {
+      console.log('元素离开视口:', entry.target)
+    }
+  })
+}, {
+  root: null,              // 观察视口，null 表示 viewport
+  rootMargin: '0px',      //  root 的外边距
+  threshold: [0, 0.5, 1]  // 触发时机：0%, 50%, 100%
+})
+
+// 观察元素
+observer.observe(document.querySelector('.target'))
+
+// 停止观察
+observer.unobserve(element)
+
+// 断开所有观察
+observer.disconnect()
+```
+
+### 15.2 懒加载图片
+
+```javascript
+function lazyLoadImages() {
+  const images = document.querySelectorAll('img[data-src]')
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target
+        img.src = img.dataset.src
+        img.removeAttribute('data-src')
+        observer.unobserve(img)
+      }
+    })
+  }, {
+    rootMargin: '50px'  // 提前 50px 加载
+  })
+
+  images.forEach(img => observer.observe(img))
+}
+
+// HTML: <img data-src="real-image.jpg" src="placeholder.jpg" alt="">
+```
+
+### 15.3 无限滚动
+
+```javascript
+async function infiniteScroll() {
+  const sentinel = document.querySelector('#sentinel')
+
+  const observer = new IntersectionObserver(async (entries) => {
+    if (entries[0].isIntersecting) {
+      const data = await fetchMoreData()
+      renderItems(data)
+
+      if (data.hasMore) {
+        observer.observe(sentinel)
+      } else {
+        observer.disconnect()
+      }
+    }
+  })
+
+  observer.observe(sentinel)
+}
+```
+
+### 15.4 Entry 对象属性
+
+```javascript
+observer.observe(element)
+
+observer.callback = (entries) => {
+  entries.forEach(entry => {
+    // 目标元素
+    entry.target
+
+    // 是否在视口中
+    entry.isIntersecting
+
+    // 相交比例（0-1）
+    entry.intersectionRatio
+
+    // 相交区域信息
+    entry.intersectionRect
+
+    // 目标区域信息
+    entry.boundingClientRect
+
+    // 根区域信息
+    entry.rootBounds
+  })
+}
+```
+
+---
+
+## 18. MutationObserver API
+
+MutationObserver 用于观测 DOM 变化，可以替代废弃的 `DOMNodeInserted` 等事件。
+
+### 16.1 创建观察者
+
+```javascript
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach(mutation => {
+    console.log('变化类型:', mutation.type)
+    console.log('变化的元素:', mutation.target)
+    console.log('变化内容:', mutation.attributeName, mutation.oldValue)
+  })
+})
+
+// 配置观察选项
+const config = {
+  childList: true,      // 观察子节点变化
+  subtree: true,        // 观察所有后代
+  attributes: true,    // 观察属性变化
+  attributeOldValue: true,  // 记录属性旧值
+  attributeFilter: ['class', 'data-*'],  // 只观察特定属性
+  characterData: true,  // 观察文本内容变化
+  characterDataOldValue: true  // 记录旧文本
+}
+
+// 开始观察
+observer.observe(document.querySelector('#app'), config)
+
+// 停止观察
+observer.disconnect()
+
+// 获取所有待处理的观察记录
+observer.takeRecords()
+```
+
+### 16.2 常见使用场景
+
+```javascript
+// 场景1：检测元素是否被添加到 DOM
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach(mutation => {
+    mutation.addedNodes.forEach(node => {
+      if (node.nodeType === 1 && node.matches('.dynamic-element')) {
+        console.log('动态元素已添加:', node)
+      }
+    })
+  })
+})
+
+// 场景2：响应样式变化
+const styleObserver = new MutationObserver((mutations) => {
+  mutations.forEach(mutation => {
+    if (mutation.attributeName === 'class') {
+      const element = mutation.target
+      if (element.classList.contains('active')) {
+        console.log('元素被激活')
+      }
+    }
+  })
+})
+
+// 场景3：检测内容变化
+const contentObserver = new MutationObserver((mutations) => {
+  mutations.forEach(mutation => {
+    if (mutation.type === 'characterData') {
+      console.log('内容从"', mutation.oldValue, '"变为"', mutation.target.textContent, '"')
+    }
+  })
+})
+```
+
+---
+
+## 19. BroadcastChannel API
+
+BroadcastChannel 用于同源下不同标签页、窗口、iframe 之间的通信。
+
+### 17.1 基本用法
+
+```javascript
+// 创建频道
+const channel = new BroadcastChannel('my-channel')
+
+// 发送消息
+channel.postMessage({ type: 'update', data: 'Hello from tab 1' })
+
+// 接收消息
+channel.onmessage = (event) => {
+  console.log('收到消息:', event.data)
+}
+
+// 关闭频道
+channel.close()
+```
+
+### 17.2 实际应用
+
+```javascript
+// tab1.js
+const channel = new BroadcastChannel('user-sync')
+
+// 用户登录时发送消息
+function login(user) {
+  localStorage.setItem('user', JSON.stringify(user))
+  channel.postMessage({ type: 'login', user })
+}
+
+// 监听其他标签页的登录
+channel.onmessage = (event) => {
+  if (event.data.type === 'login') {
+    console.log('用户在另一个标签页登录:', event.data.user)
+    updateUI(event.data.user)
+  }
+}
+
+// tab2.js（类似逻辑）
+const channel = new BroadcastChannel('user-sync')
+channel.onmessage = (event) => {
+  if (event.data.type === 'login') {
+    location.reload()  // 同步登录状态
+  }
+}
+```
+
+---
+
+## 20. WebSocket API
+
+WebSocket 提供了浏览器与服务器之间的双向通信，比 HTTP 轮询更高效。
+
+### 18.1 建立连接
+
+```javascript
+// 创建 WebSocket 连接
+const ws = new WebSocket('wss://example.com/ws')
+
+// 连接状态
+ws.readyState  // 0: CONNECTING, 1: OPEN, 2: CLOSING, 3: CLOSED
+
+// 连接打开
+ws.onopen = () => {
+  console.log('连接已建立')
+  ws.send('Hello Server')
+}
+
+// 接收消息
+ws.onmessage = (event) => {
+  const data = event.data
+  console.log('收到消息:', data)
+}
+
+// 错误处理
+ws.onerror = (error) => {
+  console.error('WebSocket 错误:', error)
+}
+
+// 连接关闭
+ws.onclose = (event) => {
+  console.log('连接关闭:', event.code, event.reason)
+}
+```
+
+### 18.2 发送与接收
+
+```javascript
+// 发送消息
+ws.send(JSON.stringify({ type: 'message', content: 'Hello' }))
+
+// 发送二进制数据
+const buffer = new ArrayBuffer(8)
+ws.send(buffer)
+
+// 接收不同类型数据
+ws.onmessage = (event) => {
+  if (event.data instanceof Blob) {
+    console.log('收到 Blob:', event.data.size, 'bytes')
+  } else if (event.data instanceof ArrayBuffer) {
+    console.log('收到 ArrayBuffer')
+  } else {
+    console.log('收到文本:', event.data)
+  }
+}
+```
+
+### 18.3 断线重连
+
+```javascript
+class ReconnectingWebSocket {
+  constructor(url) {
+    this.url = url
+    this.reconnectInterval = 1000
+    this.maxReconnectInterval = 30000
+    this.connect()
+  }
+
+  connect() {
+    this.ws = new WebSocket(this.url)
+
+    this.ws.onopen = () => {
+      console.log('连接建立')
+      this.reconnectInterval = 1000
+    }
+
+    this.ws.onclose = () => {
+      console.log('连接断开，准备重连...')
+      setTimeout(() => this.connect(), this.reconnectInterval)
+      this.reconnectInterval = Math.min(this.reconnectInterval * 2, this.maxReconnectInterval)
+    }
+
+    this.ws.onmessage = (e) => this.onmessage(e)
+    this.ws.onerror = (e) => this.onerror(e)
+  }
+
+  send(data) {
+    if (this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(data)
+    }
+  }
+}
+```
+
+---
+
+## 21. Server-Sent Events (SSE)
+
+SSE 允许服务器向浏览器推送数据，是单向实时通信的轻量方案。
+
+### 19.1 基础用法
+
+```javascript
+// 创建 EventSource
+const eventSource = new EventSource('/api/stream')
+
+// 监听默认消息
+eventSource.onmessage = (event) => {
+  console.log('收到消息:', event.data)
+}
+
+// 监听自定义事件
+eventSource.addEventListener('update', (event) => {
+  console.log('收到更新:', JSON.parse(event.data))
+})
+
+// 连接关闭
+eventSource.close()
+```
+
+### 19.2 后端格式
+
+```javascript
+// text/event-stream 格式
+// 每个事件以 'data:' 开头
+
+// 简单消息
+// data: Hello
+
+// 多行数据
+// data: Line 1
+// data: Line 2
+
+// JSON 数据
+// data: {"message": "Hello"}
+
+// 命名事件
+// event: update
+// data: {"count": 1}
+
+// ID 和重连
+// id: 1
+// data: Message 1
+//
+// id: 2
+// data: Message 2
+
+// 注释（保持连接）
+// : This is a comment
+```
+
+### 19.3 完整示例
+
+```javascript
+// 前端
+const eventSource = new EventSource('/api/notifications')
+
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data)
+  showNotification(data.title, data.body)
+}
+
+eventSource.onerror = () => {
+  console.error('SSE 连接错误')
+  eventSource.close()
+  // 可以在这里实现重连逻辑
+}
+
+// 后端（Node.js 示例）
+// app.get('/api/stream', (req, res) => {
+//   res.setHeader('Content-Type', 'text/event-stream')
+//   res.setHeader('Cache-Control', 'no-cache')
+//   res.setHeader('Connection', 'keep-alive')
+//
+//   const interval = setInterval(() => {
+//     res.write(`data: ${JSON.stringify({ time: Date.now() })}\n\n`)
+//   }, 1000)
+//
+//   req.on('close', () => {
+//     clearInterval(interval)
+//   })
+// })
+```
+
+---
+
+## 22. Performance API
+
+Performance API 提供了访问页面性能相关信息的接口。
+
+### 20.1 基础用法
+
+```javascript
+// 获取性能数据
+const performance = window.performance
+
+// 关键时间点
+performance.navigation.type        // 导航类型：0=初访, 1=刷新, 2=后退
+performance.navigation.redirectCount  // 重定向次数
+
+// 时间数据
+const timing = performance.timing
+console.log('页面加载时间:', timing.loadEventEnd - timing.navigationStart)
+console.log('DNS 解析:', timing.domainLookupEnd - timing.domainLookupStart)
+console.log('TCP 连接:', timing.connectEnd - timing.connectStart)
+console.log('首字节时间:', timing.responseStart - timing.requestStart)
+console.log('DOM 解析:', timing.domContentLoadedEventEnd - timing.domLoading)
+```
+
+### 20.2 PerformanceObserver
+
+```javascript
+// 观察性能条目
+const observer = new PerformanceObserver((list) => {
+  list.getEntries().forEach(entry => {
+    console.log(entry.name, entry.duration)
+  })
+})
+
+// 观察所有指标
+observer.observe({ entryTypes: ['paint', 'longtask', 'resource', 'navigation'] })
+
+// 观察首次内容绘制 (FCP)
+const paintObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach(entry => {
+    if (entry.name === 'first-contentful-paint') {
+      console.log('首次内容绘制:', entry.startTime, 'ms')
+    }
+  })
+})
+paintObserver.observe({ type: 'paint', buffered: true })
+
+// 观察长任务
+const longTaskObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach(task => {
+    console.warn('长任务:', task.duration, 'ms')
+  })
+})
+longTaskObserver.observe({ type: 'longtask', buffered: true })
+```
+
+### 20.3 资源加载性能
+
+```javascript
+const resourceObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach(entry => {
+    console.log('资源:', entry.name)
+    console.log('  类型:', entry.initiatorType)
+    console.log('  请求耗时:', entry.duration, 'ms')
+    console.log('  DNS:', entry.domainLookupEnd - entry.domainLookupStart, 'ms')
+    console.log('  TCP:', entry.connectEnd - entry.connectStart, 'ms')
+    console.log('  TTFB:', entry.responseStart - entry.requestStart, 'ms')
+    console.log('  下载:', entry.responseEnd - entry.responseStart, 'ms')
+  })
+})
+resourceObserver.observe({ type: 'resource', buffered: true })
+```
+
+---
+
+## 23. requestIdleCallback API
+
+requestIdleCallback 允许在浏览器空闲时执行低优先级任务，避免阻塞主线程。
+
+### 21.1 基础用法
+
+```javascript
+// 在空闲时执行任务
+requestIdleCallback((deadline) => {
+  console.log('剩余时间:', deadline.timeRemaining(), 'ms')
+  console.log('是否超时:', deadline.didTimeout)
+
+  // 执行耗时任务
+  doHeavyWork()
+})
+
+// 带超时
+requestIdleCallback((deadline) => {
+  while (deadline.timeRemaining() > 0 && taskQueue.length > 0) {
+    processNextTask()
+  }
+}, { timeout: 2000 })  // 2秒后强制执行
+```
+
+### 21.2 实际应用
+
+```javascript
+// 任务调度器
+class TaskScheduler {
+  constructor() {
+    this.tasks = []
+  }
+
+  addTask(task, priority = 0) {
+    this.tasks.push({ task, priority })
+    this.tasks.sort((a, b) => a.priority - b.priority)
+    this.schedule()
+  }
+
+  schedule() {
+    requestIdleCallback((deadline) => {
+      while (deadline.timeRemaining() > 0 && this.tasks.length > 0) {
+        const { task } = this.tasks.shift()
+        task()
+      }
+
+      if (this.tasks.length > 0) {
+        this.schedule()
+      }
+    })
+  }
+}
+
+// 使用示例
+const scheduler = new TaskScheduler()
+
+// 高优先级
+scheduler.addTask(() => updateUI(), 0)
+
+// 低优先级（可延迟）
+scheduler.addTask(() => analytics.send(), 10)
+scheduler.addTask(() => prefetchImages(), 10)
+```
+
+### 21.3 取消回调
+
+```javascript
+const callbackId = requestIdleCallback((deadline) => {
+  // 任务...
+})
+
+// 取消
+cancelIdleCallback(callbackId)
+```
+
+---
+
+## 24. Visual Viewport API
+
+Visual Viewport API 提供了虚拟视口的概念，用于处理移动端缩放场景。
+
+### 22.1 基础属性
+
+```javascript
+const visualViewport = window.visualViewport
+
+// 视口位置（相对于布局视口）
+visualViewport.offsetLeft     // 左侧偏移
+visualViewport.offsetTop      // 顶部偏移
+
+// 视口尺寸
+visualViewport.width          // 宽度
+visualViewport.height         // 高度
+
+// 缩放比例
+visualViewport.scale          // 当前缩放比例
+
+// 布局视口的尺寸（不变）
+visualViewport.layoutViewportWidth
+visualViewport.layoutViewportHeight
+```
+
+### 22.2 事件监听
+
+```javascript
+// 监听视口变化
+visualViewport.addEventListener('resize', () => {
+  console.log('视口大小:', visualViewport.width, 'x', visualViewport.height)
+  console.log('缩放比例:', visualViewport.scale)
+})
+
+visualViewport.addEventListener('scroll', () => {
+  console.log('视口位置:', visualViewport.offsetLeft, visualViewport.offsetTop)
+})
+```
+
+### 22.3 固定定位与缩放
+
+```javascript
+// 解决移动端 fixed 定位与键盘弹出问题
+const fixedElement = document.querySelector('.fixed-footer')
+
+function updateFixedPosition() {
+  // 使用 visualViewport 而非 window
+  const viewport = window.visualViewport
+  fixedElement.style.bottom = `${viewport.height - viewport.offsetTop - viewport.offsetTop}px`
+}
+
+visualViewport.addEventListener('resize', updateFixedPosition)
+visualViewport.addEventListener('scroll', updateFixedPosition)
+```
+
+---
+
+## 25. Pointer Lock API
+
+Pointer Lock API 用于锁定鼠标光标，适用于需要无限鼠标移动的场景（如 3D 游戏）。
+
+### 23.1 基础用法
+
+```javascript
+const canvas = document.querySelector('canvas')
+
+// 请求锁定
+canvas.addEventListener('click', () => {
+  canvas.requestPointerLock()
+})
+
+// 监听锁定状态
+document.addEventListener('pointerlockchange', () => {
+  if (document.pointerLockElement === canvas) {
+    console.log('已锁定')
+  } else {
+    console.log('已解锁')
+  }
+})
+
+// 监听鼠标移动
+document.addEventListener('mousemove', (e) => {
+  if (document.pointerLockElement === canvas) {
+    console.log('移动:', e.movementX, e.movementY)
+    // 更新相机/角色旋转
+    camera.rotation.y -= e.movementX * 0.002
+    camera.rotation.x -= e.movementY * 0.002
+  }
+})
+
+// 手动解锁
+document.exitPointerLock()
+```
+
+### 23.2 锁定变化事件
+
+```javascript
+document.addEventListener('pointerlockchange', () => {
+  if (document.pointerLockElement) {
+    console.log('锁定元素:', document.pointerLockElement)
+  } else {
+    console.log('已解锁，退出原因:', document.pointerLockElement)
+  }
+})
+
+document.addEventListener('pointerlockerror', (e) => {
+  console.error('Pointer Lock 错误:', e)
+})
 ```
 
 ---
@@ -2409,6 +3246,16 @@ function copyToClipboard(text) {
 | Clipboard API | IE11+ | 需 HTTPS |
 | Notification | Chrome/Safari | 需用户授权 |
 | Service Worker | IE11+ | 需 polyfill |
+| BroadcastChannel | Chrome56+, Firefox78+, Safari15.4+ | 不支持 IE/旧版 Edge |
+| WebSocket | IE10+ |  |
+| SSE | IE11+ (需 polyfill) | 现代浏览器原生支持 |
+| Performance API | IE11+ | timing 部分 |
+| requestIdleCallback | Chrome47+, Safari14.1+ | 需 polyfill |
+| Visual Viewport API | Chrome61+, Safari13.1+ | 不支持 Firefox |
+| Pointer Lock API | Chrome37+, Safari10.1+ |  |
+| MutationObserver | IE11+ |  |
+| FormData | IE10+ (部分) | IE9 不支持 |
+| URL/URLSearchParams | IE12+ | 需 polyfill |
 
 ### 安全注意事项
 
@@ -2416,6 +3263,7 @@ function copyToClipboard(text) {
 2. **CSRF 防护**：请求时携带 Token 或使用 SameSite Cookie
 3. **内容安全策略**：通过 CSP 头限制资源加载
 4. **安全上下文**：部分 API（摄像头、麦克风、剪贴板）需要 HTTPS
+5. **敏感操作**：Clipboard、Location 等 API 会触发用户提示
 
 ### 性能优化建议
 
@@ -2425,6 +3273,37 @@ function copyToClipboard(text) {
 4. 使用 `will-change` 提示浏览器优化
 5. 合理使用 `节流` 和 `防抖`
 6. 大数据处理考虑使用 Web Worker
+7. 使用 `requestIdleCallback` 处理非关键任务
+8. 使用 `PerformanceObserver` 监控性能指标
+
+### 2026 年现代 Web API 新增特性
+
+以下 API 在近年得到广泛支持，可放心使用：
+
+```javascript
+// structuredClone - 原生深拷贝（支持循环引用）
+const clone = structuredClone(original)
+
+// IntersectionObserver - 现代懒加载标准
+new IntersectionObserver(callback, { rootMargin: '50px' })
+
+// ResizeObserver - 观测元素尺寸变化
+new ResizeObserver(callback).observe(element)
+
+// Navigation API - 替代 history API（Chrome 102+）
+navigation.currentEntry.url
+navigation.navigate('/new-url')
+
+// View Transitions API - 页面过渡动画（Chrome 111+）
+document.startViewTransition(() => updateDOM())
+
+// Popover API - 原生弹出框（Chrome 114+）
+element.showPopover()
+element.hidePopover()
+
+//scroll-driven animations - 滚动驱动动画（Chrome 115+）
+// CSS: animation-timeline: scroll()
+```
 
 ---
 
