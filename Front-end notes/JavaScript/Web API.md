@@ -780,10 +780,11 @@ element.addEventListener('myEvent', function(e) {
   console.log(e.detail.message)  // 'Hello'
 })
 
-// 使用普通 Event 构造函数（旧）
-const event = document.createEvent('Event')
-event.initEvent('myEvent', true, true)
-element.dispatchEvent(event)
+// ⚠️ 以下方式已废弃（2009年起），请勿在新代码中使用
+// const event = document.createEvent('Event')
+// event.initEvent('myEvent', true, true)
+// element.dispatchEvent(event)
+// 应使用 CustomEvent 替代
 ```
 
 ### 3.5 常见事件类型
