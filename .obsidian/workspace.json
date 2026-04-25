@@ -62,9 +62,19 @@
               "icon": "lucide-file",
               "title": "Zustand"
             }
+          },
+          {
+            "id": "faa7ddd5371d4413",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
           }
         ],
-        "currentTab": 2
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -181,13 +191,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/JavaScript/Web API.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Web API 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -238,20 +247,20 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "0a0e2c3c46beb547",
+  "active": "faa7ddd5371d4413",
   "lastOpenFiles": [
+    "八股/JavaScript篇_高频八股文.md",
+    "Front-end notes/JavaScript/Web API.md",
     "Front-end notes/React/Zustand.md",
     "Front-end notes/库/Zod.md",
     "Front-end notes/TypeScript/TypeScript完全指南.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
-    "Front-end notes/JavaScript/Web API.md",
     "Front-end notes/库/react-dropzone-用法指南.md",
     "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/库/use-debounce 使用指南.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
-    "八股/JavaScript篇_高频八股文.md",
     "zode.md",
     "Front-end notes/React/React.md",
     "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
