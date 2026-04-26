@@ -563,6 +563,160 @@ record.on('record-end', (blob) => {
 })
 ```
 
+### RecordRTC - 实时波形录音
+
+结合 RecordRTC 库实现实时录音并渲染波形图：
+
+```bash
+npm install recordrtc
+```
+
+```html
+<div id="waveform"></div>
+<button id="recordBtn">开始录音</button>
+<button id="stopBtn" disabled>停止录音</button>
+
+<script type="module">
+import WaveSurfer from 'wavesurfer.js'
+import RecordRTC from 'recordrtc'
+
+const wavesurfer = WaveSurfer.create({
+  container: '#waveform',
+  waveColor: '#4F4A85',
+  progressColor: '#383351',
+  height: 128,
+  interact: false,  // 录音时禁止交互
+})
+
+let recorder = null
+let mediaStream = null
+
+// 初始化录音
+async function initRecorder() {
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    recorder = RecordRTC(mediaStream, {
+      type: 'audio',
+      mimeType: 'audio/webm',
+      sampleRate: 44100,
+      recorderType: RecordRTC.StereoAudioRecorder,
+      timeSlice: 100,  // 每 100ms 更新一次波形
+      ondataUpdated: (blob) => {
+        // 实时更新波形
+        updateWaveform()
+      },
+    })
+  } catch (err) {
+    console.error('获取麦克风失败:', err)
+  }
+}
+
+// 更新波形
+function updateWaveform() {
+  if (!recorder) return
+  const blob = recorder.getBlob()
+  const url = URL.createObjectURL(blob)
+  // 重新加载音频以更新波形
+  wavesurfer.load(url)
+}
+
+const recordBtn = document.getElementById('recordBtn')
+const stopBtn = document.getElementById('stopBtn')
+
+recordBtn.addEventListener('click', async () => {
+  await initRecorder()
+  recorder.startRecording()
+  recordBtn.disabled = true
+  stopBtn.disabled = false
+})
+
+stopBtn.addEventListener('click', () => {
+  recorder.stopRecording(() => {
+    const blob = recorder.getBlob()
+    const url = URL.createObjectURL(blob)
+
+    // 加载完整录音到波形
+    wavesurfer.load(url)
+    wavesurfer.on('ready', () => {
+      wavesurfer.play()
+    })
+
+    // 释放资源
+    mediaStream.getTracks().forEach(track => track.stop())
+    recordBtn.disabled = false
+    stopBtn.disabled = true
+  })
+})
+</script>
+```
+
+**实时波形渲染方案**
+
+如果需要更流畅的实时波形，可以使用 AudioContext 分析音频数据：
+
+```javascript
+import WaveSurfer from 'wavesurfer.js'
+import RecordRTC from 'recordrtc'
+
+const wavesurfer = WaveSurfer.create({
+  container: '#waveform',
+  waveColor: '#00d4ff',
+  progressColor: '#0099cc',
+  height: 128,
+  interact: false,
+})
+
+let audioContext = null
+let analyser = null
+let recorder = null
+let animationId = null
+
+async function startRecording() {
+  const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+
+  audioContext = new (window.AudioContext || window.webkitAudioContext)()
+  analyser = audioContext.createAnalyser()
+  const source = audioContext.createMediaStreamSource(mediaStream)
+  source.connect(analyser)
+
+  analyser.fftSize = 256
+  const bufferLength = analyser.frequencyBinCount
+  const dataArray = new Uint8Array(bufferLength)
+
+  recorder = RecordRTC(mediaStream, { type: 'audio' })
+  recorder.startRecording()
+
+  // 实时渲染波形
+  function renderWave() {
+    analyser.getByteFrequencyData(dataArray)
+    wavesurfer.loadBlob(new Blob([dataArray], { type: 'audio/webm' }))
+    animationId = requestAnimationFrame(renderWave)
+  }
+  renderWave()
+}
+
+function stopRecording() {
+  if (animationId) {
+    cancelAnimationFrame(animationId)
+  }
+  recorder.stopRecording(() => {
+    const blob = recorder.getBlob()
+    wavesurfer.load(URL.createObjectURL(blob))
+    wavesurfer.on('ready', () => wavesurfer.play())
+  })
+}
+```
+
+**常用配置项：**
+
+| 选项 | 类型 | 默认值 | 说明 |
+|-----|------|--------|------|
+| `type` | string | 'audio' | 录音类型 |
+| `mimeType` | string | 'audio/webm' | 媒体格式 |
+| `sampleRate` | number | 44100 | 采样率 |
+| `timeSlice` | number | - | 回调间隔(毫秒) |
+| `recorderType` | string | - | 录音器类型 |
+
 ## React 中使用
 
 ### 基础组件
