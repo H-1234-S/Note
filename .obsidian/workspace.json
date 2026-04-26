@@ -81,17 +81,14 @@
             "id": "2ce771d837a4c66f",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Project notes/resonance/需求.canvas",
-                "viewState": {
-                  "x": 2064.4789639107403,
-                  "y": -350.0269567052405,
-                  "zoom": -4
-                }
+                "file": "Project notes/resonance/面试.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "需求"
+              "icon": "lucide-file",
+              "title": "面试"
             }
           },
           {
@@ -240,13 +237,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/需求.canvas",
+                "file": "Project notes/resonance/面试.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "需求 的大纲"
+              "title": "面试 的大纲"
             }
           },
           {
@@ -300,6 +297,9 @@
   },
   "active": "2ce771d837a4c66f",
   "lastOpenFiles": [
+    "Project notes/resonance/Resonance.md",
+    "Project notes/resonance/面试.md",
+    "Project notes/resonance/需求.canvas",
     "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/React/React.md",
@@ -325,9 +325,7 @@
     "Front-end notes/库/nuqs-基础知识.md",
     "Front-end notes/库/use-debounce防抖.md",
     "Front-end notes/库/use-debounce",
-    "Front-end notes/Tanstack Form/TanStack Form.md",
     "Front-end notes/TanStack Query",
-    "Front-end notes/Tanstack/TanStack Form v1 完全指南.md",
     "Front-end notes/库/package-lock.json",
     "Front-end notes/库/package.json",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.mjs.map",
@@ -336,7 +334,6 @@
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.d.mts",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.d.cts",
     "Front-end notes/库/node_modules/openapi-typescript-helpers/dist/index.cjs.map",
-    "Project notes/resonance/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
