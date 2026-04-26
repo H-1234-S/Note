@@ -1351,12 +1351,14 @@ export const useStorage = (key: string, initialvalue: any) => {
 ## useEffect
 
 * 用于在函数组件中执行副作用操作
+
 * **副作用（Side Effects）** 是指那些与组件渲染结果无关的操作
   * 数据获取（API 调用）
   * 手动操作 DOM
   * 订阅事件
   * 设置定时器
   * 日志记录
+  * 操作第三方库
 
 ### 语法
 
