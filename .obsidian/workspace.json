@@ -81,14 +81,17 @@
             "id": "2ce771d837a4c66f",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Front-end notes/库/RecordRTC-用法指南.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/resonance/需求.canvas",
+                "viewState": {
+                  "x": 452.0717527808652,
+                  "y": 74.2319050204296,
+                  "zoom": -1.3677123308243957
+                }
               },
-              "icon": "lucide-file",
-              "title": "RecordRTC-用法指南"
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
             }
           },
           {
@@ -120,7 +123,7 @@
             }
           }
         ],
-        "currentTab": 7
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -237,13 +240,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React/React.md",
+                "file": "Project notes/resonance/需求.canvas",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "React 的大纲"
+              "title": "需求 的大纲"
             }
           },
           {
@@ -295,10 +298,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "934a1f9789ea4978",
+  "active": "2ce771d837a4c66f",
   "lastOpenFiles": [
-    "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/库/RecordRTC-用法指南.md",
+    "Front-end notes/库/wavesurfer.js-基础知识.md",
+    "Front-end notes/React/React.md",
     "八股/JavaScript篇_高频八股文.md",
     "Front-end notes/库/react-dropzone-用法指南.md",
     "Front-end notes/库/Zod.md",
@@ -314,7 +318,6 @@
     "Front-end notes/库/use-debounce 使用指南.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
     "zode.md",
-    "Front-end notes/React/React.md",
     "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/JavaScript/闭包.md",
