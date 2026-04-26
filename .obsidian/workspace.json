@@ -83,7 +83,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project notes/resonance/面试.md",
+                "file": "Project notes/VoxClone/面试.md",
                 "mode": "source",
                 "source": false
               },
@@ -237,7 +237,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/resonance/面试.md",
+                "file": "Project notes/VoxClone/面试.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -297,9 +297,9 @@
   },
   "active": "2ce771d837a4c66f",
   "lastOpenFiles": [
-    "Project notes/resonance/Resonance.md",
-    "Project notes/resonance/面试.md",
-    "Project notes/resonance/需求.canvas",
+    "Project notes/VoxClone/Resonance.md",
+    "Project notes/VoxClone/面试.md",
+    "Project notes/VoxClone/需求.canvas",
     "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/React/React.md",
