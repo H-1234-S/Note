@@ -571,6 +571,10 @@ record.on('record-end', (blob) => {
 npm install recordrtc
 ```
 
+**核心实现方式**
+
+wavesurfer.js 的 RecordPlugin 提供了 `renderMicStream` 方法，可以直接将麦克风音频流实时渲染为波形：
+
 ```html
 <div id="waveform"></div>
 <button id="recordBtn">开始录音</button>
@@ -578,144 +582,240 @@ npm install recordrtc
 
 <script type="module">
 import WaveSurfer from 'wavesurfer.js'
+import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js'
 import RecordRTC from 'recordrtc'
 
 const wavesurfer = WaveSurfer.create({
   container: '#waveform',
-  waveColor: '#4F4A85',
-  progressColor: '#383351',
-  height: 128,
-  interact: false,  // 录音时禁止交互
+  waveColor: 'hsl(var(--foreground) / 0.5)',
+  progressColor: 'hsl(var(--foreground))',
+  height: 144,
+  barWidth: 1,
+  barGap: 2,
+  barRadius: 1,
+  cursorWidth: 0,
+  barMinHeight: 10,
+  barHeight: 2,
+  normalize: true,
 })
 
 let recorder = null
 let mediaStream = null
+let micStreamHandle = null
 
-// 初始化录音
-async function initRecorder() {
+// 开始录音
+async function startRecording() {
   try {
+    // 获取麦克风权限
     mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    recorder = RecordRTC(mediaStream, {
-      type: 'audio',
-      mimeType: 'audio/webm',
-      sampleRate: 44100,
-      recorderType: RecordRTC.StereoAudioRecorder,
-      timeSlice: 100,  // 每 100ms 更新一次波形
-      ondataUpdated: (blob) => {
-        // 实时更新波形
-        updateWaveform()
-      },
+
+    // 创建 WaveSurfer 实例后注册 RecordPlugin
+    const record = wavesurfer.registerPlugin(
+      RecordPlugin.create({
+        scrollingWaveform: true,  // 波形滚动
+      })
+    )
+
+    // 关键：renderMicStream 将麦克风音频实时渲染到波形
+    micStreamHandle = record.renderMicStream(mediaStream)
+
+    // 使用 RecordRTC 录制完整音频（用于最终保存）
+    const { default: RecordRTC, StereoAudioRecorder } = await import('recordrtc')
+    recorder = new RecordRTC(mediaStream, {
+      recorderType: StereoAudioRecorder,
+      mimeType: 'audio/wav',
+      numberOfAudioChannels: 1,
+      desiredSampRate: 44100,
     })
+    recorder.startRecording()
+
+    document.getElementById('recordBtn').disabled = true
+    document.getElementById('stopBtn').disabled = false
   } catch (err) {
-    console.error('获取麦克风失败:', err)
+    console.error('麦克风访问失败:', err)
   }
 }
 
-// 更新波形
-function updateWaveform() {
-  if (!recorder) return
-  const blob = recorder.getBlob()
-  const url = URL.createObjectURL(blob)
-  // 重新加载音频以更新波形
-  wavesurfer.load(url)
+// 停止录音
+function stopRecording() {
+  if (recorder) {
+    recorder.stopRecording(() => {
+      const blob = recorder.getBlob()
+      // 处理录音 blob，可上传或播放
+      console.log('录音完成:', blob)
+
+      // 释放麦克风流
+      if (micStreamHandle) {
+        micStreamHandle.onDestroy()
+        micStreamHandle = null
+      }
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop())
+      }
+
+      // 可选：加载录音到 wavesurfer 播放
+      wavesurfer.load(URL.createObjectURL(blob))
+
+      document.getElementById('recordBtn').disabled = false
+      document.getElementById('stopBtn').disabled = true
+    })
+  }
 }
 
-const recordBtn = document.getElementById('recordBtn')
-const stopBtn = document.getElementById('stopBtn')
-
-recordBtn.addEventListener('click', async () => {
-  await initRecorder()
-  recorder.startRecording()
-  recordBtn.disabled = true
-  stopBtn.disabled = false
-})
-
-stopBtn.addEventListener('click', () => {
-  recorder.stopRecording(() => {
-    const blob = recorder.getBlob()
-    const url = URL.createObjectURL(blob)
-
-    // 加载完整录音到波形
-    wavesurfer.load(url)
-    wavesurfer.on('ready', () => {
-      wavesurfer.play()
-    })
-
-    // 释放资源
-    mediaStream.getTracks().forEach(track => track.stop())
-    recordBtn.disabled = false
-    stopBtn.disabled = true
-  })
-})
+document.getElementById('recordBtn').addEventListener('click', startRecording)
+document.getElementById('stopBtn').addEventListener('click', stopRecording)
 </script>
 ```
 
-**实时波形渲染方案**
+**React Hook 实现参考**
 
-如果需要更流畅的实时波形，可以使用 AudioContext 分析音频数据：
-
-```javascript
-import WaveSurfer from 'wavesurfer.js'
+```jsx
+import { useState, useRef, useCallback, useEffect } from 'react'
 import RecordRTC from 'recordrtc'
+import WaveSurfer from 'wavesurfer.js'
+import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js'
 
-const wavesurfer = WaveSurfer.create({
-  container: '#waveform',
-  waveColor: '#00d4ff',
-  progressColor: '#0099cc',
-  height: 128,
-  interact: false,
-})
+function useAudioRecorder() {
+  const [isRecording, setIsRecording] = useState(false)
+  const [elapsedTime, setElapsedTime] = useState(0)
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-let audioContext = null
-let analyser = null
-let recorder = null
-let animationId = null
+  const recorderRef = useRef<RecordRTC | null>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const wsRef = useRef<WaveSurfer | null>(null)
+  const micStreamRef = useRef<{ onDestroy: () => void } | null>(null)
 
-async function startRecording() {
-  const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+  const destroyWaveSurfer = useCallback(() => {
+    if (micStreamRef.current) {
+      micStreamRef.current.onDestroy()
+      micStreamRef.current = null
+    }
+    if (wsRef.current) {
+      wsRef.current.destroy()
+      wsRef.current = null
+    }
+  }, [])
 
-  audioContext = new (window.AudioContext || window.webkitAudioContext)()
-  analyser = audioContext.createAnalyser()
-  const source = audioContext.createMediaStreamSource(mediaStream)
-  source.connect(analyser)
+  const cleanup = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current)
+    if (recorderRef.current) recorderRef.current.destroy()
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+    }
+    destroyWaveSurfer()
+  }, [destroyWaveSurfer])
 
-  analyser.fftSize = 256
-  const bufferLength = analyser.frequencyBinCount
-  const dataArray = new Uint8Array(bufferLength)
+  useEffect(() => {
+    if (!isRecording || !containerRef.current || !streamRef.current) return
 
-  recorder = RecordRTC(mediaStream, { type: 'audio' })
-  recorder.startRecording()
+    const ws = WaveSurfer.create({
+      container: containerRef.current,
+      waveColor: 'hsl(var(--foreground) / 0.5)',
+      height: 144,
+      barWidth: 1,
+      barGap: 2,
+      barRadius: 1,
+      cursorWidth: 0,
+      barMinHeight: 10,
+      barHeight: 2,
+      normalize: true,
+    })
 
-  // 实时渲染波形
-  function renderWave() {
-    analyser.getByteFrequencyData(dataArray)
-    wavesurfer.loadBlob(new Blob([dataArray], { type: 'audio/webm' }))
-    animationId = requestAnimationFrame(renderWave)
+    wsRef.current = ws
+
+    const record = ws.registerPlugin(RecordPlugin.create({
+      scrollingWaveform: true,
+    }))
+
+    // 关键：实时渲染麦克风音频到波形
+    const handle = record.renderMicStream(streamRef.current)
+    micStreamRef.current = handle
+
+    return () => destroyWaveSurfer()
+  }, [isRecording, destroyWaveSurfer])
+
+  const startRecording = useCallback(async () => {
+    try {
+      setError(null)
+      setAudioBlob(null)
+      setElapsedTime(0)
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      streamRef.current = stream
+
+      const { default: RecordRTC, StereoAudioRecorder } = await import('recordrtc')
+      const recorder = new RecordRTC(stream, {
+        recorderType: StereoAudioRecorder,
+        mimeType: 'audio/wav',
+        numberOfAudioChannels: 1,
+        desiredSampRate: 44100,
+      })
+
+      recorderRef.current = recorder
+      recorder.startRecording()
+      setIsRecording(true)
+
+      // 计时器
+      const startTime = Date.now()
+      timerRef.current = setInterval(() => {
+        setElapsedTime((Date.now() - startTime) / 1000)
+      }, 100)
+    } catch (err) {
+      cleanup()
+      if (err instanceof DOMException && err.name === 'NotAllowedError') {
+        setError('麦克风访问被拒绝，请在浏览器设置中允许麦克风权限')
+      } else {
+        setError('麦克风访问失败，请检查设备')
+      }
+    }
+  }, [cleanup])
+
+  const stopRecording = useCallback((onBlob?: (blob: Blob) => void) => {
+    const recorder = recorderRef.current
+    if (!recorder) return
+
+    recorder.stopRecording(() => {
+      const blob = recorder.getBlob()
+      setAudioBlob(blob)
+      setIsRecording(false)
+      cleanup()
+      onBlob?.(blob)
+    })
+  }, [cleanup])
+
+  return {
+    isRecording,
+    elapsedTime,
+    audioBlob,
+    containerRef,
+    error,
+    startRecording,
+    stopRecording,
+    resetRecording: cleanup,
   }
-  renderWave()
 }
 
-function stopRecording() {
-  if (animationId) {
-    cancelAnimationFrame(animationId)
-  }
-  recorder.stopRecording(() => {
-    const blob = recorder.getBlob()
-    wavesurfer.load(URL.createObjectURL(blob))
-    wavesurfer.on('ready', () => wavesurfer.play())
-  })
-}
+export default useAudioRecorder
 ```
 
-**常用配置项：**
+**RecordRTC 常用配置项：**
 
 | 选项 | 类型 | 默认值 | 说明 |
 |-----|------|--------|------|
-| `type` | string | 'audio' | 录音类型 |
-| `mimeType` | string | 'audio/webm' | 媒体格式 |
-| `sampleRate` | number | 44100 | 采样率 |
-| `timeSlice` | number | - | 回调间隔(毫秒) |
-| `recorderType` | string | - | 录音器类型 |
+| `recorderType` | StereoAudioRecorder | - | 立体声音频录制器 |
+| `mimeType` | 'audio/wav' | - | 音频格式 |
+| `numberOfAudioChannels` | 1 | - | 音频通道数 |
+| `desiredSampRate` | 44100 | - | 采样率 |
+
+**RecordPlugin 关键方法：**
+
+| 方法 | 说明 |
+|-----|------|
+| `renderMicStream(stream)` | 将麦克风音频流实时渲染为波形，返回 `{ onDestroy }` 用于清理 |
+| `scrollingWaveform` | 设为 `true` 可使波形实时滚动 |
 
 ## React 中使用
 
