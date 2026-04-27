@@ -1,3 +1,25 @@
+# Inngest 知识大全
+
+> **当前文档基于 Inngest SDK v4 版本**（最新稳定版：4.1.0，2026年3月25日发布）
+
+## 目录
+
+1. [Inngest 简介](#1-inngest-简介)
+2. [核心概念](#2-核心概念)
+3. [快速开始](#3-快速开始)
+4. [函数创建详解](#4-函数创建详解)
+5. [触发器详解](#5-触发器详解)
+6. [步骤与控制流](#6-步骤与控制流)
+7. [事件系统](#7-事件系统)
+8. [定时任务与调度](#8-定时任务与调度)
+9. [Next.js 集成详解](#9-nextjs-集成详解)
+10. [开发服务器](#10-开发服务器)
+11. [生产环境部署](#11-生产环境部署)
+12. [最佳实践](#12-最佳实践)
+13. [v4 版本新特性](#13-v4-版本新特性)
+
+---
+
 ## 1. Inngest 简介
 
 ### 1.1 什么是 Inngest
@@ -1438,5 +1460,215 @@ npx inngest event send user/signup '{"userId":"123"}'
 
 ---
 
-*文档版本: v1.0*
+## 13. v4 版本新特性
+
+### 13.1 v4 版本概述
+
+Inngest SDK v4 是最新的主要版本（当前最新稳定版：4.1.0，2026年3月25日发布）。v4 版本在内部架构、中间件生态和开发者体验方面进行了重大改进。
+
+### 13.2 主要变化
+
+#### 1. Connect 架构重构
+
+v4 版本对 Connect 内部架构进行了全面重构，提升了性能和稳定性。
+
+```typescript
+// v4 中的 Connect 用法
+import { Inngest } from "inngest";
+
+const inngest = new Inngest({
+  id: "my-app",
+  // v4 新增 Connect 配置选项
+  connect: {
+    // 连接配置
+  },
+});
+```
+
+#### 2. 中间件生态增强
+
+v4 版本提供了独立的中间件包，方便按需使用：
+
+```bash
+# 安装中间件包
+npm install @inngest/middleware-encryption
+npm install @inngest/middleware-sentry
+npm install @inngest/middleware-validation
+npm install @inngest/middleware-remote-state
+npm install @inngest/realtime
+```
+
+**加密中间件示例：**
+
+```typescript
+import { Inngest } from "inngest";
+import { encryptionMiddleware } from "@inngest/middleware-encryption";
+
+const inngest = new Inngest({
+  id: "my-app",
+  middleware: [encryptionMiddleware({
+    key: process.env.ENCRYPTION_KEY,
+  })],
+});
+```
+
+**Sentry 集成示例：**
+
+```typescript
+import { Inngest } from "inngest";
+import { sentryMiddleware } from "@inngest/middleware-sentry";
+
+const inngest = new Inngest({
+  id: "my-app",
+  middleware: [sentryMiddleware({
+    dsn: process.env.SENTRY_DSN,
+  })],
+});
+```
+
+#### 3. Step Metadata 行为优化
+
+v4 版本合并了 `step` 和 `step_attempt` 的行为，简化了 API：
+
+```typescript
+// v4 中的步骤元数据
+async ({ step }) => {
+  await step.run("do-something", async () => {
+    // v4 中 step.attempts 被合并到 step 中
+    // 不再需要区分 step 和 step_attempt
+    return await doSomething();
+  });
+}
+```
+
+#### 4. Extended Traces
+
+v4 版本增强了追踪功能，在 userland spans 中包含更详细的 step 属性：
+
+```typescript
+async ({ step }) => {
+  // v4 中自动包含更丰富的 trace 信息
+  await step.run("traced-step", async () => {
+    // 自动记录步骤耗时、输入输出等
+    return processData();
+  });
+}
+```
+
+#### 5. 实时支持（Realtime）
+
+v4 版本新增 `@inngest/realtime` 包，支持实时功能：
+
+```bash
+npm install @inngest/realtime
+```
+
+```typescript
+import { Inngest } from "inngest";
+import { RealtimeClient } from "@inngest/realtime";
+
+const client = new RealtimeClient({
+  inngest,
+});
+
+client.on("function.completed", ({ functionId, runId }) => {
+  console.log(`函数 ${functionId} 完成，Run ID: ${runId}`);
+});
+
+client.connect();
+```
+
+#### 6. 优雅关闭改进
+
+v4 版本改进了连接 draining 时的关闭行为：
+
+```typescript
+// v4 中支持更优雅的关闭
+const server = serve(inngest, functions);
+
+process.on("SIGTERM", async () => {
+  // v4 自动处理正在运行的函数
+  await server.close({
+    graceful: true,
+    timeout: 30_000, // 最多等待30秒
+  });
+});
+```
+
+### 13.3 v4 迁移指南
+
+#### 从 v3 升级到 v4
+
+**1. 更新依赖：**
+
+```bash
+npm install inngest@^4.0.0
+```
+
+**2. 检查中间件兼容性：**
+
+v4 中的中间件 API 有变化，如果你使用了自定义中间件，需要更新：
+
+```typescript
+// v3 中间件
+const v3Middleware = {
+  onFunctionRun: ({ fn, event, ctx }) => { /* ... */ },
+};
+
+// v4 中间件（需要使用 InngestMiddleware）
+import { InngestMiddleware } from "inngest";
+
+const v4Middleware = new InngestMiddleware({
+  name: "my-middleware",
+  init: () => ({
+    onFunctionRun: ({ fn, event, ctx }) => ({
+      // v4 中返回 transformOutput
+      transformOutput: (output) => output,
+    }),
+  }),
+});
+```
+
+**3. 移除过期的 batchEvents 配置（如果有）：**
+
+```typescript
+// v3 中
+{ batchEvents: { maxSize: 100, timeout: "5s" } }
+
+// v4 中 - batchEvents 功能仍然支持，但 API 有调整
+```
+
+**4. 更新 step.run 的类型（如果使用 TypeScript）：**
+
+v4 中 `step.run` 的第二个参数类型有调整，确保你的函数返回值类型正确。
+
+### 13.4 v4 版本支持的环境
+
+| 环境 | v4 支持状态 |
+|------|------------|
+| Node.js 18+ | ✅ 支持 |
+| Next.js 13+ (Pages Router) | ✅ 支持 |
+| Next.js 13+ (App Router) | ✅ 支持 |
+| Edge Runtime | ✅ 支持 |
+| Bun | ✅ 支持 |
+| Deno | ✅ 支持 |
+| TypeScript 4.9+ | ✅ 支持 |
+
+### 13.5 v4 新增的环境变量
+
+| 变量 | 说明 |
+|------|------|
+| `INNGEST_APP_URL` | 应用 URL（用于回调） |
+| `INNGEST_LOG_LEVEL` | 日志级别（debug, info, warn, error） |
+| `INNGEST_TRACE` | 启用追踪（true/false） |
+
+### 13.6 v4 官方文档资源
+
+- **v3 到 v4 迁移指南**: https://www.inngest.com/docs/reference/typescript/v4/migrations/v3-to-v4
+- **官方文档**: https://www.inngest.com/docs
+- **GitHub Releases**: https://github.com/inngest/inngest-js/releases
+
+---
+
+*文档版本: v2.0 (v4)*
 *最后更新: 2026-04-27*
