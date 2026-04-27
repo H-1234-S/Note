@@ -314,6 +314,8 @@ v.union(
 
 #### 使用索引
 
+##### withIndex 基本用法
+
 ```typescript
 // 在 Query 函数中使用索引
 export const getUserPosts = query({
@@ -325,8 +327,138 @@ export const getUserPosts = query({
       .collect();
   },
 });
+```
 
-// 使用搜索索引
+##### 比较操作符
+
+```typescript
+// eq - 等于
+q.eq("field", value)
+
+// gt - 大于
+q.gt("field", value)
+
+// gte - 大于等于
+q.gte("field", value)
+
+// lt - 小于
+q.lt("field", value)
+
+// lte - 小于等于
+q.lte("field", value)
+
+// ne - 不等于
+q.ne("field", value)
+```
+
+##### 完整查询示例
+
+```typescript
+// convex/functions.ts
+
+// 1. 基本等值查询
+export const getPostBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("posts")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();  // 返回唯一结果
+  },
+});
+
+// 2. 范围查询
+export const getRecentPosts = query({
+  args: { daysAgo: v.number() },
+  handler: async (ctx, args) => {
+    const cutoffTime = Date.now() - args.daysAgo * 24 * 60 * 60 * 1000;
+    return await ctx.db
+      .query("posts")
+      .withIndex("by_created", (q) => q.gte("_creationTime", cutoffTime))
+      .order("desc")
+      .collect();
+  },
+});
+
+// 3. 复合索引查询（多字段）
+export const getUserPublishedPosts = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("posts")
+      .withIndex("by_author_published", (q) =>
+        q.eq("authorId", args.userId).eq("published", true)
+      )
+      .order("desc")
+      .collect();
+  },
+});
+
+// 4. 复合索引+范围查询
+export const getUserPostsInDateRange = query({
+  args: {
+    userId: v.id("users"),
+    startDate: v.number(),
+    endDate: v.number(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("posts")
+      .withIndex("by_author_created", (q) =>
+        q
+          .eq("authorId", args.userId)
+          .gte("createdAt", args.startDate)
+          .lte("createdAt", args.endDate)
+      )
+      .order("desc")
+      .collect();
+  },
+});
+
+// 5. 分页查询
+export const getUserPostsPaginated = query({
+  args: {
+    userId: v.id("users"),
+    limit: v.number(),
+    cursor: v.optional(v.string()),  // 用于下一页的游标
+  },
+  handler: async (ctx, args) => {
+    let queryBuilder = ctx.db
+      .query("posts")
+      .withIndex("by_author", (q) => q.eq("authorId", args.userId))
+      .order("desc");
+
+    // 如果有 cursor，从该位置继续
+    if (args.cursor) {
+      queryBuilder = queryBuilder.cursor(args.cursor);
+    }
+
+    const posts = await queryBuilder.take(args.limit + 1);  // 多取一条判断是否有下一页
+
+    const hasNextPage = posts.length > args.limit;
+    const result = hasNextPage ? posts.slice(0, -1) : posts;
+    const nextCursor = hasNextPage ? result[result.length - 1]._id : null;
+
+    return { posts: result, nextCursor };
+  },
+});
+
+// 6. 获取单条记录
+export const getLatestPost = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("posts")
+      .order("desc")
+      .first();
+  },
+});
+```
+
+##### 使用搜索索引
+
+```typescript
+// 使用搜索索引进行全文搜索
 export const searchPosts = query({
   args: { term: v.string() },
   handler: async (ctx, args) => {
@@ -336,6 +468,46 @@ export const searchPosts = query({
         q.search("title", args.term)
       )
       .collect();
+  },
+});
+
+// 搜索索引 + 过滤条件
+export const searchPublishedPosts = query({
+  args: { term: v.string(), authorId: v.optional(v.id("users")) },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("posts")
+      .withSearchIndex("search_title", (q) => {
+        let builder = q.search("title", args.term);
+        if (args.authorId) {
+          builder = builder.filter((q) =>
+            q.eq("authorId", args.authorId!)
+          );
+        }
+        return builder;
+      })
+      .collect();
+  },
+});
+```
+
+##### 不使用索引的查询
+
+```typescript
+// 直接查询表（无索引）
+export const getAllPosts = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("posts").collect();
+  },
+});
+
+// 手动过滤（性能较差，不推荐）
+export const getPostsSlow = query({
+  args: { authorId: v.id("users") },
+  handler: async (ctx, args) => {
+    const allPosts = await ctx.db.query("posts").collect();
+    return allPosts.filter((post) => post.authorId === args.authorId);
   },
 });
 ```
