@@ -257,10 +257,10 @@ defineTable(fields)
 
 #### 可选与可空
 
-| 类型 | 说明 | 示例 |
-|------|------|------|
-| `v.optional(T)` | 可选值（字段可以不存在） | `v.optional(v.string())` |
-| `v.union(T, v.null())` | 值可以为 null | `v.union(v.string(), v.null())` |
+| 类型                     | 说明           | 示例                              |
+| ---------------------- | ------------ | ------------------------------- |
+| `v.optional(T)`        | 可选值（字段可以不存在） | `v.optional(v.string())`        |
+| `v.union(T, v.null())` | 值可以为 null    | `v.union(v.string(), v.null())` |
 
 #### 高级类型
 
