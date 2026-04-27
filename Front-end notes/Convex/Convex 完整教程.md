@@ -1,5 +1,3 @@
-# Convex 完整教程
-
 ## 什么是 Convex？
 
 Convex 是一个 **TypeScript 后端即服务（Backend as a Service）平台**，让开发者无需关心复杂的后端基础设施，就能快速构建实时同步的全栈应用。

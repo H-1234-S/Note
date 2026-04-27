@@ -11,10 +11,14 @@
             "id": "724d27c54d74efca",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "TanStack Query 完全指南"
             }
           }
         ]
@@ -133,13 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/VoxClone/面试问答完整版.md",
+                "file": "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "面试问答完整版 的大纲"
+              "title": "TanStack Query 完全指南 的大纲"
             }
           },
           {
@@ -191,9 +195,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "724d27c54d74efca",
   "lastOpenFiles": [
-    "Front-end notes/Convex/README.md",
+    "Front-end notes/Convex/Convex 完整教程.md",
     "Front-end notes/Convex/未命名.base",
     "Project notes/VoxClone/Resonance.md",
     "Front-end notes/Convex",
@@ -221,7 +225,6 @@
     "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/JavaScript/闭包.md",
-    "八股/浏览器篇_高频八股文.md",
     "Front-end notes/库/use-debounce",
     "Front-end notes/TanStack Query",
     "Front-end notes/库/package-lock.json",
