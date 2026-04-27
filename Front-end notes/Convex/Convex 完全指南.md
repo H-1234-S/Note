@@ -144,30 +144,280 @@ export default defineSchema({
 });
 ```
 
-### 3.2 字段类型说明
+### 3.2 defineSchema 完整用法
+
+`defineSchema` 是 Convex 数据库结构的核心，用于定义应用程序的所有数据表。
+
+```typescript
+// convex/schema.ts
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+// 基础用法
+export default defineSchema({
+  // 在这里定义所有表...
+});
+```
+
+#### schemaOptions 配置
+
+```typescript
+// convex/schema.ts
+import { defineSchema } from "convex/server";
+
+export default defineSchema({
+  // 表定义...
+}, {
+  // Schema 配置选项（可选）
+  schemaValidator: {
+    // 验证器配置
+  },
+});
+```
+
+### 3.3 defineTable 完整用法
+
+`defineTable` 用于定义单个数据表的结构。
+
+#### 基础语法
+
+```typescript
+defineTable(fields: {
+  fieldName: FieldType,
+  // ...更多字段
+})
+```
+
+#### 完整示例
+
+```typescript
+// convex/schema.ts
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  // ==================== 用户表 ====================
+  users: defineTable({
+    // 必填字段
+    name: v.string(),                    // 用户名
+    email: v.string(),                   // 邮箱
+
+    // 带验证的字段
+    age: v.number(),                     // 年龄
+    avatar: v.optional(v.string()),     // 头像（可选）
+    bio: v.union(v.string(), v.null()), // 个人简介（字符串或null）
+
+    // 枚举字段
+    role: v.union(
+      v.literal("admin"),
+      v.literal("user"),
+      v.literal("guest")
+    ),
+
+    // 关联字段
+    profileId: v.optional(v.id("profiles")),
+
+    // 元数据
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    // 单字段索引
+    .index("by_email", ["email"])
+    // 多字段索引
+    .index("by_role", ["role"])
+    // 复合索引
+    .index("by_role_created", ["role", "createdAt"])
+    // 搜索索引（字符串前缀查询）
+    .searchIndex("search_name", {
+      searchField: "name",
+      filterFields: ["role"],
+    }),
+});
+```
+
+#### defineTable 方法链
+
+```typescript
+defineTable(fields)
+  .index("indexName", ["field1", "field2"])           // 添加索引
+  .searchIndex("searchName", options)                 // 添加搜索索引
+  .validator(validatorFunction)                        // 自定义验证器
+```
+
+### 3.4 字段类型详解
+
+#### 基础类型
 
 | 类型 | 说明 | 示例 |
 |------|------|------|
 | `v.string()` | 字符串 | `"hello"` |
-| `v.number()` | 数字 | `42`, `3.14` |
-| `v.boolean()` | 布尔值 | `true` |
-| `v.id("table")` | 关联其他表的 ID | `"abc123..."` |
-| `v.optional()` | 可选值 | `v.optional(v.string())` |
-| `v.array()` | 数组 | `v.array(v.string())` |
-| `v.object()` | 对象 | `v.object({ name: v.string() })` |
-| `v.null()` | null 值 | `null` |
+| `v.number()` | 数字（整数或浮点） | `42`, `3.14` |
+| `v.boolean()` | 布尔值 | `true` / `false` |
+| `v.bytes()` | 二进制数据 | `ArrayBuffer` |
 
-### 3.3 索引的作用
+#### 可选与可空
 
-索引用于加速查询，类似于传统数据库的索引：
+| 类型 | 说明 | 示例 |
+|------|------|------|
+| `v.optional(T)` | 可选值（字段可以不存在） | `v.optional(v.string())` |
+| `v.union(T, v.null())` | 值可以为 null | `v.union(v.string(), v.null())` |
+
+#### 高级类型
+
+| 类型 | 说明 | 示例 |
+|------|------|------|
+| `v.id("table")` | 指向其他表的 ID | `v.id("users")` |
+| `v.array(T)` | 数组 | `v.array(v.string())` |
+| `v.object({})` | 嵌套对象 | `v.object({ x: v.number(), y: v.number() })` |
+| `v.map(K, V)` | Map 对象 | `v.map(v.string(), v.number())` |
+| `v.set(T)` | Set 集合 | `v.set(v.string())` |
+
+#### 字面量与联合
 
 ```typescript
-// 定义索引后可以使用 withIndex
-.withIndex("by_email", (q) => q.eq("email", "user@example.com"))
+// 字面量类型
+v.literal("admin")                    // 只能是 "admin"
+v.literal(1)                          // 只能是 1
+v.literal(true)                       // 只能是 true
 
-// 内置字段索引
-"_id"      // 主键索引，自动创建
-"_creationTime"  // 创建时间索引，自动创建
+// 联合类型
+v.union(
+  v.string(),
+  v.number()
+)
+
+// 枚举（推荐方式）
+v.union(
+  v.literal("pending"),
+  v.literal("active"),
+  v.literal("completed")
+)
+```
+
+### 3.5 索引详解
+
+#### 索引类型
+
+```typescript
+// 普通索引 - 加速等值查询
+.index("by_email", ["email"])
+
+// 复合索引 - 加速多字段查询
+.index("by_user_date", ["authorId", "createdAt"])
+
+// 搜索索引 - 加速全文搜索
+.searchIndex("search_title", {
+  searchField: "title",
+  filterFields: ["authorId", "isPublished"],
+})
+```
+
+#### 使用索引
+
+```typescript
+// 在 Query 函数中使用索引
+export const getUserPosts = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("posts")
+      .withIndex("by_author", (q) => q.eq("authorId", args.userId))
+      .collect();
+  },
+});
+
+// 使用搜索索引
+export const searchPosts = query({
+  args: { term: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("posts")
+      .withSearchIndex("search_title", (q) =>
+        q.search("title", args.term)
+      )
+      .collect();
+  },
+});
+```
+
+#### 内置索引
+
+```typescript
+// _id - 主键，自动可用
+ctx.db.get(id)
+
+// _creationTime - 创建时间，自动索引
+ctx.db.query("posts").order("desc")  // 默认按创建时间排序
+```
+
+### 3.6 完整 Schema 示例
+
+```typescript
+// convex/schema.ts
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  // ==================== 用户表 ====================
+  users: defineTable({
+    email: v.string(),
+    name: v.string(),
+    avatarUrl: v.optional(v.string()),
+    role: v.union(
+      v.literal("admin"),
+      v.literal("user"),
+      v.literal("guest")
+    ),
+    createdAt: v.number(),
+  })
+    .index("by_email", ["email"])
+    .index("by_role", ["role"]),
+
+  // ==================== 文章表 ====================
+  posts: defineTable({
+    title: v.string(),
+    content: v.string(),
+    slug: v.string(),                    // URL 友好的话题
+    authorId: v.id("users"),
+    published: v.boolean(),
+    tags: v.array(v.string()),          // 标签数组
+    metadata: v.object({                // 嵌套元数据
+      views: v.number(),
+      shares: v.number(),
+    }),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_author", ["authorId"])
+    .index("by_published", ["published"])
+    .index("by_author_published", ["authorId", "published"])
+    .searchIndex("search_title", {
+      searchField: "title",
+      filterFields: ["published"],
+    }),
+
+  // ==================== 评论表 ====================
+  comments: defineTable({
+    postId: v.id("posts"),
+    authorId: v.id("users"),
+    content: v.string(),
+    parentId: v.optional(v.id("comments")),  // 父评论（回复）
+    likes: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_post", ["postId"])
+    .index("by_author", ["authorId"])
+    .index("by_parent", ["parentId"]),
+
+  // ==================== 标签表 ====================
+  tags: defineTable({
+    name: v.string(),
+    slug: v.string(),
+    color: v.optional(v.string()),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_name", ["name"]),
+});
 ```
 
 ---
