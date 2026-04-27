@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project notes/VoxClone/Resonance.md",
+                "file": "Front-end notes/库/Inngest知识大全.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Resonance"
+              "title": "Inngest知识大全"
             }
           }
         ],
@@ -93,7 +93,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334
+    "width": 263.504695892334,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -152,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/VoxClone/Resonance.md",
+                "file": "Front-end notes/库/Inngest知识大全.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Resonance 的大纲"
+              "title": "Inngest知识大全 的大纲"
             }
           },
           {
@@ -209,14 +210,14 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "5fc0e254406effbd",
   "lastOpenFiles": [
+    "Project notes/VoxClone/Resonance.md",
     "Front-end notes/库/Inngest知识大全.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Front-end notes/Convex/Convex 完整教程.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/Convex/未命名.base",
-    "Project notes/VoxClone/Resonance.md",
     "Front-end notes/Convex",
     "Project notes/VoxClone/面试问答完整版.md",
     "Project notes/VoxClone/面试.md",
