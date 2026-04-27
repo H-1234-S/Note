@@ -1289,11 +1289,3 @@ export const debugFunction = query({
 // 访问 http://localhost:5170
 ```
 
----
-
-## 参考链接
-
-- 官方文档: https://docs.convex.dev
-- 官网: https://convex.dev
-- GitHub: https://github.com/get-convex
-- React 集成: https://docs.convex.dev/client/react
