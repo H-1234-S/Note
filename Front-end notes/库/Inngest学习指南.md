@@ -56,66 +56,321 @@ Inngest 是一个**工作流编排平台**，专门用于构建可靠的后台�
 
 ---
 
-## 3. Next.js快速开始
+## 3. Next.js 快速开始
 
-### 3.1 安装
+本节将带你创建一个最简单的 Inngest 后台任务处理流程。理解每个步骤的「为什么」，比单纯复制代码更重要。
+
+### 3.1 整体架构一览
+
+在开始之前，先理解整个请求链路：
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           Inngest 请求处理链路                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌──────────┐         ┌───────────────┐         ┌──────────────────────┐│
+│   │  你的    │  POST   │  Next.js      │  转发   │  Inngest              ││
+│   │  前端/   │ ──────▶ │  API Route     │ ──────▶ │  Dev Server           ││
+│   │  后端    │         │  /api/inngest  │         │  (localhost:8288)     ││
+│   └──────────┘         └───────────────┘         └──────────────────────┘│
+│        │                      │                            │              │
+│        │                      │                            ▼              │
+│        │                      │                 ┌──────────────────────┐ │
+│        │                      │                 │  函数执行器            │ │
+│        │                      │                 │  step.run()          │ │
+│        │                      │                 │  step.sleep()        │ │
+│        │                      │                 │  (持久化状态)         │ │
+│        │                      │                 └──────────────────────┘ │
+│        │                      │                            │              │
+│        ◀──────────────────────┴────────────────────────────┘              │
+│                           函数执行结果/状态更新                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**核心流程：**
+1. 你的应用通过 `inngest.send()` 发送一个事件
+2. 事件被发送到 Inngest 平台
+3. Inngest 根据触发器匹配，调度对应的函数执行
+4. 函数在你的 Next.js 应用中执行（通过 API Route 接收请求）
+
+### 3.2 安装依赖
 
 ```bash
 npm install inngest
-# 或
-yarn add inngest
-# 或
-pnpm add inngest
-
-# 运行Inngest本地开发服务器
-npx inngest-cli@latest dev  # http://localhost:8288
 ```
 
-### 3.2 创建第一个 Inngest 实例
+> **为什么用 inngest 而不是 inngest/next？**
+>
+> inngest 包本身已经包含了对 Next.js 的支持。`import { Inngest } from "inngest"` 是统一入口，
+> SDK 会自动检测运行环境（Node.js / Next.js / Edge），无需单独安装 `inngest/next`。
+
+### 3.3 创建 Inngest 客户端
+
+**目的：** 创建客户端实例，作为应用与 Inngest 平台通信的桥梁。
 
 ```typescript
+// src/inngest/client.ts
 import { Inngest } from "inngest";
 
-// 创建一个 Inngest 实例
-// id 是你的应用唯一标识符
+// 创建 Inngest 实例
+// id 是你的应用唯一标识符，Inngest 根据它来组织和区分不同的函数
 const inngest = new Inngest({
-  id: "my-app", // 建议使用应用名称的短横线格式
+  id: "my-app", // 建议使用应用名称的短横线格式，如 "my-blog", "ecommerce-api"
 });
+
+export { inngest };
 ```
 
-### 3.3 创建第一个函数
+> **为什么要单独一个文件？**
+>
+> 1. **复用**：在应用的任何地方（API Route、页面组件、后台任务）都可以导入同一个实例
+> 2. **配置集中**：所有 Inngest 配置（中间件、环境变量）都在一处管理
+> 3. **测试友好**：可以方便地 mock 这个实例进行单元测试
 
-```typescript
-// src/inngest/functions.ts
-import { inngest } from "./client";
+### 3.4 创建 HTTP 处理器
 
-export const processTask = inngest.createFunction(
-  { id: "process-task", triggers: { event: "app/task.created" } },
-  async ({ event, step }) => {
-    const result = await step.run("handle-task", async () => {
-      return { processed: true, id: event.data.id };
-    });
-
-    await step.sleep("pause", "1s");
-
-    return { message: `Task ${event.data.id} complete`, result };
-  }
-);
-```
-
-### 3.4 在服务处理器中注册该函数
+**目的：** 暴露一个 API 端点，让 Inngest 平台能够调用你的函数。
 
 ```typescript
 // src/app/api/inngest/route.ts
 import { serve } from "inngest/next";
-import { inngest } from "../../../inngest/client";
-import { processTask } from "../../../inngest/functions";
+import { inngest } from "@/inngest/client";
 
+// 导入所有函数
+import { processTask } from "@/inngest/functions";
+
+// 创建一个 Next.js API Route 处理器
+// 这个路由会处理所有来自 Inngest 平台的函数执行请求
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [processTask],
+  functions: [processTask], // 注册函数列表
 });
 ```
+
+> **serve 做了什么？**
+>
+> ```
+> ┌─────────────────────────────────────────────────────────────────┐
+> │                      serve() 内部原理                          │
+> ├─────────────────────────────────────────────────────────────────┤
+> │                                                                 │
+> │   Inngest 平台                    你的 Next.js App               │
+> │                                                                 │
+> │   准备执行函数 ──────────────────────────────────────────────▶  │
+> │                                    │                            │
+> │                                    ▼                            │
+> │                              POST /api/inngest                  │
+> │                                    │                            │
+> │                                    ▼                            │
+> │                              serve() 接收                       │
+> │                                    │                            │
+> │                                    ▼                            │
+> │                              找到对应函数                        │
+> │                                    │                            │
+> │                                    ▼                            │
+> │                              执行函数逻辑                        │
+> │                                    │                            │
+> │   ◀────────────────────────────────────────────────────────── │
+> │   返回执行结果                                                      │
+> │                                                                 │
+> └─────────────────────────────────────────────────────────────────┘
+> ```
+>
+> `serve` 实际上是一个适配器，它把 Inngest 的函数注册格式转换为 Next.js API Route 的处理逻辑。
+> 你的函数不会在这里直接执行，而是由 Inngest 平台的执行器（运行在你的服务器上或云端）来调度。
+
+### 3.5 创建第一个函数
+
+**目的：** 定义一个可被 Inngest 平台触发的后台任务逻辑。
+
+```typescript
+// src/inngest/functions/processTask.ts
+import { inngest } from "../client";
+
+// 创建函数
+// v4 版本使用统一的 createFunction 方法
+export const processTask = inngest.createFunction(
+  {
+    id: "process-task",          // 函数唯一 ID
+    retries: 3,                  // 失败时自动重试 3 次
+  },
+  {
+    event: "app/task.created",   // 触发条件：监听这个事件
+  },
+  async ({ event, step }) => {
+    // event - 触发这个函数的事件对象
+    // step  - 步骤控制 API，用于定义可恢复的步骤
+
+    // step.run() - 执行一个步骤
+    // 第一个参数是步骤名称（用于追踪和重试）
+    const result = await step.run("handle-task", async () => {
+      // 在这里执行实际的业务逻辑
+      return { processed: true, taskId: event.data.taskId };
+    });
+
+    // step.sleep() - 暂停一段时间（函数执行会在指定时间后恢复）
+    await step.sleep("wait-before-complete", "1s");
+
+    return { message: `Task ${event.data.taskId} processed`, result };
+  }
+);
+```
+
+> **为什么要用 step.run() 而不是直接写代码？**
+>
+> 区别在于**持久化和可恢复性**：
+>
+> | 特性 | 直接代码 | step.run() |
+> |------|---------|------------|
+> | 进程崩溃后恢复 | ❌ 需要从头开始 | ✅ 从断点继续 |
+> | 重试粒度 | 整个函数重试 | 精确到单个步骤 |
+> | 执行日志 | 需要自己实现 | 自动记录每个步骤 |
+> | 状态追踪 | 需要自己实现 | 自动持久化 |
+>
+> ```typescript
+> // ❌ 直接写 - 崩溃后整个函数要重新执行
+> async ({ event }) => {
+>   const user = await fetchUser(event.data.userId);  // 可能成功
+>   await sendEmail(user.email);                       // 可能失败，但用户已经获取了
+> }
+>
+> // ✅ 用 step.run() - 精确控制每一步
+> async ({ step }) => {
+>   const user = await step.run("fetch-user", async () => {
+>     return await fetchUser(event.data.userId);  // 如果成功，重试时跳过
+>   });
+>
+>   await step.run("send-email", async () => {
+>     return await sendEmail(user.email);          // 如果失败，只重试这一步
+>   });
+> }
+> ```
+
+### 3.6 在函数文件中导出
+
+**目的：** 方便统一管理和注册所有函数。
+
+```typescript
+// src/inngest/functions/index.ts
+export { processTask } from "./processTask";
+// 未来可以在这里添加更多函数：
+// export { sendWelcomeEmail } from "./sendWelcomeEmail";
+// export { generateReport } from "./generateReport";
+```
+
+### 3.7 发送事件触发函数
+
+现在函数已经注册好了，如何触发它？通过发送事件：
+
+```typescript
+// 在任何地方（API Route、页面组件、业务逻辑中）
+import { inngest } from "@/inngest/client";
+
+await inngest.send({
+  name: "app/task.created",           // 事件名称，要和函数触发器匹配
+  data: {
+    taskId: "task_123",
+    priority: "high",
+  },
+});
+```
+
+> **完整示例：在 Next.js API Route 中使用**
+
+```typescript
+// src/app/api/tasks/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { inngest } from "@/inngest/client";
+
+export async function POST(req: NextRequest) {
+  const { taskId, priority } = await req.json();
+
+  // 创建任务（同步保存到数据库）
+  const task = await db.tasks.create({ id: taskId, priority });
+
+  // 发送事件触发后台处理（非阻塞）
+  // 这样用户不用等待后台处理完成，可以立即收到响应
+  await inngest.send({
+    name: "app/task.created",
+    data: {
+      taskId: task.id,
+      priority: task.priority,
+    },
+  });
+
+  return NextResponse.json({ success: true, taskId: task.id });
+}
+```
+
+### 3.8 启动本地开发
+
+```bash
+# 启动 Next.js 开发服务器
+npm run dev
+
+# 在另一个终端启动 Inngest Dev Server
+npx inngest-cli@latest dev
+# 访问 http://localhost:8288 查看 Inngest 开发控制台
+```
+
+> **Dev Server 的作用：**
+>
+> ```
+> ┌─────────────────────────────────────────────────────────────────┐
+> │                        开发环境架构                              │
+> ├─────────────────────────────────────────────────────────────────┤
+> │                                                                 │
+> │   你的 Next.js App              Inngest Dev Server              │
+> │   localhost:3000                localhost:8288                    │
+> │                                                                 │
+> │         │                                ▲                      │
+> │         │                                │                      │
+> │         │    ┌────────────────────────────┘                      │
+> │         │    │                                                 │
+> │         ▼    ▼                                                 │
+> │   ┌──────────────┐                                             │
+> │   │ inngest.send()│ ──── 发送事件 ────▶ 事件队列                 │
+> │   └──────────────┘                    /内存/文件存储             │
+> │                                          │                      │
+> │                                          ▼                      │
+> │   ◀────────── 函数执行结果 ────────── 函数执行器                  │
+> │                                                                 │
+> │   Dev Server 模拟了完整的 Inngest 平台行为：                      │
+> │   - 事件接收和存储                                               │
+> │   - 函数调度和执行                                               │
+> │   - 状态持久化（开发模式下通常用内存）                            │
+> │   - Web UI（查看执行日志、历史记录）                              │
+> │                                                                 │
+> └─────────────────────────────────────────────────────────────────┘
+> ```
+>
+> **关键点：** 开发时 `inngest.send()` 会发送到本地 Dev Server，而不是真实的 Inngest 云平台。
+> 这样可以在本地完整测试整个流程，无需配置任何外部服务。
+
+### 3.9 目录结构推荐
+
+```
+my-nextjs-app/
+├── app/
+│   ├── api/
+│   │   ├── inngest/
+│   │   │   └── route.ts          # ✅ HTTP 处理器（必须）
+│   │   └── tasks/
+│   │       └── route.ts          # 业务 API，发事件触发后台任务
+│   └── page.tsx
+├── inngest/                       # ✅ 单独目录管理所有 Inngest 代码
+│   ├── client.ts                  # ✅ 客户端实例
+│   └── functions/
+│       ├── index.ts               # ✅ 统一导出
+│       └── processTask.ts         # 函数定义
+```
+
+> **为什么推荐这种结构？**
+>
+> 1. **关注点分离**：Inngest 逻辑与业务逻辑分开
+> 2. **易于扩展**：随着函数增多，只需要在这个目录下添加新文件
+> 3. **便于测试**：可以单独对函数进行单元测试
 
 ---
 
