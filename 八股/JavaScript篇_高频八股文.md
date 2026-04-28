@@ -939,7 +939,7 @@ function myNew() {
 
 ---
 
-## 4. this指向 {#this-binding}
+## 4. this指向 
 
 ### 4.1 this的指向规则？
 **考点**：核心难点
