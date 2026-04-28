@@ -66,6 +66,9 @@ npm install inngest
 yarn add inngest
 # 或
 pnpm add inngest
+
+# 运行Inngest本地开发服务器
+npx inngest-cli@latest dev  # http://localhost:8288
 ```
 
 ### 3.2 创建第一个 Inngest 实例
