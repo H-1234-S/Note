@@ -218,33 +218,33 @@ export const processTask = inngest.createFunction(
 
 > **为什么要用 step.run() 而不是直接写代码？**
 >
-> 区别在于**持久化和可恢复性**：
->
-> | 特性 | 直接代码 | step.run() |
-> |------|---------|------------|
-> | 进程崩溃后恢复 | ❌ 需要从头开始 | ✅ 从断点继续 |
-> | 重试粒度 | 整个函数重试 | 精确到单个步骤 |
-> | 执行日志 | 需要自己实现 | 自动记录每个步骤 |
-> | 状态追踪 | 需要自己实现 | 自动持久化 |
->
-> ```typescript
-> // ❌ 直接写 - 崩溃后整个函数要重新执行
-> async ({ event }) => {
->   const user = await fetchUser(event.data.userId);  // 可能成功
->   await sendEmail(user.email);                       // 可能失败，但用户已经获取了
-> }
->
-> // ✅ 用 step.run() - 精确控制每一步
-> async ({ step }) => {
->   const user = await step.run("fetch-user", async () => {
->     return await fetchUser(event.data.userId);  // 如果成功，重试时跳过
->   });
->
->   await step.run("send-email", async () => {
->     return await sendEmail(user.email);          // 如果失败，只重试这一步
->   });
-> }
-> ```
+ 区别在于**持久化和可恢复性**：
+
+ | 特性 | 直接代码 | step.run() |
+ |------|---------|------------|
+ | 进程崩溃后恢复 | ❌ 需要从头开始 | ✅ 从断点继续 |
+ | 重试粒度 | 整个函数重试 | 精确到单个步骤 |
+ | 执行日志 | 需要自己实现 | 自动记录每个步骤 |
+ | 状态追踪 | 需要自己实现 | 自动持久化 |
+
+ ```typescript
+ // ❌ 直接写 - 崩溃后整个函数要重新执行
+ async ({ event }) => {
+   const user = await fetchUser(event.data.userId);  // 可能成功
+   await sendEmail(user.email);                       // 可能失败，但用户已经获取了
+ }
+
+ // ✅ 用 step.run() - 精确控制每一步
+ async ({ step }) => {
+   const user = await step.run("fetch-user", async () => {
+     return await fetchUser(event.data.userId);  // 如果成功，重试时跳过
+   });
+
+   await step.run("send-email", async () => {
+     return await sendEmail(user.email);          // 如果失败，只重试这一步
+   });
+ }
+ ```
 
 ### 3.6 在函数文件中导出
 
