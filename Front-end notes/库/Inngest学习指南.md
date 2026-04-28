@@ -190,14 +190,12 @@ export const { GET, POST, PUT } = serve({
 import { inngest } from "../client";
 
 // 创建函数
-// v4 版本使用统一的 createFunction 方法
+// v4 版本使用 createFunction，触发器定义在第一个参数的 triggers 字段中
 export const processTask = inngest.createFunction(
   {
-    id: "process-task",          // 函数唯一 ID
-    retries: 3,                  // 失败时自动重试 3 次
-  },
-  {
-    event: "app/task.created",   // 触发条件：监听这个事件
+    id: "process-task",                             // 函数唯一 ID
+    retries: 3,                                     // 失败时自动重试 3 次
+    triggers: { event: "app/task.created" },       // 触发条件：监听这个事件
   },
   async ({ event, step }) => {
     // event - 触发这个函数的事件对象
