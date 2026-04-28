@@ -83,38 +83,35 @@ const inngest = new Inngest({
 ### 3.3 创建第一个函数
 
 ```typescript
-import { Inngest } from "inngest";
+// src/inngest/functions.ts
+import { inngest } from "./client";
 
-const inngest = new Inngest({ id: "my-app" });
-
-// 创建函数 - 第一个参数是函数名称
-const myFunction = inngest.createFunction(
-  { id: "hello-world" }, // 函数配置（可选）
+export const processTask = inngest.createFunction(
+  { id: "process-task", triggers: { event: "app/task.created" } },
   async ({ event, step }) => {
-    // event: 触发事件的数据
-    // step: 步骤控制API
-
-    // 使用 step.run 执行同步代码
-    await step.run("say-hello", async () => {
-      console.log("Hello, World!");
-      return { message: "Hello, World!" };
+    const result = await step.run("handle-task", async () => {
+      return { processed: true, id: event.data.id };
     });
 
-    return { success: true };
+    await step.sleep("pause", "1s");
+
+    return { message: `Task ${event.data.id} complete`, result };
   }
 );
 ```
 
-### 3.4 导出函数供 Inngest 调用
+### 3.4 在服务处理器中注册该函数
 
 ```typescript
-// 方式一：导出函数数组（适用于Next.js）
-export { myFunction };
+// src/app/api/inngest/route.ts
+import { serve } from "inngest/next";
+import { inngest } from "../../../inngest/client";
+import { processTask } from "../../../inngest/functions";
 
-// 方式二：使用 serve 函数包装
-import { serve } from "inngest";
-
-export default serve(inngest, [myFunction]);
+export const { GET, POST, PUT } = serve({
+  client: inngest,
+  functions: [processTask],
+});
 ```
 
 ---
