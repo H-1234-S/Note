@@ -37,7 +37,7 @@ await generateTrialWorkspace()
 
 - **本地开发支持**：提供 Dev Server，与生产环境完全一致
 
-### 1.4 工作原理图解
+### 1.4 工作原理
 
 ```
  调用inngest.send
