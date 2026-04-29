@@ -8,8 +8,19 @@ Inngest 是一个**事件驱动的后台任务/工作流编排平台**，专门�
 
 ### 1.2 解决了什么问题？
 
-把 **耗时、异步、定时、多步骤任务** 从前端请求拆分出去，在 **后台可靠执行**
+把 **耗时、异步、定时、多步骤任务** 从前端请求拆分出去，在 **后台可靠执行**。
 
+**例如：** 当用户注册网站后
+``` js
+await createUser()
+await sendWelcomeEmail()
+await createStripeCustomer()
+await syncCRM()
+await generateTrialWorkspace()
+```
+**问题：** 页面转圈五秒、某一步失败全挂、无日志跟踪
+
+使用Inngest后，用户注册后页面立即返回，所有任务后台执行。同时Inngest可以持久化执行。
 ### 1.3 核心特性
 
 - **持久化函数执行**：即使进程崩溃，函数也能从中断处恢复执行
