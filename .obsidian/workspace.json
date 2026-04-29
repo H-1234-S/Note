@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/回顾.md",
+                "file": "Front-end notes/库/Inngest学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "回顾 的大纲"
+              "title": "Inngest学习指南 的大纲"
             }
           },
           {
@@ -210,7 +210,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 268.5
+    "width": 268.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -224,14 +225,14 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "ca435a983d037838",
+  "active": "8bce73775639b696",
   "lastOpenFiles": [
+    "Project notes/Polaris/回顾.md",
     "Front-end notes/库/Inngest学习指南.md",
     "Project notes/VoxClone/Resonance.md",
     "Project notes/项目链接.md",
     "zode.md",
     "未命名.md",
-    "Project notes/Polaris/回顾.md",
     "Project notes/Polaris",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Front-end notes/Convex/Convex 完整教程.md",
