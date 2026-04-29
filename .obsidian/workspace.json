@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project notes/Polaris/回顾.md",
+                "file": "Project notes/Polaris/日志.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "回顾"
+              "title": "日志"
             }
           }
         ],
@@ -226,14 +226,14 @@
   },
   "active": "8bce73775639b696",
   "lastOpenFiles": [
-    "Project notes/Polaris/回顾.md",
+    "Project notes/Polaris/日志.md",
     "Front-end notes/库/Inngest学习指南.md",
+    "Front-end notes/Convex/Convex 完全指南.md",
     "Project notes/VoxClone/Resonance.md",
     "Project notes/项目链接.md",
     "zode.md",
     "未命名.md",
     "Project notes/Polaris",
-    "Front-end notes/Convex/Convex 完全指南.md",
     "Front-end notes/Convex/Convex 完整教程.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/Convex/未命名.base",

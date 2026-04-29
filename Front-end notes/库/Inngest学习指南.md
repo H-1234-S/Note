@@ -44,7 +44,7 @@ await generateTrialWorkspace()
 
 Inngest 本质上是 **事件总线 + 调度中心 + 无状态执行器 + 工作流恢复系统**
 
-解决了 Serverless 环境下如何可靠执行后台任务与长流程的问题。
+解决了 Serverless 环境下如何 可靠执行后台任务与长流程的问题。
 
 #### 整体架构图
 
