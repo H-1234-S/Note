@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/Inngest学习指南.md",
+                "file": "Project notes/Polaris/日志.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Inngest学习指南 的大纲"
+              "title": "日志 的大纲"
             }
           },
           {
@@ -224,10 +224,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "8bce73775639b696",
+  "active": "ca435a983d037838",
   "lastOpenFiles": [
-    "Project notes/Polaris/日志.md",
     "Front-end notes/库/Inngest学习指南.md",
+    "Project notes/Polaris/日志.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Project notes/VoxClone/Resonance.md",
     "Project notes/项目链接.md",
