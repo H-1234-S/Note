@@ -1,6 +1,27 @@
 # Inngest 学习指南
 
-> 文档版本: v2.1 (v4) | 最后更新: 2026-04-29
+> 文档版本: v2.2 (v4) | 最后更新: 2026-04-29
+
+## 目录
+
+1. [概述](#1-概述)
+2. [核心概念](#2-核心概念)
+3. [快速开始](#3-快速开始)
+4. [函数创建详解](#4-函数创建详解)
+5. [触发器详解](#5-触发器详解)
+6. [步骤与控制流](#6-步骤与控制流)
+7. [事件系统](#7-事件系统)
+8. [定时任务与调度](#8-定时任务与调度)
+9. [Next.js 集成进阶](#9-nextjs-集成进阶)
+10. [开发服务器](#10-开发服务器)
+11. [生产环境部署](#11-生产环境部署)
+12. [最佳实践](#12-最佳实践)
+13. [附录](#附录)
+14. [v4 版本新特性](#14-v4-版本新特性)
+
+---
+
+## 1. 概述
 
 ### 1.1 什么是 Inngest
 
@@ -13,7 +34,7 @@ Inngest 是一个**事件驱动的后台任务/工作流编排平台**，专门�
 把 **耗时、异步、定时、多步骤任务** 从前端请求拆分出去，在 **后台可靠执行**。
 
 **例如：** 当用户注册网站后
-``` js
+```js
 await createUser()
 await sendWelcomeEmail()
 await createStripeCustomer()
@@ -28,7 +49,7 @@ await generateTrialWorkspace()
 
 - **持久化函数执行**：即使进程崩溃，函数也能从中断处恢复执行
 
-	- **例子：** 如果函数有 5 个步骤，执行到第 3 步时服务器挂了，Inngest 会**记住**前两步已经做完了。等系统恢复，它会直接从第 3 步继续，而不是从头开始。这就叫**持久执行 (Durable Execution)**。
+  - **例子：** 如果函数有 5 个步骤，执行到第 3 步时服务器挂了，Inngest 会**记住**前两步已经做完了。等系统恢复，它会直接从第 3 步继续，而不是从头开始。这就叫**持久执行 (Durable Execution)**。
 
 - **事件驱动**：通过事件触发函数执行
 
@@ -42,71 +63,79 @@ await generateTrialWorkspace()
 
 ### 1.4 工作原理
 
-#### 核心定位
+#### 1.4.1 核心定位
 
 Inngest 的**执行流程**本质上是 **事件驱动 + 持久化步骤执行 + 自动重试 + 可恢复工作流**
 
 解决了 Serverless 环境下如何 可靠执行后台任务与长流程的问题。
 
-#### 整体架构图
+#### 1.4.2 整体架构图
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           Inngest 请求处理链路                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   ┌──────────┐         ┌───────────────┐         ┌──────────────────────┐   │
-│   │  你的     │  POST   │  Next.js      │  转发   │  Inngest             │   │
-│   │  前端/    │ ──────▶ │  API Route     │ ─────▶ │  Cloud              │    │
-│   │  后端     │         │  /api/inngest  │        │  (事件存储 + 调度器)  │    │
-│   └──────────┘         └───────────────┘         └──────────────────────┘   │
-│        │                      │                            │                │
-│        │                      │                            ▼                │
-│        │                      │                 ┌──────────────────────┐    │
-│        │                      │                 │  函数执行器           │    │
-│        │                      │                 │  step.run()          │    │
-│        │                      │                 │  (持久化状态)         │    │
-│        │                      │                 └──────────────────────┘    │
-│        │                      │                            │                │
-│        ◀──────────────────────┴────────────────────────────┘                │
-│                           函数执行结果/状态更新                                │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+```mermaid
+flowchart TB
+    subgraph Client["客户端"]
+        Frontend[前端/后端]
+    end
 
-#### 四层架构
+    subgraph NextJS["Next.js 应用"]
+        APIRoute["API Route<br/>/api/inngest"]
+    end
 
-```
-┌─────────────────────────────────────────────────────────────────────────────
-│                           Inngest 四层架构                                  
-├─────────────────────────────────────────────────────────────────────────────
-│                                                                             
-│  ① SDK Layer（你项目里）                                                    
-│     - inngest.send() 发送事件                                               
-│     - createFunction() 定义任务                                            
-│     - serve() 暴露 handler                                                 
-│                              │                                              
-│                              ▼                                              
-│  ② Event Layer（事件层）                                                    
-│     - 接收事件 → 持久化 → 去重 → 排队 → 路由                                
-│     - 事件不会直接执行任务，而是先进入事件系统                               
-│                              │                                              
-│                              ▼                                              
-│  ③ Orchestrator（调度编排层）⭐ 核心                                        
-│     - 哪个函数该执行？                                                       
-│     - 第几步执行到哪？                                                       
-│     - 失败是否重试？                                                         
-│     - 并发控制？定时触发？                                                   
-│                              │                                              
-│                              ▼                                              
-│  ④ Execution Layer（执行层）                                                
-│     - 调用你的 /api/inngest                                                
-│     - 执行 step.run()                                                       
-│     - 记录状态 / 重试 / 恢复                                                 
-│                                                                             
-└─────────────────────────────────────────────────────────────────────────────
+    subgraph InngestCloud["Inngest Cloud"]
+        EventStore["事件存储"]
+        Scheduler["调度器"]
+        FunctionExecutor["函数执行器<br/>step.run()"]
+    end
+
+    Frontend -->|"POST 事件"| APIRoute
+    APIRoute -->|"转发"| EventStore
+    EventStore --> Scheduler
+    Scheduler --> FunctionExecutor
+    FunctionExecutor -->|"回调"| APIRoute
 ```
 
-#### 执行流程详解
+#### 1.4.3 四层架构
+
+```mermaid
+flowchart TB
+    subgraph SDK["① SDK Layer（你项目里）"]
+        direction LR
+        Send["inngest.send()"]
+        Create["createFunction()"]
+        Serve["serve()"]
+    end
+
+    subgraph EventLayer["② Event Layer（事件层）"]
+        direction TB
+        E1["接收事件"]
+        E2["持久化"]
+        E3["去重"]
+        E4["排队"]
+        E5["路由"]
+        E1 --> E2 --> E3 --> E4 --> E5
+    end
+
+    subgraph Orchestrator["③ Orchestrator（调度编排层）⭐ 核心"]
+        direction TB
+        O1["哪个函数该执行？"]
+        O2["第几步执行到哪？"]
+        O3["失败是否重试？"]
+        O4["并发控制？定时触发？"]
+    end
+
+    subgraph Execution["④ Execution Layer（执行层）"]
+        direction TB
+        EX1["调用 /api/inngest"]
+        EX2["执行 step.run()"]
+        EX3["记录状态/重试/恢复"]
+    end
+
+    SDK --> EventLayer
+    EventLayer --> Orchestrator
+    Orchestrator --> Execution
+```
+
+#### 1.4.4 执行流程详解
 
 **你以为的执行方式：**
 ```
@@ -114,19 +143,20 @@ inngest.send(user.created) → 马上执行 welcome-email 函数
 ```
 
 **真实的执行方式：**
-```
-send(user.created)
-    ↓
-先交给 Inngest 云端系统
-    ↓
-系统记录这件事发生了（持久化）
-    ↓
-再决定触发哪些函数（查规则）
-    ↓
-再调用你的代码执行
+
+```mermaid
+sequenceDiagram
+    participant App as 应用代码
+    participant Cloud as Inngest 云端
+
+    App->>Cloud: send(user.created)
+    Note over Cloud: 先交给 Inngest 云端系统
+    Note over Cloud: 系统记录这件事发生了（持久化）
+    Note over Cloud: 再决定触发哪些函数（查规则）
+    Cloud->>App: 调用代码执行
 ```
 
-#### 为什么不直接执行？
+#### 1.4.5 为什么不直接执行？
 
 | 问题 | 直接执行的后果 |
 |------|---------------|
@@ -137,14 +167,11 @@ send(user.created)
 **先进系统再执行的好处：**
 
 - **排队**：1000 个事件先排队，一个个处理
-
 - **自动重试**：发邮件失败自动重试
-
 - **不阻塞前端**：前端 0.2 秒返回成功
-
 - **有日志**：知道谁失败了
 
-#### 本质理解
+#### 1.4.6 本质理解
 
 > `inngest.send()` 不是"执行任务"，而是"发通知"：发生了一件事，请安排后台处理。
 
@@ -156,25 +183,23 @@ createFunction() = 谁来处理消息
 step.run() = 怎么处理
 ```
 
-#### 无状态执行 + 有状态流程
+#### 1.4.7 无状态执行 + 有状态流程
 
 这是 Inngest 最核心的设计：
 
-| 组件                 | 特性  | 说明               |
-| ------------------ | --- | ---------------- |
-| **执行器（你的代码）**      | 无状态 | Next.js 函数执行完就结束 |
+| 组件 | 特性 | 说明 |
+| --- | --- | --- |
+| **执行器（你的代码）** | 无状态 | Next.js 函数执行完就结束 |
 | **流程（Inngest 云端）** | 有状态 | 记录执行到第几步、失败等待重试等 |
 
 即使服务器重启，Inngest 云端仍然记得：当前执行到第 2 步，第 3 步失败过，等待明天继续。
 
-#### 为什么适合 Serverless
+#### 1.4.8 为什么适合 Serverless
 
 Serverless 最大问题：
 
 - 函数会超时
-
 - 函数会销毁
-
 - 没有常驻 worker
 
 Inngest 解决方案：
@@ -185,263 +210,15 @@ Inngest 解决方案：
 
 ## 2. 核心概念
 
-### 2.1 核心组件
+### 2.1 核心组件概览
 
 | 组件 | 作用 | 说明 |
 | --- | --- | --- |
 | **Triggers (触发器)** | 定义何时执行函数 | 事件触发、定时触发、HTTP 触发 |
-| **Function（函数）** | 触发时执行的后台任务 | 收到某个事件后执行的后台任务 |
 | **Steps (步骤)** | 定义函数执行逻辑 | 每个步骤可自动重试、支持持久化状态 |
 | **Flow Control (流量控制)** | 控制执行方式 | 并发限制、速率限制、去抖动、优先级 |
-| **Retry（重试）** | 处理失败情况 | 指数退避、自动重试、最大尝试次数 |
-| **Sleep / Wait（等待）** | 暂停执行 | 延迟执行、等待特定时间 |
 | **Schedule（定时任务）** | 定时触发函数 | Cron 表达式调度 |
 | **Run History（执行历史）** | 记录执行状态 | 调试、日志追踪、状态回溯 |
-
-#### Trigger（触发器）
-
-触发器决定了函数何时被执行，是函数执行的入口。
-
-```typescript
-// 事件触发
-{ event: "user/signup" }
-
-// 多个事件触发（任一匹配即执行）
-{ events: ["user/signup", "user/login"] }
-
-// 带条件过滤的事件触发
-{
-  event: "payment/created",
-  where: {
-    "data.amount": { $gte: 100 },
-    "data.currency": "USD"
-  }
-}
-
-// 定时触发（Cron 表达式）
-{ cron: "0 2 * * *" }  // 每天凌晨2点
-
-// HTTP 触发（可通过 API 调用）
-{ id: "my-endpoint" }
-```
-
-#### Function（函数）
-
-函数是 Inngest 中的基本执行单元，每个函数包含触发条件和执行逻辑。
-
-```typescript
-const myFunction = inngest.createFunction(
-  {
-    id: "my-function",           // 唯一标识
-    name: "显示名称",              // 控制台显示名
-    retries: 3,                  // 重试次数
-    concurrency: 10,             // 并发限制
-    rateLimit: { limit: 100, period: "1m" },  // 速率限制
-  },
-  { event: "user/action" },      // 触发条件
-  async ({ event, step }) => {   // 执行逻辑
-    // 业务逻辑
-  }
-);
-```
-
-#### Step（步骤）
-
-步骤是函数内部的基本执行单元，每个步骤都会持久化状态，支持自动重试和断点恢复。
-
-```typescript
-async ({ step }) => {
-  // 同步步骤 - 原子性执行，支持自动重试
-  const result = await step.run("步骤名称", async () => {
-    return await doSomething();
-  });
-
-  // 延迟步骤 - 暂停执行
-  await step.sleep("wait-1h", "1h");
-
-  // 等待事件步骤 - 暂停直到收到特定事件
-  const event = await step.waitFor(
-    "wait-for-confirmation",
-    (e) => e.name === "order/confirmed",
-    { timeout: "24h" }
-  );
-
-  // 调用其他函数
-  await step.invoke("send-email", {
-    function: emailFunction,
-    data: { to: user.email }
-  });
-
-  return result;
-}
-```
-
-**步骤特性：**
-
-| 特性 | 说明 |
-| --- | --- |
-| 原子性 | 每个 step.run 都是独立的执行单元 |
-| 可恢复 | 进程崩溃后从上一个完成的步骤继续 |
-| 自动重试 | 失败的步骤会自动根据配置重试 |
-| 状态持久化 | 步骤结果自动存储到 Inngest 引擎 |
-| 执行日志 | 每个步骤都有独立的执行记录 |
-
-#### Flow Control（流量控制）
-
-流量控制用于管理函数的执行方式和资源使用。
-
-```typescript
-// 并发限制 - 限制同时执行的函数实例数
-{
-  concurrency: 5,  // 最多5个并发实例
-}
-
-// 按数据分组控制并发
-{
-  concurrency: 5,
-  matchingPaths: ["event.data.userId"],  // 每个 userId 最多5个并发
-}
-
-// 速率限制 - 控制执行频率
-{
-  rateLimit: {
-    limit: 100,      // 时间窗口内最多执行次数
-    period: "1m",    // 时间窗口（1分钟）
-    burst: 20,       // 允许的突发请求数
-  }
-}
-```
-
-#### Retry（重试）
-
-Inngest 提供强大的重试机制，确保任务最终成功。
-
-```typescript
-// 函数级别的重试配置
-{
-  retries: 3,  // 默认重试3次
-}
-
-// 详细重试配置
-{
-  retries: {
-    attempts: 5,           // 最多尝试5次
-    delay: "10s",          // 初始延迟10秒
-    backoff: "exponential", // 指数退避
-    maxDelay: "1h",        // 最大延迟1小时
-  }
-}
-
-// 单个步骤的重试配置
-await step.run("risky-operation", {
-  retry: {
-    attempts: 3,
-    delay: "5s",
-  }
-}, async () => {
-  // 可能失败的操作
-});
-```
-
-**重试时间轴：**
-
-```
-尝试 1 (立即)
-    ↓ 失败
-尝试 2 (等待 10s)
-    ↓ 失败
-尝试 3 (等待 20s) ← 指数退避
-    ↓ 失败
-尝试 4 (等待 40s)
-    ↓ 失败
-尝试 5 (等待 80s)
-    ↓ 失败
-标记为失败 ❌
-```
-
-#### Sleep / Wait（等待）
-
-等待机制允许函数在执行过程中暂停。
-
-```typescript
-// 基本延迟
-await step.sleep("delay-1h", "1h");
-
-// 复合时间
-await step.sleep("delay-custom", "1d2h30m");
-
-// 等待特定事件（用于异步流程协调）
-const confirmEvent = await step.waitFor(
-  "wait-for-payment",
-  (e) => e.name === "payment/confirmed" && e.data.orderId === orderId,
-  { timeout: "24h" }
-);
-```
-
-#### Schedule（定时任务）
-
-定时任务基于 Cron 表达式，支持灵活的时间调度。
-
-```typescript
-// 定时函数定义
-const dailyReport = inngest.createFunction(
-  { id: "daily-report" },
-  { cron: "0 9 * * *" },  // 每天早上9点
-  async () => {
-    await generateReport();
-  }
-);
-
-// 常用 Cron 表达式
-| 表达式 | 说明 |
-|--------|------|
-| `* * * * *` | 每分钟 |
-| `*/5 * * * *` | 每5分钟 |
-| `0 * * * *` | 每小时 |
-| `0 0 * * *` | 每天午夜 |
-| `0 9 * * 1-5` | 工作日早上9点 |
-| `0 0 1 * *` | 每月第一天 |
-
-// 定时任务也可以手动触发
-await inngest.send({ name: "ingest/schedule/report" });
-```
-
-#### Run History（执行历史）
-
-每个函数执行都会生成完整的执行记录，方便调试和追踪。
-
-```typescript
-// 函数执行上下文包含运行信息
-async ({ ctx, logger }) => {
-  ctx.run_id    // 当前运行的唯一 ID
-  ctx.attempt   // 当前重试次数
-
-  // 使用日志记录
-  logger.info("开始处理", { runId: ctx.run_id });
-  logger.warn("警告信息");
-  logger.error("错误信息", { error: err.message });
-
-  return { runId: ctx.run_id, attempt: ctx.attempt };
-}
-```
-
-**执行状态流转：**
-
-```
-┌─────────┐    触发    ┌─────────┐   完成    ┌──────────┐
-│ Waiting │ ─────────▶ │ Running │ ────────▶│ Completed│
-└─────────┘            └────┬────┘          └──────────┘
-                           │ 失败
-                           ▼
-                      ┌──────────┐   重试    ┌─────────┐
-                      │  Failed  │ ────────▶ │ Running │
-                      └──────────┘           └─────────┘
-                           │ 超过重试次数
-                           ▼
-                      ┌──────────┐
-                      │  Crashed │
-                      └──────────┘
-```
 
 ### 2.2 关键术语
 
@@ -455,45 +232,58 @@ async ({ ctx, logger }) => {
 
 ### 2.3 组件关系图
 
+```mermaid
+flowchart TB
+    Event["Event<br/>事件"] --> Function["Function<br/>函数"]
+
+    subgraph FunctionDetail["函数内部结构"]
+        direction LR
+        Step1["Step 1"] --> Step2["Step 2"] --> Step3["Step 3"] --> StepN["Step N"]
+    end
+
+    Function --> FlowControl["Flow Control<br/>流量控制"]
+    FlowControl --> Concurrency["并发限制 concurrency"]
+    FlowControl --> RateLimit["速率限制 rateLimit"]
+    FlowControl --> Retry["重试策略 retry"]
+
+    Function --> RunHistory["Run History<br/>执行历史"]
+    RunHistory --> States["每个步骤的执行状态"]
+    RunHistory --> Data["输入/输出数据"]
+    RunHistory --> Errors["错误和重试记录"]
 ```
-┌─────────────────────────────────────────────────────────────────────
-│                           Inngest 执行模型                          
-├─────────────────────────────────────────────────────────────────────
-│                                                                     
-│   ┌──────────┐                                                      
-│   │  Event   │ ──────────────────┐                                  
-│   └──────────┘                   │                                  
-│                                  ▼                                  
-│   ┌────────────────────────────────────────────────────────────────
-│   │                        Function                                
-│   │                                                                 
-│   │   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐   
-│   │   │ Step 1   │──▶│ Step 2   │──▶│ Step 3   │──▶│ Step N   │   
-│   │   └──────────┘   └──────────┘   └──────────┘   └──────────┘   
-│   │                                                                 
-│   │   ┌────────────────────────────────────────────────────────┐ 
-│   │   │              Flow Control (流量控制)                    │ 
-│   │   │   - 并发限制 (concurrency)                              │ 
-│   │   │   - 速率限制 (rateLimit)                                │ 
-│   │   │   - 重试策略 (retry)                                    │ 
-│   │   └────────────────────────────────────────────────────────┘ 
-│   │                                                                 
-│   └────────────────────────────────────────────────────────────────
-│                                │                                  
-│                                ▼                                  
-│   ┌────────────────────────────────────────────────────────────────
-│   │                    Run History (执行历史)                      
-│   │   - 每个步骤的执行状态                                          
-│   │   - 输入/输出数据                                              
-│   │   - 错误和重试记录                                             
-│   └────────────────────────────────────────────────────────────────
-│                                                                     
-└─────────────────────────────────────────────────────────────────────
+
+### 2.4 执行状态流转
+
+```mermaid
+stateDiagram-v2
+    [*] --> Waiting: 触发
+    Waiting --> Running: 开始执行
+    Running --> Completed: 成功完成
+    Running --> Failed: 执行失败
+    Failed --> Running: 重试
+    Failed --> Crashed: 超过重试次数
+```
+
+### 2.5 重试时间轴
+
+```mermaid
+gantt
+    title 重试时间轴（指数退避）
+    dateFormat X
+    axisFormat %fs
+
+    section 尝试
+    尝试 1 (立即)       :0, 1
+    尝试 2 (等待 10s)    :1, 11
+    尝试 3 (等待 20s)    :12, 32
+    尝试 4 (等待 40s)    :33, 73
+    尝试 5 (等待 80s)    :74, 154
+    标记失败            :154, 155
 ```
 
 ---
 
-## 3. Next.js 快速开始
+## 3. 快速开始
 
 本节将带你创建一个最简单的 Inngest 后台任务处理流程。理解每个步骤的「为什么」，比单纯复制代码更重要。
 
@@ -501,28 +291,25 @@ async ({ ctx, logger }) => {
 
 在开始之前，先理解整个请求链路：
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           Inngest 请求处理链路                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   ┌──────────┐         ┌───────────────┐         ┌──────────────────────┐   │
-│   │  你的    │  POST   │  Next.js      │  转发    │  Inngest              │  │
-│   │  前端/   │ ──────▶ │  API Route     │ ──────▶ │  Dev Server           │  │
-│   │  后端    │         │  /api/inngest  │         │  (localhost:8288)     │  │
-│   └──────────┘         └───────────────┘         └──────────────────────┘│
-│        │                      │                            │              │
-│        │                      │                            ▼              │
-│        │                      │                 ┌──────────────────────┐ │
-│        │                      │                 │  函数执行器            │ │
-│        │                      │                 │  step.run()          │ │
-│        │                      │                 │  step.sleep()        │ │
-│        │                      │                 │  (持久化状态)         │ │
-│        │                      │                 └──────────────────────┘ │
-│        │                      │                            │              │
-│        ◀──────────────────────┴────────────────────────────┘              │
-│                           函数执行结果/状态更新                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Client["客户端"]
+        Frontend["前端/后端"]
+    end
+
+    subgraph NextJS["Next.js App<br/>localhost:3000"]
+        APIRoute["API Route<br/>/api/inngest"]
+    end
+
+    subgraph DevServer["Inngest Dev Server<br/>localhost:8288"]
+        EventQueue["事件队列"]
+        FunctionExecutor["函数执行器<br/>step.run()<br/>step.sleep()<br/>持久化状态"]
+    end
+
+    Frontend -->|"POST 事件"| APIRoute
+    APIRoute -->|"转发"| EventQueue
+    EventQueue --> FunctionExecutor
+    FunctionExecutor -->|"回调"| APIRoute
 ```
 
 **核心流程：**
@@ -585,38 +372,25 @@ export const { GET, POST, PUT } = serve({
 });
 ```
 
- **serve 做了什么？**
+**serve 做了什么？**
 
- ```
- ┌─────────────────────────────────────────────────────────────────┐
- │                      serve() 内部原理                          │
- ├─────────────────────────────────────────────────────────────────┤
- │                                                                 │
- │   Inngest 平台                    你的 Next.js App               │
- │                                                                 │
- │   准备执行函数 ──────────────────────────────────────────────▶  │
- │                                    │                            │
- │                                    ▼                            │
- │                              POST /api/inngest                  │
- │                                    │                            │
- │                                    ▼                            │
- │                              serve() 接收                       │
- │                                    │                            │
- │                                    ▼                            │
- │                              找到对应函数                        │
- │                                    │                            │
- │                                    ▼                            │
- │                              执行函数逻辑                        │
- │                                    │                            │
- │   ◀────────────────────────────────────────────────────────── │
- │   返回执行结果                                                      │
- │                                                                 │
- └─────────────────────────────────────────────────────────────────┘
- ```
+```mermaid
+sequenceDiagram
+    participant Platform as Inngest 平台
+    participant Route as Next.js<br/>API Route
+    participant Func as 函数逻辑
 
- `serve` 实际上是一个适配器，它把 Inngest 的函数注册格式转换为 Next.js API Route 的处理逻辑。
- 
- 你的函数不会在这里直接执行，而是由 Inngest 平台的执行器（运行在你的服务器上或云端）来调度。
+    Platform->>Route: 准备执行函数
+    Route->>Route: POST /api/inngest
+    Route->>Route: serve() 接收请求
+    Route->>Route: 找到对应函数
+    Route->>Func: 执行函数逻辑
+    Func-->>Platform: 返回执行结果
+```
+
+`serve` 实际上是一个适配器，它把 Inngest 的函数注册格式转换为 Next.js API Route 的处理逻辑。
+
+你的函数不会在这里直接执行，而是由 Inngest 平台的执行器（运行在你的服务器上或云端）来调度。
 
 ### 3.5 创建第一个函数
 
@@ -654,34 +428,34 @@ export const processTask = inngest.createFunction(
 ```
 
 > **为什么要用 step.run() 而不是直接写代码？**
->
- 区别在于**持久化和可恢复性**：
 
- | 特性 | 直接代码 | step.run() |
- |------|---------|------------|
- | 进程崩溃后恢复 | ❌ 需要从头开始 | ✅ 从断点继续 |
- | 重试粒度 | 整个函数重试 | 精确到单个步骤 |
- | 执行日志 | 需要自己实现 | 自动记录每个步骤 |
- | 状态追踪 | 需要自己实现 | 自动持久化 |
+区别在于**持久化和可恢复性**：
 
- ```typescript
- // ❌ 直接写 - 崩溃后整个函数要重新执行
- async ({ event }) => {
-   const user = await fetchUser(event.data.userId);  // 可能成功
-   await sendEmail(user.email);                       // 可能失败，但用户已经获取了
- }
+| 特性 | 直接代码 | step.run() |
+|------|---------|------------|
+| 进程崩溃后恢复 | ❌ 需要从头开始 | ✅ 从断点继续 |
+| 重试粒度 | 整个函数重试 | 精确到单个步骤 |
+| 执行日志 | 需要自己实现 | 自动记录每个步骤 |
+| 状态追踪 | 需要自己实现 | 自动持久化 |
 
- // ✅ 用 step.run() - 精确控制每一步
- async ({ step }) => {
-   const user = await step.run("fetch-user", async () => {
-     return await fetchUser(event.data.userId);  // 如果成功，重试时跳过
-   });
+```typescript
+// ❌ 直接写 - 崩溃后整个函数要重新执行
+async ({ event }) => {
+  const user = await fetchUser(event.data.userId);  // 可能成功
+  await sendEmail(user.email);                       // 可能失败，但用户已经获取了
+}
 
-   await step.run("send-email", async () => {
-     return await sendEmail(user.email);          // 如果失败，只重试这一步
-   });
- }
- ```
+// ✅ 用 step.run() - 精确控制每一步
+async ({ step }) => {
+  const user = await step.run("fetch-user", async () => {
+    return await fetchUser(event.data.userId);  // 如果成功，重试时跳过
+  });
+
+  await step.run("send-email", async () => {
+    return await sendEmail(user.email);          // 如果失败，只重试这一步
+  });
+}
+```
 
 ### 3.6 在函数文件中导出
 
@@ -752,34 +526,31 @@ npx inngest-cli@latest dev
 
 > **Dev Server 的作用：**
 >
+> ```mermaid
+> flowchart LR
+>     subgraph NextJS["你的 Next.js App<br/>localhost:3000"]
+>         Send["inngest.send()"]
+>     end
+>
+>     subgraph DevServer["Inngest Dev Server<br/>localhost:8288"]
+>         Queue["事件队列"]
+>         Storage["内存/文件存储"]
+>         Executor["函数执行器"]
+>         UI["Web UI<br/>执行日志<br/>历史记录"]
+>     end
+>
+>     Send -->|"发送事件"| Queue
+>     Queue --> Storage
+>     Storage --> Executor
+>     Executor -->|"函数执行结果"| Storage
+>     UI --> Storage
 > ```
-> ┌─────────────────────────────────────────────────────────────────┐
-> │                        开发环境架构                              │
-> ├─────────────────────────────────────────────────────────────────┤
-> │                                                                 │
-> │   你的 Next.js App              Inngest Dev Server              │
-> │   localhost:3000                localhost:8288                    │
-> │                                                                 │
-> │         │                                ▲                      │
-> │         │                                │                      │
-> │         │    ┌────────────────────────────┘                      │
-> │         │    │                                                 │
-> │         ▼    ▼                                                 │
-> │   ┌──────────────┐                                             │
-> │   │ inngest.send()│ ──── 发送事件 ────▶ 事件队列                 │
-> │   └──────────────┘                    /内存/文件存储             │
-> │                                          │                      │
-> │                                          ▼                      │
-> │   ◀────────── 函数执行结果 ────────── 函数执行器                  │
-> │                                                                 │
-> │   Dev Server 模拟了完整的 Inngest 平台行为：                      │
-> │   - 事件接收和存储                                               │
-> │   - 函数调度和执行                                               │
-> │   - 状态持久化（开发模式下通常用内存）                            │
-> │   - Web UI（查看执行日志、历史记录）                              │
-> │                                                                 │
-> └─────────────────────────────────────────────────────────────────┘
-> ```
+>
+> Dev Server 模拟了完整的 Inngest 平台行为：
+> - 事件接收和存储
+> - 函数调度和执行
+> - 状态持久化（开发模式下通常用内存）
+> - Web UI（查看执行日志、历史记录）
 >
 > **关键点：** 开发时 `inngest.send()` 会发送到本地 Dev Server，而不是真实的 Inngest 云平台。
 > 这样可以在本地完整测试整个流程，无需配置任何外部服务。
@@ -884,7 +655,7 @@ async ({ event, step, ctx, logger, input }) => {
 
   // ctx - 执行上下文
   //   ctx.run_id   - 当前运行ID
-  //   ctxattempt    - 当前重试次数
+  //   ctx.attempt  - 当前重试次数
 
   // logger - 日志记录器
   logger.info("信息日志");
@@ -1198,6 +969,22 @@ await step.run("unreliable-service", {
 });
 ```
 
+**重试时间轴示意：**
+
+```mermaid
+gantt
+    title 重试时间轴（指数退避）
+    dateFormat X
+    axisFormat %fs
+
+    section 尝试
+    尝试 1 (立即)       :0, 1
+    尝试 2 (等待 10s)    :1, 11
+    尝试 3 (等待 20s)    :12, 32
+    尝试 4 (等待 40s)    :33, 73
+    尝试 5 (等待 80s)    :74, 154
+```
+
 ### 6.6 并发控制
 
 ```typescript
@@ -1386,16 +1173,11 @@ const quarterlyReport = inngest.createFunction(
 
 ---
 
-## 9. Next.js 集成详解
+## 9. Next.js 集成进阶
 
-### 9.1 为什么使用 Inngest + Next.js
+> 本章是 [第3章 快速开始](#3-快速开始) 的进阶内容，包含第3章中没有的 Middleware 和部署相关内容。第3章已涵盖的基础内容（安装、客户端创建、HTTP处理器、函数创建等）不再重复。
 
-- **后台任务处理**：Next.js API Routes 适合处理同步请求，对于耗时操作（如发送邮件、图像处理）使用 Inngest
-- **可靠性**：Inngest 提供持久化和重试机制，确保任务完成
-- **开发体验**：本地开发时使用 Dev Server，与生产环境一致
-- **零额外基础设施**：无需搭建 Redis/RabbitMQ 等消息队列
-
-### 9.2 项目结构推荐
+### 9.1 项目结构推荐
 
 ```
 my-nextjs-app/
@@ -1416,231 +1198,7 @@ my-nextjs-app/
     └── inngest.ts                # 可选：单独的客户端实例
 ```
 
-### 9.3 安装与配置
-
-```bash
-npm install inngest
-```
-
-### 9.4 创建 Inngest 客户端
-
-```typescript
-// inngest/client.ts
-import { Inngest } from "inngest";
-
-// 创建 Inngest 实例
-// 推荐在单独文件中创建，方便复用
-export const inngest = new Inngest({
-  id: "my-nextjs-app",  // 应用唯一ID，建议使用项目名
-  eventKey: process.env.INNGEST_EVENT_KEY,  // 从环境变量读取
-});
-```
-
-### 9.5 创建 HTTP 处理器
-
-```typescript
-// app/api/inngest/route.ts
-import { serve } from "inngest/next";
-import { inngest } from "@/inngest/client";
-import { functions } from "@/inngest/functions";
-
-// 导出 serve 函数处理 Inngest 请求
-export const { GET, POST, PUT } = serve({
-  client: inngest,
-  functions,  // 注册所有函数
-});
-```
-
-### 9.6 创建用户注册函数示例
-
-```typescript
-// inngest/functions/user.signup.ts
-import { inngest } from "../client";
-
-export const handleUserSignup = inngest.createFunction(
-  {
-    id: "user-signup",         // 唯一ID
-    name: "处理用户注册",       // 显示名称
-    retries: 3,               // 重试次数
-  },
-  { event: "user/signup" },   // 监听事件
-  async ({ event, step }) => {
-    const { userId, email, name } = event.data;
-
-    // 步骤1：创建用户记录
-    await step.run("create-user-record", async () => {
-      await db.users.create({
-        id: userId,
-        email,
-        name,
-        createdAt: new Date(),
-      });
-      return { success: true, userId };
-    });
-
-    // 步骤2：发送欢迎邮件（模拟）
-    await step.run("send-welcome-email", async () => {
-      console.log(`发送欢迎邮件到 ${email}`);
-      // await sendEmail({ to: email, template: "welcome" });
-      return { sent: true };
-    });
-
-    // 步骤3：等待1分钟后发送调查问卷
-    await step.sleep("wait-before-survey", "1m");
-
-    // 步骤4：发送调查问卷邀请
-    await step.run("send-survey-invite", async () => {
-      console.log(`发送调查问卷邀请给 ${email}`);
-      return { surveySent: true };
-    });
-
-    return { processed: true, userId };
-  }
-);
-```
-
-### 9.7 批量注册函数
-
-```typescript
-// inngest/functions/index.ts
-import { handleUserSignup } from "./user.signup";
-import { processOrder } from "./order.process";
-import { dailyCleanup } from "./scheduled.tasks";
-
-export const functions = [
-  handleUserSignup,
-  processOrder,
-  dailyCleanup,
-];
-```
-
-### 9.8 在 Next.js API Route 中发送事件
-
-```typescript
-// app/api/auth/signup/route.ts
-import { inngest } from "@/inngest/client";
-import { NextRequest, NextResponse } from "next/server";
-
-export async function POST(req: NextRequest) {
-  const { email, name, password } = await req.json();
-
-  // 1. 创建用户（同步）
-  const user = await db.users.create({
-    email,
-    name,
-    // 注意：密码应该哈希处理
-  });
-
-  // 2. 发送 Inngest 事件触发后台任务
-  // 这是一个异步操作，不会阻塞响应
-  await inngest.send({
-    name: "user/signup",
-    data: {
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-    },
-  });
-
-  // 3. 立即返回响应给用户
-  return NextResponse.json({
-    success: true,
-    user: { id: user.id, email: user.email },
-  });
-}
-```
-
-### 9.9 在页面组件中发送事件
-
-```typescript
-// app/page.tsx
-"use client";
-
-import { inngest } from "@/inngest/client";
-
-export default function SignupPage() {
-  const handleSubmit = async (formData: FormData) => {
-    const email = formData.get("email") as string;
-    const name = formData.get("name") as string;
-
-    // 提交表单
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      body: JSON.stringify({ email, name }),
-    });
-
-    if (res.ok) {
-      // 用户注册已成功，后台任务会自动触发
-      alert("注册成功！");
-    }
-  };
-
-  return (
-    <form action={handleSubmit}>
-      <input name="email" type="email" />
-      <input name="name" type="text" />
-      <button type="submit">注册</button>
-    </form>
-  );
-}
-```
-
-### 9.10 定时任务示例
-
-```typescript
-// inngest/functions/scheduled.tasks.ts
-import { inngest } from "../client";
-
-// 每天凌晨2点清理过期会话
-export const cleanupExpiredSessions = inngest.createFunction(
-  {
-    id: "cleanup-expired-sessions",
-    name: "清理过期会话",
-    retries: 1,  // 清理任务不需要太多重试
-  },
-  { cron: "0 2 * * *" },
-  async () => {
-    const result = await db.sessions.deleteMany({
-      where: {
-        expiresAt: { lt: new Date() },
-      },
-    });
-    return { deletedCount: result.deletedCount };
-  }
-);
-
-// 每5分钟处理积压的邮件发送任务
-export const processEmailQueue = inngest.createFunction(
-  {
-    id: "process-email-queue",
-    name: "处理邮件队列",
-    concurrency: 5,  // 限制并发数
-  },
-  { cron: "*/5 * * * *" },
-  async ({ step }) => {
-    const pending = await step.run("fetch-pending-emails", async () => {
-      return await db.emailQueue.findMany({
-        where: { status: "pending" },
-        take: 100,  // 每次最多处理100封
-      });
-    });
-
-    for (const email of pending) {
-      await step.run(`send-email-${email.id}`, async () => {
-        await sendEmail(email);
-        await db.emailQueue.update({
-          where: { id: email.id },
-          data: { status: "sent", sentAt: new Date() },
-        });
-      });
-    }
-
-    return { processed: pending.length };
-  }
-);
-```
-
-### 9.11 使用 Middleware
+### 9.2 使用 Middleware
 
 Inngest 支持中间件来添加日志、追踪等功能。
 
@@ -1673,7 +1231,7 @@ export const inngest = new Inngest({
 });
 ```
 
-### 9.12 部署到生产环境
+### 9.3 部署到生产环境
 
 **环境变量配置：**
 
@@ -2129,13 +1687,13 @@ npx inngest event send user/signup '{"userId":"123"}'
 
 ---
 
-## 13. v4 版本新特性
+## 14. v4 版本新特性
 
-### 13.1 v4 版本概述
+### 14.1 v4 版本概述
 
 Inngest SDK v4 是最新的主要版本（当前最新稳定版：4.1.0，2026年3月25日发布）。v4 版本在内部架构、中间件生态和开发者体验方面进行了重大改进。
 
-### 13.2 主要变化
+### 14.2 主要变化
 
 #### 1. Connect 架构重构
 
@@ -2264,7 +1822,7 @@ process.on("SIGTERM", async () => {
 });
 ```
 
-### 13.3 v4 迁移指南
+### 14.3 v4 迁移指南
 
 #### 从 v3 升级到 v4
 
@@ -2311,7 +1869,7 @@ const v4Middleware = new InngestMiddleware({
 
 v4 中 `step.run` 的第二个参数类型有调整，确保你的函数返回值类型正确。
 
-### 13.4 v4 版本支持的环境
+### 14.4 v4 版本支持的环境
 
 | 环境 | v4 支持状态 |
 |------|------------|
@@ -2323,7 +1881,7 @@ v4 中 `step.run` 的第二个参数类型有调整，确保你的函数返回�
 | Deno | ✅ 支持 |
 | TypeScript 4.9+ | ✅ 支持 |
 
-### 13.5 v4 新增的环境变量
+### 14.5 v4 新增的环境变量
 
 | 变量 | 说明 |
 |------|------|
@@ -2331,7 +1889,7 @@ v4 中 `step.run` 的第二个参数类型有调整，确保你的函数返回�
 | `INNGEST_LOG_LEVEL` | 日志级别（debug, info, warn, error） |
 | `INNGEST_TRACE` | 启用追踪（true/false） |
 
-### 13.6 v4 官方文档资源
+### 14.6 v4 官方文档资源
 
 - **v3 到 v4 迁移指南**: https://www.inngest.com/docs/reference/typescript/v4/migrations/v3-to-v4
 - **官方文档**: https://www.inngest.com/docs
@@ -2339,5 +1897,5 @@ v4 中 `step.run` 的第二个参数类型有调整，确保你的函数返回�
 
 ---
 
-*文档版本: v2.0 (v4)*
-*最后更新: 2026-04-27*
+*文档版本: v2.2 (v4)*
+*最后更新: 2026-04-29*
