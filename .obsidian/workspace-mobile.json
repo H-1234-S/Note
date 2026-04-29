@@ -137,14 +137,17 @@
             "id": "5d46b9b3a09ff17b",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "八股/浏览器篇_高频八股文.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/VoxClone/需求.canvas",
+                "viewState": {
+                  "x": 287.8862030512098,
+                  "y": -576.6963847047689,
+                  "zoom": -1.3982757914758615
+                }
               },
-              "icon": "lucide-file",
-              "title": "浏览器篇_高频八股文"
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
             }
           }
         ],
@@ -296,8 +299,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "66cdfe62b8e41325",
+  "active": "5d46b9b3a09ff17b",
   "lastOpenFiles": [
+    "八股/浏览器篇_高频八股文.md",
     "学习/技术栈.md",
     "八股/JavaScript篇_高频八股文.md",
     "Project notes/VoxClone/需求.canvas",
@@ -335,7 +339,6 @@
     "/Front-end notes/Tanstack Form",
     "/Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "/Front-end notes/TanStack Query",
-    "/Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
     "Project notes/resonance/需求.canvas",
     "/Project notes/resonance/需求.canvas",
     "Front-end notes/Pasted image 20260328115001.png",
