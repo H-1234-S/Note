@@ -1025,6 +1025,8 @@ function fn() {
 **箭头函数的this**：
 - **不绑定自己的this**
 
+- 解决了普通函数调用时this指向二义性
+
 - **继承外层作用域的this**
 ```javascript
 const obj = {
