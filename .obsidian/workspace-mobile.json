@@ -137,14 +137,17 @@
             "id": "d23a707179ac6c3f",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "八股/JavaScript篇_高频八股文.md",
-                "mode": "source",
-                "source": false
+                "file": "Project notes/VoxClone/需求.canvas",
+                "viewState": {
+                  "x": -2072.552726227368,
+                  "y": -807.8491478216249,
+                  "zoom": -1.3541591539650912
+                }
               },
-              "icon": "lucide-file",
-              "title": "JavaScript篇_高频八股文"
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
             }
           }
         ],
@@ -298,6 +301,10 @@
   },
   "active": "d23a707179ac6c3f",
   "lastOpenFiles": [
+    "/Front-end notes/库/Inngest学习指南.md",
+    "/Front-end notes/库",
+    "/Front-end notes",
+    "八股/JavaScript篇_高频八股文.md",
     "未命名.md",
     "Project notes/VoxClone/知识点.md",
     "Project notes/VoxClone/知识内容.md",
@@ -314,10 +321,8 @@
     "/Project notes/VoxClone/面试.md",
     "/Project notes/VoxClone/需求.canvas",
     "/Front-end notes/库/wavesurfer.js-基础知识.md",
-    "/Front-end notes/库",
     "/Front-end notes/React/React.md",
     "/Front-end notes/React",
-    "/Front-end notes",
     "/未命名.md",
     "/Project notes/VoxClone/知识内容.md",
     "/Project notes/VoxClone",
@@ -334,8 +339,6 @@
     "/Front-end notes/TanStack Query",
     "/Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
     "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
-    "/Front-end notes/React/Zustand知识大全.md",
-    "/Front-end notes/Next.JS/Next.js.md",
     "Project notes/resonance/需求.canvas",
     "/Project notes/resonance/需求.canvas",
     "Front-end notes/Pasted image 20260328115001.png",
