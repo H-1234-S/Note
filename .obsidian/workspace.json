@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project notes/Polaris/日志.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "日志"
+              "title": "Logs"
             }
           }
         ],
@@ -153,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/日志.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "日志 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -213,7 +213,7 @@
   "active": "ca435a983d037838",
   "lastOpenFiles": [
     "Front-end notes/库/Inngest学习指南.md",
-    "Project notes/Polaris/日志.md",
+    "Project notes/Polaris/Logs.md",
     "Front-end notes/库/Inngest学习指南.md.tmp.2400.1777467831333",
     "Front-end notes/库/Inngest学习指南.md.tmp.2400.1777467565859",
     "Project notes/VoxClone/需求.canvas",
