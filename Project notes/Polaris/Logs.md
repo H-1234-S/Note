@@ -66,4 +66,20 @@ sentry可以在**生产环境**下进行了错误跟踪，也是**非常非常�
 
 同时inngest还有sentry middleware中间件，可以捕获异常并报告、还可以对每个函数添加追踪。
 
-**运行流程可以概括为：** **首先**Sentry.init注册了全局错误监听，并且与远端sentry服务器连接；**然后**发生错误时，sentry sdk自动捕获错误
+**运行流程可以概括为：** **首先**Sentry.init注册了全局错误监听，并且与远端sentry服务器连接；**然后**发生错误时，sentry sdk自动捕获错误，运行`Sentry.captureException(error)`，并且收集上下文信息，将context打包为json发送给sentry 服务器。
+
+在不用环境的运行方式也不同，在**浏览器环境**下：监听 `window.onerror`，监听 Promise 错误，记录用户行为（点击、路由）。在**服务器环境**下：捕获接口异常、数据库错误、业务逻辑错误。在**severless/inngest环境**下：哪个 step 出错、输入参数、- 执行路径
+
+```
+[你的代码]
+     ↓
+[Sentry SDK]
+     ↓
+[事件收集 + 上下文]
+     ↓
+[HTTP上报]
+     ↓
+[Sentry服务端]
+     ↓
+[错误分析 + UI]
+```
