@@ -1189,6 +1189,8 @@ console.log(alice.age);   // 18
 
    - `setImmediate`（Node.js）
 
+   - `script标签`
+
    - I/O、UI渲染
 
 2. **微任务（Micro Task）**
