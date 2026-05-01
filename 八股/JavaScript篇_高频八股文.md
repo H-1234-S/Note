@@ -1339,20 +1339,29 @@ console.log('script end');
 // async1 start
 // async2
 // script end
+// async1 end
 // promise1
 // promise2
-// async1 end
 // setTimeout
 ```
 
 **解析**：
+
 1. `await async2()`相当于`async2().then(() => { console.log('async1 end'); })`
 2. `await`后面的代码会被放入微任务队列
 3. 执行顺序：同步 → 微任务（按顺序）→ 宏任务
 
+核心知识点总结
+
+- Await 的本质：在现代 JavaScript 中，await 之后的代码可以理解为包装在 .then() 回调中的微任务。它会在 await 所在的表达式执行完后，立即将后续逻辑送入微任务队列。
+
+- 微任务优先：每当调用栈（Call Stack）清空，JS 引擎会先一口气清空所有的微任务，然后才会去宏任务队列拿出一个任务执行。
+
+- Promise 链式调用：.then() 只有在前一个 Promise 状态变为 resolved 时才会进入队列，所以 promise2 会排在 async1 end 后面。
+
 ---
 
-## 6. Promise与异步编程 {#promise-async}
+## 6. Promise与异步编程 
 
 ### 6.1 Promise是什么？有哪些状态？
 **考点**：异步编程基础
