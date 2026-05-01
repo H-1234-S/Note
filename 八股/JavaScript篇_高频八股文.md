@@ -1157,7 +1157,7 @@ console.log(alice.age);   // 18
 
 ---
 
-## 5. 事件循环 {#event-loop}
+## 5. 事件循环 
 
 ### 5.1 什么是事件循环（Event Loop）？
 **考点**：JavaScript执行机制核心

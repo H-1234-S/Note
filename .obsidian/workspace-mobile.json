@@ -165,7 +165,7 @@
             }
           }
         ],
-        "currentTab": 10
+        "currentTab": 8
       }
     ],
     "direction": "vertical"
@@ -289,7 +289,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "八股/浏览器篇_高频八股文.md",
+            "file": "八股/JavaScript篇_高频八股文.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -313,13 +313,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "8aafab68428148b6",
+  "active": "102de034f2482a52",
   "lastOpenFiles": [
+    "Project notes/Polaris/Logs.md",
     "/Project notes/Polaris/Logs.md",
     "/Project notes/Polaris",
     "/Project notes",
     "Project notes/VoxClone/需求.canvas",
-    "Project notes/Polaris/Logs.md",
     "未命名.base",
     "/未命名.base",
     "/Front-end notes/库/Inngest学习指南.md",
