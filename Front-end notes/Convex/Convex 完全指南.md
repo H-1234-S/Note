@@ -1097,7 +1097,7 @@ const createProject = useMutation(api.projects.create)
 
 #### localStore API
 
-`localStore` 对象提供以下方法：
+`localStore` 表示本地缓存数据库，提供以下方法：
 
 ```typescript
 // 获取某个查询的当前数据
