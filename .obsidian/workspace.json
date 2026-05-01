@@ -49,7 +49,8 @@
               "title": "Resonance"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -167,13 +168,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Convex/Convex 完全指南.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Convex 完全指南 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -224,8 +225,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "724d27c54d74efca",
+  "active": "ca435a983d037838",
   "lastOpenFiles": [
+    "Front-end notes/Convex/Convex 完全指南.md",
     "Project notes/Polaris/Logs.md",
     "Project notes/VoxClone/Resonance.md",
     "未命名.base",
@@ -233,7 +235,6 @@
     "Front-end notes/库/Inngest学习指南.md.tmp.2400.1777467831333",
     "Front-end notes/库/Inngest学习指南.md.tmp.2400.1777467565859",
     "Project notes/VoxClone/需求.canvas",
-    "Front-end notes/Convex/Convex 完全指南.md",
     "Project notes/项目链接.md",
     "zode.md",
     "未命名.md",
