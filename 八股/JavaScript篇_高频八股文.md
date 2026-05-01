@@ -1160,7 +1160,10 @@ console.log(alice.age);   // 18
 ## 5. 事件循环 
 
 ### 5.1 什么是事件循环（Event Loop）？
-**考点**：JavaScript执行机制核心
+
+事件循环是 JavaScript 运行时（Runtime）的一种协调机制。
+
+它的核心任务是：监控调用栈 (Call Stack) 和 任务队列 (Task Queue)，并在调用栈为空时，将队列中的任务移交给栈去执行。
 
 **事件循环定义**：
 - JavaScript是**单线程**语言
