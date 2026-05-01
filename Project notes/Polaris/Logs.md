@@ -84,4 +84,10 @@ sentry可以在**生产环境**下进行了错误跟踪，也是**非常非常�
 [错误分析 + UI]
 ```
 
-# desgin skills
+# design skills
+
+## shadcn
+
+## frontend-design
+
+# projects
