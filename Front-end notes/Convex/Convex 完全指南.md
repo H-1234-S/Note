@@ -1097,8 +1097,9 @@ const createProject = useMutation(api.projects.create)
 
 #### localStore API
 
-`localStore` 表示本地缓存数据库，提供以下方法：
+`localStore` 表示本地缓存数据库
 
+方法：
 ```typescript
 // 获取某个查询的当前数据
 localStore.getQuery(queryFunction, args)
@@ -1109,6 +1110,8 @@ localStore.setQuery(queryFunction, args, newData)
 // 清除所有乐观更新（回滚）
 localStore.rollback()
 ```
+
+`getQuery` 和 `setQuery` 是对**Convex 客户端在浏览器内存中的实时查询缓存**进行操作。
 
 #### 完整示例：创建项目
 
