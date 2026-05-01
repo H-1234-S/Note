@@ -1075,152 +1075,152 @@ function Post({ postId }: { postId: string }) {
 
 #### withOptimisticUpdate 精细化控制
 
-`withOptimisticUpdate` 允许你自定义乐观更新的行为，在 mutation 执行前立即更新本地状态：
+`withOptimisticUpdate` 通过链式调用来自定义乐观更新行为，在 mutation 执行前立即更新本地缓存：
 
 ```tsx
-import { useMutation, useQuery, withOptimisticUpdate } from "convex/react";
+// 链式调用 withOptimisticUpdate
+const createProject = useMutation(api.projects.create)
+  .withOptimisticUpdate((localStore, args) => {
+    // localStore.getQuery 获取当前查询数据
+    const projects = localStore.getQuery(api.projects.list);
+
+    // localStore.setQuery 设置更新后的数据
+    localStore.setQuery(api.projects.list, {}, [
+      ...projects,
+      {
+        _id: "temp-id",  // 临时 ID，服务器会返回真实 ID
+        name: args.name,
+      }
+    ]);
+  });
+```
+
+#### localStore API
+
+`localStore` 对象提供以下方法：
+
+```typescript
+// 获取某个查询的当前数据
+localStore.getQuery(queryFunction, args)
+
+// 设置某个查询的本地数据
+localStore.setQuery(queryFunction, args, newData)
+
+// 清除所有乐观更新（回滚）
+localStore.rollback()
+```
+
+#### 完整示例：创建项目
+
+```tsx
+// src/components/ProjectList.tsx
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 
-function Post({ postId }: { postId: string }) {
-  const post = useQuery(api.functions.getPost, { postId });
+function ProjectList() {
+  const projects = useQuery(api.projects.list);
 
-  // 使用 withOptimisticUpdate 自定义乐观更新
-  const likePost = useMutation(
-    api.functions.likePost,
-    withOptimisticUpdate((mutation, { postId }) => {
-      // 在 mutation 执行前，立即更新本地缓存
-      // mutation.setLocal 是一个特殊方法，直接修改本地缓存而不触发服务器请求
-      mutation.setLocal("posts", { _id: postId }, (post) => {
-        if (post) {
-          return { ...post, likes: post.likes + 1 };
+  // 创建项目并乐观更新列表
+  const createProject = useMutation(api.projects.create)
+    .withOptimisticUpdate((localStore, args) => {
+      const existingProjects = localStore.getQuery(api.projects.list, {});
+      localStore.setQuery(api.projects.list, {}, [
+        ...existingProjects,
+        {
+          _id: `temp-${Date.now()}`,  // 临时 ID
+          name: args.name,
+          description: args.description,
+          createdAt: Date.now(),
         }
-        return post;
-      });
-      // 返回传递给服务器的参数
-      return { postId };
-    })
-  );
+      ]);
+    });
 
-  if (post === undefined) {
+  const handleCreate = async (name: string, description: string) => {
+    await createProject({ name, description });
+    // 服务器响应后，列表会自动更新为真实数据
+  };
+
+  if (projects === undefined) {
     return <div>加载中...</div>;
   }
 
   return (
     <div>
-      <h1>{post.title}</h1>
-      <p>{post.content}</p>
-      <button onClick={() => likePost({ postId })}>
-        👍 {post.likes}
-      </button>
-    </div>
-  );
-}
-```
-
-#### setLocal 修改器
-
-`mutation.setLocal` 支持多种修改方式：
-
-```tsx
-// 修改单条记录
-mutation.setLocal("posts", { _id: postId }, (post) => {
-  return { ...post, likes: post.likes + 1 };
-});
-
-// 添加到列表开头
-mutation.setLocal("posts", undefined, (posts) => {
-  const newPost = {
-    _id: "temp-id",
-    title: "新建文章",
-    content: "内容",
-    likes: 0,
-    authorId: authorId,
-    createdAt: Date.now(),
-  };
-  return [newPost, ...(posts || [])];
-});
-
-// 从列表中移除
-mutation.setLocal("comments", undefined, (comments) => {
-  return comments.filter((c) => c._id !== deletedCommentId);
-});
-```
-
-#### 配合 useOptimistic 实现复杂乐观更新
-
-```tsx
-import { useMutation, useQuery, useOptimistic, withOptimisticUpdate } from "convex/react";
-import { api } from "../convex/_generated/api";
-
-function PostComments({ postId }: { postId: string }) {
-  const comments = useQuery(api.functions.getComments, { postId });
-
-  // 使用 useOptimistic 管理多个待处理的乐观更新
-  const [optimisticComments, addOptimisticComment] = useOptimistic(
-    comments,
-    // 乐观更新函数：返回如何修改本地数据
-    (state, { authorId, content, tempId }) => {
-      const newComment = {
-        _id: tempId, // 临时 ID
-        postId,
-        authorId,
-        content,
-        likes: 0,
-        createdAt: Date.now(),
-        _state: "pending" as const, // 标记为待确认状态
-      };
-      return [newComment, ...state];
-    }
-  );
-
-  const addComment = useMutation(
-    api.functions.addComment,
-    withOptimisticUpdate((mutation, { authorId, content }) => {
-      // 生成临时 ID
-      const tempId = `temp-${Date.now()}`;
-      // 添加乐观更新
-      addOptimisticComment({ authorId, content, tempId });
-      return { authorId, content, tempId };
-    })
-  );
-
-  return (
-    <div>
-      {optimisticComments.map((comment) => (
-        <div key={comment._id} className={comment._state === "pending" ? "opacity-50" : ""}>
-          <p>{comment.content}</p>
-          {comment._state === "pending" && <span>发送中...</span>}
-        </div>
+      {projects.map((project) => (
+        <div key={project._id}>{project.name}</div>
       ))}
     </div>
   );
 }
 ```
 
-#### 错误处理
-
-当乐观更新需要处理可能的错误时：
+#### 完整示例：删除项目
 
 ```tsx
-const likePost = useMutation(
-  api.functions.likePost,
-  withOptimisticUpdate((mutation, { postId }) => {
-    mutation.setLocal("posts", { _id: postId }, (post) => {
-      if (post) {
+const deleteProject = useMutation(api.projects.remove)
+  .withOptimisticUpdate((localStore, args) => {
+    const projects = localStore.getQuery(api.projects.list, {});
+    // 过滤掉被删除的项目
+    localStore.setQuery(api.projects.list, {}, projects.filter(
+      (p) => p._id !== args.projectId
+    ));
+  });
+```
+
+#### 完整示例：点赞计数
+
+```tsx
+const likePost = useMutation(api.posts.like)
+  .withOptimisticUpdate((localStore, args) => {
+    // 直接修改单条记录的字段
+    const posts = localStore.getQuery(api.posts.list, {});
+    const updatedPosts = posts.map((post) => {
+      if (post._id === args.postId) {
         return { ...post, likes: post.likes + 1 };
       }
       return post;
     });
-    return { postId };
-  }),
-  {
-    onError: (error) => {
-      // mutation 失败时执行
-      console.error("点赞失败:", error.message);
-      // 可以在这里显示错误提示或回滚状态
-    },
-  }
-);
+    localStore.setQuery(api.posts.list, {}, updatedPosts);
+  });
+```
+
+#### 配合 useOptimistic 实现复杂乐观更新
+
+当需要管理多个并发的乐观更新时，可以配合 `useOptimistic` 使用：
+
+```tsx
+import { useMutation, useQuery, useOptimistic } from "convex/react";
+import { api } from "../convex/_generated/api";
+
+function PostComments({ postId }: { postId: string }) {
+  const comments = useQuery(api.comments.list, { postId });
+
+  // 使用 useOptimistic 管理乐观更新队列
+  const [optimisticComments, addOptimisticComment] = useOptimistic(
+    comments,
+    (state, newComment) => {
+      return [newComment, ...state];
+    }
+  );
+
+  const addComment = useMutation(api.comments.create)
+    .withOptimisticUpdate((localStore, args) => {
+      addOptimisticComment({
+        _id: `temp-${Date.now()}`,
+        postId,
+        content: args.content,
+        createdAt: Date.now(),
+      });
+    });
+
+  return (
+    <div>
+      {optimisticComments?.map((comment) => (
+        <div key={comment._id}>{comment.content}</div>
+      ))}
+    </div>
+  );
+}
 ```
 
 #### 最佳实践
@@ -1228,9 +1228,10 @@ const likePost = useMutation(
 | 场景 | 推荐方式 |
 |------|---------|
 | 简单点赞/计数 | 直接 mutation（自动乐观更新）|
-| 需要立即反馈 | `withOptimisticUpdate` + `setLocal` |
-| 复杂列表操作（添加/删除） | `useOptimistic` + `withOptimisticUpdate` |
-| 需要错误处理 | `withOptimisticUpdate` + `onError` 回调 |
+| 添加到列表 | `withOptimisticUpdate` + `localStore.setQuery` |
+| 从列表移除 | `withOptimisticUpdate` + `filter` |
+| 修改单条记录 | `withOptimisticUpdate` + `map` |
+| 多个并发更新 | `useOptimistic` + `withOptimisticUpdate` |
 
 ---
 
