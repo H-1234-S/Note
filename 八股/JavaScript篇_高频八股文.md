@@ -1818,7 +1818,7 @@ async function fetchData() {
 
 ---
 
-## 7. ES6+新特性 {#es6-features}
+## 7. ES6+新特性
 
 ### 7.1 let、const和var的区别？
 **考点**：变量声明方式
