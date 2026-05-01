@@ -1207,6 +1207,8 @@ console.log(alice.age);   // 18
 宏任务 → 微任务（清空） → 渲染 → 下一个宏任务
 ```
 
+**注意：** javascript第一次执行完同步代码后，清空微任务队列，因为JavaScript 的第一次执行本身就可以被视为第一个宏任务
+
 **代码示例**：
 ```javascript
 console.log('1');  // 同步
