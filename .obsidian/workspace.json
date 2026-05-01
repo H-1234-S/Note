@@ -11,13 +11,14 @@
             "id": "6af0ef825a82de45",
             "type": "leaf",
             "state": {
-              "type": "bases",
+              "type": "markdown",
               "state": {
-                "file": "未命名.base",
-                "viewName": "表格"
+                "file": "学习/Ai.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-table",
-              "title": "未命名"
+              "icon": "lucide-file",
+              "title": "Ai"
             }
           }
         ]
@@ -77,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334
+    "width": 263.504695892334,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -136,13 +138,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "未命名.base",
+                "file": "学习/Ai.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "未命名 的大纲"
+              "title": "Ai 的大纲"
             }
           },
           {
@@ -193,19 +195,19 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "6af0ef825a82de45",
   "lastOpenFiles": [
+    "未命名.base",
+    "学习/Ai.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Project notes/Polaris/Logs.md",
     "Project notes/VoxClone/Resonance.md",
-    "未命名.base",
     "Front-end notes/库/Inngest学习指南.md",
     "Front-end notes/库/Inngest学习指南.md.tmp.2400.1777467831333",
     "Front-end notes/库/Inngest学习指南.md.tmp.2400.1777467565859",
     "Project notes/VoxClone/需求.canvas",
     "Project notes/项目链接.md",
     "zode.md",
-    "未命名.md",
     "Project notes/Polaris",
     "Front-end notes/Convex/Convex 完整教程.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
