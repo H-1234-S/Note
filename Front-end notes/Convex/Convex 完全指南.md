@@ -1702,13 +1702,8 @@ export default convex;
 
 **作用**：调用后端的 Query 函数，从数据库读取数据
 
-
-| 参数  | 类型  | 说明  |
-| --- | --- | --- |
-|     |     |     |
-
-
 **接收参数**：
+
 | 参数 | 类型 | 说明 |
 |------|------|------|
 | 第一个参数 | `string` | Query 函数路径，格式为 `"functions/函数名"` |
@@ -1746,6 +1741,7 @@ export async function getUserPosts(userId: string) {
 **作用**：调用后端的 Mutation 函数，修改数据库中的数据
 
 **接收参数**：
+
 | 参数 | 类型 | 说明 |
 |------|------|------|
 | 第一个参数 | `string` | Mutation 函数路径，格式为 `"functions/函数名"` |
