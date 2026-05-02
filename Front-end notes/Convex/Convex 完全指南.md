@@ -826,6 +826,42 @@ ctx.db.insert("table_name", {
 
 // 获取记录
 ctx.db.get(id)  // 返回记录或 null
+ctx.db.get(id): Promise<Doc<"table_name"> | null>
+
+// ctx.db.get 详细用法
+export const getUser = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    // 通过 ID 获取单条记录
+    const user = await ctx.db.get(args.userId);
+
+    if (!user) {
+      return null;
+    }
+
+    // user 的类型为 Doc<"users">，包含所有字段
+    return {
+      _id: user._id,           // Id<"users">
+      _creationTime: user._creationTime,
+      name: user.name,
+      email: user.email,
+      // ...
+    };
+  },
+});
+
+// 批量获取（结合 Promise.all）
+export const getPostsWithAuthors = query({
+  args: { postIds: v.array(v.id("posts")) },
+  handler: async (ctx, args) => {
+    const posts = await Promise.all(
+      args.postIds.map((id) => ctx.db.get(id))
+    );
+
+    // 过滤掉不存在的记录
+    return posts.filter((post): post is Doc<"posts"> => post !== null);
+  },
+});
 
 // 部分更新
 ctx.db.patch(id, {
