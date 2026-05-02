@@ -1669,6 +1669,402 @@ mutation.isPending          // 加载状态
 
 ---
 
+## 14. Next.js 集成
+
+### 14.1 概述
+
+Convex 可以与 Next.js 无缝集成，主要有以下两种方式：
+
+| 方式 | 说明 | 适用场景 |
+|------|------|---------|
+| `useQuery`/`useMutation` | React Hooks（客户端） | 组件内实时数据交互 |
+| `ConvexHttpClient` | HTTP 客户端（服务端/客户端均可） | API 路由、外部调用、非 React 框架 |
+
+### 14.2 ConvexHttpClient 用法详解
+
+`ConvexHttpClient` 是 Convex 提供的 HTTP 客户端，可以在任何 JavaScript 环境中使用，包括：
+- Next.js API Routes (Pages Router 和 App Router)
+- 服务端组件
+- 外部脚本或工具
+
+#### 基础配置
+
+```typescript
+// lib/convex.ts
+import { ConvexHttpClient } from "convex/browser";
+
+const convex = new ConvexHttpClient("https://your-project.convex.cloud");
+
+export default convex;
+```
+
+#### query 调用
+
+**作用**：调用后端的 Query 函数，从数据库读取数据
+
+**接收参数**：
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| 第一个参数 | `string` | Query 函数路径，格式为 `"functions/函数名"` |
+| 第二个参数（可选） | `object` | 传递给 Query 的参数，与 `args` 定义对应 |
+
+**返回值**：`Promise<T>`，T 是 Query handler 的返回类型
+
+```typescript
+// lib/convex.ts
+import { ConvexHttpClient } from "convex/browser";
+
+const convex = new ConvexHttpClient("https://your-project.convex.cloud");
+
+// 无参数查询
+export async function getAllPosts() {
+  const posts = await convex.query("functions/listPosts", {});
+  return posts;
+}
+
+// 带参数查询
+export async function getUser(userId: string) {
+  const user = await convex.query("functions/getUser", { userId });
+  return user;
+}
+
+// 查询用户的所有文章
+export async function getUserPosts(userId: string) {
+  const posts = await convex.query("functions/getUserPosts", { userId });
+  return posts;
+}
+```
+
+#### mutation 调用
+
+**作用**：调用后端的 Mutation 函数，修改数据库中的数据
+
+**接收参数**：
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| 第一个参数 | `string` | Mutation 函数路径，格式为 `"functions/函数名"` |
+| 第二个参数 | `object` | 传递给 Mutation 的参数，与 `args` 定义对应 |
+
+**返回值**：`Promise<T>`，T 是 Mutation handler 的返回类型（通常是新记录的 ID）
+
+```typescript
+// lib/convex.ts
+import { ConvexHttpClient } from "convex/browser";
+
+const convex = new ConvexHttpClient("https://your-project.convex.cloud");
+
+// 创建新用户
+export async function createUser(name: string, email: string) {
+  const userId = await convex.mutation("functions/createUser", {
+    name,
+    email,
+  });
+  return userId;
+}
+
+// 创建文章
+export async function createPost(title: string, content: string, authorId: string) {
+  const postId = await convex.mutation("functions/createPost", {
+    title,
+    content,
+    authorId,
+  });
+  return postId;
+}
+
+// 更新文章
+export async function updatePost(postId: string, updates: { title?: string; content?: string }) {
+  await convex.mutation("functions/updatePost", {
+    postId,
+    ...updates,
+  });
+}
+
+// 删除文章
+export async function deletePost(postId: string) {
+  await convex.mutation("functions/deletePost", { postId });
+}
+```
+
+### 14.3 Pages Router 集成
+
+#### API Route 使用
+
+```typescript
+// pages/api/posts.ts
+import type { NextApiRequest, NextApiResponse } from "next";
+import { ConvexHttpClient } from "convex/browser";
+
+const convex = new ConvexHttpClient(process.env.CONVEX_URL!);
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method === "GET") {
+    // 获取所有文章
+    const posts = await convex.query("functions/listPosts", {});
+    res.status(200).json(posts);
+  } else if (req.method === "POST") {
+    // 创建文章
+    const { title, content, authorId } = req.body;
+    const postId = await convex.mutation("functions/createPost", {
+      title,
+      content,
+      authorId,
+    });
+    res.status(201).json({ postId });
+  } else {
+    res.status(405).json({ error: "Method not allowed" });
+  }
+}
+```
+
+#### 在页面组件中使用
+
+```typescript
+// pages/posts.tsx
+import { useState, useEffect } from "react";
+
+interface Post {
+  _id: string;
+  title: string;
+  content: string;
+  authorId: string;
+}
+
+export default function PostsPage() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // 直接从 API Route 获取数据
+    fetch("/api/posts")
+      .then((res) => res.json())
+      .then((data) => {
+        setPosts(data);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div>加载中...</div>;
+
+  return (
+    <div>
+      <h1>文章列表</h1>
+      {posts.map((post) => (
+        <div key={post._id}>{post.title}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+### 14.4 App Router 集成
+
+#### 服务端组件中使用
+
+```typescript
+// app/posts/page.tsx
+import { ConvexHttpClient } from "convex/browser";
+
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
+export default async function PostsPage() {
+  // 在服务端直接调用 Convex
+  const posts = await convex.query("functions/listPosts", {});
+
+  return (
+    <div>
+      <h1>文章列表</h1>
+      {posts.map((post) => (
+        <div key={post._id}>{post.title}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+#### API Route 使用
+
+```typescript
+// app/api/posts/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { ConvexHttpClient } from "convex/browser";
+
+const convex = new ConvexHttpClient(process.env.CONVEX_URL!);
+
+export async function GET() {
+  const posts = await convex.query("functions/listPosts", {});
+  return NextResponse.json(posts);
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const { title, content, authorId } = body;
+
+  const postId = await convex.mutation("functions/createPost", {
+    title,
+    content,
+    authorId,
+  });
+
+  return NextResponse.json({ postId }, { status: 201 });
+}
+```
+
+### 14.5 useQuery vs ConvexHttpClient
+
+| 特性 | `useQuery`/`useMutation` | `ConvexHttpClient` |
+|------|--------------------------|-------------------|
+| 环境 | 仅客户端 React | 客户端/服务端均可 |
+| 实时订阅 | ✅ 支持 | ❌ 不支持（需轮询）|
+| 乐观更新 | ✅ 支持 | ❌ 不支持 |
+| 缓存 | 自动管理 | 需手动处理 |
+| 适用场景 | 组件内交互、实时更新 | API 路由、外部调用 |
+
+### 14.6 完整示例：Next.js 博客系统
+
+#### 1. 配置 Convex 客户端
+
+```typescript
+// lib/convex.ts
+import { ConvexHttpClient } from "convex/browser";
+
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL!;
+export const convex = new ConvexHttpClient(convexUrl);
+```
+
+#### 2. 定义 API 调用函数
+
+```typescript
+// lib/api.ts
+import { convex } from "./convex";
+
+// ============ Query 函数 ============
+
+export async function getAllPosts() {
+  return await convex.query("functions/listPosts", {});
+}
+
+export async function getPost(postId: string) {
+  return await convex.query("functions/getPost", { postId });
+}
+
+export async function getUserPosts(userId: string) {
+  return await convex.query("functions/getUserPosts", { userId });
+}
+
+export async function searchPosts(term: string) {
+  return await convex.query("functions/searchPosts", { searchTerm: term });
+}
+
+// ============ Mutation 函数 ============
+
+export async function createPost(title: string, content: string, authorId: string) {
+  return await convex.mutation("functions/createPost", {
+    title,
+    content,
+    authorId,
+  });
+}
+
+export async function updatePost(postId: string, updates: { title?: string; content?: string }) {
+  return await convex.mutation("functions/updatePost", {
+    postId,
+    ...updates,
+  });
+}
+
+export async function deletePost(postId: string) {
+  return await convex.mutation("functions/deletePost", { postId });
+}
+
+export async function likePost(postId: string) {
+  return await convex.mutation("functions/likePost", { postId });
+}
+```
+
+#### 3. 在 App Router 页面中使用
+
+```typescript
+// app/blog/page.tsx
+import { getAllPosts, searchPosts } from "@/lib/api";
+
+interface Post {
+  _id: string;
+  title: string;
+  content: string;
+  authorId: string;
+  likes: number;
+}
+
+export default async function BlogPage() {
+  // 服务端直接查询
+  const posts: Post[] = await getAllPosts();
+
+  return (
+    <main>
+      <h1>博客文章</h1>
+      <div>
+        {posts.map((post) => (
+          <article key={post._id}>
+            <h2>{post.title}</h2>
+            <p>{post.content.substring(0, 100)}...</p>
+            <div>点赞: {post.likes}</div>
+          </article>
+        ))}
+      </div>
+    </main>
+  );
+}
+```
+
+#### 4. 在 API Route 中使用
+
+```typescript
+// app/api/blog/search/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { searchPosts } from "@/lib/api";
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const term = searchParams.get("q") || "";
+
+  const results = await searchPosts(term);
+
+  return NextResponse.json(results);
+}
+```
+
+### 14.7 环境变量配置
+
+```bash
+# .env.local
+# Convex 部署 URL（客户端和服务端都可用）
+NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
+
+# 仅服务端使用的 Convex URL（可选）
+CONVEX_URL=https://your-project.convex.cloud
+```
+
+### 14.8 注意事项
+
+1. **URL 来源**：
+   - 在浏览器环境中使用 `NEXT_PUBLIC_CONVEX_URL`
+   - 在服务端可以使用 `CONVEX_URL` 或 `NEXT_PUBLIC_CONVEX_URL`
+
+2. **query vs mutation 选择**：
+   - 需要实时更新 → 使用 `useQuery`/`useMutation`（React Hooks）
+   - 仅一次性读取 → 使用 `ConvexHttpClient.query`
+   - 需要修改数据 → 使用 `ConvexHttpClient.mutation`
+
+3. **性能考虑**：
+   - `ConvexHttpClient` 不提供实时订阅，每次调用都是独立的 HTTP 请求
+   - 对于需要实时更新的场景，优先使用 `useQuery` Hook
+
+---
+
 ## 13. 常见问题
 
 ### Q: Convex 和 Firebase/Supabase 有什么区别？
