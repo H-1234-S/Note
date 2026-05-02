@@ -866,10 +866,10 @@ ctx.db.insert("table_name", {
 })  // 返回新记录 ID
 
 // 获取记录
-ctx.db.get(id)  // 返回记录或 null
+ctx.db.get('project',id)  // 返回记录或 null
 
 // 部分更新
-ctx.db.patch(id, {
+ctx.db.patch('project',id, {
   field1: newValue1,
 })  // 只更新指定字段
 
