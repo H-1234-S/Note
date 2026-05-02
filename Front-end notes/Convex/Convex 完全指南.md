@@ -730,6 +730,9 @@ args: { ids: v.array(v.id("users")) }
 
 // 获取：ID 已经包含了表信息 
 await ctx.db.get(args.userId);
+
+// OR 可指定表名
+await ctx.db.get("projects", args.id);
 ```
 ### 4.4 完整查询示例
 
