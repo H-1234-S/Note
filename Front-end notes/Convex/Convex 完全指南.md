@@ -727,6 +727,9 @@ args: { ids: v.array(v.id("users")) }
 // 输入：必须是一个唯一的 Id
 
 // 输出：直接返回那个文档对象 (Doc)，如果 ID 不存在则返回 null
+
+// 获取：ID 已经包含了表信息 
+await ctx.db.get(args.userId);
 ```
 ### 4.4 完整查询示例
 
