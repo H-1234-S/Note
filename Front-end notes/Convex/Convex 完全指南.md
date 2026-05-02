@@ -272,6 +272,58 @@ defineTable(fields)
 | `v.map(K, V)` | Map 对象 | `v.map(v.string(), v.number())` |
 | `v.set(T)` | Set 集合 | `v.set(v.string())` |
 
+#### 生成的类型 (dataModel)
+
+```typescript
+// convex/functions.ts
+import { Id, Doc } from "../convex/_generated/dataModel";
+
+// Id<"table_name"> - 表示某个表的 ID 类型
+type UserId = Id<"users">;
+type PostId = Id<"posts">;
+
+// Doc<"table_name"> - 表示某个表的完整文档类型
+type UserDoc = Doc<"users">;
+type PostDoc = Doc<"posts">;
+
+// 在 Query/Mutation 中的用法
+export const getUser = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
+    return await ctx.db.get(args.userId);
+  },
+});
+
+export const listPosts = query({
+  args: {},
+  handler: async (ctx): Promise<Doc<"posts">[]> => {
+    return await ctx.db.query("posts").collect();
+  },
+});
+
+// 使用 Id 类型进行数据库操作
+export const createPost = mutation({
+  args: {
+    title: v.string(),
+    authorId: v.id("users"),  // 使用 v.id() 定义参数
+  },
+  handler: async (ctx, args): Promise<Id<"posts">> => {
+    return await ctx.db.insert("posts", {
+      title: args.title,
+      authorId: args.authorId,  // args.authorId 类型为 Id<"users">
+    });
+  },
+});
+```
+
+**类型对比：**
+
+| 类型 | 来源 | 用途 |
+|------|------|------|
+| `Id<"table">` | `dataModel` | TypeScript 类型，描述表的主键 ID |
+| `v.id("table")` | `convex/values` | 运行时验证器，验证参数是否为有效 ID |
+| `Doc<"table">` | `dataModel` | TypeScript 类型，描述表的完整文档结构 |
+
 #### 字面量与联合
 
 ```typescript
