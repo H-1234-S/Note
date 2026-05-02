@@ -2389,7 +2389,7 @@ const proxy = new Proxy(obj, {
 
 ---
 
-## 8. 模块化 {#module}
+## 8. 模块化
 
 ### 8.1 JavaScript有哪些模块化方案？
 **考点**：模块化演进
