@@ -2588,7 +2588,7 @@ async function loadModule() {
 
 ---
 
-## 9. 手写代码 {#handwriting}
+## 9. 手写代码
 
 ### 9.1 手写防抖（debounce）和节流（throttle）
 **考点**：性能优化高频手写
@@ -3598,7 +3598,7 @@ myFetch('/api/users', {
 
 ---
 
-## 10. 性能优化 {#performance}
+## 10. 性能优化
 
 ### 10.1 内存泄漏的常见原因和解决方法？
 **考点**：性能优化核心
