@@ -92,7 +92,7 @@ sentry可以在**生产环境**下进行了错误跟踪，也是**非常非常�
 
 # projects
 
-
+设计project install，包括新建项目、从github导入项目、cu'r're't
 
 # ide layout
 
