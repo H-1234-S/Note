@@ -1013,6 +1013,10 @@ export default App;
 
 ### 6.2 useQuery 详解
 
+`useQuery` 监听的是convex在浏览器里的查询结果的缓存
+
+`useQuery` 察觉到缓存变了，立即触发 React 组件重绘。
+
 ```tsx
 // src/components/UserList.tsx
 import { useQuery } from "convex/react";
@@ -1130,7 +1134,7 @@ mutation.isPending   // 是否执行中
 mutation.error       // 错误对象
 ```
 
-### 6.6 乐观更新示例
+### 6.6 乐观更新
 
 #### 基础乐观更新
 
@@ -1205,6 +1209,12 @@ localStore.rollback()
 ```
 
 `getQuery` 和 `setQuery` 是对**Convex 客户端在浏览器内存中的实时查询缓存**进行操作。
+
+**自动回滚机制**：
+
+- **如果服务器成功**：服务器返回的真实数据会写入缓存，替换掉你的乐观更新数据。因为数据一致，UI 不会发生跳变。
+    
+- **如果服务器失败**：Convex 会自动丢弃你刚才用 `set` 做的修改，并将缓存回滚到服务器之前的状态。UI 会自动“弹回”到原始值。
 
 #### 完整示例：创建项目
 
