@@ -53,14 +53,12 @@
             "id": "2084d35ef05ac58a",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "excalidraw",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
-                "mode": "source",
-                "source": false
+                "file": "Excalidraw/Logs 2026-05-02 17.51.40.excalidraw.md"
               },
-              "icon": "lucide-file",
-              "title": "Logs"
+              "icon": "excalidraw-icon",
+              "title": "Logs 2026-05-02 17.51.40.excalidraw"
             }
           }
         ],
@@ -181,13 +179,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
+                "file": "Excalidraw/Logs 2026-05-02 17.51.40.excalidraw.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 的大纲"
+              "title": "Logs 2026-05-02 17.51.40.excalidraw 的大纲"
             }
           },
           {
@@ -242,8 +240,9 @@
   },
   "active": "2084d35ef05ac58a",
   "lastOpenFiles": [
-    "Excalidraw/Drawing 2026-05-02 17.49.47.excalidraw.md",
     "Project notes/Polaris/Logs.md",
+    "Excalidraw/Logs 2026-05-02 17.51.40.excalidraw.md",
+    "Excalidraw/Drawing 2026-05-02 17.49.47.excalidraw.md",
     "Excalidraw/Drawing 2026-05-02 17.49.14.excalidraw.md",
     "Excalidraw",
     "Front-end notes/Convex/Convex 完全指南.md",
@@ -278,7 +277,6 @@
     "Front-end notes/React/Zustand知识大全.md",
     "Front-end notes/库/Zustand知识大全.md",
     "Front-end notes/React/Zustand.md",
-    "Front-end notes/tRPC/tRPC学习指南.md",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
