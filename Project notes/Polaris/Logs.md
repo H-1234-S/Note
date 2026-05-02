@@ -94,7 +94,7 @@ sentry可以在**生产环境**下进行了错误跟踪，也是**非常非常�
 
 设计project install，包括新建项目、从github导入项目、current proejct、project list
 
-在convex\project文件内
+在convex\project文件内，新增create mutation函数
 
 # ide layout
 
