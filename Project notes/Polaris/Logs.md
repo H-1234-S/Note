@@ -92,7 +92,7 @@ sentry可以在**生产环境**下进行了错误跟踪，也是**非常非常�
 
 # projects
 
-![[Logs 2026-05-02 17.51.40.excalidraw]]
+
 
 # ide layout
 

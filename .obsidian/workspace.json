@@ -50,15 +50,17 @@
             }
           },
           {
-            "id": "2084d35ef05ac58a",
+            "id": "28d755c9ede71eb6",
             "type": "leaf",
             "state": {
-              "type": "excalidraw",
+              "type": "markdown",
               "state": {
-                "file": "Excalidraw/Logs 2026-05-02 17.51.40.excalidraw.md"
+                "file": "Project notes/Polaris/Logs.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "excalidraw-icon",
-              "title": "Logs 2026-05-02 17.51.40.excalidraw"
+              "icon": "lucide-file",
+              "title": "Logs"
             }
           }
         ],
@@ -179,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Excalidraw/Logs 2026-05-02 17.51.40.excalidraw.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 2026-05-02 17.51.40.excalidraw 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -238,10 +240,11 @@
       "obsidian-excalidraw-plugin:新建绘图文件": false
     }
   },
-  "active": "2084d35ef05ac58a",
+  "active": "28d755c9ede71eb6",
   "lastOpenFiles": [
-    "Project notes/Polaris/Logs.md",
+    "Front-end notes/React/React.md",
     "Excalidraw/Logs 2026-05-02 17.51.40.excalidraw.md",
+    "Project notes/Polaris/Logs.md",
     "Excalidraw/Drawing 2026-05-02 17.49.47.excalidraw.md",
     "Excalidraw/Drawing 2026-05-02 17.49.14.excalidraw.md",
     "Excalidraw",
@@ -249,7 +252,6 @@
     "Front-end notes/Convex/Convex 完全指南.md.tmp.22768.1777707338307",
     "Front-end notes/Convex/Convex 完全指南.md.tmp.22768.1777707244946",
     "Front-end notes/Next.JS/Next.js.md",
-    "Front-end notes/React/React.md",
     "Project notes/VoxClone/Resonance.md",
     "Front-end notes/Convex/Convex 完全指南.md.tmp.22064.1777639142143",
     "Front-end notes/Convex/Convex 完全指南.md.tmp.22064.1777638960730",
