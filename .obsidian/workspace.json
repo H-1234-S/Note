@@ -238,7 +238,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 477.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -255,13 +256,13 @@
   },
   "active": "a87b005e13d15377",
   "lastOpenFiles": [
+    "Front-end notes/React/构建Mini React.md",
+    "Project notes/Polaris/Logs.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Excalidraw/Convex 完全指南 2026-05-04 11.43.20.excalidraw.md",
-    "Front-end notes/React/构建Mini React.md",
     "八股/React篇_高频八股文.md",
     "八股/JavaScript篇_高频八股文.md",
     "Front-end notes/React/React.md",
-    "Project notes/Polaris/Logs.md",
     "Excalidraw/Logs 2026-05-02 17.51.40.excalidraw.md",
     "Excalidraw/Drawing 2026-05-02 17.49.47.excalidraw.md",
     "Excalidraw/Drawing 2026-05-02 17.49.14.excalidraw.md",
