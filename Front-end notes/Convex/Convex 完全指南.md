@@ -40,6 +40,31 @@ httpAction      // HTTP 请求处理器
   useQuery → 建立 WebSocket 连接 → 数据变化时推送更新 → 组件自动重渲染
 ```
 
+### 1.4 convex运行流程
+
+传统开发：
+```
+React 前端
+↓
+请求 Express API
+↓
+Node.js 服务
+↓
+MongoDB / PostgreSQL
+```
+
+convex开发：
+```
+React 前端
+↓
+调用 Convex 函数
+↓
+Convex Cloud
+↓
+内置数据库
+↓
+自动实时同步前端
+```
 ---
 
 ## 2. 快速开始
