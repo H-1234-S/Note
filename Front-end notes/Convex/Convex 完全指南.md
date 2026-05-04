@@ -348,6 +348,14 @@ v.union(
 
 ### 3.5 索引详解
 
+**索引**可以理解为**数据库额外维护的一张表**，这样查 `ownerId` 时不用扫描全表。
+
+``` ts
+.index("by_owner", ["ownerId"])
+
+// 创建一个名字叫 by_owner 的索引，按 ownerId 字段建立查询通道。
+```
+
 #### 索引类型
 
 ```typescript
