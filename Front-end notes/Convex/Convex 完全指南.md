@@ -12,7 +12,7 @@ Convex 是一个 **TypeScript 后端即服务（Backend as a Service）平台**�
 | 后端逻辑管理 | 用 TypeScript 编写服务器端函数，无需独立 API 服务器 |
 | 数据库操作  | 内置关系型数据库，支持 ACID 事务                |
 
-**官网**: https://convex.dev
+本地写的 Convex 后端代码，会被 **部署（同步）到 Convex Cloud**。
 
 ### 1.2 关键术语
 
