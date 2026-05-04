@@ -98,3 +98,13 @@ sentry可以在**生产环境**下进行了错误跟踪，也是**非常非常�
 
 # ide layout
 
+
+# file explorer
+
+创建了`files table`和`file server function`
+
+**file server function：**
+
+getFiles 获取一个项目下所有文件
+
+getFile 获取一个
