@@ -109,5 +109,15 @@ getFiles 获取一个项目下所有文件
 
 getFile 获取对应id的文件
 
-getFolderContents 
+getFolderContents 获取一个文件夹里的内容，可以是root下，也可以是文件夹下，结果排序文件夹、文件，每组内按字母顺序排列
+
+createFile 创建文件
+
+createFolder 创建文件夹
+
+renameFile 重命名文件/文件夹
+
+deleteFile 删除文件/文件夹，递归删除所有子元素，判断如果是文件夹，递归调用
+
+updateFile 更新文件/文件夹内容
 ```
