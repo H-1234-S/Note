@@ -1,29 +1,3 @@
-# CodeMirror 6 用法指南
-
-> 版本：第六版 | 更新时间：2026-05-05
-
----
-
-## 目录
-
-1. [概述与核心概念](#1-概述与核心概念)
-2. [安装与环境搭建](#2-安装与环境搭建)
-3. [基础用法](#3-基础用法)
-4. [EditorState 与事务](#4-editortate-与事务)
-5. [EditorView 视图](#5-editorview-视图)
-6. [ Extensions 扩展系统](#6-extensions-扩展系统)
-7. [常用 API 详解](#7-常用-api-详解)
-8. [装饰器与高亮](#8-装饰器与高亮)
-9. [自动补全](#9-自动补全)
-10. [搜索功能](#10-搜索功能)
-11. [快捷键绑定](#11-快捷键绑定)
-12. [主题系统](#12-主题系统)
-13. [语言支持](#13-语言支持)
-14. [实战示例](#14-实战示例)
-15. [常见问题](#15-常见问题)
-
----
-
 ## 1. 概述与核心概念
 
 ### 1.1 什么是 CodeMirror 6
@@ -1664,11 +1638,3 @@ const extensions = [basicSetup, saveKeymap];
 | 注释 | Ctrl+/ | Cmd+/ |
 | 缩进 | Tab | Tab |
 | 取消缩进 | Shift+Tab | Shift+Tab |
-
----
-
-## 参考资源
-
-- 官方文档：https://codemirror.net/docs/
-- GitHub：https://github.com/codemirror/codemirror
-- 官方论坛：https://discuss.codemirror.net
