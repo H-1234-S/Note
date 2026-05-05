@@ -138,4 +138,10 @@ tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state
 
 # code editor
 
+## zustand
+
 使用zustand进行编辑器状态管理，zustand是一个高性能的react state管理库
+
+## codemirror
+
+CodeMirror 是一个 **浏览器中的代码编辑器组件**，专门让网页具备像 VS Code 那样的代码输入体验。
