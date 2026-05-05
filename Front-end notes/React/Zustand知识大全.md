@@ -406,6 +406,7 @@ interface BearState {
 // 第一步：先告诉zustand这个store的type是BearState，让类型推导更准确
 // 第二步：再在返回的函数里传入call'back
 // 第一步管类型，第二步管逻辑
+// 第一步主要是为了 TypeScript 泛型占位 + 柯里化包装
 const useBearStore = create<BearState>()((set) => ({
   bears: 0,
   increase: () => set((state) => ({ bears: state.bears + 1 })),
