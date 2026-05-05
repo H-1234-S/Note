@@ -15,7 +15,9 @@ Zustand 是一个轻量级、快速、可扩展的状态管理解决方案，基
 
 所有子组件只需要**按需订阅**即可
 
- 1. **props 的层层传递**。例如：用户信息在 App，但 UserMenu 要用。
+ 1. **props 的层层传递**。
+
+- 例如：用户信息在 App，但 UserMenu 要用。
 
 ``` tsx
 // App -> Layout -> Sidebar -> UserMenu
@@ -28,16 +30,16 @@ Zustand 是一个轻量级、快速、可扩展的状态管理解决方案，基
 
 2. **多组件共享状态困难**
 
-很多组件共用一个state，useState很难管理。
+- 很多组件共用一个state，useState很难管理。
 
 3. **Context 性能问题**
 
-React Context 虽然能共享状态，但：
+- React Context 虽然能共享状态，但：
 ``` ts
 <UserContext.Provider value={user}>
 ```
 
-只要 value 变化，很多子组件都会重新渲染。
+- 只要 value 变化，很多子组件都会重新渲染。
 
 ### 1.3 与 Redux 对比
 
