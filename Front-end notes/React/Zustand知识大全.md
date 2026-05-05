@@ -36,6 +36,14 @@ Zustand 流程:
 | API 风格 | Hooks | Hooks + TS |
 | 学习曲线 | 低 | 中 |
 
+### 1.4 注意
+
+永远不要**直接修改 Zustand store 中的 Map/数组**，要先拷贝，再修改，最后 set 触发更新。
+
+这确保了 React 能够检测到状态变化并重新渲染。
+
+在react/zustand中，要将Map/数组视为只读的
+
 ---
 
 ## 2. 快速开始
