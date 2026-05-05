@@ -851,22 +851,3 @@ create(
 ```
 
 ---
-
-## 13. 目录结构建议
-
-```
-src/
-├── store/
-│   ├── index.ts              # 主 store，组合所有 slices
-│   ├── slices/
-│   │   ├── counterSlice.ts
-│   │   ├── userSlice.ts
-│   │   └── uiSlice.ts
-│   └── types.ts              # 共享类型定义
-├── components/
-│   ├── Counter.tsx
-│   └── User.tsx
-└── hooks/
-    └── useStore.ts           # 重新导出类型化 store
-```
-
