@@ -82,6 +82,7 @@ const useStore = create((set) => ({
 }))
 ```
 
+新版
 ### 2.3 组件中使用
 
 ```jsx
@@ -401,7 +402,11 @@ interface BearState {
   reset: () => void
 }
 
-const useBearStore = create<BearState>((set) => ({
+// 新版推荐链式调用
+// 第一步：先告诉zustand这个store的type是BearState，让类型推导更准确
+// 第二步：再在返回的函数里传入call'back
+// 第一步管类型，第二步管逻辑
+const useBearStore = create<BearState>()((set) => ({
   bears: 0,
   increase: () => set((state) => ({ bears: state.bears + 1 })),
   reset: () => set({ bears: 0 }),
