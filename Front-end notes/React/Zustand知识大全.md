@@ -42,7 +42,11 @@ Zustand 流程:
 
 这确保了 React 能够检测到状态变化并重新渲染。
 
-在react/zustand中，要将Map/数组视为只读的
+在react/zustand中，要将Map/数组视为只读的；因为react/zustand为了性能通常**不会遍历Map/数组**
+
+这样就算push/set了Map/数组，虽然内容变了，但 `Map/数组` 还是原来的那个数组对象，也就是地址没有改变
+
+如果还是同一个对象，就可能跳过更新。
 
 ---
 
