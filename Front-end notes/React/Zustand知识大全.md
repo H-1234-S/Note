@@ -414,6 +414,14 @@ const useBearStore = create<BearState>()((set) => ({
 }))
 ```
 
+**内部类似于：**
+``` ts
+function create<T>() {
+  return function (initializer) {
+    // 真正创建 store
+  };
+}
+```
 ### 5.2 类型化 Middleware
 
 ```typescript
