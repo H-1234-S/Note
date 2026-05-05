@@ -2,44 +2,27 @@
 
 ### 1.1 什么是 Zustand
 
-Zustand 是一个轻量级、快速、可扩展的状态管理解决方案，基于简化的 Flux 原则。
+Zustand 是一个轻量级、快速、可扩展的状态管理解决方案，基于简化的 Flux 原则。它具有友好的 Hooks API，无需像 Redux 那样包裹 Provider。
 
-它具有友好的 Hooks API，无需像 Redux 那样包裹 Provider。
+**核心特点：**
 
+| 特性 | 说明 |
+|------|------|
+| 轻量级 | 压缩后约 1.5KB |
+| 无 Provider | 不需要包裹组件 |
+| TypeScript | 内置完整类型支持 |
+| 中间件 | 可扩展的中间件系统 |
+| 解决的问题 | zombie child、React concurrency、跨渲染器上下文丢失 |
 
-**核心目标：**
+### 1.2 为什么选择 Zustand
 
-> 用非常少的代码，创建一个全局共享状态，并让 React 组件按需订阅更新。
-
-### 1.2 解决了什么问题 
-
-所有子组件只需要**按需订阅**即可
-
- 1. **props 的层层传递**。
-
-- 例如：用户信息在 App，但 UserMenu 要用。
-
-``` tsx
-// App -> Layout -> Sidebar -> UserMenu
-
-<App user={user} />
-<Layout user={user} />
-<Sidebar user={user} />
-<UserMenu user={user} />
 ```
+传统 Redux 流程:
+  dispatch(action) → reducer → newState → connect() → 组件重渲染
 
-2. **多组件共享状态困难**
-
-- 很多组件共用一个state，useState很难管理。
-
-3. **Context 性能问题**
-
-- React Context 虽然能共享状态，但：
-``` ts
-<UserContext.Provider value={user}>
+Zustand 流程:
+  set(state) → 合并状态 → useStore() → 精确重渲染
 ```
-
-- 只要 value 变化，很多子组件都会重新渲染。
 
 ### 1.3 与 Redux 对比
 
