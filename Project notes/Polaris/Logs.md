@@ -132,4 +132,6 @@ updateFile 更新文件/文件夹内容
  *  重新挂载tree组件时，因为isOpne default value 是false
  *  因此会合上所有的tree组件
 
-tree组件，也就是
+tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state；creating 是否在创建state，根据不同的状态渲染不同的component
+
+同时也根据不同的item type 决定展示folder or file
