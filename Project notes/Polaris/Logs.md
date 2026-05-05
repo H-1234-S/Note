@@ -135,3 +135,7 @@ updateFile 更新文件/文件夹内容
 tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state；creating 是否在创建state，根据不同的状态渲染不同的component
 
 同时也根据不同的item type 决定展示folder or file
+
+# code editor
+
+使用zustand进行编辑器状态管理，zustand是一个高性能的react state管理库
