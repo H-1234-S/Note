@@ -126,4 +126,8 @@ updateFile 更新文件/文件夹内容
 
 创建文件夹/创建文件，点击后，项目文件夹展开，展示创建文件夹/文件组件，确认后展示tree组件
 
-关闭所有文件夹按钮，点击后
+合上所有文件夹原理：
+ *  将collapseKey传递给tree的key，当collapseKey变化时，react会视作为所有tree发生变化
+ *  那么将会销毁所有tree组件，然后重新创建tree组件
+ *  重新挂载tree组件时，因为isOpne default value 是false
+ *  因此会合上所有的tree组件
