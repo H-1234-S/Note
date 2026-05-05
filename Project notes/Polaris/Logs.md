@@ -92,50 +92,7 @@ sentry可以在**生产环境**下进行了错误跟踪，也是**非常非常�
 
 # projects
 
-设计project install，包括新建项目、从github导入项目、current proejct、project list
 
-在convex\project文件内，新增create mutation函数
 
 # ide layout
 
-
-# file explorer
-
-创建了`files table`和`file server function`
-
-**file server function：**
-```
-getFiles 获取一个项目下所有文件
-
-getFile 获取对应id的文件
-
-getFolderContents 获取一个文件夹里的内容，可以是root下，也可以是文件夹下，结果排序文件夹、文件，每组内按字母顺序排列
-
-createFile 创建文件
-
-createFolder 创建文件夹
-
-renameFile 重命名文件/文件夹
-
-deleteFile 删除文件/文件夹，递归删除所有子元素，判断如果是文件夹，递归调用
-
-updateFile 更新文件/文件夹内容
-```
-
-搭建了一下ui，例如创建文件、创建文件夹、关闭所有文件夹按钮
-
-创建文件夹/创建文件，点击后，项目文件夹展开，展示创建文件夹/文件组件，确认后展示tree组件
-
-合上所有文件夹原理（key重置组件状态技巧）：
- *  将collapseKey传递给tree的key，当collapseKey变化时，react会视作为所有tree发生变化
- *  那么将会销毁所有tree组件，然后重新创建tree组件
- *  重新挂载tree组件时，因为isOpne default value 是false
- *  因此会合上所有的tree组件
-
-tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state；creating 是否在创建state，根据不同的状态渲染不同的component
-
-同时也根据不同的item type 决定展示folder or file
-
-# code editor
-
-使用zustand进行编辑器状态管理，zustand是一个高性能的react state管理库

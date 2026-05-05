@@ -4,39 +4,67 @@
     "type": "split",
     "children": [
       {
-        "id": "ccad3e60d6efa36a",
+        "id": "d13eb13306e3f30e",
         "type": "tabs",
         "children": [
           {
-            "id": "94827612517eb7a8",
+            "id": "6af0ef825a82de45",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "八股/React篇_高频八股文.md",
+                "file": "学习/Ai.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "React篇_高频八股文"
+              "title": "Ai"
             }
           },
           {
-            "id": "81c9b65a7fa29736",
+            "id": "88a32ece528310ea",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/React/构建Mini React.md",
+                "file": "Front-end notes/Convex/Convex 完全指南.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "构建Mini React"
+              "title": "Convex 完全指南"
             }
           },
           {
-            "id": "a87b005e13d15377",
+            "id": "bc70b0f08d548253",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/React/React.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "React"
+            }
+          },
+          {
+            "id": "2084d35ef05ac58a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/Next.JS/Next.js.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Next.js"
+            }
+          },
+          {
+            "id": "9b039942bb2301e4",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -47,34 +75,6 @@
               },
               "icon": "lucide-file",
               "title": "Logs"
-            }
-          },
-          {
-            "id": "1be2fa37416b7772",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/JavaScript/JavaScript.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "JavaScript"
-            }
-          },
-          {
-            "id": "2c1b51e9c4846438",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/React/Zustand知识大全.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Zustand知识大全"
             }
           }
         ],
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React/Zustand知识大全.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Zustand知识大全 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -238,7 +238,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 333.5
+    "width": 268.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -249,33 +250,22 @@
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
       "bases:新建数据库": false,
-      "obsidian-git:Open Git source control": false,
-      "obsidian-excalidraw-plugin:新建绘图文件": false
+      "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2c1b51e9c4846438",
+  "active": "9b039942bb2301e4",
   "lastOpenFiles": [
-    "Front-end notes/JavaScript/JavaScript.md",
-    "Front-end notes/React/React.md",
-    "Project notes/Polaris/Logs.md",
-    "Front-end notes/React/Zustand知识大全.md",
-    "八股/React篇_高频八股文.md",
-    "Front-end notes/React/构建Mini React.md",
     "Front-end notes/Convex/Convex 完全指南.md",
-    "Excalidraw/Convex 完全指南 2026-05-04 11.43.20.excalidraw.md",
-    "八股/JavaScript篇_高频八股文.md",
-    "Excalidraw/Logs 2026-05-02 17.51.40.excalidraw.md",
-    "Excalidraw/Drawing 2026-05-02 17.49.47.excalidraw.md",
-    "Excalidraw/Drawing 2026-05-02 17.49.14.excalidraw.md",
-    "Excalidraw",
     "Front-end notes/Convex/Convex 完全指南.md.tmp.22768.1777707338307",
     "Front-end notes/Convex/Convex 完全指南.md.tmp.22768.1777707244946",
     "Front-end notes/Next.JS/Next.js.md",
+    "Front-end notes/React/React.md",
     "Project notes/VoxClone/Resonance.md",
     "Front-end notes/Convex/Convex 完全指南.md.tmp.22064.1777639142143",
     "Front-end notes/Convex/Convex 完全指南.md.tmp.22064.1777638960730",
     "学习/Ai.md",
     "未命名.base",
+    "Project notes/Polaris/Logs.md",
     "Front-end notes/库/Inngest学习指南.md",
     "Front-end notes/库/Inngest学习指南.md.tmp.2400.1777467831333",
     "Front-end notes/库/Inngest学习指南.md.tmp.2400.1777467565859",
@@ -286,12 +276,21 @@
     "Front-end notes/Convex/Convex 完整教程.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Front-end notes/Convex/未命名.base",
+    "Front-end notes/Convex",
     "Project notes/VoxClone/面试问答完整版.md",
     "Project notes/VoxClone/面试.md",
     "Front-end notes/库/wavesurfer.js-基础知识.md",
     "Front-end notes/库/Zod.md",
     "Front-end notes/库/RecordRTC-用法指南.md",
+    "八股/JavaScript篇_高频八股文.md",
     "Front-end notes/库/react-dropzone-用法指南.md",
+    "Front-end notes/TypeScript/TypeScript完全指南.md",
+    "Front-end notes/JavaScript/Web API.md",
+    "Front-end notes/React/Zustand知识大全.md",
+    "Front-end notes/库/Zustand知识大全.md",
+    "Front-end notes/React/Zustand.md",
+    "Front-end notes/tRPC/tRPC学习指南.md",
+    "Front-end notes/库/use-debounce 使用指南.md",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",

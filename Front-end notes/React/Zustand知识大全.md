@@ -36,18 +36,6 @@ Zustand 流程:
 | API 风格 | Hooks | Hooks + TS |
 | 学习曲线 | 低 | 中 |
 
-### 1.4 注意
-
-永远不要**直接修改 Zustand store 中的 Map/数组**，要先拷贝，再修改，最后 set 触发更新。
-
-这确保了 React 能够检测到状态变化并重新渲染。
-
-在react/zustand中，要将Map/数组视为只读的；因为react/zustand为了性能通常**不会遍历Map/数组**
-
-这样就算push/set了Map/数组，虽然内容变了，但 `Map/数组` 还是原来的那个数组对象，也就是地址没有改变
-
-如果还是同一个对象，就可能跳过更新。
-
 ---
 
 ## 2. 快速开始
@@ -82,7 +70,6 @@ const useStore = create((set) => ({
 }))
 ```
 
-新版
 ### 2.3 组件中使用
 
 ```jsx
@@ -402,26 +389,13 @@ interface BearState {
   reset: () => void
 }
 
-// 新版推荐链式调用
-// 第一步：先告诉zustand这个store的type是BearState，让类型推导更准确
-// 第二步：再在返回的函数里传入call'back
-// 第一步管类型，第二步管逻辑
-// 第一步主要是为了 TypeScript 泛型占位 + 柯里化包装
-const useBearStore = create<BearState>()((set) => ({
+const useBearStore = create<BearState>((set) => ({
   bears: 0,
   increase: () => set((state) => ({ bears: state.bears + 1 })),
   reset: () => set({ bears: 0 }),
 }))
 ```
 
-**内部类似于：**
-``` ts
-function create<T>() {
-  return function (initializer) {
-    // 真正创建 store
-  };
-}
-```
 ### 5.2 类型化 Middleware
 
 ```typescript
@@ -877,3 +851,22 @@ create(
 ```
 
 ---
+
+## 13. 目录结构建议
+
+```
+src/
+├── store/
+│   ├── index.ts              # 主 store，组合所有 slices
+│   ├── slices/
+│   │   ├── counterSlice.ts
+│   │   ├── userSlice.ts
+│   │   └── uiSlice.ts
+│   └── types.ts              # 共享类型定义
+├── components/
+│   ├── Counter.tsx
+│   └── User.tsx
+└── hooks/
+    └── useStore.ts           # 重新导出类型化 store
+```
+
