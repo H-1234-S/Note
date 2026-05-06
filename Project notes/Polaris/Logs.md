@@ -71,7 +71,7 @@ sentry可以在**生产环境**下进行了错误跟踪，也是**非常非常�
 在不用环境的运行方式也不同，在**浏览器环境**下：监听 `window.onerror`，监听 Promise 错误，记录用户行为（点击、路由）。在**服务器环境**下：捕获接口异常、数据库错误、业务逻辑错误。在**severless/inngest环境**下：哪个 step 出错、输入参数、- 执行路径
 
 ```
-[你的代码]
+[代码]
      ↓
 [Sentry SDK]
      ↓
@@ -150,7 +150,7 @@ tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state
 
 **运行流程大致是：** 使用create函数创建store，zustand内部会维护`state和订阅者`，然后返回一个hook；如果组件内部调用了该hook，获取了state，那么就将该组件注册为订阅者；调用**set更新函数**修改state之后，就会通知订阅者，然后react重新渲染。
 
-在本项目内部使用了
+在本项目内部使用了zustand管理
 
 ## codemirror
 
