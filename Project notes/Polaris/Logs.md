@@ -148,12 +148,14 @@ tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state
 
 > 它的核心目标是：用极少的代码，创建一个全局状态，所有组件按需更新
 
+也是非常非常的好用，用来管理全局状态的，不再进行不必要的渲染
+
 **运行流程大致是：** 使用create函数创建store，zustand内部会维护`state和订阅者`，然后返回一个hook；如果组件内部调用了该hook，获取了state，那么就将该组件注册为订阅者；调用**set更新函数**修改state之后，就会通知订阅者，然后react重新渲染。
 
 在本项目内部使用了zustand管理editor状态。
 
 ```
-tabs也就是editor状态有三个属性。
+tabs也就是editor状态，使用Map创建的对象，有三个属性。
 
 openTabs当前项目中所有已打开的文件 ID 列表，activeTabId当前激活的标签页，previewTabId预览模式的标签页，也就是临时标签页，可以被替换的。
 
@@ -167,7 +169,7 @@ closeTab处理关闭当前标签页
 
 closeAllTabs处理关闭所有标签页
 
-
+setActiveTab设置当前激活的标签页
 ```
 
 ## codemirror
