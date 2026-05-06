@@ -39,19 +39,25 @@ Zustand 是一个轻量级、快速、可扩展的状态管理解决方案，基
 <UserContext.Provider value={user}>
 ```
 
-- 只要 value 变化，很多子组件都会重新渲染。
+- 只要 value 变化，React 会通知所有消费这个 Context 的组件重新渲染
+
+- **但context有个问题**，比如在value里传递了一个对象，A组件里用到了一个对象的一个属性，B组件里用到了另一个属性
+
+- 但是只更新一个属性所有用到该对象的组件都会重新渲染，这就会造成了不必要的渲染
 
 ### 1.3 与 Redux 对比
 
-| 特性 | Zustand | Redux |
-|------|---------|-------|
-| 体积 | ~1.5KB | ~7KB |
-| 配置 | 无需配置 | 需要配置 store |
-| Boilerplate | 极少 | 较多 |
-| Provider | 不需要 | 必须 |
-| 中间件 | 可选 | 必须使用 |
-| API 风格 | Hooks | Hooks + TS |
-| 学习曲线 | 低 | 中 |
+| 特性          | Zustand | Redux      |
+| ----------- | ------- | ---------- |
+| 体积          | ~1.5KB  | ~7KB       |
+| 配置          | 无需配置    | 需要配置 store |
+| Boilerplate | 极少      | 较多         |
+| Provider    | 不需要     | 必须         |
+| 中间件         | 可选      | 必须使用       |
+| API 风格      | Hooks   | Hooks + TS |
+| 学习曲线        | 低       | 中          |
+
+zustand**不需要Provider**，因为状态在 **JS 模块作用域里**，每个组件都import同一个store，全局单例
 
 ### 1.4 运行原理
 
@@ -82,7 +88,7 @@ React 组件重新执行
 页面更新
 ```
 
-zustand**不需要Provider**，因为状态在 **JS 模块作用域里**，每个组件都import同一个store，全局单例
+
 ### 1.5 minizustand
 
 ``` ts
