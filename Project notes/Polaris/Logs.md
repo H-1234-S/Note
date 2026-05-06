@@ -150,9 +150,25 @@ tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state
 
 **运行流程大致是：** 使用create函数创建store，zustand内部会维护`state和订阅者`，然后返回一个hook；如果组件内部调用了该hook，获取了state，那么就将该组件注册为订阅者；调用**set更新函数**修改state之后，就会通知订阅者，然后react重新渲染。
 
-在本项目内部使用了zustand管理editor状态。tabs有三个属性，openTabs当前项目中所有已打开的文件 ID 列表，activeTabId当前激活的标签页，previewTabId预览模式的标签页，也就是临时标签页，可以被替换的。
+在本项目内部使用了zustand管理editor状态。
+
+```
+tabs也就是editor状态有三个属性。
+
+openTabs当前项目中所有已打开的文件 ID 列表，activeTabId当前激活的标签页，previewTabId预览模式的标签页，也就是临时标签页，可以被替换的。
+
+editor store中有五个处理函数。
+
+getTabState获得tabs状态。
+
+openfile处理打开时的state更新，但存在三种打开方式，第一种作为预览打开，替换现有预览或者添加新的预览；第二种作为固定打开，直接添加到openTabs中；第三种是file已经打开，那么只需要激活
+
+closeTab处理关闭当前标签页
+
+closeAllTabs处理关闭所有标签页
 
 
+```
 
 ## codemirror
 
