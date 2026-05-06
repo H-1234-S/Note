@@ -127,9 +127,13 @@ updateFile 更新文件/文件夹内容
 创建文件夹/创建文件，点击后，项目文件夹展开，展示创建文件夹/文件组件，确认后展示tree组件
 
 合上所有文件夹原理（key重置组件状态技巧）：
+
  *  将collapseKey传递给tree的key，当collapseKey变化时，react会视作为所有tree发生变化
+
  *  那么将会销毁所有tree组件，然后重新创建tree组件
+
  *  重新挂载tree组件时，因为isOpne default value 是false
+
  *  因此会合上所有的tree组件
 
 tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state；creating 是否在创建state，根据不同的状态渲染不同的component
@@ -146,7 +150,7 @@ tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state
 
 **运行流程大致是：** 使用create函数创建store，zustand内部会维护`state和订阅者`，然后返回一个hook；如果组件内部调用了该hook，获取了state，那么就将该组件注册为订阅者；调用**set更新函数**修改state之后，就会通知订阅者，然后react重新渲染。
 
-
+在本项目内部使用了
 
 ## codemirror
 
