@@ -335,12 +335,12 @@ const myField = StateField.define({
 
 #### 参数说明
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `create` | `(state) => value` | 必需。创建字段的初始状态 |
-| `update` | `(value, tr) => newValue` | 必需。处理事务并返回新状态 |
-| `provide` | `(field) => Extension` | 可选。提供由此字段派生的扩展 |
-| `compare` | `(a, b) => boolean` | 可选。比较两个状态值是否相等，用于判断是否需要更新视图 |
+| 参数        | 类型                        | 说明                          |
+| --------- | ------------------------- | --------------------------- |
+| `create`  | `(state) => value`        | 必需。创建字段的初始状态                |
+| `update`  | `(value, tr) => newValue` | 必需。处理事务并返回新状态               |
+| `provide` | `(field) => Extension`    | 可选。提供由此字段派生的扩展              |
+| `compare` | `(a, b) => boolean`       | 可选。比较两个状态值是否相等，用于判断是否需要更新视图 |
 
 #### 返回值
 
@@ -648,7 +648,7 @@ StateField 是 CodeMirror 状态系统的一部分，它会随着事务自动更
 
 ## 6. EditorView 视图
 
-### 5.1 EditorView 基础
+### 6.1 EditorView 基础
 
 ```javascript
 import { EditorView } from '@codemirror/view';
@@ -660,7 +660,7 @@ const view = new EditorView({
 });
 ```
 
-### 5.2 EditorView 常用属性
+### 6.2 EditorView 常用属性
 
 ```javascript
 // 获取当前状态
@@ -680,7 +680,7 @@ view.hasFocus;
 view.state.selection;
 ```
 
-### 5.3 EditorView 常用方法
+### 6.3 EditorView 常用方法
 
 ```javascript
 // 销毁编辑器
