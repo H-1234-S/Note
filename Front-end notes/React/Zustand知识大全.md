@@ -88,6 +88,7 @@ React 组件重新执行
 页面更新
 ```
 
+react是怎么知道要重新渲染组件？zustand内部用到了一个react hook，也就是`useSyncExternalStore()`，**外部状态库**必须通过 useSyncExternalStore 接入
 
 ### 1.5 minizustand
 

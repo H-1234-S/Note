@@ -146,6 +146,8 @@ tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state
 
 **运行流程大致是：** 使用create函数创建store，zustand内部会维护`state和订阅者`，然后返回一个hook；如果组件内部调用了该hook，获取了state，那么就将该组件注册为订阅者；调用**set更新函数**修改state之后，就会通知订阅者，然后react重新渲染。
 
+
+
 ## codemirror
 
 CodeMirror 是一个 **浏览器中的代码编辑器组件**，专门让网页具备像 VS Code 那样的代码输入体验。
