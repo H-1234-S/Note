@@ -245,7 +245,408 @@ editor.dispatch(
 
 ---
 
-## 5. EditorView 视图
+## 5. StateEffect 与 StateField
+
+### 5.1 概述
+
+`StateEffect` 和 `StateField` 是 CodeMirror 6 状态管理系统的核心概念，用于创建可组合、可复用的状态扩展。
+
+- **StateEffect**：用于描述状态的变化（副作用），是一种轻量的、不可变的变化描述对象
+- **StateField**：用于管理编辑器状态的某个方面，提供状态的读取和更新逻辑
+
+### 5.2 StateEffect.define 定义副作用
+
+#### 基本语法
+
+```javascript
+import { StateEffect } from '@codemirror/state';
+
+// 定义一个 Effect
+const myEffect = StateEffect.define();
+
+// 定义带参数的 Effect
+const setValueEffect = StateEffect.define({
+  // 可选：传入参数的map类型
+  map: (value, mapping) => {
+    // 当状态被映射时调用，用于处理选区变化等情况
+    return value;
+  }
+});
+```
+
+#### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `map` | `(value, mapping) => newValue` | 可选。当状态被映射（选区变化）时调用 |
+
+#### 返回值
+
+`StateEffect` 实例，具有以下属性和方法：
+
+| 属性/方法 | 说明 |
+|-----------|------|
+| `of(value)` | 创建一个携带值的 Effect 实例 |
+| `is(other)` | 判断是否为同类型 Effect |
+
+#### 完整示例
+
+```javascript
+import { StateEffect } from '@codemirror/state';
+
+// 定义一个用于添加高亮的 Effect
+const addHighlight = StateEffect.define();
+
+// 定义一个带参数的高亮 Effect
+const addHighlightWithColor = StateEffect.define({
+  map: (value, mapping) => ({
+    ...value,
+    from: mapping.mapPos(value.from),
+    to: mapping.mapPos(value.to)
+  })
+});
+
+// 使用 Effect
+view.dispatch({
+  effects: addHighlight.of({ from: 0, to: 10 })
+});
+```
+
+### 5.3 StateField 定义状态字段
+
+#### 基本语法
+
+```javascript
+import { StateField } from '@codemirror/state';
+
+const myField = StateField.define({
+  create(state) {
+    // 返回初始状态值
+    return initialValue;
+  },
+  update(value, tr) {
+    // 处理事务，更新状态值
+    return newValue;
+  },
+  provide: field => ...,
+  compare: (a, b) => a === b
+});
+```
+
+#### 参数说明
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `create` | `(state) => value` | 必需。创建字段的初始状态 |
+| `update` | `(value, tr) => newValue` | 必需。处理事务并返回新状态 |
+| `provide` | `(field) => Extension` | 可选。提供由此字段派生的扩展 |
+| `compare` | `(a, b) => boolean` | 可选。比较两个状态值是否相等，用于判断是否需要更新视图 |
+
+#### 返回值
+
+`StateField` 实例，可以作为 Extension 直接添加到编辑器配置中。
+
+### 5.4 StateField 详解
+
+#### 完整示例：实现一个简单的标记功能
+
+```javascript
+import { StateField, StateEffect } from '@codemirror/state';
+import { Decoration, EditorView } from '@codemirror/view';
+import { RangeSetBuilder } from '@codemirror/state';
+
+// 1. 定义 Effect
+const setMark = StateEffect.define();
+
+// 2. 定义 StateField
+const markField = StateField.define({
+  // 创建初始状态（空装饰集）
+  create() {
+    return Decoration.none;
+  },
+  
+  // 处理状态更新
+  update(marks, tr) {
+    // 应用每个 Effect 到装饰集
+    for (const effect of tr.effects) {
+      if (effect.is(setMark)) {
+        marks = marks.update({
+          add: [Decoration.mark({ class: effect.value.class }).range(
+            effect.value.from,
+            effect.value.to
+          )]
+        });
+      }
+    }
+    return marks;
+  },
+  
+  // 将装饰集提供给 EditorView
+  provide: field => EditorView.decorations.from(field)
+});
+
+// 3. 使用
+const extensions = [markField];
+
+// 添加标记
+view.dispatch({
+  effects: setMark.of({ from: 0, to: 10, class: 'highlight' })
+});
+```
+
+#### StateField 生命周期详解
+
+```javascript
+const demoField = StateField.define({
+  // 阶段1：create - 创建初始状态
+  create(state) {
+    console.log('字段创建，文档长度:', state.doc.length);
+    return { version: 1, data: null };
+  },
+  
+  // 阶段2：update - 处理每个事务
+  update(value, tr) {
+    // tr.docChanged - 文档是否改变
+    // tr.selectionSet - 选区是否改变
+    // tr.effects - 此事务中的 Effects 数组
+    
+    if (tr.docChanged) {
+      // 文档变化时更新状态
+      value = { ...value, version: value.version + 1 };
+    }
+    
+    for (const effect of tr.effects) {
+      if (effect.is(someEffect)) {
+        // 处理特定的 effect
+        value = { ...value, data: effect.value };
+      }
+    }
+    
+    return value;
+  },
+  
+  // 阶段3：provide（可选）- 提供派生扩展
+  provide: field => EditorView.someExtension.from(field),
+  
+  // 阶段4：compare（可选）- 比较状态是否变化
+  compare: (a, b) => a.version === b.version && a.data === b.data
+});
+```
+
+### 5.5 进阶用法：组合多个 Effect
+
+```javascript
+import { StateEffect, StateField, Transaction } from '@codemirror/state';
+
+// 定义多个相关 Effect
+const addAnnotation = StateEffect.define();
+const removeAnnotation = StateEffect.define();
+const clearAnnotations = StateEffect.define();
+
+const annotationField = StateField.define({
+  create() {
+    return [];
+  },
+  
+  update(annotations, tr) {
+    for (const effect of tr.effects) {
+      if (effect.is(addAnnotation)) {
+        // 添加注解
+        annotations = [...annotations, effect.value];
+      } else if (effect.is(removeAnnotation)) {
+        // 移除指定注解
+        annotations = annotations.filter(a => a.id !== effect.value.id);
+      } else if (effect.is(clearAnnotations)) {
+        // 清空所有注解
+        annotations = [];
+      }
+    }
+    return annotations;
+  },
+  
+  provide: field => EditorView.decorations.from(field)
+});
+```
+
+### 5.6 实战：实现自定义搜索高亮
+
+```javascript
+import { StateEffect, StateField } from '@codemirror/state';
+import { Decoration } from '@codemirror/view';
+
+// 定义 Effect
+const setSearchHighlights = StateEffect.define();
+const clearSearchHighlights = StateEffect.define();
+
+// 定义高亮字段
+const searchHighlightField = StateField.define({
+  create() {
+    return Decoration.none;
+  },
+  
+  update(highlights, tr) {
+    for (const effect of tr.effects) {
+      if (effect.is(setSearchHighlights)) {
+        const deco = Decoration.mark({ class: 'search-match' });
+        highlights = highlights.update({
+          add: effect.value.map(({ from, to }) => 
+            deco.range(from, to)
+          )
+        });
+      } else if (effect.is(clearSearchHighlights)) {
+        highlights = Decoration.none;
+      }
+    }
+    return highlights;
+  },
+  
+  provide: field => EditorView.decorations.from(field)
+});
+
+// 搜索函数
+function highlightSearch(view, query) {
+  const content = view.state.doc.toString();
+  const matches = [];
+  const regex = new RegExp(query, 'gi');
+  let match;
+  
+  while ((match = regex.exec(content)) !== null) {
+    matches.push({ from: match.index, to: match.index + match[0].length });
+  }
+  
+  view.dispatch({
+    effects: setSearchHighlights.of(matches)
+  });
+}
+
+// 清除高亮
+function clearHighlight(view) {
+  view.dispatch({
+    effects: clearSearchHighlights.of(null)
+  });
+}
+```
+
+### 5.7 实战：实现行书签功能
+
+```javascript
+import { StateEffect, StateField } from '@codemirror/state';
+import { Decoration, EditorView } from '@codemirror/view';
+import { RangeSetBuilder } from '@codemirror/state';
+
+// 定义 Effect
+const toggleBookmark = StateEffect.define();
+
+// 定义书签字段
+const bookmarkField = StateField.define({
+  create() {
+    return Decoration.none;
+  },
+  
+  update(bookmarks, tr) {
+    for (const effect of tr.effects) {
+      if (effect.is(toggleBookmark)) {
+        const pos = effect.value;
+        
+        // 查找是否已存在书签
+        const existing = bookmarks.iter();
+        let found = false;
+        while (existing.value && !found) {
+          if (existing.from === pos) {
+            found = true;
+          }
+          existing.next();
+        }
+        
+        if (found) {
+          // 移除书签
+          bookmarks = bookmarks.update({
+            filter: from => from !== pos
+          });
+        } else {
+          // 添加书签
+          bookmarks = bookmarks.update({
+            add: [Decoration.line({ class: 'bookmark' }).range(pos)]
+          });
+        }
+      }
+    }
+    return bookmarks;
+  },
+  
+  provide: field => EditorView.decorations.from(field)
+});
+```
+
+### 5.8 Compartment 动态切换 StateField
+
+```javascript
+import { StateField, Compartment } from '@codemirror/state';
+
+// 创建可动态切换的字段
+const dynamicField = new Compartment();
+
+// 初始字段
+const fieldA = StateField.define({ create: () => 'A', update: (v, tr) => v, provide: f => f });
+const fieldB = StateField.define({ create: () => 'B', update: (v, tr) => v, provide: f => f });
+
+const state = EditorState.create({
+  extensions: [dynamicField.of(fieldA)]
+});
+
+// 动态切换
+view.dispatch({
+  effects: dynamicField.reconfigure(fieldB)
+});
+
+// 读取当前字段
+const currentField = dynamicField.get(view.state);
+```
+
+### 5.9 StateEffect 与 Transaction 的关系
+
+```
+用户操作 → EditorView → Transaction → StateField.update() → 新状态
+                                    ↓
+                              处理 Effects
+                                    ↓
+                         StateEffect 定义的变化被应用
+```
+
+```javascript
+// 手动创建带 Effect 的事务
+const tr = state.update({
+  changes: { from: 0, to: 5, insert: 'Hello' },
+  effects: [
+    setMark.of({ from: 0, to: 5, class: 'highlight' }),
+    logEffect.of('文档已修改')
+  ]
+});
+
+// 提交事务
+view.dispatch(tr);
+```
+
+### 5.10 常见问题
+
+**Q: StateField 和普通 JavaScript 对象的区别？**
+
+StateField 是 CodeMirror 状态系统的一部分，它会随着事务自动更新，并且可以参与状态的序列化和反序列化。普通对象不会随着编辑器状态变化而自动更新。
+
+**Q: 何时使用 StateField？**
+
+- 需要在多个地方监听状态变化
+- 需要与其他扩展（如装饰器）配合使用
+- 需要响应事务并自动更新
+- 需要通过 `provide` 提供派生扩展
+
+**Q: StateEffect.map 的作用？**
+
+当文档发生变化（如插入/删除字符）时，位置信息需要被映射。例如，在位置 5 插入字符后，原来的位置 10 会变成位置 11。`map` 函数用于处理这种位置映射。
+
+---
+
+## 6. EditorView 视图
 
 ### 5.1 EditorView 基础
 
@@ -325,7 +726,7 @@ const view = new EditorView({
 
 ---
 
-## 6. Extensions 扩展系统
+## 7. Extensions 扩展系统
 
 ### 6.1 什么是 Extension
 
@@ -429,7 +830,7 @@ compartment.get(view.state);
 
 ---
 
-## 7. 常用 API 详解
+## 8. 常用 API 详解
 
 ### 7.1 获取与修改文档
 
@@ -606,7 +1007,7 @@ indentSelection(view);
 
 ---
 
-## 8. 装饰器与高亮
+## 9. 装饰器与高亮
 
 ### 8.1 装饰器概述
 
@@ -736,7 +1137,7 @@ function highlightSearch(view, query) {
 
 ---
 
-## 9. 自动补全
+## 10. 自动补全
 
 ### 9.1 自动补全基础
 
@@ -881,7 +1282,7 @@ const extensions = [
 
 ---
 
-## 10. 搜索功能
+## 11. 搜索功能
 
 ### 10.1 基础搜索
 
@@ -949,7 +1350,7 @@ const customSearch = search({
 
 ---
 
-## 11. 快捷键绑定
+## 12. 快捷键绑定
 
 ### 11.1 内置快捷键
 
@@ -1054,7 +1455,7 @@ keymap.of([
 
 ---
 
-## 12. 主题系统
+## 13. 主题系统
 
 ### 12.1 使用主题
 
@@ -1159,7 +1560,7 @@ function toggleTheme() {
 
 ---
 
-## 13. 语言支持
+## 14. 语言支持
 
 ### 13.1 支持的语言包
 
@@ -1268,7 +1669,7 @@ const extensions = [basicSetup, myLanguage];
 
 ---
 
-## 14. 实战示例
+## 15. 实战示例
 
 ### 14.1 代码编辑器完整示例
 
@@ -1488,7 +1889,7 @@ function indentCode(view) {
 
 ---
 
-## 15. 常见问题
+## 16. 常见问题
 
 ### 15.1 Q: 如何获取编辑器内容？
 
