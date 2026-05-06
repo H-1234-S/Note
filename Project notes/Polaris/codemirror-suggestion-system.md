@@ -2,7 +2,7 @@
 
 ---
 
-## 第一章：基础概念 —— CodeMirror 状态系统
+## 第一章：基础概念 — CodeMirror 状态系统
 
 ### 1.1 为什么需要自定义状态？
 
@@ -14,7 +14,7 @@ CodeMirror 编辑器维护着自己的状态，包含文档内容、光标位置
 
 这时候就需要 **StateField** 来扩展 CodeMirror 的状态系统。
 
-### 1.2 StateField —— 在编辑器状态中存储自定义数据
+### 1.2 StateField — 在编辑器状态中存储自定义数据
 
 **StateField** 本质上是在编辑器状态（EditorState）中开辟一块我们自己的"命名空间"。
 
@@ -44,7 +44,7 @@ const suggestionState = StateField.define<string | null>({
 - `value`：当前存储的值（比如之前的建议文本）
 - `transaction`：本次操作的信息包，包含操作类型、影响范围等
 
-### 1.3 StateEffect —— 更新状态的方式
+### 1.3 StateEffect — 更新状态的方式
 
 StateEffect 是一种**消息机制**，用于从外部通知状态更新。
 
@@ -101,7 +101,7 @@ StateEffect 是更新这些字段的消息载体
 
 ---
 
-## 第二章：装饰系统 —— 在编辑器中渲染自定义内容
+## 第二章：装饰系统 — 在编辑器中渲染自定义内容
 
 ### 2.1 Decoration 概述
 
@@ -111,7 +111,7 @@ Decoration 是 CodeMirror 用来在编辑器中渲染**视觉标记**的机制�
 - 显示内联提示（如代码建议）
 - 添加装饰性元素（如图标）
 
-### 2.2 Decoration.widget —— 创建内联元素
+### 2.2 Decoration.widget — 创建内联元素
 
 `Decoration.widget` 可以在指定位置插入一个自定义 DOM 元素：
 
@@ -125,7 +125,7 @@ Decoration.widget({
 }).range(cursorPosition)
 ```
 
-### 2.3 WidgetType —— 自定义 DOM 元素
+### 2.3 WidgetType — 自定义 DOM 元素
 
 WidgetType 是创建自定义元素的基类：
 
@@ -153,7 +153,7 @@ class SuggestionWidget extends WidgetType {
 |------|------|
 | `toDOM()` | 返回渲染到编辑器中的实际 DOM 元素 |
 
-### 2.4 DecorationSet —— 管理装饰集合
+### 2.4 DecorationSet — 管理装饰集合
 
 通常一个插件会管理多个 Decoration，它们以 **DecorationSet** 形式存在：
 
@@ -189,7 +189,7 @@ Decoration.set([
 
 ---
 
-## 第三章：插件系统 —— 让代码响应更新
+## 第三章：插件系统 — 让代码响应更新
 
 ### 3.1 ViewPlugin 概述
 
@@ -220,7 +220,7 @@ const myPlugin = ViewPlugin.fromClass(
 );
 ```
 
-### 3.3 ViewUpdate —— 事务信息包
+### 3.3 ViewUpdate — 事务信息包
 
 `ViewUpdate` 包含每次更新的详细信息：
 
@@ -295,7 +295,7 @@ new EditorView({
 
 ---
 
-## 第四章：键盘交互 —— keymap
+## 第四章：键盘交互 — keymap
 
 ### 4.1 基本用法
 
@@ -347,7 +347,7 @@ const acceptSuggestionKeymap = keymap.of([
 
 ---
 
-## 第五章：实战 —— 实现 AI 幽灵文本建议
+## 第五章：实战 — 实现 AI 幽灵文本建议
 
 ### 5.1 功能概述
 
