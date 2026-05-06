@@ -82,6 +82,7 @@ React 组件重新执行
 页面更新
 ```
 
+zustand**不需要Provider**，因为状态在 **JS 模块作用域里**，每个组件都import同一个store，全局单例
 ### 1.5 minizustand
 
 ``` ts
