@@ -703,7 +703,7 @@ view.coordsAtPos(pos);
 view.posAtCoords({ x, y });
 ```
 
-### 5.4 事件监听
+### 6.4 事件监听
 
 ```javascript
 const view = new EditorView({
@@ -728,11 +728,11 @@ const view = new EditorView({
 
 ## 7. Extensions 扩展系统
 
-### 6.1 什么是 Extension
+### 7.1 什么是 Extension
 
 Extension 是 CodeMirror 6 的核心概念，是一个可组合的功能单元。
 
-### 6.2 Extension 的类型
+### 7.2 Extension 的类型
 
 ```javascript
 // 1. 值扩展
@@ -754,7 +754,7 @@ const ext3 = {
 };
 ```
 
-### 6.3 常用内置 Extension
+### 7.3 常用内置 Extension
 
 ```javascript
 import { EditorView } from '@codemirror/view';
@@ -774,7 +774,7 @@ EditorState.readOnly.of(true)    // 只读模式
 EditorState.lineSeparator.of('\n') // 行分隔符
 ```
 
-### 6.4 组合扩展
+### 7.4 组合扩展
 
 ```javascript
 // 数组方式
@@ -794,7 +794,7 @@ const getExtensions = (readOnly) => [
 ];
 ```
 
-### 6.5 动态扩展
+### 7.5 动态扩展
 
 ```javascript
 import { Compartment } from '@codemirror/state';
@@ -815,7 +815,7 @@ view.dispatch({
 compartment.get(view.state);
 ```
 
-### 6.6 常用扩展清单
+### 7.6 常用扩展清单
 
 | 扩展 | 包 | 说明 |
 |------|-----|------|
@@ -832,7 +832,7 @@ compartment.get(view.state);
 
 ## 8. 常用 API 详解
 
-### 7.1 获取与修改文档
+### 8.1 获取与修改文档
 
 ```javascript
 // 获取文档
@@ -860,7 +860,7 @@ view.dispatch({
 });
 ```
 
-### 7.2 光标与选区
+### 8.2 光标与选区
 
 ```javascript
 // 获取光标位置
@@ -899,7 +899,7 @@ import { selectAll } from '@codemirror/commands';
 view.dispatch({ effects: selectAll });
 ```
 
-### 7.3 选区操作命令
+### 8.3 选区操作命令
 
 ```javascript
 import {
@@ -940,7 +940,7 @@ cursorDocStart(view);
 cursorDocEnd(view);
 ```
 
-### 7.4 文本操作
+### 8.4 文本操作
 
 ```javascript
 // 插入文本（在光标位置）
@@ -972,7 +972,7 @@ view.dispatch({
 });
 ```
 
-### 7.5 撤销与重做
+### 8.5 撤销与重做
 
 ```javascript
 import { undo, redo, undoSelection, redoSelection } from '@codemirror/commands';
@@ -990,7 +990,7 @@ undoSelection(view);
 redoSelection(view);
 ```
 
-### 7.6 缩进
+### 8.6 缩进
 
 ```javascript
 import { indentSelection, indentLess, indentMore } from '@codemirror/commands';
@@ -1009,11 +1009,11 @@ indentSelection(view);
 
 ## 9. 装饰器与高亮
 
-### 8.1 装饰器概述
+### 9.1 装饰器概述
 
 装饰器（Decoration）用于高亮、标记文档中的特定范围。
 
-### 8.2 装饰器类型
+### 9.2 装饰器类型
 
 ```javascript
 import { Decoration, EditorView } from '@codemirror/view';
@@ -1038,7 +1038,7 @@ Decoration.replace({
 })
 ```
 
-### 8.3 自定义装饰器示例
+### 9.3 自定义装饰器示例
 
 ```javascript
 import { Decoration, EditorView, ViewPlugin, MatchDecorator } from '@codemirror/view';
@@ -1072,7 +1072,7 @@ view.dispatch({
 });
 ```
 
-### 8.4 高亮语法关键词
+### 9.4 高亮语法关键词
 
 ```javascript
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
@@ -1093,7 +1093,7 @@ const extensions = [
 ];
 ```
 
-### 8.5 装饰器实战：搜索高亮
+### 9.5 装饰器实战：搜索高亮
 
 ```javascript
 import { Decoration, EditorView } from '@codemirror/view';
@@ -1139,7 +1139,7 @@ function highlightSearch(view, query) {
 
 ## 10. 自动补全
 
-### 9.1 自动补全基础
+### 10.1 自动补全基础
 
 ```javascript
 import { autocompletion, CompletionContext, CompletionResult } from '@codemirror/autocomplete';
@@ -1151,7 +1151,7 @@ const extensions = [
 ];
 ```
 
-### 9.2 自定义补全源
+### 10.2 自定义补全源
 
 ```javascript
 // 本地关键词补全
@@ -1186,7 +1186,7 @@ const extensions = [
 ];
 ```
 
-### 9.3 异步补全
+### 10.3 异步补全
 
 ```javascript
 const asyncCompletions = async (context) => {
@@ -1216,7 +1216,7 @@ const extensions = [
 ];
 ```
 
-### 9.4 补全项属性
+### 10.4 补全项属性
 
 ```javascript
 {
@@ -1238,7 +1238,7 @@ const extensions = [
 }
 ```
 
-### 9.5 补全类型图标
+### 10.5 补全类型图标
 
 ```javascript
 const typeIcons = {
@@ -1259,7 +1259,7 @@ const typeIcons = {
 };
 ```
 
-### 9.6 补全选项配置
+### 10.6 补全选项配置
 
 ```javascript
 const extensions = [
@@ -1284,7 +1284,7 @@ const extensions = [
 
 ## 11. 搜索功能
 
-### 10.1 基础搜索
+### 11.1 基础搜索
 
 ```javascript
 import { search, openSearchPanel, findNext, findPrevious, replaceNext, replaceAll } from '@codemirror/search';
@@ -1294,7 +1294,7 @@ const extensions = [
 ];
 ```
 
-### 10.2 打开搜索面板
+### 11.2 打开搜索面板
 
 ```javascript
 import { openSearchPanel } from '@codemirror/search';
@@ -1305,7 +1305,7 @@ view.dispatch({
 });
 ```
 
-### 10.3 搜索快捷键
+### 11.3 搜索快捷键
 
 | 快捷键 | 功能 |
 |--------|------|
@@ -1315,7 +1315,7 @@ view.dispatch({
 | Ctrl+Shift+E | 替换 |
 | Ctrl+Shift+R | 全部替换 |
 
-### 10.4 编程式搜索
+### 11.4 编程式搜索
 
 ```javascript
 import { searchKeymap, findNext, findPrevious, setSearchQuery, selectNextMatch } from '@codemirror/search';
@@ -1332,7 +1332,7 @@ view.dispatch({
 });
 ```
 
-### 10.5 自定义搜索扩展
+### 11.5 自定义搜索扩展
 
 ```javascript
 import { search, SearchQuery } from '@codemirror/search';
@@ -1352,7 +1352,7 @@ const customSearch = search({
 
 ## 12. 快捷键绑定
 
-### 11.1 内置快捷键
+### 12.1 内置快捷键
 
 ```javascript
 import {
@@ -1370,7 +1370,7 @@ const extensions = [
 ];
 ```
 
-### 11.2 常用快捷键映射
+### 12.2 常用快捷键映射
 
 | 快捷键 | 功能 |
 |--------|------|
@@ -1387,7 +1387,7 @@ const extensions = [
 | Tab | 增加缩进 |
 | Shift+Tab | 减少缩进 |
 
-### 11.3 自定义快捷键
+### 12.3 自定义快捷键
 
 ```javascript
 import { keymap } from '@codemirror/view';
@@ -1418,7 +1418,7 @@ const indentKeymap = keymap.of([
 ]);
 ```
 
-### 11.4 快捷键修饰键
+### 12.4 快捷键修饰键
 
 ```javascript
 // 修饰键组合
@@ -1457,7 +1457,7 @@ keymap.of([
 
 ## 13. 主题系统
 
-### 12.1 使用主题
+### 13.1 使用主题
 
 ```javascript
 import { EditorView } from '@codemirror/view';
@@ -1472,7 +1472,7 @@ new EditorView({
 });
 ```
 
-### 12.2 内置主题
+### 13.2 内置主题
 
 | 主题 | 包 |
 |------|-----|
@@ -1481,7 +1481,7 @@ new EditorView({
 | githubLight | @codemirror/theme-one-dark |
 | monokai | @codemirror/theme-monokai |
 
-### 12.3 自定义主题
+### 13.3 自定义主题
 
 ```javascript
 import { EditorView, HighlightStyle } from '@codemirror/view';
@@ -1532,7 +1532,7 @@ const extensions = [
 ];
 ```
 
-### 12.4 深色/浅色主题切换
+### 13.4 深色/浅色主题切换
 
 ```javascript
 import { EditorView } from '@codemirror/view';
@@ -1562,7 +1562,7 @@ function toggleTheme() {
 
 ## 14. 语言支持
 
-### 13.1 支持的语言包
+### 14.1 支持的语言包
 
 | 语言 | 包 |
 |------|-----|
@@ -1579,7 +1579,7 @@ function toggleTheme() {
 | SQL | @codemirror/lang-sql |
 | PHP | @codemirror/lang-php |
 
-### 13.2 基础语言支持
+### 14.2 基础语言支持
 
 ```javascript
 import { javascript } from '@codemirror/lang-javascript';
@@ -1598,7 +1598,7 @@ const extensions = [
 ];
 ```
 
-### 13.3 JavaScript 详细配置
+### 14.3 JavaScript 详细配置
 
 ```javascript
 import { javascript } from '@codemirror/lang-javascript';
@@ -1615,7 +1615,7 @@ const jsExtension = javascript({
 const tsExtension = javascript({ typescript: true });
 ```
 
-### 13.4 HTML 详细配置
+### 14.4 HTML 详细配置
 
 ```javascript
 import { html } from '@codemirror/lang-html';
@@ -1627,7 +1627,7 @@ const htmlExtension = html({
 });
 ```
 
-### 13.5 自定义语言支持
+### 14.5 自定义语言支持
 
 ```javascript
 import { StreamLanguage } from '@codemirror/language';
@@ -1671,7 +1671,7 @@ const extensions = [basicSetup, myLanguage];
 
 ## 15. 实战示例
 
-### 14.1 代码编辑器完整示例
+### 15.1 代码编辑器完整示例
 
 ```javascript
 import { EditorState } from '@codemirror/state';
@@ -1739,7 +1739,7 @@ function setValue(code) {
 }
 ```
 
-### 14.2 JSON 编辑器示例
+### 15.2 JSON 编辑器示例
 
 ```javascript
 import { EditorState } from '@codemirror/state';
@@ -1789,7 +1789,7 @@ const jsonEditor = new EditorView({
 });
 ```
 
-### 14.3 Markdown 编辑器示例
+### 15.3 Markdown 编辑器示例
 
 ```javascript
 import { EditorState } from '@codemirror/state';
@@ -1835,7 +1835,7 @@ console.log('Hello World');
 });
 ```
 
-### 14.4 替换文本示例
+### 15.4 替换文本示例
 
 ```javascript
 // 替换当前选区或全文替换
@@ -1856,7 +1856,7 @@ function replaceText(view, newText, replaceAll = false) {
 }
 ```
 
-### 14.5 格式化代码示例
+### 15.5 格式化代码示例
 
 ```javascript
 // 格式化 JSON
@@ -1891,7 +1891,7 @@ function indentCode(view) {
 
 ## 16. 常见问题
 
-### 15.1 Q: 如何获取编辑器内容？
+### 16.1 Q: 如何获取编辑器内容？
 
 ```javascript
 // 方法一
@@ -1904,7 +1904,7 @@ const content = view.state.sliceDoc(0, view.state.doc.length);
 const content = view.getValue();  // 需要 EditorView.prototype.getValue
 ```
 
-### 15.2 Q: 如何设置只读模式？
+### 16.2 Q: 如何设置只读模式？
 
 ```javascript
 import { EditorState } from '@codemirror/state';
@@ -1922,7 +1922,7 @@ view.dispatch({
 });
 ```
 
-### 15.3 Q: 如何禁用某些默认功能？
+### 16.3 Q: 如何禁用某些默认功能？
 
 ```javascript
 // 使用 compartment 替换 basicSetup 中的某个扩展
@@ -1935,7 +1935,7 @@ const extensions = [
 ];
 ```
 
-### 15.4 Q: 如何自定义光标样式？
+### 16.4 Q: 如何自定义光标样式？
 
 ```javascript
 import { EditorView } from '@codemirror/view';
@@ -1949,7 +1949,7 @@ const customCursor = EditorView.theme({
 });
 ```
 
-### 15.5 Q: 如何在 React 中使用？
+### 16.5 Q: 如何在 React 中使用？
 
 ```javascript
 import { useEffect, useRef } from 'react';
@@ -1987,7 +1987,7 @@ function CodeEditor({ initialValue, onChange }) {
 }
 ```
 
-### 15.6 Q: 如何处理大文件性能问题？
+### 16.6 Q: 如何处理大文件性能问题？
 
 ```javascript
 import { EditorView } from '@codemirror/view';
@@ -2001,7 +2001,7 @@ const extensions = [
 ];
 ```
 
-### 15.7 Q: 如何添加自定义快捷键？
+### 16.7 Q: 如何添加自定义快捷键？
 
 ```javascript
 import { keymap } from '@codemirror/view';
