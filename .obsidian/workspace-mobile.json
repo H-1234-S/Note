@@ -125,12 +125,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "八股/JavaScript篇_高频八股文.md",
+                "file": "Front-end notes/库/CodeMirror6用法指南.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "JavaScript篇_高频八股文"
+              "title": "CodeMirror6用法指南"
             }
           },
           {
@@ -318,9 +318,13 @@
     "/Project notes/Polaris/Logs.md",
     "/Project notes/Polaris",
     "/Project notes",
+    "八股/JavaScript篇_高频八股文.md",
+    "/Front-end notes/库/CodeMirror6用法指南.md",
+    "Front-end notes/库/CodeMirror6用法指南.md",
+    "/Front-end notes/库",
+    "/Front-end notes",
     "/Front-end notes/Convex/Convex 完全指南.md",
     "/Front-end notes/Convex",
-    "/Front-end notes",
     "/学习/Ai.md",
     "学习/Ai.md",
     "/学习",
@@ -329,10 +333,8 @@
     "未命名.base",
     "/未命名.base",
     "/Front-end notes/库/Inngest学习指南.md",
-    "/Front-end notes/库",
     "八股/浏览器篇_高频八股文.md",
     "学习/技术栈.md",
-    "八股/JavaScript篇_高频八股文.md",
     "未命名.md",
     "Project notes/VoxClone/知识点.md",
     "Project notes/VoxClone/知识内容.md",
@@ -350,8 +352,6 @@
     "/Front-end notes/库/wavesurfer.js-基础知识.md",
     "/Front-end notes/React/React.md",
     "/未命名.md",
-    "/Project notes/VoxClone/知识内容.md",
-    "zode.md",
     "Project notes/resonance/需求.canvas",
     "/Project notes/resonance/需求.canvas",
     "Front-end notes/Pasted image 20260328115001.png",
