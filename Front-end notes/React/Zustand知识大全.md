@@ -57,23 +57,25 @@ Zustand 是一个轻量级、快速、可扩展的状态管理解决方案，基
 
 zustand本质上利用**发布订阅设计模式**，也就是在 React 外部维护一个全局状态容器，当状态变化时，精准通知使用这个状态的组件重新渲染。
 
+**运行流程：**
 ```
 create()
  ↓
-生成 store(state + listeners)
+生成 store(state + listeners)，也就是zustand内部维护了state和listeners(订阅者)
+ ↓
+返回一个hook
 
 组件 useStore(...)
  ↓
-读取 state
-注册订阅
+读取 state，同时将该组件注册为订阅者
 
 用户点击按钮
  ↓
 action -> set()
 
-修改 state
+修改 state(注意：Zustand 默认是浅合并，不是整对象替换)
  ↓
-通知 listeners
+通知 listeners(订阅者)
 
 React 组件重新执行
  ↓
