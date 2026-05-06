@@ -49,8 +49,7 @@
               "title": "tRPC学习指南"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -167,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React/Zustand知识大全.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Zustand知识大全 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -225,11 +224,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "63f2e88c396d82e8",
+  "active": "9a75e5c54ee0f65d",
   "lastOpenFiles": [
-    "Front-end notes/tRPC/tRPC学习指南.md",
-    "Project notes/Polaris/Logs.md",
     "Front-end notes/React/Zustand知识大全.md",
+    "Project notes/Polaris/Logs.md",
+    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/库/CodeMirror6用法指南.md",
     "八股/React篇_高频八股文.md",
     "Front-end notes/React/构建Mini React.md",

@@ -140,7 +140,11 @@ tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state
 
 ## zustand
 
-使用zustand进行编辑器状态管理，zustand是一个高性能的react state管理库
+使用zustand进行 编辑器 状态管理，zustand是一个ts友好的高性能的react state管理库
+
+> 它的核心目标是：用极少的代码，创建一个全局状态，所有组件按需更新
+
+**运行流程大致是：** 使用create函数创建store，zustand内部会维护`state和订阅者`，然后返回一个hook；如果组件内部调用了该hook，获取了state，那么就将该组件注册为订阅者；调用**set更新函数**修改state之后，就会通知订阅者，然后react重新渲染。
 
 ## codemirror
 
