@@ -82,6 +82,29 @@ React 组件重新执行
 页面更新
 ```
 
+### 1.5 minizustand
+
+``` ts
+function create(createState) {
+  let state
+  const listeners = new Set()
+
+  const setState = (partial) => {
+    state = { ...state, ...partial }
+    listeners.forEach(l => l())
+  }
+
+  const getState = () => state
+
+  state = createState(setState, getState)
+
+  return function useStore(selector) {
+    // React useSyncExternalStore
+    return selector(state)
+  }
+}
+```
+
 ---
 
 ## 2. 快速开始
