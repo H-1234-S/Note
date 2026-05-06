@@ -53,6 +53,33 @@ Zustand 是一个轻量级、快速、可扩展的状态管理解决方案，基
 | API 风格 | Hooks | Hooks + TS |
 | 学习曲线 | 低 | 中 |
 
+### 1.4 运行原理
+
+zustand本质上利用**发布订阅设计模式**，也就是在 React 外部维护一个全局状态容器，当状态变化时，精准通知使用这个状态的组件重新渲染。
+
+```
+create()
+ ↓
+生成 store(state + listeners)
+
+组件 useStore(...)
+ ↓
+读取 state
+注册订阅
+
+用户点击按钮
+ ↓
+action -> set()
+
+修改 state
+ ↓
+通知 listeners
+
+React 组件重新执行
+ ↓
+页面更新
+```
+
 ---
 
 ## 2. 快速开始
