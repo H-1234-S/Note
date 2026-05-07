@@ -221,3 +221,22 @@ View diff DOM
 接受层：
 通过 keymap 拦截 Tab 按键。如果有建议，就 dispatch 一个事务：插入文本、移动光标、清空状态，一气呵成。
 ```
+
+**执行流程：**
+```
+用户输入
+    ↓
+update.docChanged 触发
+    ↓
+防抖定时器重置 (300ms)
+    ↓
+定时器到期 → fetch API 获取建议
+    ↓
+dispatch setSuggestionEffect
+    ↓
+StateField 更新 → renderPlugin 重建装饰
+    ↓
+幽灵文本显示在光标位置
+    ↓
+用户按 Tab → 插入建议文本 → 清空状态
+```
