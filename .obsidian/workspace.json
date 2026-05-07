@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
+                "file": "Front-end notes/库/CodeMirror6用法指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 的大纲"
+              "title": "CodeMirror6用法指南 的大纲"
             }
           },
           {
@@ -252,10 +252,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "d6499d5022c16414",
+  "active": "7b79b84428e11cdf",
   "lastOpenFiles": [
-    "Front-end notes/库/CodeMirror6用法指南.md",
     "Project notes/Polaris/Logs.md",
+    "Front-end notes/库/CodeMirror6用法指南.md",
     "Project notes/Polaris/codemirror-suggestion-system.md",
     "Project notes/Polaris/codemirror-suggestion-lifecycle.md",
     "Project notes/VoxClone/需求.canvas",

@@ -724,6 +724,157 @@ const view = new EditorView({
 });
 ```
 
+### 6.5 view.dispatch 详解
+
+`view.dispatch()` 是 CodeMirror 6 中**最核心的方法之一**，是让编辑器发生变化的唯一正式入口。
+
+#### 为什么需要 dispatch？
+
+CodeMirror 6 采用 **immutable state** 架构：
+
+```javascript
+view.state  // 只是只读状态快照
+```
+
+你不能直接修改：
+
+```javascript
+view.state.doc = "hello"        // ❌ 不能直接改
+view.state.selection = ...      // ❌ 不能直接改
+```
+
+正确方式是通过 `dispatch` 提交更新：
+
+```javascript
+view.dispatch(...)  // ✅ 唯一正式入口
+```
+
+#### dispatch 本质
+
+```
+view.dispatch(...)  
+   ↓
+生成 Transaction
+   ↓
+更新 EditorState
+   ↓
+插件收到 update
+   ↓
+DOM 局部刷新
+```
+
+#### 核心参数：TransactionSpec
+
+```typescript
+{
+  changes?,      // 文档变更
+  selection?,    // 选区变更
+  effects?,      // 插件命令（StateEffect）
+  annotations?,  // 注解
+  scrollIntoView? // 滚动
+}
+```
+
+#### 插入文本
+
+```javascript
+view.dispatch({
+  changes: { from: 0, insert: "hello" }
+});
+```
+
+#### 删除文本
+
+```javascript
+view.dispatch({
+  changes: { from: 0, to: 5 }
+});
+```
+
+#### 替换文本
+
+```javascript
+view.dispatch({
+  changes: { from: 0, to: 5, insert: "world" }
+});
+```
+
+#### 移动光标
+
+```javascript
+// 单光标
+view.dispatch({
+  selection: { anchor: 3 }
+});
+
+// 多选区
+view.dispatch({
+  selection: { ranges: [{ anchor: 0, head: 5 }, { anchor: 10, head: 15 }] }
+});
+```
+
+#### 发送插件命令（StateEffect）
+
+```javascript
+view.dispatch({
+  effects: myEffect.of({ from: 0, to: 10 })
+});
+```
+
+#### 一次完成多个变化
+
+```javascript
+view.dispatch({
+  changes: { from: 0, insert: "hello" },
+  selection: { anchor: 5 }
+});
+```
+
+插入文本后同时移动光标。
+
+#### 典型应用场景
+
+| 场景 | 代码 |
+|------|------|
+| 插入 AI 建议 | `changes: { from: pos, insert: suggestion }` |
+| 格式化代码 | `changes: { from: 0, to: doc.length, insert: formatted }` |
+| 跳转到某行 | `selection: { anchor: line.from }` |
+| 打开 tooltip | `effects: showTooltip.of(...)` |
+
+#### 与 React 类比
+
+| React | CodeMirror |
+|-------|------------|
+| `setState()` | `view.dispatch()` |
+| state 改变 | transaction |
+| rerender | DOM 更新 |
+
+#### 你按键输入时，内部也在 dispatch
+
+用户按 `a` 时，内部本质是：
+
+```javascript
+view.dispatch({
+  changes: { from: cursor, insert: "a" }
+});
+```
+
+所有编辑行为最终都走 dispatch。
+
+#### 常见错误
+
+```javascript
+// ❌ 直接改 state
+view.state.doc = ...
+
+// ❌ 频繁 dispatch 全量替换全文（会卡顿）
+// ✅ 应该只替换变化的部分
+```
+
+#### 一句话总结
+
+> **CodeMirror 中一切变化，最终都要 dispatch。**
+
 ---
 
 ## 7. Extensions 扩展系统
