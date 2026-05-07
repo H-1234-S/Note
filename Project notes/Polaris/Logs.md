@@ -198,4 +198,13 @@ View diff DOM
 局部更新页面
 ```
 
-`stateEffect`意思是用来通知`transaction`附带做什么额外状态操作。
+`stateEffect`意思是用来通知`transaction`附带做什么**额外状态**操作。
+
+`StateEffect` 发命令，`StateField` 接命令并更新状态。
+
+```
+1. 定义 Effect 类型（静态）
+2. 在需要时 dispatch（发送）一个 Effect
+3. StateField 的 update 方法监听并处理 Effect
+```
+
