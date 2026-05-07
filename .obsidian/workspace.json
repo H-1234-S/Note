@@ -238,8 +238,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 333.5,
-    "collapsed": true
+    "width": 333.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -256,10 +255,10 @@
   "active": "d6499d5022c16414",
   "lastOpenFiles": [
     "Front-end notes/库/CodeMirror6用法指南.md",
+    "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/codemirror-suggestion-system.md",
     "Project notes/Polaris/codemirror-suggestion-lifecycle.md",
     "Project notes/VoxClone/需求.canvas",
-    "Project notes/Polaris/Logs.md",
     "Front-end notes/React/Zustand学习指南.md",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073255909",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073246158",
