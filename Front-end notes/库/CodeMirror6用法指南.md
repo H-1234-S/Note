@@ -728,6 +728,8 @@ const view = new EditorView({
 
 `view.dispatch()` 是 CodeMirror 6 中**最核心的方法之一**，是让编辑器发生变化的唯一正式入口。
 
+> **CodeMirror 中一切变化，最终都要 dispatch。**
+
 #### 为什么需要 dispatch？
 
 CodeMirror 6 采用 **immutable state** 架构：
@@ -832,24 +834,7 @@ view.dispatch({
 
 插入文本后同时移动光标。
 
-#### 典型应用场景
-
-| 场景 | 代码 |
-|------|------|
-| 插入 AI 建议 | `changes: { from: pos, insert: suggestion }` |
-| 格式化代码 | `changes: { from: 0, to: doc.length, insert: formatted }` |
-| 跳转到某行 | `selection: { anchor: line.from }` |
-| 打开 tooltip | `effects: showTooltip.of(...)` |
-
-#### 与 React 类比
-
-| React | CodeMirror |
-|-------|------------|
-| `setState()` | `view.dispatch()` |
-| state 改变 | transaction |
-| rerender | DOM 更新 |
-
-#### 你按键输入时，内部也在 dispatch
+#### 按键输入时，内部也在 dispatch
 
 用户按 `a` 时，内部本质是：
 
@@ -860,20 +845,6 @@ view.dispatch({
 ```
 
 所有编辑行为最终都走 dispatch。
-
-#### 常见错误
-
-```javascript
-// ❌ 直接改 state
-view.state.doc = ...
-
-// ❌ 频繁 dispatch 全量替换全文（会卡顿）
-// ✅ 应该只替换变化的部分
-```
-
-#### 一句话总结
-
-> **CodeMirror 中一切变化，最终都要 dispatch。**
 
 ---
 
