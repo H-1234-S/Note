@@ -175,4 +175,4 @@ setActiveTab设置当前激活的标签页
 
 CodeMirror 是一个 **浏览器中的代码编辑器组件**，专门让网页具备像 VS Code 那样的代码输入体验。
 
-codemirror 维护着自己的状态，比如光标位置、文档内容，但有的时候我们需要自定义额外状态，这时候需要stateFile
+codemirror 维护着自己的状态，比如光标位置、文档内容，但有的时候我们需要自定义额外状态，这时候需要stateField
