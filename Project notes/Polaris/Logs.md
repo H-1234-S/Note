@@ -198,3 +198,4 @@ View diff DOM
 局部更新页面
 ```
 
+`stateEffect`
