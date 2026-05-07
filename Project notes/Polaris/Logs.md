@@ -179,13 +179,11 @@ codemirror 维护着自己的状态，比如光标位置、文档内容，但有
 
 **核心概念：**`immutable state`和`transaction`，将编辑器的状态视为不可变的，每次更改返回新的状态，这与react很类似。`transaction`就是状态变化的“描述对象”，也就是本次操作所产生的信息包，例如：每次用户操作（打字、选中、按键）都会产生一个或多个事务，事物是codemirror最小变更单位
 
-`immutable state`和`transaction`一起生成`new state`
-
 **整个系统的数据流：**
 ```
 用户输入
    ↓
-dispatch(transactionSpec)
+dispatch(transactionSpec)  派发一个事务
    ↓
 生成 Transaction
    ↓
