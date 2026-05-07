@@ -212,3 +212,17 @@ View diff DOM
 
 在codemirror中自定义插件，stateField用来存储插件状态，stateEffect是修改插件状态的命令，viewPlugin是在视图层面更新/操作DOM，facet提供配置
 
+**插件的生命周期：**
+```
+编辑器创建
+   ↓
+constructor(view)
+
+每次 state 更新
+   ↓
+update(update)
+
+编辑器销毁 / 插件卸载
+   ↓
+destroy()
+```
