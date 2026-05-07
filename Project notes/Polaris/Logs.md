@@ -175,6 +175,25 @@ setActiveTab设置当前激活的标签页
 
 CodeMirror 是一个 **浏览器中的代码编辑器组件**，专门让网页具备像 VS Code 那样的代码输入体验。
 
-codemirror 维护着自己的状态，比如光标位置、文档内容，但有的时候我们需要自定义额外状态，这时候需要stateField
+codemirror 维护着自己的状态，比如光标位置、文档内容，但有的时候我们需要自定义额外状态，这时候需要stateField，`stateField.define`就是在开辟一个空间存储我们自定义额外状态
 
-核心概念：`immutable state`和`transaction`，将编辑器的状态视为不可变的，每次更改返回新的状态，这与react很类似，在react中要让状态发生改变需要调用set更新函数，同样的，`transaction`就是状态变化的“描述对象”
+核心概念：`immutable state`和`transaction`，将编辑器的状态视为不可变的，每次更改返回新的状态，这与react很类似，在react中要让状态发生改变需要调用set更新函数，同样的，`transaction`就是状态变化的“描述对象”，`immutable state`和`transaction`一起生成`new state`
+
+**整个系统的数据流：**
+```
+用户输入
+   ↓
+dispatch(transactionSpec)
+   ↓
+生成 Transaction
+   ↓
+旧 State 应用 Transaction
+   ↓
+生成新 State
+   ↓
+所有 StateField 更新
+   ↓
+View diff DOM
+   ↓
+局部更新页面
+```
