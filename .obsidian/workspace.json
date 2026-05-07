@@ -8,20 +8,6 @@
         "type": "tabs",
         "children": [
           {
-            "id": "9a75e5c54ee0f65d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Project notes/Polaris/Logs.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Logs"
-            }
-          },
-          {
             "id": "bc64983c7282726b",
             "type": "leaf",
             "state": {
@@ -62,8 +48,33 @@
               "icon": "lucide-file",
               "title": "tRPC学习指南"
             }
+          },
+          {
+            "id": "49da55d02fbbbc17",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
+          },
+          {
+            "id": "7b79b84428e11cdf",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/库/CodeMirror6用法指南.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "CodeMirror6用法指南"
+            }
           }
-        ]
+        ],
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -120,8 +131,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334,
-    "collapsed": true
+    "width": 263.504695892334
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -180,13 +190,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/codemirror-suggestion-system.md",
+                "file": "Front-end notes/库/CodeMirror6用法指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "codemirror-suggestion-system 的大纲"
+              "title": "CodeMirror6用法指南 的大纲"
             }
           },
           {
@@ -238,12 +248,14 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "9a75e5c54ee0f65d",
+  "active": "7b79b84428e11cdf",
   "lastOpenFiles": [
-    "Project notes/Polaris/codemirror-suggestion-system.md",
-    "Front-end notes/React/Zustand学习指南.md",
-    "Project notes/Polaris/Logs.md",
+    "Project notes/Polaris/codemirror-suggestion-lifecycle.md",
     "Front-end notes/库/CodeMirror6用法指南.md",
+    "Project notes/Polaris/codemirror-suggestion-system.md",
+    "Project notes/VoxClone/需求.canvas",
+    "Project notes/Polaris/Logs.md",
+    "Front-end notes/React/Zustand学习指南.md",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073255909",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073246158",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073239896",
@@ -271,12 +283,10 @@
     "Project notes/VoxClone/Resonance.md",
     "学习/Ai.md",
     "Front-end notes/库/Inngest学习指南.md",
-    "Project notes/VoxClone/需求.canvas",
     "Project notes/项目链接.md",
     "zode.md",
     "Front-end notes/Convex/Convex 完整教程.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
-    "Project notes/VoxClone/面试问答完整版.md",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
