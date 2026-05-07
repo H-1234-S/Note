@@ -198,4 +198,4 @@ View diff DOM
 局部更新页面
 ```
 
-`stateEffect`
+`stateEffect`意思是用来通知`transaction`附带做什么额外状态操作。
