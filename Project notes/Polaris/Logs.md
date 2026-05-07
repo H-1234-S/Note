@@ -205,6 +205,6 @@ View diff DOM
 ```
 1. 定义 Effect 类型（静态）
 2. 在需要时 dispatch（发送）一个 Effect
-3. StateField 的 update 方法监听并处理 Effect
+3. StateField 的 update 方法监听并处理 Effect，通过transaction.effect
 ```
 
