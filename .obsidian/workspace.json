@@ -50,16 +50,6 @@
             }
           },
           {
-            "id": "49da55d02fbbbc17",
-            "type": "leaf",
-            "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "新标签页"
-            }
-          },
-          {
             "id": "7b79b84428e11cdf",
             "type": "leaf",
             "state": {
@@ -71,6 +61,20 @@
               },
               "icon": "lucide-file",
               "title": "CodeMirror6用法指南"
+            }
+          },
+          {
+            "id": "d6499d5022c16414",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Project notes/Polaris/Logs.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Logs"
             }
           }
         ],
@@ -131,7 +135,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334
+    "width": 263.504695892334,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -190,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/CodeMirror6用法指南.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "CodeMirror6用法指南 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -248,11 +253,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "7b79b84428e11cdf",
+  "active": "d6499d5022c16414",
   "lastOpenFiles": [
-    "Project notes/Polaris/codemirror-suggestion-lifecycle.md",
     "Front-end notes/库/CodeMirror6用法指南.md",
     "Project notes/Polaris/codemirror-suggestion-system.md",
+    "Project notes/Polaris/codemirror-suggestion-lifecycle.md",
     "Project notes/VoxClone/需求.canvas",
     "Project notes/Polaris/Logs.md",
     "Front-end notes/React/Zustand学习指南.md",

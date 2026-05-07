@@ -212,17 +212,14 @@ View diff DOM
 
 在codemirror中自定义插件，stateField用来存储插件状态，stateEffect是修改插件状态的命令，viewPlugin是在视图层面更新/操作DOM，facet提供配置
 
-**插件的生命周期：**
+**实现幽灵文本插件：**
 ```
-编辑器创建
-   ↓
-constructor(view)
-
-每次 state 更新
-   ↓
-update(update)
-
-编辑器销毁 / 插件卸载
-   ↓
-destroy()
+状态管理层：
+用 StateField 在编辑器状态中开辟了一块存储空间，通过 StateEffect 来更新这个状态。当 API 返回结果后，用 dispatch 分发效果，状态就更新了。
+渲染层：
+自定义了一个 WidgetType 组件，它会创建一个半透明的 <span> 元素。然后用 Decoration.widget 把这个组件挂载到光标位置，side: 1 表示在光标之后渲染。
+触发层：
+用 ViewPlugin 监听编辑器的 update 事件。当文档变化或光标移动时，触发 generatePayload 构建上下文（包括当前代码、光标位置、上下五行等），然后防抖 300ms 后调用 AI 接口。
+接受层：
+通过 keymap 拦截 Tab 按键。如果有建议，就 dispatch 一个事务：插入文本、移动光标、清空状态，一气呵成。
 ```
