@@ -202,6 +202,7 @@ View diff DOM
 
 codemirror 严格区分了state和view，因此生命周期也要分state和view
 
+**初始化与挂载：**
 ``` 
 state：
 当编辑器state被创建时，codemirror会首先调用state.field的create函数，返回该字段的初始值
@@ -262,6 +263,13 @@ update(update:ViewUpdate) {
     }
   }
 ```
+
+**销毁与卸载：**
+```
+view：
+ViewPlugin.destroy，清理在 constructor 或 update 中创建的外部资源（如 setTimeout、setInterval、外部事件监听器 window.addEventListener 等）。
+```
+
 # ai feature
 
 ## codemirror
