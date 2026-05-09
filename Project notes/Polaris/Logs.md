@@ -199,9 +199,8 @@ View diff DOM
 ```
 
 **codemirror extension的生命周期：**
-```
 
-```
+
 
 # ai feature
 
