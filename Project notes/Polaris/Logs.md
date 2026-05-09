@@ -198,6 +198,12 @@ View diff DOM
 局部更新页面
 ```
 
+# ai feature
+
+## codemirror
+
+在codemirror中自定义插件，stateField用来存储插件状态，stateEffect是修改插件状态的命令，viewPlugin是在视图层面更新/操作DOM，facet提供配置
+
 `stateEffect`意思是用来通知`transaction`附带做什么**额外状态**操作。
 
 `StateEffect` 发命令，`StateField` 接命令并更新状态。
@@ -207,8 +213,6 @@ View diff DOM
 2. 在需要时 dispatch（发送）一个 Effect
 3. StateField 的 update 方法监听并处理 Effect，通过transaction.effect
 ```
-
-在codemirror中自定义插件，stateField用来存储插件状态，stateEffect是修改插件状态的命令，viewPlugin是在视图层面更新/操作DOM，facet提供配置
 
 **实现幽灵文本插件：**
 ```
