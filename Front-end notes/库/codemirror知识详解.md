@@ -212,6 +212,80 @@ const myField = StateField.define<T>({
 | `update(value, transaction)` | `(T, Transaction) => T` | 处理事务更新，返回新值 |
 | `provide(field)` | `(Field) => Extension` | 可选，向外提供扩展 |
 
+### provide 函数详解
+
+`provide` 用于将 `StateField` 连接到其他扩展，使该字段能够为其他插件提供数据。
+
+#### 基本语法
+
+```typescript
+const myField = StateField.define<T>({
+  create() {
+    return initialValue;
+  },
+  update(value, transaction) {
+    return newValue;
+  },
+  provide: (field) => SomeExtension.from(field, (state) => state.field(field)),
+});
+```
+
+#### 常见用途：连接到 showTooltip
+
+当创建自定义 tooltip 时，需要用 `provide` 将 tooltip 数组提供给 `showTooltip` 插件：
+
+```typescript
+const myTooltipField = StateField.define<readonly Tooltip[]>({
+  create(state) {
+    return createMyTooltip(state);
+  },
+  update(tooltips, transaction) {
+    if (transaction.docChanged || transaction.selection) {
+      return createMyTooltip(transaction.state);
+    }
+    return tooltips;
+  },
+  // provide 的作用：
+  // - 接收当前的 field（即 myTooltipField 本身）
+  // - 返回一个扩展，该扩展将 field 的值提供给 showTooltip 插件
+  // - showTooltip.computeN 会监听 field 的变化，当 field 更新时自动重新渲染 tooltip
+  provide: (field) => showTooltip.computeN(
+    [field],                        // 依赖的字段数组
+    (state) => state.field(field),  // 从状态中提取字段值（tooltip 数组）
+  ),
+});
+```
+
+#### provide 的工作原理
+
+```
+StateField 更新 → provide 函数被调用 → 返回 Extension → showTooltip 插件接收新值 → Tooltip 重新渲染
+```
+
+`provide: (field) => showTooltip.computeN([field], ...)` 的含义：
+- `[field]`：声明依赖的字段，当这些字段变化时，computeN 的函数会被调用
+- `(state) => state.field(field)`：从状态中提取该字段的当前值
+- 返回的扩展会被注册到编辑器，从而触发 showTooltip 重新渲染
+
+#### 多个字段组合
+
+```typescript
+provide: (field) => showTooltip.computeN(
+  [field, anotherField],                    // 依赖多个字段
+  (state) => [                               // 返回数组
+    state.field(field),
+    state.field(anotherField),
+  ],
+),
+```
+
+#### 其他使用 provide 的场景
+
+除了 `showTooltip`，`provide` 还常用于：
+- `EditorView.theme` - 提供主题
+- `keymap` - 提供快捷键
+- 其他需要从 StateField 派生扩展的场景
+
 ### Transaction 对象
 
 | 属性 | 类型 | 说明 |
