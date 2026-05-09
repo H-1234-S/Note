@@ -200,6 +200,9 @@ View diff DOM
 
 **codemirror extension的生命周期：**
 
+codemirror 严格区分了state和view，因此生命周期也要分state和view
+
+
 
 
 # ai feature
