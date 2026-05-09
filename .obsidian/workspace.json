@@ -64,7 +64,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -181,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/codemirror知识详解.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "codemirror知识详解 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -238,18 +238,18 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "5f2a4f93a8ac7e6f",
+  "active": "d6499d5022c16414",
   "lastOpenFiles": [
+    "Front-end notes/库/codemirror知识详解.md",
+    "Front-end notes/tRPC/tRPC学习指南.md",
+    "Project notes/Polaris/Logs.md",
     "Front-end notes/库/codemirror知识详解.md.tmp.22612.1778329115773",
     "Front-end notes/库/CodeMirror6用法指南.md",
-    "Front-end notes/库/codemirror知识详解.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19696.1778327333987",
-    "Project notes/Polaris/Logs.md",
     "Front-end notes/JavaScript/Web API.md",
     "Front-end notes/库/Ky 用法指南.md",
     "Front-end notes/库/Zod.md",
-    "Front-end notes/tRPC/tRPC学习指南.md",
     "Project notes/Polaris/codemirror-suggestion-system.md",
     "Project notes/Polaris/codemirror-suggestion-lifecycle.md",
     "Project notes/VoxClone/需求.canvas",
@@ -262,7 +262,6 @@
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073196867",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073193270",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073190147",
-    "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073183745",
     "Front-end notes/React/Zustand知识大全.md",
     "八股/React篇_高频八股文.md",
     "Front-end notes/React/构建Mini React.md",

@@ -198,11 +198,16 @@ View diff DOM
 局部更新页面
 ```
 
+**codemirror extension的生命周期：**
+```
+
+```
+
 # ai feature
 
 ## codemirror
 
-在codemirror中自定义插件，stateField用来存储插件状态，stateEffect是修改插件状态的命令，viewPlugin是在视图层面更新/操作DOM，facet提供配置
+在codemirror中自定义扩展，stateField用来存储插件状态，stateEffect是修改插件状态的命令，viewPlugin是在视图层面更新/操作DOM，facet提供配置
 
 `stateEffect`意思是用来通知`transaction`附带做什么**额外状态**操作。
 
