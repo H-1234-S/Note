@@ -244,4 +244,4 @@ StateField 更新 → renderPlugin 重建装饰
 
 cursor的架构可以从三个方面理解：
 
-第一层code editor，也就是ui层，负责收集
+收集数据、转化为prompt、喂给llm
