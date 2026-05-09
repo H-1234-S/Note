@@ -285,4 +285,4 @@ StateField 更新 → renderPlugin 重建装饰
 
 ### 实时补全的底层原理
 
-**FIM 机制：** 意思是模型在训练时采用了 FIM 特殊结构
+**FIM 机制：** 意思是模型在训练时，gei'ta
