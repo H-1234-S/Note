@@ -280,3 +280,5 @@ StateField 更新 → renderPlugin 重建装饰
 - **字面检索：** 结合传统的关键词搜索（找代码里包含 "login", "user" 的文件）。
 
 - **LSP 集成寻路：** 这是 Cursor 极其聪明的一点。如果提到了 `UserService`，Cursor 会通过 IDE 底层的语言服务器（LSP）直接找到 `UserService` 的定义文件，将其强行加入上下文。
+
+其实核心的是**LSP + AST + 向量搜索**，这样就能拿到很准确的信息。
