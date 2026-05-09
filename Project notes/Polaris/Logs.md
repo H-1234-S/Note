@@ -240,4 +240,8 @@ StateField 更新 → renderPlugin 重建装饰
     ↓
 用户按 Tab → 插入建议文本 → 清空状态
 ```
+## cursor
 
+cursor的架构可以从三个方面理解：
+
+第一层code editor，也就是ui层，负责收集
