@@ -75,21 +75,21 @@ new EditorView({
 
 ### 常用属性
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| `state` | `EditorState` | 当前编辑器状态 |
-| `doc` | `Doc` | 文档对象（快捷方式，等于 `state.doc`） |
-| `selection` | `Selection` | 当前选区（快捷方式，等于 `state.selection`） |
+| 属性          | 类型            | 说明                              |
+| ----------- | ------------- | ------------------------------- |
+| `state`     | `EditorState` | 当前编辑器状态                         |
+| `doc`       | `Doc`         | 文档对象（快捷方式，等于 `state.doc`）       |
+| `selection` | `Selection`   | 当前选区（快捷方式，等于 `state.selection`） |
 
 ### 常用方法
 
-| 方法 | 返回值 | 说明 |
-|------|--------|------|
-| `dispatch(tr: Transaction)` | `void` | 提交事务，更新状态 |
-| `destroy()` | `void` | 销毁编辑器，清理事件监听 |
-| `focus()` | `void` | 聚焦编辑器 |
-| `hasFocus()` | `boolean` | 检查是否聚焦 |
-| `update(...plugins)` | `void` | 批量更新插件 |
+| 方法                          | 返回值       | 说明           |
+| --------------------------- | --------- | ------------ |
+| `dispatch(tr: Transaction)` | `void`    | 提交事务，更新状态    |
+| `destroy()`                 | `void`    | 销毁编辑器，清理事件监听 |
+| `focus()`                   | `void`    | 聚焦编辑器        |
+| `hasFocus()`                | `boolean` | 检查是否聚焦       |
+| `update(...plugins)`        | `void`    | 批量更新插件       |
 
 ### 项目中的用法
 
