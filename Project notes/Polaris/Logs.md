@@ -240,3 +240,4 @@ StateField 更新 → renderPlugin 重建装饰
     ↓
 用户按 Tab → 插入建议文本 → 清空状态
 ```
+
