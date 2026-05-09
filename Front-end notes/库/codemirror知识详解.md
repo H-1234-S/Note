@@ -1,24 +1,3 @@
-# CodeMirror 6 知识详解
-
-## 目录
-
-1. [核心概念：State、View、Transaction](#1-核心概念statestate-viewtransaction)
-2. [声明式配置 vs 命令式 API](#2-声明式配置-vs-命令式-api)
-3. [基础组件：EditorView](#3-基础组件editorview)
-4. [状态管理：EditorState](#4-状态管理editorstate)
-5. [状态字段：StateField](#5-状态字段statefield)
-6. [状态效果：StateEffect](#6-状态效果stateeffect)
-7. [视图插件：ViewPlugin](#7-视图插件viewplugin)
-8. [装饰器：Decoration](#8-装饰器decoration)
-9. [快捷键：keymap](#9-快捷键keymap)
-10. [主题系统](#10-主题系统)
-11. [语言支持](#11-语言支持)
-12. [内置扩展](#12-内置扩展)
-13. [Tooltip 系统](#13-tooltip-系统)
-14. [项目实战案例](#14-项目实战案例)
-
----
-
 ## 1. 核心概念：State、View、Transaction
 
 CodeMirror 6 的核心架构基于三个基本概念：
