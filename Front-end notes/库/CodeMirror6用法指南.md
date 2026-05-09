@@ -2161,3 +2161,269 @@ const extensions = [basicSetup, saveKeymap];
 | 注释 | Ctrl+/ | Cmd+/ |
 | 缩进 | Tab | Tab |
 | 取消缩进 | Shift+Tab | Shift+Tab |
+
+---
+
+## 附录：Tooltip 工具提示系统
+
+### 1. 概述
+
+CodeMirror 6 提供了完整的 Tooltip 工具提示系统，用于在编辑器中显示悬浮提示信息。
+
+### 2. 核心 API
+
+```javascript
+import { showTooltip, Tooltip } from '@codemirror/tooltip';
+import { EditorView } from '@codemirror/view';
+```
+
+### 3. Tooltip 接口定义
+
+```typescript
+interface Tooltip {
+  /** 工具提示内容（HTML 字符串或 DOM 节点） */
+  content: string | Node;
+  /** 工具提示显示的位置（文档坐标） */
+  pos: number;
+  /** 定位锚点 */
+  anchor?: "anchor" | "cursor" | null;
+  /** 样式类名 */
+  class?: string;
+  /** 是否在输入时隐藏，默认为 true */
+  hideOnInput?: boolean;
+  /** 键盘可访问标识 */
+  key?: string;
+  /** 自定义定位函数 */
+  position?: (view: EditorView, tooltip: Tooltip, coords: DOMRect, portaled: boolean) => { left: number, top: number, bottom?: number };
+}
+```
+
+### 4. showTooltip 函数
+
+```typescript
+function showTooltip(view: EditorView, tooltip: Tooltip): DisposalChunk
+```
+
+**参数：**
+- `view: EditorView` - 编辑器视图实例
+- `tooltip: Tooltip` - 要显示的工具提示对象
+
+**返回值：** `DisposalChunk` - 一个清理函数，调用它可以隐藏并销毁该 tooltip
+
+### 5. TooltipView 类
+
+当使用 `content` 时，CodeMirror 会自动创建默认的 TooltipView。如果需要自定义 DOM 结构和行为，可以使用 `create` 方法返回自定义的 TooltipView：
+
+```typescript
+class TooltipView {
+  dom: HTMLElement;           // 工具提示的 DOM 元素（必需）
+  mount(): void;              // 挂载时调用
+  update?(update: ViewUpdate): boolean;  // 可选，更新时调用，返回 true 会重新定位
+  destroy(): void;            // 销毁时调用
+}
+```
+
+### 6. 创建自定义 TooltipView
+
+```javascript
+const myTooltip: Tooltip = {
+  pos: editorView.state.selection.main.head,
+  anchor: "anchor",
+  class: "my-custom-tooltip",
+
+  // 自定义创建函数
+  create() {
+    const dom = document.createElement("div");
+    dom.className = "tooltip-content";
+    dom.textContent = "这是自定义提示";
+
+    return {
+      dom,
+      mount() {
+        // 挂载时的额外初始化
+      },
+      update(update) {
+        // 每次编辑器更新时调用
+        // 返回 true 会重新计算位置
+        return true;
+      },
+      destroy() {
+        // 清理资源
+      }
+    };
+  }
+};
+
+// 显示工具提示
+const disposal = showTooltip(editorView, myTooltip);
+
+// 隐藏工具提示（调用清理函数）
+disposal();
+```
+
+### 7. 定位模式
+
+#### anchor: "anchor"
+
+将 tooltip 定位到 `pos` 指定的位置：
+
+```javascript
+{
+  pos: 10,           // 文档坐标位置
+  anchor: "anchor"
+}
+```
+
+#### anchor: "cursor"
+
+将 tooltip 跟随光标：
+
+```javascript
+{
+  anchor: "cursor"
+}
+```
+
+#### 自定义 position 函数
+
+完全自定义 tooltip 的绝对定位：
+
+```javascript
+{
+  pos: editorView.state.selection.main.head,
+  position(view, tooltip, coords, portaled) {
+    // coords - 锚点的 DOM 坐标
+    // portaled - 是否被 portaled（防止溢出）
+
+    return {
+      left: coords.left,
+      top: coords.bottom + 5  // 显示在锚点下方
+    };
+  }
+}
+```
+
+### 8. 完整示例：鼠标悬停提示
+
+```javascript
+import { EditorView, hover } from '@codemirror/view';
+import { showTooltip, Tooltip } from '@codemirror/tooltip';
+import { StateField, StateEffect } from '@codemirror/state';
+
+// 定义添加提示的 Effect
+const setTooltip = StateEffect.define();
+
+// 定义提示状态字段
+const tooltipField = StateField.define({
+  create() {
+    return null;
+  },
+
+  update(value, tr) {
+    for (const effect of tr.effects) {
+      if (effect.is(setTooltip)) {
+        return effect.value;
+      }
+    }
+    return value;
+  },
+
+  provide: field => showTooltip.from(field)
+});
+
+// 悬停提示插件
+const hoverTooltip = hover();
+
+const extensions = [
+  tooltipField,
+  hoverTooltip
+];
+
+// 显示提示
+function showHoverTooltip(view, pos, content) {
+  view.dispatch({
+    effects: setTooltip.of({
+      pos: pos,
+      create() {
+        const dom = document.createElement("div");
+        dom.className = "hover-tooltip";
+        dom.textContent = content;
+        return { dom };
+      }
+    })
+  });
+}
+```
+
+### 9. 样式定制
+
+```javascript
+const tooltipTheme = EditorView.baseTheme({
+  ".cm-tooltip": {
+    background: "#fff",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    padding: "4px 8px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+  },
+  ".cm-tooltip.cm-tooltip-hover": {
+    // 悬停提示特有样式
+  },
+  ".cm-tooltip.cm-tooltip-selection": {
+    // 选区提示样式
+  }
+});
+```
+
+### 10. 常用配置选项
+
+| 选项 | 类型 | 说明 |
+|------|------|------|
+| `content` | `string \| Node` | 提示内容 |
+| `pos` | `number` | 文档坐标位置 |
+| `anchor` | `"anchor" \| "cursor" \| null` | 定位锚点 |
+| `class` | `string` | 自定义 CSS 类名 |
+| `hideOnInput` | `boolean` | 输入时是否隐藏，默认 true |
+| `position` | `function` | 自定义定位函数 |
+
+### 11. 官方内置工具提示
+
+CodeMirror 6 还提供了一个内置的 `hover` 扩展，用于实现鼠标悬停提示：
+
+```javascript
+import { hover } from '@codemirror/view';
+
+const hoverTooltip = hover((view, pos) => {
+  // 在指定位置返回提示内容，返回 null 则不显示
+  const token = view.state.wordAt(pos);
+  if (token) {
+    return {
+      pos: token.from,
+      end: token.to,
+      create() {
+        const dom = document.createElement("div");
+        dom.textContent = `单词: ${view.state.sliceDoc(token.from, token.to)}`;
+        return { dom };
+      }
+    };
+  }
+  return null;
+});
+
+const extensions = [hoverTooltip];
+```
+
+| 功能 | Windows/Linux | macOS |
+|------|---------------|-------|
+| 撤销 | Ctrl+Z | Cmd+Z |
+| 重做 | Ctrl+Shift+Z / Ctrl+Y | Cmd+Shift+Z |
+| 搜索 | Ctrl+F | Cmd+F |
+| 替换 | Ctrl+H | Cmd+Option+F |
+| 全选 | Ctrl+A | Cmd+A |
+| 复制 | Ctrl+C | Cmd+C |
+| 剪切 | Ctrl+X | Cmd+X |
+| 粘贴 | Ctrl+V | Cmd+V |
+| 删除行 | Ctrl+Shift+K | Cmd+Shift+K |
+| 注释 | Ctrl+/ | Cmd+/ |
+| 缩进 | Tab | Tab |
+| 取消缩进 | Shift+Tab | Shift+Tab |
