@@ -2168,7 +2168,7 @@ const extensions = [basicSetup, saveKeymap];
 
 ### 1. 概述
 
-CodeMirror 6 提供了完整的 Tooltip 工具提示系统，用于在编辑器中显示悬浮提示信息。
+CodeMirror 6 提供了完整的 Tooltip 工具提示系统，用于在编辑器中**显示悬浮提示信息**。
 
 ### 2. 核心 API
 
@@ -2413,7 +2413,7 @@ const hoverTooltip = hover((view, pos) => {
 const extensions = [hoverTooltip];
 ```
 
-### 12. showTooltip.from 与 showTooltip.computeN
+### 12.  showTooltip
 
 CodeMirror 6 提供了两个从 StateField 创建 tooltip 扩展的工厂函数：
 
