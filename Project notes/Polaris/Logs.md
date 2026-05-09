@@ -223,7 +223,7 @@ View diff DOM
 触发层：
 用 ViewPlugin 监听编辑器的 update 事件。当文档变化或光标移动时，触发 generatePayload 构建上下文（包括当前代码、光标位置、上下五行等），然后防抖 300ms 后调用 AI 接口。
 接受层：
-通过 keymap 拦截 Tab 按键。如果有建议，就 dispatch 一个事务：插入文本、移动光标、清空状态，一气呵成。
+通过 keymap 拦截 Tab 按键。如果有建议，就 dispatch 一个事务：插入文本、移动光标、清空状态
 ```
 
 **Prompt Design**
