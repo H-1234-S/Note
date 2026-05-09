@@ -202,14 +202,66 @@ View diff DOM
 
 codemirror 严格区分了state和view，因此生命周期也要分state和view
 
-```
+``` 
 state：
 当编辑器state被创建时，codemirror会首先调用state.field的create函数，返回该字段的初始值
+```
+``` js
+const myStateField = StateField.define({
+  create(state) {
+    console.log("1. State 挂载：初始化数据");
+    return { count: 0, active: false }; // 返回初始状态
+  },
+  // ...
+});
+```
+```
 view：
 当state创建完毕并绑定editorState时，也就是编辑器 View 实例挂载到 DOM 上，负责ui的viewPlugin开始挂载
 ```
+``` js
+const myViewPlugin = ViewPlugin.fromClass(class {
+  constructor(view) {
+    console.log("2. View 挂载：可以在这里创建 DOM 节点");
+    this.dom = document.createElement("div");
+    // 此时可以通过 view.state 读取上面 create 产生的初始状态
+  }
+});
+```
 
+**更新循环：**
 
+任何用户的输入、API 调用或外部事件都会派发一个**事务（Transaction）**，从而触发更新循环。
+
+```
+state：
+每次调用 view.dispatch(tr) 时，会执行 StateField.update，接收一个oldstate和transaction
+```
+``` js
+update(oldValue, tr) {
+    console.log("3. State 更新：事务到来");
+    
+    // 如果文档没有改变，且没有相关的 Effect，直接返回旧值以优化性能
+    if (!tr.docChanged && !tr.effects.length) return oldValue;
+
+    // 否则，计算并返回全新的状态对象 (不可变数据)
+    return { ...oldValue, count: oldValue.count + 1 };
+  }
+```
+```
+view:
+State 更新完毕后，CM6 会将旧 State、新 State 和事务打包成一个 ViewUpdate 对象，传递给所有的 View 插件。
+```
+``` ts
+update(update) {
+    // 高效判断：只有当我的特定 StateField 发生变化时，才操作 DOM
+    if (update.state.field(myStateField) !== update.startState.field(myStateField)) {
+       console.log("4. View 更新：发现数据变化，准备更新 DOM 或重绘");
+       const newData = update.state.field(myStateField);
+       this.dom.textContent = `Count: ${newData.count}`;
+    }
+  }
+```
 # ai feature
 
 ## codemirror
