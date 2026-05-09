@@ -202,7 +202,9 @@ View diff DOM
 
 codemirror 严格区分了state和view，因此生命周期也要分state和view
 
-
+```
+当编辑器state被创建时，codemirror会首先调用state.field的create函数
+```
 
 
 # ai feature
