@@ -253,7 +253,7 @@ view:
 State 更新完毕后，CM6 会将旧 State、新 State 和事务打包成一个 ViewUpdate 对象，传递给所有的 View 插件。
 ```
 ``` ts
-update(update) {
+update(update:ViewUpdate) {
     // 高效判断：只有当我的特定 StateField 发生变化时，才操作 DOM
     if (update.state.field(myStateField) !== update.startState.field(myStateField)) {
        console.log("4. View 更新：发现数据变化，准备更新 DOM 或重绘");
