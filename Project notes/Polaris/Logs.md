@@ -203,7 +203,10 @@ View diff DOM
 codemirror 严格区分了state和view，因此生命周期也要分state和view
 
 ```
-当编辑器state被创建时，codemirror会首先调用state.field的create函数
+state：
+当编辑器state被创建时，codemirror会首先调用state.field的create函数，返回该字段的初始值
+view：
+当state创建完毕并绑定editorState时，也就是编辑器 View 实例挂载到 DOM 上，负责ui的viewPlugin开始挂载
 ```
 
 
