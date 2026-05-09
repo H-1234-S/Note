@@ -2412,3 +2412,157 @@ const hoverTooltip = hover((view, pos) => {
 
 const extensions = [hoverTooltip];
 ```
+
+### 12. showTooltip.from 与 showTooltip.computeN
+
+CodeMirror 6 提供了两个从 StateField 创建 tooltip 扩展的工厂函数：
+
+| 特性 | `showTooltip.from` | `showTooltip.computeN` |
+|------|-------------------|----------------------|
+| 适用场景 | 单个 tooltip | 多个 tooltip |
+| StateField 返回值 | `Tooltip \| null` | `Tooltip[]` |
+| 同时显示数量 | 一次一个 | 一次多个 |
+
+#### showTooltip.from（单个 tooltip）
+
+```javascript
+import { showTooltip } from '@codemirror/tooltip';
+
+const singleTooltipField = StateField.define({
+  create() {
+    return null;  // 初始没有 tooltip
+  },
+  update(value, tr) {
+    // 更新逻辑
+    return newValue;
+  },
+  provide: field => showTooltip.from(field)
+});
+```
+
+#### showTooltip.computeN（多个 tooltip）
+
+当需要同时显示多个 tooltip 时（如同时显示语法错误、符号信息、文档等），使用 `computeN`：
+
+```javascript
+import { showTooltip } from '@codemirror/tooltip';
+
+const multiTooltipField = StateField.define({
+  create() {
+    return [];  // 初始为空数组
+  },
+
+  update(tooltips, tr) {
+    for (const effect of tr.effects) {
+      if (effect.is(addTooltip)) {
+        // 添加新 tooltip
+        tooltips = [...tooltips, effect.value];
+      } else if (effect.is(removeTooltip)) {
+        // 移除指定 tooltip
+        tooltips = tooltips.filter(t => t.id !== effect.value);
+      } else if (effect.is(clearTooltips)) {
+        // 清空所有 tooltip
+        tooltips = [];
+      }
+    }
+    // 过滤过期的 tooltip
+    return tooltips.filter(t => !t.expired);
+  },
+
+  // 使用 computeN 提供多个 tooltips
+  provide: field => showTooltip.computeN(field)
+});
+```
+
+#### 完整示例：同时显示多种信息
+
+```javascript
+import { EditorView, hover } from '@codemirror/view';
+import { EditorState, StateField, StateEffect } from '@codemirror/state';
+import { showTooltip, Tooltip } from '@codemirror/tooltip';
+
+// 1. 定义 Effects
+const setInfoTooltips = StateEffect.define();
+
+// 2. 定义 StateField（返回数组）
+const infoTooltipField = StateField.define({
+  create() {
+    return [];
+  },
+
+  update(tooltips, tr) {
+    for (const effect of tr.effects) {
+      if (effect.is(setInfoTooltips)) {
+        return effect.value;  // 直接替换为新的 tooltip 数组
+      }
+    }
+    return tooltips;
+  },
+
+  // 使用 computeN 展示多个 tooltips
+  provide: field => showTooltip.computeN(field)
+});
+
+// 3. 创建 hover 扩展，在悬停时返回多个 tooltip 信息
+const infoHover = hover((view, pos) => {
+  const tooltips = [];
+
+  // 检查光标处的单词
+  const word = view.state.wordAt(pos);
+  if (word) {
+    const text = view.state.sliceDoc(word.from, word.to);
+
+    // 添加语法高亮提示
+    tooltips.push({
+      pos: word.from,
+      content: `单词: "${text}"`,
+      class: 'word-tooltip',
+      anchor: 'anchor'
+    });
+
+    // 如果是关键字，添加额外信息
+    if (isKeyword(text)) {
+      tooltips.push({
+        pos: word.from,
+        content: `关键字: ${getKeywordDescription(text)}`,
+        class: 'keyword-tooltip',
+        anchor: 'anchor'
+      });
+    }
+  }
+
+  // 返回数组（空数组表示没有 tooltip）
+  return tooltips;
+});
+
+// 4. 组合使用
+const extensions = [
+  infoTooltipField,
+  infoHover
+];
+```
+
+#### 关键区别
+
+```javascript
+// showTooltip.from - 单个 tooltip
+provide: field => showTooltip.from(field)
+// StateField 应返回 Tooltip | null
+// 返回 null 则不显示
+
+// showTooltip.computeN - 多个 tooltip
+provide: field => showTooltip.computeN(field)
+// StateField 必须返回 Tooltip[]
+// 返回空数组 [] 则不显示任何 tooltip（不能返回 null）
+```
+
+#### 使用 getValue 参数过滤
+
+`computeN` 的第二个参数允许你对 tooltip 数组进行过滤或转换：
+
+```javascript
+provide: field => showTooltip.computeN(field, tooltips => {
+  // 只返回未过期的 tooltips
+  return tooltips.filter(t => !t.expired);
+})
+```
