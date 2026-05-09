@@ -2412,18 +2412,3 @@ const hoverTooltip = hover((view, pos) => {
 
 const extensions = [hoverTooltip];
 ```
-
-| 功能 | Windows/Linux | macOS |
-|------|---------------|-------|
-| 撤销 | Ctrl+Z | Cmd+Z |
-| 重做 | Ctrl+Shift+Z / Ctrl+Y | Cmd+Shift+Z |
-| 搜索 | Ctrl+F | Cmd+F |
-| 替换 | Ctrl+H | Cmd+Option+F |
-| 全选 | Ctrl+A | Cmd+A |
-| 复制 | Ctrl+C | Cmd+C |
-| 剪切 | Ctrl+X | Cmd+X |
-| 粘贴 | Ctrl+V | Cmd+V |
-| 删除行 | Ctrl+Shift+K | Cmd+Shift+K |
-| 注释 | Ctrl+/ | Cmd+/ |
-| 缩进 | Tab | Tab |
-| 取消缩进 | Shift+Tab | Shift+Tab |
