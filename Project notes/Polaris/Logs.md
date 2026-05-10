@@ -280,6 +280,8 @@ ViewPlugin.destroy，清理在 constructor 或 update 中创建的外部资源�
 
 在codemirror中自定义扩展，stateField用来存储插件状态，stateEffect是修改插件状态的命令，viewPlugin是在视图层面更新/操作DOM，facet提供配置
 
+**`StateEffect` 是修改 `StateField` 的标准途径**。
+
 `stateEffect`意思是用来通知`transaction`附带做什么**额外状态**操作。
 
 `StateEffect` 发命令，`StateField` 接命令并更新状态。
