@@ -335,21 +335,25 @@ Your suggestion is inserted immediately after the cursor, so never suggest code 
 
 **执行流程：**
 ```
-用户输入
-    ↓
-update.docChanged 触发
-    ↓
-防抖定时器重置 (300ms)
-    ↓
-定时器到期 → fetch API 获取建议
-    ↓
-dispatch setSuggestionEffect
-    ↓
-StateField 更新 → renderPlugin 重建装饰
-    ↓
-幽灵文本显示在光标位置
-    ↓
-用户按 Tab → 插入建议文本 → 清空状态
+用户输入/光标移动后
+
+触发 createDebouncePlugin.update 函数
+
+调用 createDebouncePlugin.triggerSuggestion 函数
+
+如果用户 xxx 时间内没有操作，则发送请求
+
+拿到响应后，dispatch 一个 effect ，也就是改变 setSuggestionEffect 的 value
+
+同时会调用 suggestionState.update 函数，更改 suggestionState 的 value
+
+这时才到 renderPlugin 发生作用，虽然 renderPlugin 在 view 变化时触发，但是做了一些信号操作
+
+当不在请求也就是拿到响应并且 suggestionState 存在时，才会在当前光标位置创建一个 widget decoration
+
+真正的 DOM 由 SuggestionWidget 创建，SuggestionWidget 继承 WidgetType，这是在编辑器中创建 DOM 的标准方法
+
+最后，tab 键接受
 ```
 
 > **实现快速编辑插件：**
