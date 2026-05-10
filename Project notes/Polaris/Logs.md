@@ -222,11 +222,11 @@ const myStateField = StateField.define({
 ```
 ```
 view：
-当state创建完毕并绑定editorState时，也就是编辑器 View 实例挂载到 DOM 上，负责ui的viewPlugin开始挂载
+当state创建完毕并绑定editorState时，编辑器 View 实例挂载到 DOM 上，负责ui的viewPlugin开始挂载
 ```
-``` js
+``` ts
 const myViewPlugin = ViewPlugin.fromClass(class {
-  constructor(view) {
+  constructor(view:EditorView) {
     console.log("2. View 挂载：可以在这里创建 DOM 节点");
     this.dom = document.createElement("div");
     // 此时可以通过 view.state 读取上面 create 产生的初始状态
