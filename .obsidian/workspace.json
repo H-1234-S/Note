@@ -27,30 +27,16 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "Project notes/Polaris/codemirror-knowledge-guide.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Next.js"
-            }
-          },
-          {
-            "id": "4e467503b9a09d1f",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Project notes/Polaris/Logs.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Logs"
+              "title": "codemirror-knowledge-guide"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -107,8 +93,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334,
-    "collapsed": true
+    "width": 263.504695892334
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -225,21 +210,24 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "4e467503b9a09d1f",
+  "active": "3936bf1fc0d94d11",
   "lastOpenFiles": [
+    "Project notes/Polaris/codemirror-suggestion-system.md",
+    "Project notes/Polaris/codemirror-knowledge-guide.md",
+    "Project notes/Polaris/codemirror-ghost-text-suggestion.md",
+    "Project notes/Polaris/project-architecture-design.md",
+    "Front-end notes/Next.JS/Next.js.md",
+    "Project notes/Polaris/Logs.md",
     "Front-end notes/库/codemirror知识详解.md",
     "杂",
     "杂/未命名.md",
-    "Project notes/Polaris/Logs.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/库/codemirror知识详解.md.tmp.22612.1778329115773",
     "Front-end notes/库/CodeMirror6用法指南.md",
-    "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19696.1778327333987",
     "Front-end notes/JavaScript/Web API.md",
     "Front-end notes/库/Ky 用法指南.md",
     "Front-end notes/库/Zod.md",
-    "Project notes/Polaris/codemirror-suggestion-system.md",
     "Project notes/Polaris/codemirror-suggestion-lifecycle.md",
     "Project notes/VoxClone/需求.canvas",
     "Front-end notes/React/Zustand学习指南.md",
@@ -261,8 +249,6 @@
     "八股/JavaScript篇_高频八股文.md",
     "Excalidraw/Logs 2026-05-02 17.51.40.excalidraw.md",
     "Excalidraw/Drawing 2026-05-02 17.49.47.excalidraw.md",
-    "Excalidraw/Drawing 2026-05-02 17.49.14.excalidraw.md",
-    "Project notes/VoxClone/Resonance.md",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
