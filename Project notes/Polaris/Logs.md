@@ -149,6 +149,8 @@ tree组件，有isOpen 是否打开state；isRenaming 是否正在重命名state
 
 也是非常非常的好用，用来**管理全局状态**的，不再进行不必要的渲染
 
+在react之外开辟一块空间存储状态，也就是外部存储
+
 **运行流程大致是：** 使用create函数创建store，zustand内部会维护`state和订阅者`，然后返回一个hook；如果组件内部调用了该hook，获取了state，那么就将该组件注册为订阅者；调用**set更新函数**修改state之后，就会通知订阅者，然后react重新渲染。
 
 在本项目内部使用了zustand管理editor状态。
