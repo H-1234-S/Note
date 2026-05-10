@@ -356,6 +356,20 @@ StateField 更新 → renderPlugin 重建装饰
 
 在codemirror创建跟随光标移动的悬浮提示时，`codemirror官方`推荐使用`Tooltip`扩展
 
+**注意：**
+```
+每次 dispatch 一个 transaction 时，会按 StateField 注册顺序执行 update 函数
+
+也就是先执行 quickEditState，更改当前 transaction.state 中 quickEditState 结果
+
+再执行 quickEditTooltipField，quickEditTooltipField 变化时通知 showTooltip 重新渲染 tooltip
+```
+
+
+
+
+
+
 
 ## cursor
 
