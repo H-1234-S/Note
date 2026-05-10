@@ -356,6 +356,25 @@ StateField 更新 → renderPlugin 重建装饰
 
 在codemirror创建跟随光标移动的悬浮提示时，`codemirror官方`推荐使用`Tooltip`扩展
 
+**快速编辑插件执行过程：**
+```
+用户按ctrl + k，CodeMirror 遍历 keymap，找到 quickEditKeymap 匹配
+
+选区为空 → return false（不处理）
+
+选区有内容 → view.dispatch(effects: showQuickEditEffect.of(true))
+
+quickEditState.update先执行，更改状态为 effect.value，也就是ture
+
+quickEditTooltipField.update()后执行，调用 createQuickEditTooltip 函数返回 tooltip
+
+当 quickEditTooltipField 变化时，通知 showTooltip 重新渲染，显示悬浮提示框
+
+执行顺序：按注册顺序执行
+1. quickEditState.update() 先运行，发现 showQuickEditEffect → 返回 false
+2. quickEditTooltipField.update() 后运行，发现 showQuickEditEffect → 重新创建 tooltip 并返回空数组（因为 isQuickEditActive 变为 false）
+```
+
 **注意：**
 ```
 每次 dispatch 一个 transaction 时，会按 StateField 注册顺序执行 update 函数
