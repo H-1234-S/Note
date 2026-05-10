@@ -351,6 +351,12 @@ StateField 更新 → renderPlugin 重建装饰
     ↓
 用户按 Tab → 插入建议文本 → 清空状态
 ```
+
+> **实现快速编辑插件：**
+
+在codemirror创建跟随光标移动的悬浮提示时，`codemirror官方`推荐使用`Tooltip`扩展
+
+
 ## cursor
 
 **cursor的架构可以从四个方面理解：**
