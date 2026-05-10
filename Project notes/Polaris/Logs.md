@@ -274,7 +274,7 @@ view：
 ViewPlugin.destroy，清理在 constructor 或 update 中创建的外部资源（如 setTimeout、setInterval、外部事件监听器 window.addEventListener 等）。
 ```
 
-# ai feature
+# ai features
 
 ## codemirror
 
