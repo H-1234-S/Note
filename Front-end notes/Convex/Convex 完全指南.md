@@ -76,6 +76,8 @@ Convex SDK 会先到浏览器里缓存查找有没有这个 query 的缓存结�
 收到服务器返回的结果后，cache.set 并且通知 React Render
 ```
 
+其实useQuery
+
 ### 1.4 convex运行流程
 
 前端调用 `api.xxx.xxx` 本身不是执行函数，它是一个 **函数引用（function reference）**。
