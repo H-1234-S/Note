@@ -63,6 +63,9 @@ Convex Database
 实时推送结果回浏览器
 ```
 
+其实这么理解还是片面的，`convex` 还做了 `Optimistic UX` + `Subscription Cache`
+
+
 ### 1.4 convex运行流程
 
 前端调用 `api.xxx.xxx` 本身不是执行函数，它是一个 **函数引用（function reference）**。
