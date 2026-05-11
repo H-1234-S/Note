@@ -65,6 +65,16 @@ Convex Database
 
 其实这么理解还是片面的，`convex` 还做了 `Optimistic UX` + `Subscription Cache`
 
+**例如调用 `useQuery`：**
+```
+React 执行 useQuery
+
+Convex SDK 会先到浏览器里缓存查找有没有这个 query 的缓存结果，如果有就拿来用，所以感觉是同步的
+
+同时，后台通过 WebSocket 请求 Convex Cloud，这里是异步的，执行完函数后返回结果
+
+收到服务器返回的结果后，cache.set 并且通知 React Render
+```
 
 ### 1.4 convex运行流程
 
