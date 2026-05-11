@@ -12,7 +12,9 @@ Convex 是一个 **TypeScript 后端即服务（Backend as a Service）平台**�
 | 后端逻辑管理 | 用 TypeScript 编写服务器端函数，无需独立 API 服务器 |
 | 数据库操作  | 内置关系型数据库，支持 ACID 事务                |
 
-本地写的 Convex 后端代码，即 `convex/projects.ts` 里的函数，会被 **部署（同步）到 Convex Cloud**，无需写nestjs、express，convex全包了。
+本地写的 Convex 后端代码，即 `convex/projects.ts` 里的函数，会被 **部署（同步）到 Convex Cloud**
+
+无需写nestjs、express，convex全包了。
 
 ### 1.2 关键术语
 
@@ -69,8 +71,6 @@ Convex Database
 
 然后在服务器端执行对应的 server function。
 
----
-
 传统开发：
 ```
 React 前端
@@ -94,7 +94,6 @@ Convex Cloud
 ↓
 自动实时同步前端
 ```
-
 
 ---
 
