@@ -983,7 +983,13 @@ export const onboardingDrip = inngest.createFunction(
 );
 ```
 
-`cancelOn`函数指的是仅在当前事件和原始 `app/user.created` 事件具有相同的 `data.userId` 值时 `cancelOn`app/user.deleted事件：
+`cancelOn`函数指的是 仅在当前事件和原始 `app/user.created` 事件具有相同的 `data.userId` 值时
+
+`cancelOn` `app/user.deleted`事件
+
+**if 参数**
+
+- 一个用于在条件上匹配原始事件触发器（`event`）和等待事件（`async`）的表达式
 
 ### 12.2 timeouts
 
