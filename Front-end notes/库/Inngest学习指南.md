@@ -1,4 +1,4 @@
-# Inngest v4 学习指南
+## Inngest v4 学习指南
 
 > 面向已经会 Next.js 的前端同学。目标不是只会复制 quick start，而是理解 Inngest 的架构、核心概念、API 设计和常见后台工作流写法。
 
