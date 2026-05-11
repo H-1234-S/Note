@@ -64,7 +64,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -181,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "学习/技术栈.md",
+                "file": "Front-end notes/Convex/Convex 完全指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "技术栈 的大纲"
+              "title": "Convex 完全指南 的大纲"
             }
           },
           {
@@ -238,10 +238,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "d712720e51724c3c",
+  "active": "828299f53007d91b",
   "lastOpenFiles": [
-    "Front-end notes/Convex/Convex 完全指南.md",
     "学习/技术栈.md",
+    "Front-end notes/Convex/Convex 完全指南.md",
     "学习/思考.md",
     "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/codemirror-quick-edit-plugin.md",
