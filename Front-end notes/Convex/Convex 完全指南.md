@@ -76,7 +76,10 @@ Convex SDK 会先到浏览器里缓存查找有没有这个 query 的缓存结�
 收到服务器返回的结果后，cache.set 并且通知 React Render
 ```
 
-其实`useQuery`不是`Promise API`，而是`subscribe API`，React
+其实`useQuery`不是`Promise API`，而是`subscribe API`，React hook管理异步过程，所以不需要`wait`
+``` js
+const data = subscribe(remoteSource)
+```
 
 ### 1.4 convex运行流程
 
