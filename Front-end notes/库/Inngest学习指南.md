@@ -969,7 +969,7 @@ export const onboardingDrip = inngest.createFunction(
     cancelOn: [
       {
         event: "app/user.deleted",
-        match: "data.userId",
+		if: "async.data.userId == event.data.userId",
       },
     ],
   },
@@ -983,7 +983,7 @@ export const onboardingDrip = inngest.createFunction(
 );
 ```
 
-`match: "data.userId"` 会让取消事件和原始事件按相同字段匹配。
+`cancelOn`函数指的是仅在当前事件和原始 `app/user.created` 事件具有相同的 `data.userId` 值时 `cancelOn`app/user.deleted事件：
 
 ### 12.2 timeouts
 
