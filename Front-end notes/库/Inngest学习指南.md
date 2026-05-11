@@ -86,7 +86,7 @@ inngest.createFunction(
 
 ## 2. Inngest 的整体架构
 
-先从你熟悉的 Next.js 视角看。
+先从你熟悉的 Next.js 视角看。 
 
 ```mermaid
 flowchart LR
