@@ -490,4 +490,26 @@ If the instruction is unclear or cannot be applied, return the original code unc
 
 ## ai element
 
-`ai element` 是一个基于 `shadcn/ui` 构建的组件库，内部封装了很多用于构建ai 原生应用的组件，例如：对话、消息，开箱即用，还与 `vercel ai sdk` 深度集成，不用处理sse、md还有语音输入等，内部已经封装好了，也是非常非常好用
+`ai element` 是一个基于 `shadcn/ui` 构建的组件库，内部封装了很多用于构建 ai 原生应用的组件，例如：对话、消息，开箱即用，还与 `vercel ai sdk` 深度集成，不用处理sse、md还有语音输入等，内部已经封装好了，也是**非常非常好用**
+
+`ai sdk` 为 ai 提供交互基础，例如流式传输、多模态、工具调用
+
+`ai element` 为 `ai sdk` 提供了 ui 层
+
+完整流程：
+
+1. **用户输入** AI Elements `PromptInput`
+
+2. **React 钩子** (`useChat`) 将消息发送到您的 API 路由
+
+3. **AI SDK** 通过 AI Gateway 从模型流式传输响应
+
+4. **AI 元素**在 `MessageResponse` 中渲染流式响应
+
+每一层负责其职责：
+
+|层|职责|
+|---|---|
+|AI 网关|模型访问、缓存、可观察性|
+|AI SDK|流媒体、钩子、服务器集成|
+|AI 元素|UI 组件、主题定制、无障碍访问|
