@@ -1,4 +1,4 @@
-# AgentKit 学习指南
+## AgentKit 学习指南
 
 > 面向已经会 Next.js 的前端同学。目标是从“能跑一个 AI Agent”逐步过渡到理解 AgentKit 的架构、核心概念、多 Agent 协作、工具调用、状态路由、Inngest 持久执行和实时 UI。
 
