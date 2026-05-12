@@ -280,6 +280,25 @@ export async function POST() {
 | `v` | 否 | 事件版本 |
 | `ts` | 否 | 毫秒时间戳；如果是未来时间，可以让 function 延迟到该时间启动 |
 
+**返回值：**
+
+`inngest.send()` 是一个**异步操作**，它返回一个 `Promise`。当你 `await` 它时，你会得到一个包含 `ids` 的对象
+
+**注意：**
+
+- **`ids`**: 这是一个字符串数组，包含你刚刚发送的每个事件的 **Event ID**。
+    
+- **成功不代表运行完成**：注意，返回值拿到 `ids` 仅仅代表 **“Inngest 已经成功收到了你的信件并存入了队列”**。它并不保证触发的函数已经执行成功，也不返回函数的执行结果。
+
+**批量发送：**
+
+``` js
+await inngest.send([
+  { name: "app/user.signup", data: { email: "a@test.com" } },
+  { name: "app/user.signup", data: { email: "b@test.com" } }
+]);
+```
+
 ### 4.5 本地运行
 
 终端 1，启动 Next.js：
