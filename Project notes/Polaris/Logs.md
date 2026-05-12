@@ -489,3 +489,5 @@ If the instruction is unclear or cannot be applied, return the original code unc
 # conversation system
 
 ## ai element
+
+`ai element` 是一个基于 `shadcn/ui` 构建的组件库，内部封装了很多用于构建ai 原生应用的组件，例如：对话、消息，开箱即用，还与 `vercel ai sdk` 深度集成，不用处理sse、mdh还有语音输入等，内部已经封装好了，也是非常非常好用
