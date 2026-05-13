@@ -513,3 +513,8 @@ If the instruction is unclear or cannot be applied, return the original code unc
 |AI 网关|模型访问、缓存、可观察性|
 |AI SDK|流媒体、钩子、服务器集成|
 |AI 元素|UI 组件、主题定制、无障碍访问|
+
+**示例：**
+```
+
+```
