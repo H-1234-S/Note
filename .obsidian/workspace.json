@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
+                "file": "Project notes/Polaris/inngest-knowledge-guide.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 的大纲"
+              "title": "inngest-knowledge-guide 的大纲"
             }
           },
           {
@@ -252,7 +252,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "bd3268c4842a6f3a",
+  "active": "024ec45d4cfdeb08",
   "lastOpenFiles": [
     "Front-end notes/库/AgentKit学习指南.md",
     "Project notes/Polaris/Logs.md",

@@ -1,4 +1,4 @@
-# Polaris 项目中的 Inngest 知识体系
+## Polaris 项目中的 Inngest 知识体系
 
 本文按“先理解 Inngest 是什么，再看项目怎么用，最后看 v3 到 v4 怎么迁移”的顺序整理。当前项目依赖的是 `inngest@^3.49.3`，也就是 TypeScript SDK v3。
 
