@@ -585,3 +585,12 @@ export default function ChatPage() {
 
 ## agentkit
 
+`agentkit`是一个ai框架，是为了构建从单一模型调用到多agent系统的ai应用
+
+**核心概念：** 
+
+- agent
+- tools，指的是可以让模型安全的调用你的代码
+- network
+- state，可以让agent、tools、router之间共享短期上下文
+- router，
