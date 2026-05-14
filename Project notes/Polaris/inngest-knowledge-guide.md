@@ -229,7 +229,7 @@ await step.run(stepId, async () => {
 - `stepId`：步骤的稳定 id，会显示在 Inngest 日志中，也用于记忆步骤结果。
 - 回调函数：真正要执行的代码。
 
-`step.run` 的价值在于“耐久执行”。如果一个 function 中有多个 step，前几个 step 已经成功，后面失败重试时，Inngest 可以复用已完成 step 的结果，而不是从头全部跑一遍。
+`step.run` 的价值在于**持久化执行**。如果一个 function 中有多个 step，前几个 step 已经成功，后面失败重试时，Inngest 可以复用已完成 step 的结果，而不是从头全部跑一遍。
 
 所以项目中这些操作适合放进 `step.run`：
 
