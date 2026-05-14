@@ -121,13 +121,13 @@ Inngest 的执行模型不是“你的代码主动轮询队列”，而是 Innge
 
 项目中的事件可以分为三类：
 
-| 事件名 | 发送位置 | 触发的 function | 用途 |
-| --- | --- | --- | --- |
-| `message/sent` | `src/app/api/messages/route.ts`、`src/app/api/projects/create-with-prompt/route.ts` | `processMessage` | 处理 AI 对话 |
-| `message/cancel` | `src/app/api/messages/route.ts`、`src/app/api/messages/cancel/route.ts` | 取消 `processMessage` | 取消正在处理的消息 |
-| `github/import.repo` | `src/app/api/github/import/route.ts` | `importGithubRepo` | 导入 GitHub 仓库 |
-| `github/export.repo` | `src/app/api/github/export/route.ts` | `exportToGithub` | 导出项目到 GitHub |
-| `github/export.cancel` | `src/app/api/github/export/cancel/route.ts` | 取消 `exportToGithub` | 取消导出任务 |
+| 事件名                    | 发送位置                                                                               | 触发的 function        | 用途           |
+| ---------------------- | ---------------------------------------------------------------------------------- | ------------------- | ------------ |
+| `message/sent`         | `src/app/api/messages/route.ts`、`src/app/api/projects/create-with-prompt/route.ts` | `processMessage`    | 处理 AI 对话     |
+| `message/cancel`       | `src/app/api/messages/route.ts`、`src/app/api/messages/cancel/route.ts`             | 取消 `processMessage` | 取消正在处理的消息    |
+| `github/import.repo`   | `src/app/api/github/import/route.ts`                                               | `importGithubRepo`  | 导入 GitHub 仓库 |
+| `github/export.repo`   | `src/app/api/github/export/route.ts`                                               | `exportToGithub`    | 导出项目到 GitHub |
+| `github/export.cancel` | `src/app/api/github/export/cancel/route.ts`                                        | 取消 `exportToGithub` | 取消导出任务       |
 
 发送事件的代码示例：
 
