@@ -269,13 +269,17 @@ const getOrderTool = createTool({
 
 字段解释：
 
-| 字段 | 说明 |
-| --- | --- |
-| `name` | 工具名，模型用它决定调用哪个工具 |
-| `description` | 工具说明，越具体越容易被正确调用 |
-| `parameters` | JSON Schema 或 Zod schema，定义入参 |
-| `handler` | 真正执行的代码 |
-| `strict` | 是否严格校验参数，默认 `true` |
+| 字段            | 说明                            |
+| ------------- | ----------------------------- |
+| `name`        | 工具名，模型用它决定调用哪个工具              |
+| `description` | 工具说明，越具体越容易被正确调用              |
+| `parameters`  | JSON Schema 或 Zod schema，定义入参 |
+| `handler`     | 真正执行的代码                       |
+| `strict`      | 是否严格校验参数，默认 `true`            |
+
+`parameters` 参数是模型通过自然语言推理出来的，也就是提取`prompt`中的参数，然后注入到tool中，这里用到了zod验证，如果验证成功就继续执行
+
+当然也可以将`createTool`定义为函数的返回值，通过函数传递参数
 
 ### 6.2 给 Agent 添加 Tool
 
