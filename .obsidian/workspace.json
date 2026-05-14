@@ -238,8 +238,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5,
-    "collapsed": true
+    "width": 290.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -256,9 +255,9 @@
   "active": "bd3268c4842a6f3a",
   "lastOpenFiles": [
     "Front-end notes/库/AgentKit学习指南.md",
+    "Project notes/Polaris/Logs.md",
     "Front-end notes/库/Inngest学习指南.md",
     "八股/JavaScript篇_高频八股文.md",
-    "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/inngest-knowledge-guide.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "学习/思考.md",
