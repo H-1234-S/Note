@@ -589,8 +589,10 @@ export default function ChatPage() {
 
 **核心概念：** 
 
-- agent，指的是一个有角色、有系统提示词、
-- tools，指的是可以让模型安全的调用你的代码
+- agent，指的是一个有角色、有系统提示词、可以调用工具的执行单元
+- tools，工具，指的是可以让模型安全的调用你的代码
 - network
 - state，可以让agent、tools、router之间共享短期上下文
 - router，注意：基于代码的路由，可以更清晰的知道下一步是调用agent还是返回undefined结束router
+
+`agentkit`可以与`inngest`结合
