@@ -236,8 +236,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "0844d70514230bf2",
+  "active": "ed4e7f2d0b9f101c",
   "lastOpenFiles": [
+    "Front-end notes/Langchain/docs/第5章-Memory与Chain.md",
+    "Front-end notes/Langchain/docs/第5章-Memory与Chain.md.tmp.1544.1778845992822",
     "Front-end notes/Langchain/docs/第3章-LCEL表达式语言.md",
     "Front-end notes/Langchain/docs/第2章-ModelIO三件套.md",
     "Front-end notes/Langchain/docs/第4章-数据连接与RAG.md",
@@ -271,10 +273,8 @@
     "杂/未命名.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/库/codemirror知识详解.md.tmp.22612.1778329115773",
-    "Front-end notes/库/CodeMirror6用法指南.md",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19696.1778327333987",
     "Project notes/VoxClone/需求.canvas",
-    "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073255909",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
