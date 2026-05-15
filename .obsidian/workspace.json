@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Langchain/docs/第1章-LangChain入门与架构.md",
+                "file": "Front-end notes/Langchain/docs/第4章-数据连接与RAG.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "第1章-LangChain入门与架构"
+              "title": "第4章-数据连接与RAG"
             }
           },
           {
@@ -179,13 +179,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Langchain/docs/第1章-LangChain入门与架构.md",
+                "file": "Front-end notes/Langchain/docs/第4章-数据连接与RAG.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "第1章-LangChain入门与架构 的大纲"
+              "title": "第4章-数据连接与RAG 的大纲"
             }
           },
           {
@@ -222,8 +222,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5,
-    "collapsed": true
+    "width": 290.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -240,12 +239,14 @@
   "active": "0844d70514230bf2",
   "lastOpenFiles": [
     "Front-end notes/Langchain/docs/第3章-LCEL表达式语言.md",
+    "Front-end notes/Langchain/docs/第2章-ModelIO三件套.md",
+    "Front-end notes/Langchain/docs/第4章-数据连接与RAG.md",
+    "Front-end notes/Langchain/docs/第4章-数据连接与RAG.md.tmp.1544.1778845889247",
+    "Front-end notes/Langchain/docs/第1章-LangChain入门与架构.md",
     "Front-end notes/Langchain/docs/第3章-LCEL表达式语言.md.tmp.1544.1778845791218",
     "Front-end notes/Langchain/docs/第0章-大模型前置知识.md",
-    "Front-end notes/Langchain/docs/第2章-ModelIO三件套.md",
     "Front-end notes/Langchain/docs/第2章-ModelIO三件套.md.tmp.1544.1778845711459",
     "Front-end notes/库/Inngest学习指南.md",
-    "Front-end notes/Langchain/docs/第1章-LangChain入门与架构.md",
     "Project notes/Polaris/project-architecture-design.md",
     "Front-end notes/Langchain/docs/images",
     "Front-end notes/Langchain/docs",
@@ -272,10 +273,8 @@
     "Front-end notes/库/codemirror知识详解.md.tmp.22612.1778329115773",
     "Front-end notes/库/CodeMirror6用法指南.md",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19696.1778327333987",
-    "Front-end notes/JavaScript/Web API.md",
     "Project notes/VoxClone/需求.canvas",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073255909",
-    "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073246158",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
