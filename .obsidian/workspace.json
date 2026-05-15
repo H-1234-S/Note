@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Langchain/docs/第5章-Memory与Chain.md",
+                "file": "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "第5章-Memory与Chain"
+              "title": "第7章-LangGraph与多智能体"
             }
           },
           {
@@ -180,13 +180,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Langchain/docs/第5章-Memory与Chain.md",
+                "file": "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "第5章-Memory与Chain 的大纲"
+              "title": "第7章-LangGraph与多智能体 的大纲"
             }
           },
           {
@@ -240,9 +240,11 @@
   "active": "0844d70514230bf2",
   "lastOpenFiles": [
     "Front-end notes/Langchain/docs/第6章-Tools与Agents.md",
+    "Front-end notes/Langchain/docs/第5章-Memory与Chain.md",
+    "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md",
+    "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md.tmp.1544.1778846198857",
     "Front-end notes/Langchain/docs/第6章-Tools与Agents.md.tmp.1544.1778846081963",
     "Front-end notes/Langchain/docs/第4章-数据连接与RAG.md",
-    "Front-end notes/Langchain/docs/第5章-Memory与Chain.md",
     "Front-end notes/Langchain/docs/第5章-Memory与Chain.md.tmp.1544.1778845992822",
     "Front-end notes/Langchain/docs/第3章-LCEL表达式语言.md",
     "Front-end notes/Langchain/docs/第2章-ModelIO三件套.md",
@@ -273,8 +275,6 @@
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/库/codemirror知识详解.md",
     "杂",
-    "杂/未命名.md",
-    "Front-end notes/库/codemirror知识详解.md.tmp.22612.1778329115773",
     "Project notes/VoxClone/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
