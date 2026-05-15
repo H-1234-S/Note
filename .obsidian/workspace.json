@@ -77,8 +77,7 @@
               "title": "AgentKit学习指南"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -195,13 +194,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/Inngest学习指南.md",
+                "file": "Front-end notes/Convex/Convex 完全指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Inngest学习指南 的大纲"
+              "title": "Convex 完全指南 的大纲"
             }
           },
           {
@@ -252,11 +251,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "0844d70514230bf2",
+  "active": "17611f6ca9c18d5b",
   "lastOpenFiles": [
+    "Front-end notes/库/Inngest学习指南.md",
     "Project notes/Polaris/inngest-knowledge-guide.md",
     "Project notes/Polaris/Logs.md",
-    "Front-end notes/库/Inngest学习指南.md",
     "Front-end notes/库/AgentKit学习指南.md",
     "八股/JavaScript篇_高频八股文.md",
     "Front-end notes/Convex/Convex 完全指南.md",
