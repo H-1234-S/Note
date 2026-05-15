@@ -22,6 +22,8 @@ AgentKit 是 Inngest 出品的 TypeScript AI Agent 框架，用来构建从单�
 AgentKit = AI Agent primitives + workflow orchestration + Inngest durable runtime
 ```
 
+`agentkit`本质上是`model + tool`的封装
+
 ## 1. 你需要先区分几个概念
 
 | 概念 | 作用 | 类比 |
