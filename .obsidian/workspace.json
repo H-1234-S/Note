@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/库/Inngest学习指南.md",
+                "file": "Front-end notes/Langchain/docs/第0章-大模型前置知识.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Inngest学习指南"
+              "title": "第0章-大模型前置知识"
             }
           },
           {
@@ -120,8 +120,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334,
-    "collapsed": true
+    "width": 263.504695892334
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -180,13 +179,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/Inngest学习指南.md",
+                "file": "Front-end notes/Langchain/docs/第0章-大模型前置知识.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Inngest学习指南 的大纲"
+              "title": "第0章-大模型前置知识 的大纲"
             }
           },
           {
@@ -240,6 +239,8 @@
   },
   "active": "0844d70514230bf2",
   "lastOpenFiles": [
+    "Front-end notes/库/Inngest学习指南.md",
+    "Front-end notes/Langchain/docs/第1章-LangChain入门与架构.md",
     "Front-end notes/Langchain/docs/第0章-大模型前置知识.md",
     "Project notes/Polaris/project-architecture-design.md",
     "Front-end notes/Langchain/docs/images",
@@ -249,7 +250,6 @@
     "Project notes/Polaris/codemirror-quick-edit-plugin.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Front-end notes/Langchain",
-    "Front-end notes/库/Inngest学习指南.md",
     "Project notes/Polaris/inngest-knowledge-guide.md",
     "Front-end notes/库/AgentKit学习指南.md",
     "八股/JavaScript篇_高频八股文.md",
@@ -271,7 +271,6 @@
     "Front-end notes/JavaScript/Web API.md",
     "Front-end notes/库/Ky 用法指南.md",
     "Front-end notes/库/Zod.md",
-    "Project notes/Polaris/codemirror-suggestion-lifecycle.md",
     "Project notes/VoxClone/需求.canvas",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073255909",
     "Front-end notes/库/CodeMirror6用法指南.md.tmp.19796.1778073246158",
