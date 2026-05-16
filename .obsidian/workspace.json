@@ -107,8 +107,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 263.504695892334,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -210,7 +209,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5
+    "width": 290.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -226,6 +226,7 @@
   },
   "active": "a05ba78fa6db78ba",
   "lastOpenFiles": [
+    "算法",
     "Project notes/Polaris/inngest-knowledge-guide.md",
     "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md",
     "Front-end notes/Langchain/docs/第6章-Tools与Agents.md",
@@ -261,7 +262,6 @@
     "学习/我.md.md",
     "学习/学习计划.md",
     "Project notes/Polaris/codemirror-ghost-text-suggestion.md",
-    "Project notes/Polaris/codemirror-suggestion-system.md",
     "Project notes/VoxClone/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
