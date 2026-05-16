@@ -41,12 +41,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/库/AgentKit学习指南.md",
+                "file": "算法/字节.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "AgentKit学习指南"
+              "title": "字节"
             }
           }
         ],
@@ -166,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/AgentKit学习指南.md",
+                "file": "算法/字节.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "AgentKit学习指南 的大纲"
+              "title": "字节 的大纲"
             }
           },
           {
@@ -226,6 +226,8 @@
   },
   "active": "a05ba78fa6db78ba",
   "lastOpenFiles": [
+    "Front-end notes/库/AgentKit学习指南.md",
+    "算法/字节.md",
     "算法",
     "Project notes/Polaris/inngest-knowledge-guide.md",
     "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md",
@@ -253,8 +255,6 @@
     "Project notes/Polaris/codemirror-knowledge-guide.md",
     "Project notes/Polaris/codemirror-quick-edit-plugin.md",
     "Front-end notes/Convex/Convex 完全指南.md",
-    "Front-end notes/Langchain",
-    "Front-end notes/库/AgentKit学习指南.md",
     "八股/JavaScript篇_高频八股文.md",
     "学习/思考.md",
     "学习/技术栈.md",
