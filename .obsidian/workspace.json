@@ -22,7 +22,7 @@
             }
           },
           {
-            "id": "bd3268c4842a6f3a",
+            "id": "328ee0516094a56d",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -210,12 +210,15 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "bd3268c4842a6f3a",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
+    "Project notes/Polaris/deepseek-reasoner-fix.md",
+    "Project notes/Polaris/inngest-knowledge-guide.md",
+    "杂/未命名.md",
+    "Project notes/Polaris/Logs.md",
     "算法/字节.md",
     "Front-end notes/库/AgentKit学习指南.md",
     "算法",
-    "Project notes/Polaris/inngest-knowledge-guide.md",
     "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md",
     "Front-end notes/Langchain/docs/第6章-Tools与Agents.md",
     "Front-end notes/Langchain/docs/第3章-LCEL表达式语言.md",
@@ -237,7 +240,6 @@
     "Project notes/Polaris/project-architecture-design.md",
     "Front-end notes/Langchain/docs/images",
     "Front-end notes/Langchain/docs",
-    "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/codemirror-knowledge-guide.md",
     "Project notes/Polaris/codemirror-quick-edit-plugin.md",
     "Front-end notes/Convex/Convex 完全指南.md",
@@ -246,8 +248,6 @@
     "学习/技术栈.md",
     "学习/Ai.md",
     "学习/我.md.md",
-    "学习/学习计划.md",
-    "Project notes/Polaris/codemirror-ghost-text-suggestion.md",
     "Project notes/VoxClone/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
