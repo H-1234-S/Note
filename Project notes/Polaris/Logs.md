@@ -596,3 +596,4 @@ export default function ChatPage() {
 - router，注意：基于代码的路由，可以更清晰的知道下一步是调用agent还是返回undefined结束router
 
 `agentkit`可以与`inngest`结合
+
