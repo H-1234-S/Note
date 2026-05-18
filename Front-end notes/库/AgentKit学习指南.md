@@ -1024,6 +1024,8 @@ const rememberPreferenceTool = createTool({
 
 **把“记忆”当成一个独立的外部存储层，用 Mem0 负责存取，用 AgentKit 负责在对话中调用这些存取能力，用 Inngest 负责把写入操作异步、可靠地放到后台执行**。
 
+其实是**用 Mem0 做外部长期记忆系统，再用 AgentKit 的工具调用和 Inngest 的事件机制，把“记忆检索 + 记忆维护”接进对话循环里**。
+
 **多智能体网络流程：**
 
 1. **记忆检索代理** : 路由器首先调用这个代理，它的唯一任务就是使用 `recall_memories` 工具。
