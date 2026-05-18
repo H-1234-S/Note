@@ -620,3 +620,6 @@ export default function ChatPage() {
 	 
 5. **循环执行**
 	 更新完 `State` 后，Network 会自动进入下一次循环，重新把控制权交给 Router。Router 检查更新后的 `State`，决定是继续让下一个 Agent 顶上，还是认为任务已完成并返回最终结果。
+
+**Tool的生命周期：**
+
