@@ -35,8 +35,7 @@
               "title": "AgentKit学习指南"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -153,13 +152,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/AgentKit学习指南.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "AgentKit学习指南 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -210,14 +209,14 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "f684ea4306de4ced",
+  "active": "44608f17ab591990",
   "lastOpenFiles": [
+    "Front-end notes/库/AgentKit学习指南.md",
     "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/inngest-knowledge-guide.md",
     "Project notes/Polaris/deepseek-reasoner-fix.md",
     "杂/未命名.md",
     "算法/字节.md",
-    "Front-end notes/库/AgentKit学习指南.md",
     "算法",
     "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md",
     "Front-end notes/Langchain/docs/第6章-Tools与Agents.md",
