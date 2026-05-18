@@ -624,4 +624,10 @@ export default function ChatPage() {
 **Tool的生命周期：**
 
 首先将tool注册到createAgent的tools字段
-随后执行agent.run()时，agentkit会将用户的输入、history和工具描述序列化为一段prompt发给ai
+随后执行agent.run()时，agentkit会将prompt、history和tool序列化为请求体
+模型响应后，agentkit会将模型响应序列化为Message数组
+之后agentkit会遍历message数组查看有没有tool_call字段，该字段值为tool的名字
+如果存在该字段，则取出对应字段的value，去调用该工具
+这里并不是模型调用，模型只是建议调用，本质上是agentkit执行
+当tool执行完毕后，agenkit会将result封装为tool_result，也就是将结果返回ai
+
