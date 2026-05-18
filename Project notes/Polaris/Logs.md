@@ -735,4 +735,28 @@ self.onmessage = function (event) {
   int32Array[0] = 99;
 };
 ```
+
+因为是共享内存，所以会有一个经典的并发问题：**数据竞争**，即两个线程**同时修改**同一个内容时怎么办？
+
+为了解决这个问题，JavaScript 引入了 **`Atomics`（原子对象）**，意思是当一个线程在使用 `Atomics` 修改或读取数据时，其他线程必须排队等待
+
+常用的 `Atomics` 方法有：
+
+- `Atomics.store()` / `Atomics.load()`：安全地写入和读取。
+    
+- `Atomics.add()` / `Atomics.sub()`：安全地进行加减法。
+    
+- `Atomics.wait()` / `Atomics.notify()`：让线程睡眠和唤醒。比如 Worker 发现数据还没准备好，就先 `wait`（挂起）；主线程把数据写好了，调用 `notify` 唤醒 Worker 
+
+**注意：**
+
+如果想在网页里使用 `SharedArrayBuffer`时，需要设置两个 HTTP 响应头来实现网站的**跨源隔离**：
+```
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp
+```
+
+- [`Cross-Origin-Opener-Policy`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Opener-Policy) 设置为 `same-origin`（来保护你的源站点免受攻击）
+- [`Cross-Origin-Embedder-Policy`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy) 设置为 `require-corp` 或 `credentialless`（保护受害者免受你的源站点的影响）
+
 ## xterm
