@@ -676,6 +676,17 @@ JS线程负责解析js脚本文件，如果遇到setTimeout和setInerval则交�
 ```
 明确一下**Web Worker API**概念
 ```
+Web Worker是一个独立于浏览器主线程之外的后台线程，允许JavaScript脚本文件在后台线程中执行
 
+解决的问题：
+Web Worker后台进程线程通常用于处理复杂计算，将结果传回主线程
+这样就避免的复杂的JS运算使JS线程执行事件过长，造成页面卡顿
+
+工作机制：
+Web Worker 与主线程之间是完全隔离的。它们不能共享内存(除非用SharedArrayBuffer)
+唯一的沟通方式就是基于事件的消息传递(数据复制)。
+
+主线程创建Worker实例，调用Worker.postMessage发送任务
+Worker线程使用onmessage监听主线程发送的任务，主线程也使用onmessage监听Worker执行的结果
 ```
 ## xterm
