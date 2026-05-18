@@ -265,11 +265,12 @@ model怎么知道调用哪个tool？Agentkit会在初始化时，将**工具白�
 #### 4) 真正执行 tool 的地方在 `invokeTools()`
 
 `invokeTools()` 会遍历模型输出里的 `tool_call` 消息，逐个取出 tool 名字，去 `this.tools.get(tool.name)` 里查对应工具。  
+
 如果找不到，直接报错：`Inference requested a non-existent tool`。
 
 找到以后，就会真正调用：
 
-```
+``` ts
 found.handler(tool.input, {  agent: this,  network,  step,})
 ```
 
