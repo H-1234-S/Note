@@ -597,5 +597,25 @@ export default function ChatPage() {
 
 `agentkit`可以与`inngest`结合
 
+**AgentKit工作流程：**
 
-
+1. **初始化输入**
+	 当一个任务开始时，系统会接收用户的初始输入，并初始化`Network`的全局`State`
+	 
+2. **路由判定**
+	 Network 启动后，首先调用 `router` 函数
+	 
+	- Router 可以访问到当前完整的 `State` 以及历史消息。
+	- **代码控制：** 可以使用标准的 `if/else` 或 `switch` 语句进行判断。例如：“如果 `State.data.code` 为空，则调用 `coderAgent`；如果代码已生成但未通过安全审计，则调用 `securityAgent`”
+	- **LLM控制：** 将路由权交给一个负责调度的 LLM（如 ReAct 模式）。
+	
+3. **Agent 执行与工具调用**
+	 被 Router 选中的 Agent 开始执行。它会根据自己的 System Prompt 和传入的上下文产生决策：
+	 
+	 - 如果它认为需要调用工具（如读写数据库、运行沙箱代码），它会触发对应的 `Tool`
+	 - 在 Tool 的 handler 函数中，**Agent 拥有对全局 `State` 的读写权限**（通过 `network.state.data`）
+4. **状态更新**
+	 当工具执行完毕或 Agent 输出了阶段性成果，这些数据会被写入 `State`，`State`可以是`NetWork`中所有`Agent`共享短期上下文
+	 
+5. **循环执行**
+	 更新完 `State` 后，Network 会自动进入下一次循环，重新把控制权交给 Router。Router 检查更新后的 `State`，决定是继续让下一个 Agent 顶上，还是认为任务已完成并返回最终结果。
