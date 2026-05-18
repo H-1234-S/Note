@@ -244,6 +244,8 @@ const agent = createAgent({
 
 Agent 只会生成文本是不够的。真实业务里它需要查数据库、请求 API、写 state、发送事件、等待审批，这些都通过 Tool 完成。
 
+其实`tool`的本质是`LLM`建议调用，然后`AgentKit`执行`handle`，把`result`发给模型
+
 ### 6.1 创建一个 Tool
 
 ```ts

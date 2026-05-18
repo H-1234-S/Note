@@ -35,7 +35,8 @@
               "title": "AgentKit学习指南"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -152,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
+                "file": "Front-end notes/库/AgentKit学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 的大纲"
+              "title": "AgentKit学习指南 的大纲"
             }
           },
           {
@@ -209,10 +210,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "44608f17ab591990",
+  "active": "f684ea4306de4ced",
   "lastOpenFiles": [
-    "Front-end notes/库/AgentKit学习指南.md",
     "Project notes/Polaris/Logs.md",
+    "Front-end notes/库/AgentKit学习指南.md",
     "Project notes/Polaris/inngest-knowledge-guide.md",
     "Project notes/Polaris/deepseek-reasoner-fix.md",
     "杂/未命名.md",
