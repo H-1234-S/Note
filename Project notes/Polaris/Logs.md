@@ -614,6 +614,7 @@ export default function ChatPage() {
 	 
 	 - 如果它认为需要调用工具（如读写数据库、运行沙箱代码），它会触发对应的 `Tool`
 	 - 在 Tool 的 handler 函数中，**Agent 拥有对全局 `State` 的读写权限**（通过 `network.state.data`）
+	
 4. **状态更新**
 	 当工具执行完毕或 Agent 输出了阶段性成果，这些数据会被写入 `State`，`State`可以是`NetWork`中所有`Agent`共享短期上下文
 	 
