@@ -1020,7 +1020,7 @@ const rememberPreferenceTool = createTool({
 });
 ```
 
-核心思路是：
+实现记忆功能的核心思路是：
 
 **把“记忆”当成一个独立的外部存储层，用 Mem0 负责存取，用 AgentKit 负责在对话中调用这些存取能力，用 Inngest 负责把写入操作异步、可靠地放到后台执行**。
 
@@ -1032,7 +1032,43 @@ const rememberPreferenceTool = createTool({
 2. **个人助理代理** : 路由器随后将对话和回忆的记忆传递给这个代理。它没有工具，其唯一的工作就是为用户综合最终的答案。
 3. **记忆更新代理** : 最后，路由器调用这个代理。它审查整个对话（初始查询、回忆的记忆和最终答案），并使用 `manage_memories` 工具执行一个或多个必要的创建、更新或删除操作——通过发送 Inngest 事件，在后台异步地执行每个创建/更新/删除操作。
 
-**Qdrant 向量数据库用于语义检索**
+### Qdrant
+
+向量数据库 用于语义检索
+
+### Mem0 - AI Memory Framework
+
+用于操作Qdrant，封装了操作Qdrant的方法
+
+例如：
+``` ts
+mem0.add(...)
+mem0.search(...)
+mem0.update(...)
+mem0.delete(...)
+```
+它内部：
+- 自动 embedding
+- 自动 vector search
+- 自动 metadata
+- 自动 memory schema
+- 自动 memory retrieval
+
+示例：
+``` ts
+const mem0 = new Memory({
+  vectorStore: {
+    provider: "qdrant",
+    config: {
+      collectionName: "agent-kit-memories",
+      url: "http://localhost:6333",
+      dimension: 1536,
+    },
+  },
+});
+
+// Mem0 使用 Qdrant 作为底层存储
+```
 
 ---
 ## 17. Streaming：把 Agent 执行过程实时推到 UI
