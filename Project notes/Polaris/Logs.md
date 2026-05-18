@@ -680,7 +680,7 @@ Web Worker是一个独立于浏览器主线程之外的后台线程，允许Java
 
 解决的问题：
 Web Worker后台进程线程通常用于处理复杂计算，将结果传回主线程
-这样就避免的复杂的JS运算使JS线程执行事件过长，造成页面卡顿
+这样就避免的复杂的JS运算使JS线程执行时间过长，造成页面卡顿
 
 工作机制：
 Web Worker 与主线程之间是完全隔离的。它们不能共享内存(除非用SharedArrayBuffer)
@@ -688,5 +688,13 @@ Web Worker 与主线程之间是完全隔离的。它们不能共享内存(除�
 
 主线程创建Worker实例，调用Worker.postMessage发送任务
 Worker线程使用onmessage监听主线程发送的任务，主线程也使用onmessage监听Worker执行的结果
+
+注意(限制)：
+1. Worker 线程运行的脚本文件，必须与主线程的脚本同源
+2. 无法操作 DOM，因为Worker 线程里拿不到 document、window、parent 对象
+3. 虽然拿不到 window，但它可以访问 navigator、location，也可以使用 setTimeout、IndexedDB 以及发起 fetch / XMLHttpRequest 网络请求。
+   
+类别：
+
 ```
 ## xterm
