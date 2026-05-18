@@ -674,7 +674,7 @@ JS线程负责解析js脚本文件，如果遇到setTimeout和setInerval则交�
 网络请求线程和计时器线程运行结束后将回调函数传给事件线程去排队
 之后渲染进程计算出页面像素交给GPU进程渲染UI
 ```
-明确一下**Web Worker API**概念
+明确一下 **Web Worker API(浏览器里的多线程方案)** 概念
 ```
 Web Worker是一个独立于浏览器主线程之外的后台线程，允许JavaScript脚本文件在后台线程中执行
 
@@ -699,6 +699,7 @@ Dedicated Worker（专用 Worker）：只能由创建它的那个页面单独使
 Shared Worker（共享 Worker）：可以被多个页面（比如同源的多个标签页、iframe）共享使用。适合用来做多标签页之间的通信或状态共享。
 Service Worker（服务 Worker）：它充当了浏览器与网络之间的 代理服务器，可以拦截网络请求、离线缓存资源、处理推送通知。
 ```
+因为Web Worker
 
 
 
