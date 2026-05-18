@@ -699,4 +699,7 @@ Dedicated Worker（专用 Worker）：只能由创建它的那个页面单独使
 Shared Worker（共享 Worker）：可以被多个页面（比如同源的多个标签页、iframe）共享使用。适合用来做多标签页之间的通信或状态共享。
 Service Worker（服务 Worker）：它充当了浏览器与网络之间的 代理服务器，可以拦截网络请求、离线缓存资源、处理推送通知。
 ```
+
+
+
 ## xterm
