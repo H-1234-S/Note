@@ -674,7 +674,7 @@ JS线程负责解析js脚本文件，如果遇到setTimeout和setInerval则交�
 网络请求线程和计时器线程运行结束后将回调函数传给事件线程去排队
 之后渲染进程计算出页面像素交给GPU进程渲染UI
 ```
-明确一下**Web Worker API**
+明确一下**Web Worker API**概念
 ```
 
 ```
