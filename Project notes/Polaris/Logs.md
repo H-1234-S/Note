@@ -695,7 +695,7 @@ Worker线程使用onmessage监听主线程发送的任务，主线程也使用on
 3. 虽然拿不到 window，但它可以访问 navigator、location，也可以使用 setTimeout、IndexedDB 以及发起 fetch / XMLHttpRequest 网络请求。
    
 类别：
-Dedicated Worker（专用 Worker）：
+Dedicated Worker（专用 Worker）：只能由创建它的那个页面单独使用
 Shared Worker（共享 Worker）：可以被多个页面（比如同源的多个标签页、iframe）共享使用。适合用来做多标签页之间的通信或状态共享。
 Service Worker（服务 Worker）：它充当了浏览器与网络之间的 代理服务器，可以拦截网络请求、离线缓存资源、处理推送通知。
 ```
