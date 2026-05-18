@@ -654,7 +654,8 @@ GPU进程，负责3D内容的渲染，处理GPU硬件加速
 ```
 渲染线程，负责渲染页面解析html、css生成dom树和render树
 JS线程，负责运行解析js脚本文件，例如js的v8引擎；注意：渲染线程和JS是互斥的，也就是不能同时执行
-事件线程，负责处理事件循环
-计时器线程，负责处理setTimeout和setInterval的计时，
+事件线程，归属于浏览器而不是v8引擎，负责处理事件循环
+计时器线程，负责处理setTimeout和setInterval的计时，因为js是单线程的，如果js线程处于阻塞状态就不能正确计时
+异步HTTP请求线程，负责处理XML和fetch网络请求，
 ```
 ## xterm
