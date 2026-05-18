@@ -637,3 +637,5 @@ export default function ChatPage() {
 
 当tool执行完毕后，agenkit会将result封装为tool_result，也就是将结果返回ai
 
+# webcontainers terminal preview
+
