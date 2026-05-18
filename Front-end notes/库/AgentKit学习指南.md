@@ -976,6 +976,8 @@ export class DbHistoryAdapter {
 
 ## 16. Memory：长期记忆
 
+[官方实现记忆功能](https://github.com/inngest/agent-kit/tree/main/examples/mem0-memory)
+
 History 保存“这段对话说过什么”。Memory 保存“长期有用的事实和偏好”。
 
 例如：
