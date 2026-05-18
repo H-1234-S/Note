@@ -244,7 +244,13 @@ const agent = createAgent({
 
 Agent 只会生成文本是不够的。真实业务里它需要查数据库、请求 API、写 state、发送事件、等待审批，这些都通过 Tool 完成。
 
-其实`tool`的本质是`LLM`建议调用，然后`AgentKit`执行`handle`，把`result`发给模型
+其实`tool`的本质是`LLM`建议调用，模型的响应会带有一个`tool_call`字段，也就是建议调用哪个tool
+model怎么知道调用哪个tool？Agentkit会在初始化时，将**工具白名单**和**工具描述**发给模型
+然后`AgentKit`执行`tool`的`handle`，把`result`发给模型
+
+### Tool的生命周期
+
+
 
 ### 6.1 创建一个 Tool
 
