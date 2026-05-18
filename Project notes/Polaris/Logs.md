@@ -587,6 +587,8 @@ export default function ChatPage() {
 
 `agentkit`是一个typescript支持的轻量ai框架，是为了构建从单一模型调用到多agent系统的ai应用，本质是对`model+tools`的封装，很多内容都是对model的服务
 
+`agentkit`可以与`inngest`结合
+
 **核心概念：** 
 
 - agent，指的是一个有角色、有系统提示词、可以调用工具的执行单元
@@ -594,8 +596,6 @@ export default function ChatPage() {
 - network，可以把多agent整合成一个可以工作的系统
 - state，可以让agent、tools、router之间共享短期上下文
 - router，注意：基于代码的路由，可以更清晰的知道下一步是调用agent还是返回undefined结束router
-
-`agentkit`可以与`inngest`结合
 
 **AgentKit工作流程：**
 
