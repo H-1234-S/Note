@@ -623,3 +623,5 @@ export default function ChatPage() {
 
 **Tool的生命周期：**
 
+首先将tool注册到createAgent的tools字段
+随后执行agent.run()时，agentkit会将用户的输入、history和工具描述序列化为一段prompt发给ai
