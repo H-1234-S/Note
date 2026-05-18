@@ -639,3 +639,6 @@ export default function ChatPage() {
 
 # webcontainers terminal preview
 
+## webcontainers
+
+## xterm
