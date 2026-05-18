@@ -250,7 +250,44 @@ model怎么知道调用哪个tool？Agentkit会在初始化时，将**工具白�
 
 ### Tool的生命周期
 
+#### 1) Tool 是怎么“注册”进去的
 
+在 `createAgent({ tools: [...] })` 里传进去的工具，会被 Agent 存到 `this.tools` 这个 Map 里。AgentKit 还支持一种特殊工具：MCP server 提供的工具，会在 `initMCP()` 里动态拉取并加入工具列表。
+
+#### 2) 推理时，tool 会先作为“可用能力”发给模型
+
+`agent.run()` 进入循环后，会先调用 `performInference()`；这里会把当前 prompt、history、以及 `Array.from(this.tools.values())` 一起交给模型。`AgenticModel.infer()` 内部再通过 `requestParser` 把这些信息序列化成具体 provider 的请求体，发给模型，最后用 `responseParser` 把 provider 返回值再统一成 AgentKit 的 `Message[]`。
+
+#### 3) 模型不是“执行 tool”，而是“提出 tool_call”
+
+模型返回后，AgentKit 先看输出里有没有 `type === "tool_call"` 的消息。也就是说：**模型只负责决定“调用哪个工具、传什么参数”**，不负责真的执行函数。
+
+#### 4) 真正执行 tool 的地方在 `invokeTools()`
+
+`invokeTools()` 会遍历模型输出里的 `tool_call` 消息，逐个取出 tool 名字，去 `this.tools.get(tool.name)` 里查对应工具。  
+如果找不到，直接报错：`Inference requested a non-existent tool`。
+
+找到以后，就会真正调用：
+
+```
+found.handler(tool.input, {  agent: this,  network,  step,})
+```
+
+这里的 `handler` 可以是同步也可以是异步；如果它返回 `undefined`，AgentKit 会自动补成 `"{tool.name} successfully executed"`。如果抛错，会被序列化成 error 结果。
+
+#### 5) 工具结果会被写回成 `tool_result`
+
+每个 tool 执行完，AgentKit 会生成一个 `tool_result` 消息，里面带上：
+
+- tool 的 id / name / input
+- 执行结果 `content`
+- `stop_reason: "tool"`
+
+这个结果会被放进本轮的 `result.toolCalls` 里。
+
+#### 6) 是否继续下一轮，取决于工具调用后模型是否还要继续
+
+`agent.run()` 外层有个循环：只要当前模型输出不是正常 `stop`，并且 agent 还有 tools，AgentKit 就会继续下一轮推理。也就是说，tool 执行完成后，工具结果会进入下一轮上下文，再让模型基于 tool 结果继续生成最终回答。
 
 ### 6.1 创建一个 Tool
 
