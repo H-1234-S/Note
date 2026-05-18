@@ -708,8 +708,31 @@ Service Worker（服务 Worker）：它充当了浏览器与网络之间的 代�
 这样其实并没有真正的实现**多线程计算(比如高画质游戏、音视频实时解码、大语言模型本地运行)**，想要的是Web Worker 必须能够和主线程**同时读写同一块内存**，所以：
 
 **SharedArrayBuffer** 允许开辟一块原始的二进制内存，让多个线程共享
-```
 
-```
+使用方法：**主线程**
+``` js
+// 1. 创建一个 1024 字节的共享缓冲区
+const sab = new SharedArrayBuffer(1024);
 
+// 2. 用 Int32 数组去视图化操作这块内存
+const int32Array = new Int32Array(sab);
+int32Array[0] = 42; // 在第一个位置写入 42
+
+// 3. 把这个“共享办公桌”的地址发给 Worker
+worker.postMessage(sab);
+```
+**Worker 线程**
+``` js
+self.onmessage = function (event) {
+  // 1. 接收共享缓冲区
+  const sab = event.data;
+  const int32Array = new Int32Array(sab);
+  
+  // 2. 直接读取主线程写入的数据
+  console.log(int32Array[0]); // 输出 42
+  
+  // 3. 修改它，主线程也能立刻看到
+  int32Array[0] = 99;
+};
+```
 ## xterm
