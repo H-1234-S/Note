@@ -641,4 +641,17 @@ export default function ChatPage() {
 
 ## webcontainers
 ### SharedArrayBuffer
+
+要理解`SharedArrayBuffer`需要明确一下浏览器中的**进程**和**线程**概念，现在浏览器都是多进程的
+```
+例如谷歌浏览器，有浏览器进程也就是主进程，负责浏览器页面展示和处理用户交互
+渲染进程，负责解析html、css、javascript，浏览器默认为每一个标签页创建一个渲染进程
+网络进程，负责发起网络请求，加载所有网络资源
+GPU进程，负责3D内容的渲染，处理GPU硬件加速
+插件进程，负责运行插件
+```
+详细分析一下**渲染进程**，渲染进程是多**线程**的
+```
+
+```
 ## xterm
