@@ -1018,6 +1018,11 @@ const rememberPreferenceTool = createTool({
 });
 ```
 
+核心思路是：
+
+**把“记忆”当成一个独立的外部存储层，用 Mem0 负责存取，用 AgentKit 负责在对话中调用这些存取能力，用 Inngest 负责把写入操作异步、可靠地放到后台执行**。
+
+---
 ## 17. Streaming：把 Agent 执行过程实时推到 UI
 
 如果只是 `/api/chat` 返回最终结果，用户会一直等。AgentKit 的 streaming 用来把网络运行、文本增量、工具调用、工具结果等结构化事件实时推给前端。
