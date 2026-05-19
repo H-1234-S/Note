@@ -48,23 +48,9 @@
               "icon": "lucide-file",
               "title": "Next.js"
             }
-          },
-          {
-            "id": "3d1671cf0069eeb8",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/Convex/Convex 完全指南.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Convex 完全指南"
-            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -121,7 +107,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -180,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Convex/Convex 完全指南.md",
+                "file": "Front-end notes/Next.JS/Next.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Convex 完全指南 的大纲"
+              "title": "Next.js 的大纲"
             }
           },
           {
@@ -223,7 +210,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5
+    "width": 290.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -237,10 +225,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "3d1671cf0069eeb8",
+  "active": "686f0811948dba59",
   "lastOpenFiles": [
-    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
+    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Front-end notes/库/WebContainer学习指南.md",
     "Project notes/Polaris/Logs.md",

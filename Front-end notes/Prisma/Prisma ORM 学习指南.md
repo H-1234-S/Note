@@ -1,4 +1,4 @@
-# Prisma ORM 学习指南
+## Prisma ORM 学习指南
 
 > 基于 Prisma ORM 7.x 主线整理。Prisma 7 和 Prisma 6 以前最大的差异是：默认生成器改为 `prisma-client`、生成路径必须显式配置、环境变量不再自动从 `.env` 注入到 Schema、数据库连接建议通过 `prisma.config.ts` 和 driver adapter 管理。学习时请优先按本文的新写法实践。
 

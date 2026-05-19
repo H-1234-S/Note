@@ -1,4 +1,4 @@
-# tRPC 学习指南
+## tRPC 学习指南
 
 > 基于 tRPC 11.x 主线整理。tRPC 的核心价值是“后端定义一次 API，前端自动获得完整 TypeScript 类型”。它不是 REST 的文档生成器，也不是 GraphQL 的 Schema 语言，而是 TypeScript 项目内部的类型安全 RPC 层。
 
