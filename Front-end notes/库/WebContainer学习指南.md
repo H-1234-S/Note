@@ -1206,35 +1206,35 @@ export const viteReactFiles: FileSystemTree = {
       "App.jsx": {
         file: {
           contents: `
-import React from "react";
-import { createRoot } from "react-dom/client";
-import "./style.css";
-
-function App() {
-  return (
-    <main>
-      <h1>Vite + WebContainer</h1>
-      <button onClick={() => alert("It works")}>Click</button>
-    </main>
-  );
-}
-
-createRoot(document.getElementById("root")).render(<App />);
-`,
+				import React from "react";
+				import { createRoot } from "react-dom/client";
+				import "./style.css";
+				
+				function App() {
+				  return (
+				    <main>
+				      <h1>Vite + WebContainer</h1>
+				      <button onClick={() => alert("It works")}>Click</button>
+				    </main>
+				  );
+				}
+				
+				createRoot(document.getElementById("root")).render(<App />);
+			`,
         },
       },
       "style.css": {
         file: {
           contents: `
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-}
-
-main {
-  padding: 32px;
-}
-`,
+				body {
+				  margin: 0;
+				  font-family: system-ui, sans-serif;
+				}
+				
+				main {
+				  padding: 32px;
+				}
+			`,
         },
       },
     },
