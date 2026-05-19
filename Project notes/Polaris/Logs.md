@@ -754,6 +754,9 @@ self.onmessage = function (event) {
 ```
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Embedder-Policy: require-corp
+
+Cross-Origin-Opener-Policy：same-origin
+Cross-Origin-Embedder-Policy：credentialless
 ```
 
 - [`Cross-Origin-Opener-Policy`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Opener-Policy) 设置为 `same-origin`（来保护你的源站点免受攻击）
