@@ -761,8 +761,14 @@ Cross-Origin-Embedder-Policy：credentialless
 - [`Cross-Origin-Opener-Policy`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Opener-Policy) 设置为 `same-origin`（来保护你的源站点免受攻击）
 - [`Cross-Origin-Embedder-Policy`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy) 设置为 `require-corp` 或 `credentialless`（保护受害者免受你的源站点的影响）
 ## WebAssembly
+## ReadableStream
 
+类似于一个数据源，用于发送数据
+
+Fetch 返回的 `body` 本质上就是一个 `ReadableStream`
 ## WritableStream
+
+用来处理`ReadableStream`发送来的数据，本质上是**写数据**
 ## webcontainers
 
 

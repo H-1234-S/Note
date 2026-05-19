@@ -701,7 +701,311 @@ const process = await webcontainer.spawn("npm", ["test"], {
 const exitCode = await process.exit;
 ```
 
-### 8.3 等待退出码
+### 8.3 ReadableStream、WritableStream 和 pipeTo
+
+WebContainer 的进程输出使用的是 Web Streams API。你在很多示例里看到的这段代码，本质上就是“把一个可读流接到一个可写流”：
+
+```ts
+process.output.pipeTo(
+  new WritableStream({
+    write(chunk) {
+      terminal.write(chunk);
+    },
+  })
+);
+```
+
+拆开理解：
+
+| 名称 | 作用 | WebContainer 中的例子 |
+| --- | --- | --- |
+| `ReadableStream` | 数据源，可以不断读出数据 | `process.output` |
+| `WritableStream` | 数据目标，可以不断写入数据 | 你创建的终端输出流 |
+| `pipeTo()` | 把 readable 自动接到 writable | `process.output.pipeTo(writable)` |
+| `chunk` | 每次流过来的一小段数据 | 终端输出字符串 |
+
+#### 8.3.1 ReadableStream：数据从这里来
+
+`process.output` 是 `ReadableStream<string>`，表示命令运行时持续产生的 stdout/stderr 文本。
+
+```ts
+const install = await webcontainer.spawn("npm", ["install"]);
+
+console.log(install.output); // ReadableStream<string>
+```
+
+它不是一次性字符串，所以不能这样写：
+
+```ts
+const output = await install.output; // 错误理解
+```
+
+因为终端输出是持续产生的：
+
+```txt
+npm install 开始
+输出第 1 行
+输出第 2 行
+...
+进程退出
+```
+
+#### 8.3.2 WritableStream：数据写到这里
+
+`WritableStream` 定义“收到 chunk 后怎么处理”。
+
+```ts
+const terminalStream = new WritableStream<string>({
+  write(chunk) {
+    terminal.write(chunk);
+  },
+});
+```
+
+你也可以写到 React state：
+
+```ts
+const logStream = new WritableStream<string>({
+  write(chunk) {
+    setLogs((current) => current + chunk);
+  },
+});
+```
+
+或者收集成一个字符串：
+
+```ts
+let output = "";
+
+const collectStream = new WritableStream<string>({
+  write(chunk) {
+    output += chunk;
+  },
+});
+```
+
+#### 8.3.3 pipeTo：自动搬运数据
+
+`pipeTo()` 会不断从 `ReadableStream` 读取数据，并写入 `WritableStream`。
+
+```ts
+await install.output.pipeTo(
+  new WritableStream({
+    write(chunk) {
+      console.log(chunk);
+    },
+  })
+);
+```
+
+注意：`pipeTo()` 返回一个 Promise。这个 Promise 会在流结束时 resolve，如果流中途出错会 reject。
+
+如果你不想阻塞当前流程，可以不 `await`，但最好处理错误：
+
+```ts
+install.output
+  .pipeTo(
+    new WritableStream({
+      write(chunk) {
+        terminal.write(chunk);
+      },
+    })
+  )
+  .catch((error) => {
+    console.error("Failed to pipe process output", error);
+  });
+```
+
+然后单独等待进程退出：
+
+```ts
+const exitCode = await install.exit;
+```
+
+WebContainer 示例里经常这样分开写：
+
+```ts
+const install = await webcontainer.spawn("npm", ["install"]);
+
+install.output.pipeTo(
+  new WritableStream({
+    write(chunk) {
+      terminal.write(chunk);
+    },
+  })
+);
+
+const exitCode = await install.exit;
+```
+
+这里的含义是：
+
+- 输出流持续写到终端。
+- 主逻辑等待进程退出码。
+- 退出码决定安装是否成功。
+
+#### 8.3.4 背压：为什么 pipeTo 比手动循环舒服
+
+Streams API 内置背压机制。简单说：如果写入端处理太慢，读取端会自动放慢，不会无脑把数据全部塞进内存。
+
+这对终端输出很有价值：
+
+- `npm install` 可能瞬间输出很多日志。
+- UI 渲染可能跟不上日志产生速度。
+- `pipeTo()` 可以协调读写速度。
+
+你平时不需要手写背压逻辑，直接使用 `pipeTo()` 就好。
+
+#### 8.3.5 手动读取：getReader()
+
+如果你想自己控制读取过程，可以用 reader。
+
+```ts
+const reader = install.output.getReader();
+
+try {
+  while (true) {
+    const { done, value } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    terminal.write(value);
+  }
+} finally {
+  reader.releaseLock();
+}
+```
+
+适合：
+
+- 需要逐行解析日志。
+- 需要遇到特定输出后触发动作。
+- 需要中途停止读取。
+
+例如检测 Vite ready：
+
+```ts
+let buffer = "";
+const reader = devServer.output.getReader();
+
+while (true) {
+  const { done, value } = await reader.read();
+
+  if (done) {
+    break;
+  }
+
+  buffer += value;
+  terminal.write(value);
+
+  if (buffer.includes("Local:")) {
+    console.log("Vite printed local url");
+  }
+}
+```
+
+多数预览场景不需要这么做，因为 WebContainer 已经提供了 `server-ready` 事件。
+
+#### 8.3.6 手动写入：getWriter()
+
+`process.input` 是 `WritableStream<string>`。如果你要给 shell 写命令，就需要 writer。
+
+```ts
+const shell = await webcontainer.spawn("jsh", {
+  terminal: {
+    cols: 80,
+    rows: 24,
+  },
+});
+
+const writer = shell.input.getWriter();
+
+await writer.write("npm install\n");
+await writer.write("npm run dev\n");
+
+writer.releaseLock();
+```
+
+`getWriter()` 会锁定这个 writable stream。锁定期间，其他地方不能再拿 writer。写完后如果还要给别的代码使用，记得 `releaseLock()`。
+
+#### 8.3.7 常见错误
+
+错误一：重复消费同一个 output。
+
+```ts
+process.output.pipeTo(streamA);
+process.output.pipeTo(streamB); // 可能失败，因为 readable 已经被锁定
+```
+
+如果要一份输出给多个地方，自己在一个 `write()` 里分发：
+
+```ts
+process.output.pipeTo(
+  new WritableStream({
+    write(chunk) {
+      terminal.write(chunk);
+      setLogs((current) => current + chunk);
+    },
+  })
+);
+```
+
+错误二：把 output 当普通字符串。
+
+```ts
+const text = String(process.output); // 没有意义
+```
+
+正确方式是 pipe 或 reader。
+
+错误三：忘记处理 pipeTo 错误。
+
+```ts
+process.output.pipeTo(stream); // 如果中途错误，可能出现未处理 Promise rejection
+```
+
+更稳妥：
+
+```ts
+process.output.pipeTo(stream).catch(console.error);
+```
+
+#### 8.3.8 在 React 里使用时的性能提醒
+
+如果每个 chunk 都 `setState`，日志很多时可能导致频繁渲染。
+
+简单优化：批量刷新。
+
+```ts
+let pending = "";
+let scheduled = false;
+
+const stream = new WritableStream<string>({
+  write(chunk) {
+    pending += chunk;
+
+    if (scheduled) {
+      return;
+    }
+
+    scheduled = true;
+
+    requestAnimationFrame(() => {
+      setLogs((current) => current + pending);
+      pending = "";
+      scheduled = false;
+    });
+  },
+});
+
+process.output.pipeTo(stream).catch(console.error);
+```
+
+真实终端 UI 推荐使用 xterm.js，它比把所有日志塞进 React state 更适合大量输出。
+
+### 8.4 等待退出码
 
 ```ts
 const testProcess = await webcontainer.spawn("npm", ["test"]);
@@ -714,7 +1018,7 @@ if (exitCode === 0) {
 }
 ```
 
-### 8.4 输入 stdin
+### 8.5 输入 stdin
 
 `process.input` 是 `WritableStream<string>`，适合做交互式终端。
 
@@ -731,7 +1035,7 @@ await writer.write("npm install\n");
 await writer.write("npm run start\n");
 ```
 
-### 8.5 调整终端尺寸
+### 8.6 调整终端尺寸
 
 ```ts
 shell.resize({
@@ -740,7 +1044,7 @@ shell.resize({
 });
 ```
 
-### 8.6 杀死进程
+### 8.7 杀死进程
 
 ```ts
 const devServer = await webcontainer.spawn("npm", ["run", "start"]);
@@ -1866,4 +2170,3 @@ WebContainer 文件系统本身不是你的持久数据库。你要自己把文�
 - API Versioning and Support: https://webcontainers.io/guides/api-support
 - Troubleshooting: https://webcontainers.io/guides/troubleshooting
 - Build your first WebContainer app: https://webcontainers.io/tutorial/1-build-your-first-webcontainer-app
-

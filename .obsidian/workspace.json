@@ -63,7 +63,8 @@
               "title": "webcontainers-knowledge-guide"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -180,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
+                "file": "Front-end notes/库/WebContainer学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 的大纲"
+              "title": "WebContainer学习指南 的大纲"
             }
           },
           {
@@ -237,8 +238,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "44608f17ab591990",
+  "active": "f9d2bdd204b5de3d",
   "lastOpenFiles": [
+    "Project notes/Polaris/Logs.md",
     "Front-end notes/库/WebContainer学习指南.md",
     "Project notes/Polaris/webcontainers-knowledge-guide.md",
     "Front-end notes/Next.JS/Next.js.md",
@@ -251,7 +253,6 @@
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Convex/Convex 完全指南.md",
-    "Project notes/Polaris/Logs.md",
     "杂/未命名.md",
     "Front-end notes/库/AgentKit学习指南.md",
     "Project notes/Polaris/inngest-knowledge-guide.md",
