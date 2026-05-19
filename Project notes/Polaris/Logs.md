@@ -768,7 +768,33 @@ Cross-Origin-Embedder-Policy：credentialless
 Fetch 返回的 `body` 本质上就是一个 `ReadableStream`
 ## WritableStream
 
+`WritableStream` 是 Web Streams API 里的“**可写流**”接口：它把“往某个目标持续写入数据”这件事抽象成一个标准对象，这个目标通常叫 **sink**。它自带 **背压（backpressure）** 和 **队列** 机制，所以适合处理一边产生、一边写入的数据。
+
 用来处理`ReadableStream`发送来的数据，本质上是**写数据**
+
+入口是 `getWriter()`，它会返回一个 `WritableStreamDefaultWriter`。这个 writer 负责真正写入数据，常用的方法有 `write()`、`close()`、`abort()`；另外还有 `ready`、`closed` 这些 Promise/状态属性，可以用来判断是否还在背压中、或者流是否已经关闭。
+
+``` js
+const stream = new WritableStream({
+  write(chunk) {
+    console.log("收到数据:", chunk);
+  },
+  close() {
+    console.log("写入完成");
+  },
+  abort(err) {
+    console.error("写入中止:", err);
+  }
+});
+
+const writer = stream.getWriter();
+
+await writer.write("hello");
+await writer.write(" world");
+await writer.close();
+```
+
+`write()` 会把 chunk 交给底层 sink 处理，并返回一个 Promise；`close()` 会在把前面的 chunk 都处理完之后关闭流；`abort()` 则会直接把流切到错误状态，并丢弃队列里还没处理的写入。
 ## webcontainers
 
 

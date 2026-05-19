@@ -63,8 +63,7 @@
               "title": "webcontainers-knowledge-guide"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -181,13 +180,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/库/WebContainer学习指南.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "WebContainer学习指南 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -238,10 +237,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "f9d2bdd204b5de3d",
+  "active": "44608f17ab591990",
   "lastOpenFiles": [
-    "Project notes/Polaris/Logs.md",
     "Front-end notes/库/WebContainer学习指南.md",
+    "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/webcontainers-knowledge-guide.md",
     "Front-end notes/Next.JS/Next.js.md",
     "八股/TypeScript篇_高频八股文.md",
