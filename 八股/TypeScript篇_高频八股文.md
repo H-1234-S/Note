@@ -1012,3 +1012,95 @@ type MyInstanceType<T extends new (...args: any) => any> =
 ---
 
 > **面试技巧**：TypeScript八股文的核心在于理解类型系统的设计理念，多动手实践类型推导，遇到面试题时先分析意图再给出解答。
+
+---
+
+## 大厂面试强化：高频追问与全栈补齐
+
+### 1. 大厂常问追问清单
+
+**类型系统本质**：
+- TypeScript 是结构类型系统，两个类型是否兼容主要看成员结构，而不是声明名称。
+- 类型只存在于编译期，运行时不会自动校验接口数据，所以服务端返回值仍需要 zod、valibot、io-ts 或手写校验。
+- 类型收窄依赖控制流分析，`if`、`switch`、`return`、`throw` 都会影响后续类型。
+
+**any、unknown、never**：
+- `any` 会关闭类型检查，适合迁移期兜底，但会污染下游类型。
+- `unknown` 是安全的未知类型，使用前必须收窄。
+- `never` 表示不会出现的值，常用于穷尽检查、不可达分支、条件类型过滤。
+
+**type 与 interface**：
+- `interface` 可声明合并，适合对象形状和对外扩展 API。
+- `type` 表达能力更强，适合联合类型、条件类型、映射类型、元组组合。
+- 项目约定比绝对优劣更重要：组件 Props、领域模型、工具类型可以分别采用一致风格。
+
+**泛型追问**：
+- 泛型不是“任意类型”，而是把类型作为参数传入，让输入输出关系保持一致。
+- `T extends U` 在泛型约束中表示 T 至少满足 U 的结构；在条件类型中表示分支判断。
+- 条件类型遇到裸类型参数会触发分布式条件类型，例如 `T extends U ? X : Y` 会对联合类型逐项分发。
+
+**协变、逆变、双变**：
+- 返回值类型通常协变：可以返回更具体的类型。
+- 函数参数在 `strictFunctionTypes` 下更接近逆变：接收更宽的参数更安全。
+- 方法参数历史上存在双变兼容，面试中可说明这是 TypeScript 为生态兼容做的取舍。
+
+### 2. 前端/全栈工程师需要补齐的 TypeScript 能力
+
+**React/Next 类型建模**：
+```typescript
+type RequestState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: Error }
+
+function assertNever(value: never): never {
+  throw new Error(`Unexpected value: ${String(value)}`)
+}
+```
+
+面试重点：用可辨识联合类型表达异步状态，避免 `data?: T`、`error?: Error` 这类互斥关系不清的类型。
+
+**接口契约与运行时校验**：
+- 前端类型不能替代接口校验，接口数据来自网络、数据库、缓存或用户输入时，都属于不可信输入。
+- 全栈项目建议从 schema 出发生成类型，例如 OpenAPI、GraphQL Code Generator、Prisma、tRPC、zod schema。
+- DTO、Domain Model、View Model 不要混成一个类型；后端字段变更不应直接击穿前端展示层。
+
+**类型安全的工具函数**：
+```typescript
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key]
+}
+
+function isNonNullable<T>(value: T): value is NonNullable<T> {
+  return value !== null && value !== undefined
+}
+```
+
+**tsconfig 实战必会**：
+- `strict` 建议开启，新增项目不要关闭。
+- `noUncheckedIndexedAccess` 可以减少数组、对象索引访问的空值风险。
+- `exactOptionalPropertyTypes` 会让可选属性语义更精确，适合高质量库或中大型项目。
+- `paths` 只影响 TypeScript 解析，运行时和构建工具也要配置 alias。
+
+### 3. 类型体操高频补充
+
+```typescript
+type MyReadonly<T> = {
+  readonly [K in keyof T]: T[K]
+}
+
+type MyNonNullable<T> = T extends null | undefined ? never : T
+
+type MyParameters<T extends (...args: any[]) => any> =
+  T extends (...args: infer P) => any ? P : never
+
+type MyAwaited<T> =
+  T extends null | undefined
+    ? T
+    : T extends PromiseLike<infer U>
+      ? MyAwaited<U>
+      : T
+```
+
+回答类型体操题时，先说“我要拆 key、拆 union，还是拆函数参数/返回值”，再选择 `keyof`、映射类型、条件类型、`infer`。

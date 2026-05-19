@@ -3940,3 +3940,95 @@ myFetch('/api/users', {
 ---
 
 **最后提醒**：理解原理 > 死记硬背！多写代码，多调试，加深理解。
+
+---
+
+## 大厂面试强化：高频追问与全栈补齐
+
+### 1. 大厂常问追问清单
+
+**执行机制类**：
+- 解释一段 `async/await + Promise + setTimeout + queueMicrotask` 的输出顺序时，要先拆成同步代码、微任务、宏任务，再说明每轮事件循环后会清空微任务队列。
+- 浏览器和 Node.js 事件循环的差异要说到 Node 的阶段模型：timers、poll、check、close callbacks，以及 `process.nextTick` 优先级高于 Promise microtask。
+- `await` 后面的代码可以理解为被包装进 Promise reaction job，因此会进入微任务队列。
+
+**闭包与内存类**：
+- 闭包不是“内存泄漏”，闭包只是让外层词法环境继续可达；泄漏发生在无用引用长期无法释放。
+- 常见泄漏来源：全局变量、定时器未清理、DOM 引用残留、事件监听未解绑、缓存无上限、闭包持有大对象。
+- 排查路径：Chrome Memory 面板拍 heap snapshot，对比 detached DOM、retained size、引用链。
+
+**原型与继承类**：
+- `prototype` 是函数对象用于创建实例的原型对象，`__proto__` 或 `[[Prototype]]` 是对象实际指向的原型。
+- `class` 本质仍基于原型，类方法挂在 `Class.prototype`，静态方法挂在构造函数本身。
+- `extends` 会同时建立实例原型链和构造函数原型链：`Sub.prototype -> Super.prototype`，`Sub -> Super`。
+
+**Promise 手写类**：
+- 必须覆盖三点：状态不可逆、then 异步执行、then 返回新 Promise 并执行 Promise Resolution Procedure。
+- `Promise.all` 要考虑空数组立即 fulfilled、按输入顺序收集结果、任一 reject 立即 reject。
+- `Promise.any` 要考虑全部失败后 reject `AggregateError`。
+
+**模块化类**：
+- ESM 是编译期静态依赖、live binding；CommonJS 是运行时加载、值拷贝快照。
+- 循环依赖中，ESM 更容易通过 live binding 拿到后续更新的值，CommonJS 常拿到未初始化完成的导出对象。
+- Tree Shaking 依赖 ESM 静态结构以及无副作用标记，`sideEffects` 配错可能误删样式或 polyfill。
+
+### 2. 前端/全栈工程师需要补齐的 JavaScript 能力
+
+**Node.js 运行时**：
+- 掌握 `Buffer`、Stream、EventEmitter、child_process、worker_threads 的典型场景。
+- 理解 CommonJS 与 ESM 在 Node 中的兼容成本：`type: module`、`.mjs/.cjs`、动态 `import()`、默认导出互操作。
+- 能解释服务端内存泄漏、CPU 阻塞、I/O 密集任务和计算密集任务的处理方式。
+
+**异步并发控制**：
+```javascript
+function limit(tasks, concurrency) {
+  const results = []
+  let index = 0
+  let running = 0
+
+  return new Promise((resolve, reject) => {
+    const run = () => {
+      if (index === tasks.length && running === 0) {
+        resolve(results)
+        return
+      }
+
+      while (running < concurrency && index < tasks.length) {
+        const current = index++
+        running++
+        Promise.resolve(tasks[current]())
+          .then((res) => {
+            results[current] = res
+          })
+          .catch(reject)
+          .finally(() => {
+            running--
+            run()
+          })
+      }
+    }
+
+    run()
+  })
+}
+```
+
+面试追问重点：并发数是否严格受控、结果顺序是否稳定、失败策略是立即失败还是收集错误、是否支持取消。
+
+**接口与数据处理**：
+- 熟悉 JSON 序列化边界：`undefined`、函数、Symbol 会被忽略，`BigInt` 默认不能序列化，循环引用会报错。
+- 大列表、大文件、日志流处理要优先考虑流式处理和分页，避免一次性加载到内存。
+- 前端请求层要支持超时、重试、取消、鉴权刷新、幂等处理和错误归一化。
+
+**工程质量**：
+- 关键业务逻辑要能写单元测试，异步逻辑要会 mock timer、mock fetch、断言错误分支。
+- 对工具函数要关注边界：空值、稀疏数组、循环引用、Symbol key、不可枚举属性、原型污染。
+
+### 3. 回答模板
+
+遇到 JS 原理题时可以按这个顺序回答：
+
+1. 先给一句核心结论。
+2. 再说明底层机制，例如执行上下文、词法环境、原型链、任务队列。
+3. 补一个边界条件，例如循环依赖、错误传播、内存释放。
+4. 最后落到工程实践，例如如何排查、如何封装、如何避免踩坑。

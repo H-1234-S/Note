@@ -2117,3 +2117,76 @@ export default function NewPost() {
   - 使用 `(.)folder` 语法
 
 - **组合使用**：可以实现 Instagram 照片流点击后模态框打开的效果
+
+---
+
+## 大厂面试强化：高频追问与全栈补齐
+
+### 1. 大厂常问追问清单
+
+**渲染模式选择**：
+- SSG 适合内容稳定、可提前生成的页面，例如文档、营销页、商品详情的公共部分。
+- SSR 适合强个性化、强实时、需要 SEO 的页面，但要关注 TTFB 和服务端成本。
+- ISR 适合内容会更新但不要求每次请求实时的页面。
+- CSR 适合登录后后台、强交互页面，SEO 和首屏压力相对较小。
+- RSC/Streaming 适合把数据读取放在服务端，并逐步把可展示内容流式返回。
+
+**App Router 缓存追问**：
+- 要区分请求记忆化、Data Cache、Full Route Cache、Router Cache。
+- `fetch` 的缓存策略、路由段配置、动态 API、Server Actions 都可能影响页面静态或动态渲染。
+- `revalidatePath` 偏路径级失效，`revalidateTag` 偏数据标签级失效，更适合跨页面共享数据。
+
+**Server Components 边界**：
+- Server Component 不能使用浏览器 API、事件处理器、`useState/useEffect`。
+- Client Component 可以作为 Server Component 的子节点，但客户端边界会带来 JS bundle 成本。
+- 敏感逻辑、数据库访问、服务端 token 不应下发到客户端组件。
+
+**Server Actions 追问**：
+- 适合表单提交、数据变更、渐进增强。
+- 必须做鉴权、权限校验、输入校验和 CSRF 风险评估。
+- Action 完成后通常配合 `revalidatePath/revalidateTag` 更新缓存。
+
+**Middleware/Proxy 追问**：
+- 适合轻量重定向、鉴权前置、A/B 实验、地域改写。
+- 不适合重 CPU、复杂数据库查询、大体积响应处理。
+- Edge Runtime 与 Node Runtime API 不完全一致，依赖选择要提前确认。
+
+### 2. 前端/全栈工程师需要补齐的 Next.js 能力
+
+**全栈数据链路**：
+- 页面读取：RSC 中直接读取服务端数据，或通过 Route Handler/BFF 聚合接口。
+- 数据变更：Server Actions 或 Route Handlers，统一做 schema 校验、鉴权、权限和错误处理。
+- 数据库访问：Prisma/Drizzle/SQL 查询要放服务端，避免连接泄漏和 N+1 查询。
+
+**鉴权与权限**：
+- 登录态可用 Cookie + Session、JWT 或第三方 Auth 服务。
+- Cookie 建议使用 `HttpOnly`、`Secure`、`SameSite`，服务端读取后再判断用户身份。
+- 权限判断要放服务端，前端隐藏按钮只是体验优化，不是安全边界。
+
+**缓存与一致性策略**：
+```typescript
+await updatePost(input)
+revalidateTag('posts')
+revalidatePath('/dashboard/posts')
+```
+
+面试重点：缓存能提升性能，但会带来一致性问题。回答时要说明哪些数据可缓存、多久失效、谁负责失效、失败后怎么兜底。
+
+**部署与运行时**：
+- Vercel 部署体验最好，但企业内也常见 Docker + Node、Kubernetes、Serverless、Edge。
+- 图片优化、字体优化、日志、环境变量、source map、错误监控都要纳入发布方案。
+- SSR 服务要关注冷启动、并发、内存、数据库连接池和超时。
+
+**SEO 与可观测性**：
+- SEO 不只是 metadata，还包括语义化 HTML、结构化数据、站点地图、robots、canonical、性能指标。
+- 线上问题要能定位到路由、用户、请求 ID、接口耗时、渲染错误和缓存命中情况。
+
+### 3. 回答模板
+
+Next.js 题建议按“页面类型 -> 渲染策略 -> 缓存策略 -> 数据变更 -> 部署风险”回答。例如商品详情页：
+
+1. 公共商品信息用 SSG/ISR。
+2. 用户价格、库存、收藏状态走动态读取或客户端请求。
+3. 静态资源上 CDN，页面数据用 tag/path revalidate。
+4. 下单、收藏等变更走服务端校验和缓存失效。
+5. 监控 TTFB、LCP、接口错误率和缓存命中率。
