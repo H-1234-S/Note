@@ -55,12 +55,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Front-end notes/Prisma/Prisma ORM 学习指南.md",
+                "file": "Front-end notes/tRPC/tRPC学习指南.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Prisma ORM 学习指南"
+              "title": "tRPC学习指南"
             }
           }
         ],
@@ -180,13 +180,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Prisma/Prisma ORM 学习指南.md",
+                "file": "Front-end notes/tRPC/tRPC学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Prisma ORM 学习指南 的大纲"
+              "title": "tRPC学习指南 的大纲"
             }
           },
           {
@@ -239,6 +239,7 @@
   },
   "active": "3d1671cf0069eeb8",
   "lastOpenFiles": [
+    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Front-end notes/库/WebContainer学习指南.md",
@@ -274,7 +275,6 @@
     "Project notes/Polaris/codemirror-knowledge-guide.md",
     "Project notes/Polaris/codemirror-quick-edit-plugin.md",
     "八股/JavaScript篇_高频八股文.md",
-    "学习/思考.md",
     "Project notes/VoxClone/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
