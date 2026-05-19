@@ -641,7 +641,7 @@ export default function ChatPage() {
 
 ## SharedArrayBuffer
 
-明确一下浏览器中的**进程**和**线程**概念，现在浏览器都是多进程的
+首先明确一下浏览器中的**进程**和**线程**概念，现在浏览器都是多进程的
 ```
 例如谷歌浏览器，有浏览器进程也就是主进程，负责浏览器页面展示和处理用户交互
 渲染进程，负责解析html、css、javascript，浏览器默认为每一个标签页创建一个渲染进程
@@ -760,6 +760,9 @@ Cross-Origin-Embedder-Policy：credentialless
 
 - [`Cross-Origin-Opener-Policy`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Opener-Policy) 设置为 `same-origin`（来保护你的源站点免受攻击）
 - [`Cross-Origin-Embedder-Policy`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy) 设置为 `require-corp` 或 `credentialless`（保护受害者免受你的源站点的影响）
+## WebAssembly
+
+## WritableStream
 ## webcontainers
 
 
