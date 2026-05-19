@@ -372,6 +372,23 @@ export async function getWebContainer() {
 
 
 
+``` ts
+// 存储已创建的 WebContainer 实例
+let webcontainerInstance: WebContainer | null = null;
+// 存储正在进行的 boot 操作，避免重复 boot
+let bootPromise: Promise<WebContainer> | null = null;
+const getWebContainer = async (): Promise<WebContainer> => {
+  if (webcontainerInstance) {
+    return webcontainerInstance;
+  }
+  if (!bootPromise) {
+    bootPromise = WebContainer.boot({ coep: "credentialless" });
+  }
+  webcontainerInstance = await bootPromise;
+  return webcontainerInstance;
+};
+```
+
 
 React 组件中不要这样写：
 
