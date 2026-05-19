@@ -1,4 +1,4 @@
-# WebContainer 学习指南
+## WebContainer 学习指南
 
 > 面向想在浏览器里运行 Node.js 项目、代码沙盒、在线 IDE、教程平台或 AI 代码执行环境的前端开发者。本文按最新官方 WebContainers 文档整理，重点讲架构、核心概念、API、代码示例、常见限制和产品化实践。
 
