@@ -1,1170 +1,638 @@
+# tRPC 学习指南
 
-tRPC（TypeScript Remote Procedure Call）是一个 TypeScript 优先的 RPC 框架
-
-RPC（Remote Procedure Call，远程过程调用）框架是一种**让程序像调用本地函数一样调用远程服务**的技术框架
-
-允许前端直接调用后端函数并获得端到端的类型安全，无需编写 API 文档或生成代码。
-
----
-## 1. tRPC 简介
-
-### 1.1 什么是 tRPC？
-
-tRPC 是一个允许你在 TypeScript 前端和后端之间进行类型安全通信的框架。它消除了 API 契约、代码生成和模式验证的需要。
-
-### 1.2 解决了什么痛点？
-
-- 消除了前后端类型不同步的问题，类型从后端自动推导至前端
-
-- 不需要手动写fetch请求，前端像调用本地函数一样调用后端
-
-### 1.3 核心特点
-
-| 特点 | 描述 |
-|------|------|
-| **类型安全** | 前后端共享 TypeScript 类型，编译时即可发现错误 |
-| **无需代码生成** | 不需要生成 OpenAPI 规范或 Protractor 文件 |
-| **零配置** | 自动推断类型，无需额外类型声明 |
-| **高性能** | 基于 HTTP/2 或 WebSocket，轻量级传输 |
-| **开发者友好** | 提供 IDE 自动补全和实时类型检查 |
-
-### 1.4 工作原理
-
-```
-前端调用函数 → tRPC 传输 → 服务端路由 → 执行逻辑 → 返回结果 → 前端获得类型提示
-```
-
-tRPC 使用 Zod 进行运行时验证，使用 TypeScript 的类型推断确保编译时安全。
-
-### 1.5 tRPC请求流程
-
-发送 tRPC 请求的流程：
-
- * 1. 组件调用 useTRPC hook 发起请求（如 trpc.voices.getAll.query()）
-
- * 2. 在组件树中找到 TRPCProvider，获取 tRPC Client 和 QueryClient
-
- * 3. tRPC Client 通过 httpBatchLink 将请求发送到 /api/trpc 端点
-
- * 4. 服务端 fetchRequestHandler 接收请求，解析路由和参数
-
- * 5. 调用对应的过程（Procedure）执行业务逻辑，返回结果
+> 基于 tRPC 11.x 主线整理。tRPC 的核心价值是“后端定义一次 API，前端自动获得完整 TypeScript 类型”。它不是 REST 的文档生成器，也不是 GraphQL 的 Schema 语言，而是 TypeScript 项目内部的类型安全 RPC 层。
 
 ---
 
-## 2. 核心概念
+## 1. tRPC 是什么
 
-### 2.1 App Router（应用路由器）
+tRPC，全称 TypeScript Remote Procedure Call。它让前端像调用本地函数一样调用服务端 Procedure，同时把输入、输出、错误类型从服务端路由自动推导到客户端。
 
-tRPC v10+ 引入了 `AppRouter`，这是定义后端 API 的核心方式：
+### 1.1 它解决的问题
 
-```typescript
-import { initTRPC } from '@trpc/server';
+| 传统 API 痛点 | tRPC 的做法 |
+| --- | --- |
+| 前后端接口类型容易不同步 | 从服务端 Router 推导客户端类型 |
+| REST 路径、方法、请求体要手动约定 | 用 Procedure 表达 Query / Mutation / Subscription |
+| OpenAPI / GraphQL 需要额外 Schema 或代码生成 | 直接使用 TypeScript 类型推导 |
+| 输入校验散落在业务代码里 | `.input(zodSchema)` 在 Procedure 入口校验 |
+| 客户端缓存、请求状态重复封装 | 与 TanStack Query 深度集成 |
 
-const t = initTRPC.create();
+### 1.2 适合与不适合
 
-export const appRouter = t.router({
-  // 在这里定义 procedures
-});
+适合：
 
-export type AppRouter = typeof appRouter;
+- 前后端都在 TypeScript 项目中。
+- Next.js、React、Node.js 全栈应用。
+- 中小型团队想快速获得端到端类型安全。
+- 和 Prisma、Zod、TanStack Query 一起构建业务系统。
+
+不适合：
+
+- 公开 API 需要被多语言客户端消费。
+- 后端不是 TypeScript。
+- 需要强协议治理、跨团队 API 契约、独立 SDK 发布。
+- API 必须天然支持 GraphQL 式字段选择。
+
+### 1.3 和 REST / GraphQL 的区别
+
+| 维度 | tRPC | REST | GraphQL |
+| --- | --- | --- | --- |
+| 契约来源 | TypeScript Router | URL + 文档 | GraphQL Schema |
+| 类型同步 | 自动推导 | 手动或代码生成 | 代码生成常见 |
+| 学习成本 | 低，主要是 TS | 低 | 中高 |
+| 跨语言 | 弱 | 强 | 强 |
+| 缓存语义 | 依赖 TanStack Query / HTTP | HTTP 原生友好 | 依赖客户端 |
+| 适合 | TS 全栈内部 API | 通用 Web API | 多端复杂查询 |
+
+---
+
+## 2. 核心架构
+
+```text
+React Component
+    |
+    | useQuery / useMutation
+    v
+tRPC Client
+    |
+    | link: httpBatchLink / httpLink / wsLink
+    v
+HTTP endpoint / WebSocket
+    |
+    v
+tRPC Adapter
+    |
+    v
+AppRouter -> Procedure -> Context -> Business logic -> Database
 ```
 
-### 2.2 Procedure（过程）
+### 2.1 核心概念
 
-Procedure 是 tRPC 中的基本构建块，类似于 API 端点。有三种类型：
+| 概念 | 说明 |
+| --- | --- |
+| `initTRPC` | 创建 tRPC 基础工具 |
+| Router | 一组 Procedure 的集合，可嵌套、可合并 |
+| Procedure | 一个可被客户端调用的服务端函数 |
+| Query | 读取数据的 Procedure |
+| Mutation | 修改数据的 Procedure |
+| Subscription | 实时数据订阅 Procedure |
+| Context | 每次请求共享的服务端上下文，如用户、数据库、请求头 |
+| Middleware | Procedure 执行前后的横切逻辑，如认证、日志、权限 |
+| Link | 客户端传输层，如批量 HTTP、WebSocket、日志 |
+| Transformer | 序列化器，如 `superjson` 支持 Date / Map / Set |
+| Caller | 服务端直接调用 Router 的方式，常用于 RSC、测试、内部任务 |
 
-#### 2.2.1 Query（查询）
-
-用于读取数据的 procedure，类似 GET 请求：
+### 2.2 Procedure 的三种类型
 
 ```typescript
-const appRouter = t.router({
-  // 无参数的 query
-  getUser: t.procedure.query(async () => {
-    return { id: 1, name: 'Alice' };
-  }),
-
-  // 带参数的 query（使用 Zod 进行输入验证）
-  getUserById: t.procedure
-    .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
-      return { id: input.id, name: 'Alice' };
+const appRouter = router({
+  hello: publicProcedure
+    .input(z.object({ name: z.string() }))
+    .query(({ input }) => {
+      return { text: `hello ${input.name}` }
     }),
-});
-```
 
-#### 2.2.2 Mutation（变更）
-
-用于修改数据的 procedure，类似 POST/PUT/DELETE 请求：
-
-```typescript
-const appRouter = t.router({
-  createUser: t.procedure
+  createPost: publicProcedure
     .input(z.object({
-      name: z.string(),
-      email: z.string().email(),
+      title: z.string().min(1),
+      content: z.string().optional(),
     }))
-    .mutation(async ({ input }) => {
-      // 创建用户的逻辑
-      const user = await db.user.create({ data: input });
-      return user;
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.post.create({ data: input })
     }),
-});
+})
 ```
 
-#### 2.2.3 Subscription（订阅）
-
-用于实时通信，基于 WebSocket：
-
-```typescript
-const appRouter = t.router({
-  onMessage: t.procedure.subscription(async ({ ctx }) => {
-    return new IterableIterator((push) => {
-      const unsubscribe = ctx.pubsub.subscribe('messages', (data) => {
-        push(data);
-      });
-      return unsubscribe;
-    });
-  }),
-});
-```
-
-### 2.3 Context（上下文）
-
-Context 是传递给每个 procedure 的共享数据，通常包含认证信息、数据库连接等：
-
-```typescript
-import { initTRPC } from '@trpc/server';
-import type { CreateExpressContextOptions } from '@trpc/server/adapters/express';
-
-export const createContext = ({ req, res }: CreateExpressContextOptions) => {
-  return {
-    req,
-    res,
-    user: req.headers.authorization ? getUser(req) : null,
-  };
-};
-
-const t = initTRPC.context<typeof createContext>().create();
-```
-
-### 2.4 Middleware（中间件）
-
-中间件是在 procedure 执行前/后运行的逻辑：
-
-```typescript
-const isAuthenticated = t.middleware(({ ctx, next }) => {
-  if (!ctx.user) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' });
-  }
-  return next({
-    ctx: {
-      user: ctx.user, // 扩大 ctx 类型
-    },
-  });
-});
-
-const protectedProcedure = t.procedure.use(isAuthenticated);
-```
-
-next() 函数用于执行之后的middleware，同时还可以把新的context注入到下游
+- Query：读取，不应该产生业务副作用。
+- Mutation：创建、更新、删除、提交动作。
+- Subscription：实时推送，通常基于 WebSocket 或 async iterable。
 
 ---
 
-## 3. 环境搭建
+## 3. 安装与项目结构
 
-### 3.1 基础项目结构
-
-```
-my-trpc-app/
-├── src/
-│   ├── server/
-│   │   ├── index.ts      # 服务端入口
-│   │   ├── router.ts     # 路由定义
-│   │   └── context.ts    # 上下文配置
-│   ├── client/
-│   │   ├── index.ts      # 客户端配置
-│   │   └── App.tsx       # React 组件
-│   └── utils/
-│       └── trpc.ts       # tRPC 客户端工具
-├── package.json
-└── tsconfig.json
-```
-
-### 3.2 安装依赖
+### 3.1 基础安装
 
 ```bash
-# 基础依赖
-npm install @trpc/server @trpc/client @trpc/react-query @tanstack/react-query
-
-# Zod（用于输入验证）
-npm install zod
-
-# 可选：适配器
-npm install @trpc/server/adapters/express  # Express
-npm install @trpc/server/adapters/fastify  # Fastify
-npm install @trpc/server/adapters/lambda   # AWS Lambda
+npm install @trpc/server @trpc/client zod
 ```
 
-### 3.3 package.json 配置
+React 经典 hooks 路线：
 
-```json
-{
-  "name": "my-trpc-app",
-  "scripts": {
-    "dev": "tsx watch src/server/index.ts",
-    "build": "tsc",
-    "start": "node dist/server/index.js"
-  },
-  "dependencies": {
-    "@trpc/server": "^10.45.0",
-    "@trpc/client": "^10.45.0",
-    "@trpc/react-query": "^10.45.0",
-    "@tanstack/react-query": "^5.17.0",
-    "zod": "^3.22.0",
-    "express": "^4.18.0",
-    "superjson": "^3.0.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.3.0",
-    "tsx": "^4.7.0",
-    "@types/express": "^4.17.0"
-  }
-}
+```bash
+npm install @trpc/react-query @tanstack/react-query
 ```
+
+tRPC v11 推荐的 TanStack Query 集成路线：
+
+```bash
+npm install @trpc/tanstack-react-query @tanstack/react-query
+```
+
+常用增强：
+
+```bash
+npm install superjson
+```
+
+### 3.2 推荐目录
+
+```text
+src/
+├─ server/
+│  ├─ context.ts
+│  ├─ trpc.ts
+│  └─ routers/
+│     ├─ _app.ts
+│     ├─ user.ts
+│     └─ post.ts
+├─ trpc/
+│  ├─ client.tsx
+│  ├─ query-client.ts
+│  └─ server.tsx
+├─ lib/
+│  └─ prisma.ts
+└─ app/ 或 pages/
+```
+
+原则：
+
+- `server/trpc.ts` 只放 tRPC 初始化、公共 procedure、中间件。
+- `server/context.ts` 只负责构造请求上下文。
+- `server/routers` 按业务域拆分。
+- 客户端只导入 `AppRouter` 类型，不导入服务端运行时代码。
 
 ---
 
-## 4. 基础用法
+## 4. 服务端基础
 
-### 4.1 创建服务端
-
-```typescript
-// src/server/index.ts
-import { initTRPC } from '@trpc/server';
-import { z } from 'zod';
-import * as trpcExpress from '@trpc/server/adapters/express';
-
-// 初始化 tRPC
-const t = initTRPC.create();
-
-// 创建 context
-export const createContext = () => ({});
-
-// 定义 router
-export const appRouter = t.router({
-  // Query 示例
-  greeting: t.procedure.query(() => 'Hello from tRPC!'),
-
-  // 带输入验证的 Query
-  getUser: t.procedure
-    .input(z.object({ id: z.number() }))
-    .query(({ input }) => {
-      return { id: input.id, name: 'Alice' };
-    }),
-
-  // Mutation 示例
-  createUser: t.procedure
-    .input(z.object({
-      name: z.string().min(1),
-      email: z.string().email(),
-    }))
-    .mutation(({ input }) => {
-      const user = { id: Math.random(), ...input };
-      return user;
-    }),
-});
-
-// 导出类型供前端使用
-export type AppRouter = typeof appRouter;
-```
-
-### 4.2 创建 Express 适配器
+### 4.1 Context
 
 ```typescript
-// src/server/index.ts 继续
-import express from 'express';
+// src/server/context.ts
+import { prisma } from '@/lib/prisma'
 
-const app = express();
-
-app.use(express.json());
-
-// 创建 tRPC 路由处理器
-const tRPCHandler = trpcExpress.createExpressMiddleware({
-  router: appRouter,
-  createContext,
-});
-
-app.use('/trpc', tRPCHandler);
-
-app.listen(4000, () => {
-  console.log('Server running on http://localhost:4000');
-});
-```
-
-### 4.3 创建客户端
-
-```typescript
-// src/client/index.ts
-import { createTRPCReact, httpBatchLink } from '@trpc/react-query';
-import type { AppRouter } from '../server';
-
-export const trpc = createTRPCReact<AppRouter>();
-```
-
-### 4.4 在 React 中使用
-
-```typescript
-// src/client/App.tsx
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { trpc, httpBatchLink } from './client';
-
-function App() {
-  const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: 'http://localhost:4000/trpc',
-        }),
-      ],
-    })
-  );
-
-  return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <UserList />
-      </QueryClientProvider>
-    </trpc.Provider>
-  );
-}
-
-function UserList() {
-  const { data, isLoading } = trpc.getUser.useQuery({ id: 1 });
-
-  if (isLoading) return <div>Loading...</div>;
-
-  return <div>{data?.name}</div>;
-}
-```
-
----
-
-## 5. 进阶用法
-
-### 5.1 嵌套路由
-
-```typescript
-// 路由可以嵌套，形成模块化结构
-const userRouter = t.router({
-  getById: t.procedure
-    .input(z.object({ id: z.number() }))
-    .query(({ input }) => ({ id: input.id, name: 'Alice' })),
-
-  create: t.procedure
-    .input(z.object({ name: z.string() }))
-    .mutation(({ input }) => ({ id: 1, ...input })),
-});
-
-const appRouter = t.router({
-  user: userRouter,
-  post: t.router({
-    getAll: t.procedure.query(() => []),
-    getById: t.procedure
-      .input(z.object({ id: z.number() }))
-      .query(({ input }) => ({ id: input.id, title: 'Post Title' })),
-  }),
-});
-
-// 前端调用
-trpc.user.getById.useQuery({ id: 1 });
-trpc.post.getById.useQuery({ id: 1 });
-```
-
-### 5.2 使用 superjson 序列化
-
-tRPC 默认使用 JSON 序列化，但不支持 Date、Map、Set 等类型。使用 `superjson` 可以解决：
-
-```typescript
-// 服务端
-import superjson from 'superjson';
-import { initTRPC } from '@trpc/server';
-
-const t = initTRPC.create({
-  transformer: superjson,
-});
-
-// 客户端
-import { createTRPCReact } from '@trpc/react-query';
-import superjson from 'superjson';
-import { httpBatchLink } from '@trpc/client';
-
-export const trpc = createTRPCReact<AppRouter>();
-
-const trpcClient = trpc.createClient({
-  transformer: superjson,
-  links: [
-    httpBatchLink({
-      url: 'http://localhost:4000/trpc',
-    }),
-  ],
-});
-```
-
-### 5.3 分页处理
-
-```typescript
-const appRouter = t.router({
-  getPosts: t.procedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).default(10),
-      cursor: z.number().nullish(), // 用于游标分页
-    }))
-    .query(async ({ input }) => {
-      const limit = input.limit;
-      const cursor = input.cursor;
-
-      const posts = await db.post.findMany({
-        take: limit + 1, // 多取一条判断是否有更多
-        cursor: cursor ? { id: cursor } : undefined,
-        orderBy: { id: 'asc' },
-      });
-
-      let nextCursor: typeof cursor | undefined = undefined;
-      if (posts.length > limit) {
-        const nextItem = posts.pop();
-        nextCursor = nextItem!.id;
-      }
-
-      return { posts, nextCursor };
-    }),
-});
-```
-
-### 5.4 文件上传
-
-tRPC 本身不支持文件上传，但可以配合其他方案：
-
-```typescript
-// 使用 base64 编码（适合小文件）
-const appRouter = t.router({
-  uploadFile: t.procedure
-    .input(z.object({
-      name: z.string(),
-      data: z.string(), // base64 编码
-    }))
-    .mutation(({ input }) => {
-      // 处理文件
-      return { url: `/uploads/${input.name}` };
-    }),
-});
-```
-
----
-
-## 6. 客户端应用
-
-### 6.1 React Query 集成
-
-tRPC 深度集成 React Query，保留了其所有功能：
-
-```typescript
-// useQuery
-const { data, isLoading, error, refetch } = trpc.getUser.useQuery(
-  { id: 1 },
-  { staleTime: 5000 }
-);
-
-// useMutation
-const createUser = trpc.createUser.useMutation({
-  onSuccess: (data) => {
-    queryClient.invalidateQueries(['user']); // 刷新缓存
-  },
-  onError: (error) => {
-    console.error(error.message);
-  },
-});
-
-// 调用 mutation
-createUser.mutate({ name: 'Bob', email: 'bob@example.com' });
-
-// 乐观更新
-const updateUser = trpc.updateUser.useMutation({
-  onMutate: async (newData) => {
-    await queryClient.cancelQueries(['user', newData.id]);
-    const previous = queryClient.getQueryData(['user', newData.id]);
-    queryClient.setQueryData(['user', newData.id], newData);
-    return { previous };
-  },
-  onError: (err, newData, context) => {
-    queryClient.setQueryData(['user', newData.id], context.previous);
-  },
-});
-```
-
-### 6.2 多个 tRPC 客户端
-
-```typescript
-// 创建多个客户端实例
-export const trpcAdmin = createTRPCReact<AdminRouter>();
-export const trpcPublic = createTRPCReact<PublicRouter>();
-
-// 使用
-<trpcAdmin.Provider client={adminClient} queryClient={adminQueryClient}>
-  <AdminPanel />
-</trpcAdmin.Provider>
-```
-
-### 6.3 SSR（服务端渲染）
-
-```typescript
-// _app.tsx (Next.js Pages Router)
-import { withTRPC } from '@trpc/next';
-
-function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
-}
-
-export default withTRPC({
-  config: () => ({
-    url: '/api/trpc',
-  }),
-})(MyApp);
-```
-
-```typescript
-// app/layout.tsx (Next.js App Router)
-'use client';
-import { trpc } from './client';
-import { headers } from 'next/headers';
-
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: 'http://localhost:4000/trpc',
-          headers() {
-            return {
-              headers: Object.fromEntries(headers().entries()),
-            };
-          },
-        }),
-      ],
-    })
-  );
-
-  return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </trpc.Provider>
-  );
-}
-```
-
----
-
-## 7. 中间件与上下文
-
-### 7.1 完整的 Context 创建
-
-```typescript
-import { initTRPC } from '@trpc/server';
-import * as trpcExpress from '@trpc/server/adapters/express';
-import { getServerSession } from './auth'; // 假设的认证函数
-
-export interface Context {
-  user: { id: string; name: string } | null;
-  req: express.Request;
-  res: express.Response;
-}
-
-export const createContext = async ({ req, res }: trpcExpress.CreateExpressContextOptions) => {
-  const user = await getServerSession(req);
+export async function createContext(opts: { headers: Headers }) {
+  const authorization = opts.headers.get('authorization')
+  const user = authorization
+    ? await getUserFromToken(authorization)
+    : null
 
   return {
+    prisma,
     user,
-    req,
-    res,
-  };
-};
-
-const t = initTRPC.context<Context>().create();
-```
-
-### 7.2 链式中间件
-
-```typescript
-// 日志中间件
-const logger = t.middleware(async ({ path, type, next }) => {
-  const start = Date.now();
-  const result = await next();
-  const duration = Date.now() - start;
-  console.log(`${type} ${path} took ${duration}ms`);
-  return result;
-});
-
-// 错误处理中间件
-const errorHandler = t.middleware(async ({ error, next }) => {
-  if (error instanceof TRPCError) {
-    console.error(`tRPC Error: ${error.message}`);
+    headers: opts.headers,
   }
-  return next();
-});
+}
 
-// 使用中间件
-const t2 = initTRPC.create({
-  middleware: [logger, errorHandler],
-});
+async function getUserFromToken(token: string) {
+  return { id: 'user_1', role: 'USER' as const }
+}
+
+export type Context = Awaited<ReturnType<typeof createContext>>
 ```
 
-### 7.3 受保护的 Procedure
+Context 是服务端能力的入口。数据库连接、登录用户、租户信息、请求头都应该从这里传给 Procedure。
+
+### 4.2 tRPC 初始化
 
 ```typescript
-// 创建受保护的 procedure
-const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
+// src/server/trpc.ts
+import { initTRPC, TRPCError } from '@trpc/server'
+import superjson from 'superjson'
+import type { Context } from './context'
+
+const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+})
+
+export const router = t.router
+export const createCallerFactory = t.createCallerFactory
+export const publicProcedure = t.procedure
+
+const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   if (!ctx.user) {
     throw new TRPCError({
       code: 'UNAUTHORIZED',
       message: '请先登录',
-    });
+    })
   }
+
   return next({
     ctx: {
+      ...ctx,
       user: ctx.user,
     },
-  });
-});
+  })
+})
 
-// 使用
-const appRouter = t.router({
-  getSecretData: protectedProcedure.query(({ ctx }) => {
-    return { secret: 'This is protected data', user: ctx.user.name };
-  }),
-});
+export const protectedProcedure = t.procedure.use(enforceUserIsAuthed)
+```
+
+### 4.3 子路由
+
+```typescript
+// src/server/routers/post.ts
+import { z } from 'zod'
+import { protectedProcedure, publicProcedure, router } from '../trpc'
+
+export const postRouter = router({
+  list: publicProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(20),
+      cursor: z.string().nullish(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const posts = await ctx.prisma.post.findMany({
+        take: input.limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+        skip: input.cursor ? 1 : 0,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+          author: { select: { id: true, name: true } },
+        },
+      })
+
+      const hasMore = posts.length > input.limit
+      const items = hasMore ? posts.slice(0, input.limit) : posts
+
+      return {
+        items,
+        nextCursor: hasMore ? items.at(-1)!.id : null,
+      }
+    }),
+
+  create: protectedProcedure
+    .input(z.object({
+      title: z.string().min(1).max(100),
+      content: z.string().max(5000).optional(),
+    }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.post.create({
+        data: {
+          ...input,
+          authorId: ctx.user.id,
+        },
+      })
+    }),
+})
+```
+
+### 4.4 App Router
+
+```typescript
+// src/server/routers/_app.ts
+import { router } from '../trpc'
+import { postRouter } from './post'
+import { userRouter } from './user'
+
+export const appRouter = router({
+  post: postRouter,
+  user: userRouter,
+})
+
+export type AppRouter = typeof appRouter
+```
+
+客户端调用路径会变成：
+
+```typescript
+trpc.post.list
+trpc.post.create
+trpc.user.profile
 ```
 
 ---
 
-## 8. 错误处理
+## 5. 输入、输出与验证
 
-### 8.1 TRPCError
+### 5.1 输入验证
 
 ```typescript
-import { TRPCError } from '@trpc/server';
-
-const appRouter = t.router({
-  getUser: t.procedure
-    .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
-      const user = await db.user.findUnique({ where: { id: input.id } });
-
-      if (!user) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: `User with id ${input.id} not found`,
-        });
-      }
-
-      return user;
-    }),
-});
+const updateProfile = protectedProcedure
+  .input(z.object({
+    name: z.string().min(1).max(50),
+    bio: z.string().max(200).optional(),
+  }))
+  .mutation(({ ctx, input }) => {
+    return ctx.prisma.user.update({
+      where: { id: ctx.user.id },
+      data: input,
+    })
+  })
 ```
 
-### 8.2 错误代码
+`.input()` 的作用：
 
-| 代码 | HTTP 对应 | 用途 |
-|------|----------|------|
-| `OK` | 200 | 成功 |
-| `BAD_REQUEST` | 400 | 错误的请求 |
-| `UNAUTHORIZED` | 401 | 未认证 |
-| `FORBIDDEN` | 403 | 无权限 |
-| `NOT_FOUND` | 404 | 资源不存在 |
-| `TIMEOUT` | 408 | 请求超时 |
-| `CONFLICT` | 409 | 资源冲突 |
-| `INTERNAL_SERVER_ERROR` | 500 | 服务器内部错误 |
+- 运行时校验外部输入。
+- 把 `input` 推导成安全类型。
+- 校验失败时自动返回 tRPC 格式错误。
 
-### 8.3 客户端错误处理
+### 5.2 输出验证
 
 ```typescript
-function UserComponent({ id }: { id: number }) {
-  const { data, error, isError } = trpc.getUser.useQuery({ id });
+const userSummarySchema = z.object({
+  id: z.string(),
+  name: z.string().nullable(),
+})
 
-  if (isError) {
-    return (
-      <div>
-        <h2>Error: {error.message}</h2>
-        <p>Code: {error.code}</p>
-        {error.data?.zodError && (
-          <pre>{JSON.stringify(error.data.zodError, null, 2)}</pre>
-        )}
-      </div>
-    );
-  }
+const profile = protectedProcedure
+  .output(userSummarySchema)
+  .query(({ ctx }) => {
+    return ctx.prisma.user.findUniqueOrThrow({
+      where: { id: ctx.user.id },
+      select: { id: true, name: true },
+    })
+  })
+```
 
-  return <div>{data?.name}</div>;
+`.output()` 不是必需，但适合：
+
+- API 边界非常重要。
+- 需要避免泄露字段。
+- 想让返回结构成为显式契约。
+
+### 5.3 复用 Schema
+
+```typescript
+// src/server/schemas/post.ts
+import { z } from 'zod'
+
+export const createPostInput = z.object({
+  title: z.string().min(1).max(100),
+  content: z.string().max(5000).optional(),
+})
+
+export type CreatePostInput = z.infer<typeof createPostInput>
+```
+
+```typescript
+create: protectedProcedure
+  .input(createPostInput)
+  .mutation(({ ctx, input }) => {
+    return ctx.prisma.post.create({ data: input })
+  })
+```
+
+---
+
+## 6. HTTP 适配器
+
+### 6.1 Next.js App Router
+
+```typescript
+// src/app/api/trpc/[trpc]/route.ts
+import { fetchRequestHandler } from '@trpc/server/adapters/fetch'
+import { createContext } from '@/server/context'
+import { appRouter } from '@/server/routers/_app'
+
+const handler = (req: Request) =>
+  fetchRequestHandler({
+    endpoint: '/api/trpc',
+    req,
+    router: appRouter,
+    createContext: () => createContext({ headers: req.headers }),
+  })
+
+export { handler as GET, handler as POST }
+```
+
+### 6.2 Express
+
+```typescript
+// src/server/index.ts
+import express from 'express'
+import * as trpcExpress from '@trpc/server/adapters/express'
+import { appRouter } from './routers/_app'
+import { createContext } from './context'
+
+const app = express()
+
+app.use(
+  '/trpc',
+  trpcExpress.createExpressMiddleware({
+    router: appRouter,
+    createContext: ({ req }) =>
+      createContext({ headers: new Headers(req.headers as HeadersInit) }),
+  }),
+)
+
+app.listen(4000)
+```
+
+### 6.3 Standalone Server
+
+```typescript
+import { createHTTPServer } from '@trpc/server/adapters/standalone'
+import { appRouter } from './routers/_app'
+import { createContext } from './context'
+
+const server = createHTTPServer({
+  router: appRouter,
+  createContext: ({ req }) =>
+    createContext({ headers: new Headers(req.headers as HeadersInit) }),
+})
+
+server.listen(4000)
+```
+
+---
+
+## 7. 客户端路线一：经典 React Hooks
+
+这是很多 tRPC 项目仍在使用的写法，来自 `@trpc/react-query`。
+
+### 7.1 创建客户端工具
+
+```typescript
+// src/trpc/react.tsx
+import { httpBatchLink } from '@trpc/client'
+import { createTRPCReact } from '@trpc/react-query'
+import superjson from 'superjson'
+import type { AppRouter } from '@/server/routers/_app'
+
+export const trpc = createTRPCReact<AppRouter>()
+
+export function createTrpcClient() {
+  return trpc.createClient({
+    transformer: superjson,
+    links: [
+      httpBatchLink({
+        url: '/api/trpc',
+        headers() {
+          return {
+            authorization: localStorage.getItem('token') ?? '',
+          }
+        },
+      }),
+    ],
+  })
 }
 ```
 
-### 8.4 自定义错误格式化
+### 7.2 Provider
 
-```typescript
-import { initTRPC } from '@trpc/server';
+```tsx
+'use client'
 
-const t = initTRPC.create({
-  errorFormatter({ shape, error }) {
-    return {
-      ...shape,
-      data: {
-        ...shape.data,
-        message: error.message,
-        code: error.code,
-      },
-    };
-  },
-});
-```
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
+import { createTrpcClient, trpc } from './react'
 
----
+export function TRPCProvider(props: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient())
+  const [trpcClient] = useState(() => createTrpcClient())
 
-## 9. 认证与授权
-
-### 9.1 基于 Session 的认证
-
-```typescript
-// context.ts
-export const createContext = async ({ req, res }: CreateExpressContextOptions) => {
-  const session = await getSession(req);
-
-  return {
-    user: session?.user ?? null,
-  };
-};
-
-// router.ts
-const userRouter = t.router({
-  profile: protectedProcedure.query(({ ctx }) => {
-    return ctx.user;
-  }),
-});
-```
-
-### 9.2 基于 JWT 的认证
-
-```typescript
-// middleware.ts
-const isAuthenticated = t.middleware(({ ctx, next }) => {
-  const token = ctx.req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    return next({
-      ctx: {
-        user: decoded as { id: string; role: string },
-      },
-    });
-  } catch {
-    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Invalid token' });
-  }
-});
-```
-
-### 9.3 基于角色的授权
-
-```typescript
-// 角色检查中间件
-const hasRole = (roles: string[]) =>
-  t.middleware(({ ctx, next }) => {
-    if (!ctx.user) {
-      throw new TRPCError({ code: 'UNAUTHORIZED' });
-    }
-
-    if (!roles.includes(ctx.user.role)) {
-      throw new TRPCError({ code: 'FORBIDDEN' });
-    }
-
-    return next({ ctx });
-  });
-
-const adminProcedure = t.procedure.use(hasRole(['admin']));
-
-// 使用
-const appRouter = t.router({
-  adminDashboard: adminProcedure.query(() => {
-    return { secret: 'Admin data' };
-  }),
-});
-```
-
----
-
-## 10. 最佳实践
-
-### 10.1 项目结构
-
-```
-src/
-├── server/
-│   ├── index.ts           # 服务端入口
-│   ├── router/
-│   │   ├── index.ts       # 合并所有子路由
-│   │   ├── user.ts        # 用户相关路由
-│   │   ├── post.ts        # 文章相关路由
-│   │   └── _app.ts        # App 级别路由（health check 等）
-│   ├── context.ts         # Context 创建
-│   └── trpc.ts            # tRPC 初始化
-├── client/
-│   ├── utils/
-│   │   └── trpc.ts        # 客户端 tRPC 配置
-│   └── ...
-├── shared/
-│   └── types.ts           # 共享类型（如果需要）
-└── utils/
-    └── zod.ts             # Zod schemas（可选集中管理）
-```
-
-### 10.2 命名约定
-
-```typescript
-// 使用一致的命名
-const appRouter = t.router({
-  // Query: 使用驼峰式名词（单数或复数）
-  getUser: t.procedure.query(...),
-  getPosts: t.procedure.query(...),
-
-  // Mutation: 使用动词前缀
-  createUser: t.procedure.mutation(...),
-  updateUser: t.procedure.mutation(...),
-  deleteUser: t.procedure.mutation(...),
-});
-```
-
-### 10.3 输入验证
-
-```typescript
-// 始终验证输入，不要信任客户端数据
-const createUser = t.procedure
-  .input(
-    z.object({
-      name: z.string().min(1).max(100),
-      email: z.string().email(),
-      age: z.number().min(0).max(150).optional(),
-      role: z.enum(['user', 'admin']).default('user'),
-    })
+  return (
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        {props.children}
+      </QueryClientProvider>
+    </trpc.Provider>
   )
-  .mutation(...);
+}
 ```
 
-### 10.4 性能优化
+### 7.3 使用 Query
 
-```typescript
-// 1. 使用 httpBatchLink 而非单链接
-const trpcClient = trpc.createClient({
-  links: [
-    httpBatchLink({
-      url: '/trpc',
-      maxBatchSize: 10, // 限制批量大小
-    }),
-  ],
-});
+```tsx
+'use client'
 
-// 2. 设置适当的 staleTime
-const { data } = trpc.getUser.useQuery({ id: 1 }, {
-  staleTime: 60 * 1000, // 1 分钟
-  gcTime: 5 * 60 * 1000, // 5 分钟（之前是 cacheTime）
-});
+import { trpc } from '@/trpc/react'
 
-// 3. 使用筛选字段减少数据传输
-const { data } = trpc.getUser.useQuery({ id: 1 }, {
-  select: (user) => ({ id: user.id, name: user.name }),
-});
+export function PostList() {
+  const posts = trpc.post.list.useQuery({ limit: 20 })
+
+  if (posts.isLoading) return <p>加载中...</p>
+  if (posts.error) return <p>{posts.error.message}</p>
+
+  return (
+    <ul>
+      {posts.data?.items.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  )
+}
 ```
 
-### 10.5 类型导出
+### 7.4 使用 Mutation
 
-```typescript
-// 始终导出 AppRouter 类型供前端使用
-export type AppRouter = typeof appRouter;
+```tsx
+'use client'
 
-// 在 client/utils/trpc.ts 中导入
-import type { AppRouter } from '../../server';
-export const trpc = createTRPCReact<AppRouter>();
+import { trpc } from '@/trpc/react'
+
+export function CreatePostForm() {
+  const utils = trpc.useUtils()
+
+  const createPost = trpc.post.create.useMutation({
+    onSuccess() {
+      utils.post.list.invalidate()
+    },
+  })
+
+  return (
+    <button
+      onClick={() =>
+        createPost.mutate({
+          title: '新文章',
+          content: '正文',
+        })
+      }
+      disabled={createPost.isPending}
+    >
+      创建
+    </button>
+  )
+}
 ```
 
 ---
 
-## 11. Next.js App Router 集成
+## 8. 客户端路线二：tRPC v11 TanStack Query 集成
 
-本节介绍如何在 Next.js 13+ 的 App Router 中集成 tRPC，实现服务端渲染（SSR）和客户端 hydration。
+`@trpc/tanstack-react-query` 更贴近 TanStack Query v5 的 `queryOptions` / `mutationOptions` 风格，适合 Next.js App Router、RSC prefetch、hydration。
 
-### 11.1 推荐的文件结构
-
-```
-.
-├── src
-│   ├── app
-│   │   ├── api
-│   │   │   └── trpc
-│   │   │       └── [trpc]
-│   │   │           └── route.ts      # tRPC HTTP 处理器
-│   │   ├── layout.tsx                # 根布局 - 挂载 TRPCReactProvider
-│   │   └── page.tsx                  # 服务端组件
-│   ├── trpc
-│   │   ├── init.ts                   # tRPC 服务端初始化 & 上下文
-│   │   ├── routers
-│   │   │   ├── _app.ts               # 主应用路由
-│   │   │   ├── post.ts               # 子路由示例
-│   │   │   └── [...]
-│   │   ├── client.tsx                # 客户端 hooks 和 provider
-│   │   ├── query-client.ts           # 共享 QueryClient 工厂
-│   │   └── server.tsx                # 服务端 caller
-│   └── [...]
-└── [...]
-```
-
-### 11.2 安装依赖
-
-```bash
-# 安装 tRPC 和相关依赖
-npm install @trpc/server @trpc/client @trpc/tanstack-react-query @tanstack/react-query@latest zod
-
-# 安装客户端/服务端专用的虚拟包
-npm install client-only server-only
-
-# 可选：安装 superjson 用于序列化 Date 等类型
-npm install superjson
-
-# 可选：AI 编程辅助
-npx @tanstack/intent@latest install
-```
-
-### 11.3 创建 tRPC 初始化文件
-
-首先创建 `trpc/init.ts`，这是 tRPC 服务端的入口点：
+### 8.1 QueryClient
 
 ```typescript
-// trpc/init.ts
-import { initTRPC } from '@trpc/server';
-
-/**
- * 创建上下文函数
- * 接收 headers 参数，以便在 RSC 服务端 caller 和 API 路由处理器中复用
- * 这里可以添加认证、数据库连接等逻辑
- */
-export const createTRPCContext = async (opts: { headers: Headers }) => {
-  // 示例：从 header 中获取用户信息（实际项目中需要真实认证逻辑）
-  // const user = await auth(opts.headers);
-  
-  // 返回上下文对象，供所有 procedure 使用
-  return { userId: 'user_123' };
-};
-
-// 使用 initTRPC 创建 tRPC 实例
-// 避免直接导出整个 t 对象，因为可读性较差
-const t = initTRPC
-  .context<Awaited<ReturnType<typeof createTRPCContext>>>()
-  .create({
-    /**
-     * 数据转换器配置
-     * @see https://trpc.io/docs/server/data-transformers
-     * 如需使用 superjson，设置为: transformer: superjson
-     */
-    // transformer: superjson,
-  });
-
-// 导出基础工具函数
-export const createTRPCRouter = t.router;      // 创建路由器的辅助函数
-export const createCallerFactory = t.createCallerFactory;  // 创建 caller 的工厂
-export const baseProcedure = t.procedure;       // 基础 procedure
-```
-
-### 11.4 创建应用路由
-
-创建 `trpc/routers/_app.ts`，定义你的 API 端点：
-
-```typescript
-// trpc/routers/_app.ts
-import { z } from 'zod';
-import { baseProcedure, createTRPCRouter } from '../init';
-
-/**
- * 主应用路由器
- * 所有的 API 端点都在这里定义
- */
-export const appRouter = createTRPCRouter({
-  // 定义一个 hello 查询接口
-  hello: baseProcedure
-    // 使用 Zod 进行输入验证 - 确保输入是字符串
-    .input(
-      z.object({
-        text: z.string(),
-      })
-    )
-    .query((opts) => {
-      // opts.input 包含经过验证的输入参数
-      return {
-        greeting: `hello ${opts.input.text}`,
-      };
-    }),
-});
-
-// 导出 AppRouter 类型，供前端使用以获得完整的类型提示
-export type AppRouter = typeof appRouter;
-```
-
-### 11.5 创建 API 路由处理器
-
-在 Next.js App Router 中，使用 fetch 适配器来处理 tRPC 请求：
-
-```typescript
-// app/api/trpc/[trpc]/route.ts
-import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import { createTRPCContext } from './trpc/init';
-import { appRouter } from './trpc/routers/_app';
-
-/**
- * tRPC 请求处理函数
- * App Router 使用 fetch 适配器（而非 Next.js 特定适配器）
- * 因为 App Router 基于 Web 标准的 Request 和 Response 对象
- */
-const handler = (req: Request) =>
-  fetchRequestHandler({
-    endpoint: '/api/trpc',    // API 端点前缀
-    req,                       // 请求对象
-    router: appRouter,         // 你的 tRPC 路由器
-    createContext: () =>       // 创建上下文的函数
-      createTRPCContext({ headers: req.headers }),
-  });
-
-// 导出 GET 和 POST 方法处理器
-export { handler as GET, handler as POST };
-```
-
-### 11.6 创建 Query Client 工厂
-
-创建 `trpc/query-client.ts`，用于在服务端和客户端创建 QueryClient 实例：
-
-```typescript
-// trpc/query-client.ts
+// src/trpc/query-client.ts
 import {
   defaultShouldDehydrateQuery,
   QueryClient,
-} from '@tanstack/react-query';
+} from '@tanstack/react-query'
 
-/**
- * 创建 QueryClient 实例的工厂函数
- * 在服务端和客户端调用方式不同
- */
 export function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
-      // 查询的默认配置
       queries: {
-        // 设置 staleTime 避免客户端立即重新获取数据
-        staleTime: 30 * 1000, // 30 秒
+        staleTime: 30 * 1000,
       },
-      // 服务端渲染时的数据脱水配置
       dehydrate: {
-        // 如果使用 superjson，启用序列化: serializeData: superjson.serialize,
-        
-        // 决定哪些查询需要脱水
-        // 除了默认的 pending 状态，还包含正在进行的查询
-        // 这样可以在服务端组件中 prefetch，传递给客户端组件
         shouldDehydrateQuery: (query) =>
           defaultShouldDehydrateQuery(query) ||
           query.state.status === 'pending',
       },
-      // 客户端数据水合配置
-      hydrate: {
-        // 如果使用 superjson: deserializeData: superjson.deserialize,
-      },
     },
-  });
+  })
 }
 ```
 
-### 11.7 创建 tRPC 客户端 Provider
+### 8.2 Client Provider
 
-创建 `trpc/client.tsx`，这是客户端组件使用 tRPC 的入口点：
+```tsx
+// src/trpc/client.tsx
+'use client'
 
-```typescript
-// trpc/client.tsx
-'use client'; // 确保可以从服务端组件挂载 Provider
+import { QueryClientProvider } from '@tanstack/react-query'
+import { createTRPCClient, httpBatchLink } from '@trpc/client'
+import { createTRPCContext } from '@trpc/tanstack-react-query'
+import { useState } from 'react'
+import superjson from 'superjson'
+import type { AppRouter } from '@/server/routers/_app'
+import { makeQueryClient } from './query-client'
 
-import type { QueryClient } from '@tanstack/react-query';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { createTRPCClient, httpBatchLink } from '@trpc/client';
-import { createTRPCContext } from '@trpc/tanstack-react-query';
-import { useState } from 'react';
-import { makeQueryClient } from './query-client';
-import type { AppRouter } from './routers/_app';
+export const { TRPCProvider, useTRPC } =
+  createTRPCContext<AppRouter>()
 
-// 创建 tRPC 上下文和 Provider
-// 导出 useTRPC hook 供客户端组件使用
-export const { TRPCProvider, useTRPC } = createTRPCContext<AppRouter>();
+let browserQueryClient: ReturnType<typeof makeQueryClient>
 
-// 浏览器端的 QueryClient 实例（单例）
-let browserQueryClient: QueryClient;
-
-/**
- * 获取 QueryClient 的函数
- * 服务端：每次创建新的 client
- * 浏览器：复用已存在的 client（避免 React suspend 时重新创建）
- */
 function getQueryClient() {
   if (typeof window === 'undefined') {
-    // 服务端环境：始终创建新的 query client
-    return makeQueryClient();
-  } else {
-    // 浏览器环境：如果没有 client 则创建一个
-    // 重要：避免在初始渲染时 React suspend 后重新创建 client
-    if (!browserQueryClient) browserQueryClient = makeQueryClient();
-    return browserQueryClient;
+    return makeQueryClient()
   }
+
+  if (!browserQueryClient) {
+    browserQueryClient = makeQueryClient()
+  }
+
+  return browserQueryClient
 }
 
-/**
- * 获取 API 基础 URL 的函数
- * 根据环境返回正确的 URL
- */
 function getUrl() {
-  const base = (() => {
-    if (typeof window !== 'undefined') return ''; // 浏览器环境
-    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // Vercel 生产环境
-    return 'http://localhost:3000'; // 本地开发环境
-  })();
-  return `${base}/api/trpc`;
+  if (typeof window !== 'undefined') return '/api/trpc'
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}/api/trpc`
+  return 'http://localhost:3000/api/trpc'
 }
 
-/**
- * TRPCReactProvider 组件
- * 需要在根布局中挂载，为整个应用提供 tRPC 功能
- */
-export function TRPCReactProvider(
-  props: Readonly<{
-    children: React.ReactNode;
-  }>
-) {
-  // 注意：如果上方没有 Suspense boundary，避免使用 useState
-  // 因为 React 会在初始渲染时丢弃 client
-  const queryClient = getQueryClient();
+export function TRPCReactProvider(props: { children: React.ReactNode }) {
+  const queryClient = getQueryClient()
+
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
       links: [
         httpBatchLink({
-          // 如果使用 superjson: transformer: superjson,
+          transformer: superjson,
           url: getUrl(),
         }),
       ],
-    })
-  );
+    }),
+  )
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -1172,361 +640,601 @@ export function TRPCReactProvider(
         {props.children}
       </TRPCProvider>
     </QueryClientProvider>
-  );
+  )
 }
 ```
 
-然后在根布局中挂载 Provider：
+### 8.3 客户端组件调用
 
-```typescript
-// app/layout.tsx
-import { TRPCReactProvider } from '~/trpc/client';
+```tsx
+'use client'
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+import { useQuery } from '@tanstack/react-query'
+import { useTRPC } from '@/trpc/client'
+
+export function PostList() {
+  const trpc = useTRPC()
+  const posts = useQuery(trpc.post.list.queryOptions({ limit: 20 }))
+
+  if (posts.isPending) return <p>加载中...</p>
+  if (posts.error) return <p>{posts.error.message}</p>
+
+  return (
+    <ul>
+      {posts.data.items.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+### 8.4 Mutation
+
+```tsx
+'use client'
+
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTRPC } from '@/trpc/client'
+
+export function CreatePostButton() {
+  const trpc = useTRPC()
+  const queryClient = useQueryClient()
+
+  const createPost = useMutation(
+    trpc.post.create.mutationOptions({
+      onSuccess() {
+        queryClient.invalidateQueries({
+          queryKey: trpc.post.list.queryKey(),
+        })
+      },
+    }),
+  )
+
+  return (
+    <button
+      onClick={() => createPost.mutate({ title: '新文章' })}
+      disabled={createPost.isPending}
+    >
+      创建
+    </button>
+  )
+}
+```
+
+---
+
+## 9. Next.js App Router 与 RSC
+
+### 9.1 根布局挂载 Provider
+
+```tsx
+// src/app/layout.tsx
+import { TRPCReactProvider } from '@/trpc/client'
+
+export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
       <body>
-        {/* 挂载 tRPC Provider，使子组件可以使用 tRPC hooks */}
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>{props.children}</TRPCReactProvider>
       </body>
     </html>
-  );
+  )
 }
 ```
 
-### 11.8 创建服务端 Caller
+### 9.2 服务端 tRPC Options Proxy
 
-创建 `trpc/server.tsx`，用于在服务端组件中调用 tRPC：
+```tsx
+// src/trpc/server.tsx
+import 'server-only'
 
-```typescript
-// trpc/server.tsx
-import 'server-only'; // 确保此文件不能被客户端导入
+import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
+import { headers } from 'next/headers'
+import { cache } from 'react'
+import { createContext } from '@/server/context'
+import { appRouter } from '@/server/routers/_app'
+import { createCallerFactory } from '@/server/trpc'
+import { makeQueryClient } from './query-client'
 
-import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';
-import { headers } from 'next/headers';
-import { cache } from 'react';
-import { createTRPCContext } from './init';
-import { makeQueryClient } from './query-client';
-import { appRouter } from './routers/_app';
+export const getQueryClient = cache(makeQueryClient)
 
-/**
- * 使用 React cache 缓存 QueryClient
- * 确保在同一请求中返回相同的 client
- */
-export const getQueryClient = cache(makeQueryClient);
-
-/**
- * 创建 tRPC 服务端代理
- * 可以在服务端组件中直接调用，类似于客户端 hooks
- */
 export const trpc = createTRPCOptionsProxy({
-  // 异步创建上下文的函数
-  ctx: async () =>
-    createTRPCContext({
-      headers: await headers(),
-    }),
+  ctx: async () => createContext({ headers: await headers() }),
   router: appRouter,
   queryClient: getQueryClient,
-});
+})
 
-// 如果你的路由器在独立服务器上，可以使用 client 代替：
-// createTRPCOptionsProxy({
-//   client: createTRPCClient({ links: [httpLink({ url: '...' })] }),
-//   queryClient: getQueryClient,
-// });
+const createCaller = createCallerFactory(appRouter)
+
+export const caller = createCaller(async () =>
+  createContext({ headers: await headers() }),
+)
 ```
 
-### 11.9 在服务端组件中 Prefetch 数据
+### 9.3 服务端预取 + 客户端水合
 
-在服务端组件中预获取数据，然后传递给客户端组件（Hydration）：
+```tsx
+// src/app/page.tsx
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { getQueryClient, trpc } from '@/trpc/server'
+import { PostList } from './post-list'
 
-```typescript
-// app/page.tsx
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { getQueryClient, trpc } from '~/trpc/server';
-import { ClientGreeting } from './client-greeting';
+export default function Page() {
+  const queryClient = getQueryClient()
 
-export default async function Home() {
-  // 获取 QueryClient 实例
-  const queryClient = getQueryClient();
-  
-  // 预获取查询数据（在服务端执行）
   void queryClient.prefetchQuery(
-    trpc.hello.queryOptions({
-      text: 'world',
+    trpc.post.list.queryOptions({ limit: 20 }),
+  )
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <PostList />
+    </HydrationBoundary>
+  )
+}
+```
+
+### 9.4 服务端直接调用
+
+```tsx
+// src/app/profile/page.tsx
+import { caller } from '@/trpc/server'
+
+export default async function ProfilePage() {
+  const profile = await caller.user.profile()
+
+  return <pre>{JSON.stringify(profile, null, 2)}</pre>
+}
+```
+
+直接 caller 适合服务端组件、后台任务、测试；它不会自动进入客户端 Query Cache。想让客户端复用数据时，使用 `prefetchQuery + HydrationBoundary`。
+
+---
+
+## 10. Link、Transformer 与请求控制
+
+### 10.1 `httpBatchLink`
+
+```typescript
+httpBatchLink({
+  url: '/api/trpc',
+  maxURLLength: 2083,
+  headers() {
+    return {
+      authorization: getToken(),
+    }
+  },
+})
+```
+
+`httpBatchLink` 会把同一轮事件循环内的多个请求合并成一个 HTTP 请求，减少网络开销。
+
+### 10.2 `httpLink`
+
+```typescript
+httpLink({
+  url: '/api/trpc',
+})
+```
+
+每个 Procedure 一个 HTTP 请求。适合不想批处理、服务端对批处理不友好的场景。
+
+### 10.3 `loggerLink`
+
+```typescript
+import { httpBatchLink, loggerLink } from '@trpc/client'
+
+links: [
+  loggerLink({
+    enabled: (opts) =>
+      process.env.NODE_ENV === 'development' ||
+      (opts.direction === 'down' && opts.result instanceof Error),
+  }),
+  httpBatchLink({ url: '/api/trpc' }),
+]
+```
+
+### 10.4 `splitLink`
+
+```typescript
+import { httpBatchLink, splitLink, wsLink, createWSClient } from '@trpc/client'
+
+const wsClient = createWSClient({
+  url: 'ws://localhost:3001',
+})
+
+links: [
+  splitLink({
+    condition(op) {
+      return op.type === 'subscription'
+    },
+    true: wsLink({ client: wsClient }),
+    false: httpBatchLink({ url: '/api/trpc' }),
+  }),
+]
+```
+
+### 10.5 `superjson`
+
+服务端和客户端必须同时配置：
+
+```typescript
+// server
+const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+})
+```
+
+```typescript
+// client
+httpBatchLink({
+  transformer: superjson,
+  url: '/api/trpc',
+})
+```
+
+用于安全传输 `Date`、`Map`、`Set`、`BigInt` 等普通 JSON 不擅长的值。
+
+---
+
+## 11. 认证与授权
+
+### 11.1 认证放在 Context
+
+```typescript
+export async function createContext(opts: { headers: Headers }) {
+  const token = opts.headers.get('authorization')?.replace('Bearer ', '')
+  const user = token ? await verifyToken(token) : null
+
+  return { user, prisma }
+}
+```
+
+### 11.2 权限放在 Middleware
+
+```typescript
+const enforceAdmin = t.middleware(({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' })
+  }
+
+  if (ctx.user.role !== 'ADMIN') {
+    throw new TRPCError({ code: 'FORBIDDEN' })
+  }
+
+  return next({ ctx })
+})
+
+export const adminProcedure = t.procedure.use(enforceAdmin)
+```
+
+### 11.3 按资源授权
+
+```typescript
+const updatePost = protectedProcedure
+  .input(z.object({
+    id: z.string(),
+    title: z.string().min(1),
+  }))
+  .mutation(async ({ ctx, input }) => {
+    const post = await ctx.prisma.post.findUnique({
+      where: { id: input.id },
+      select: { authorId: true },
     })
-  );
 
-  return (
-    // HydrationBoundary 将服务端数据脱水后传递给客户端
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <ClientGreeting />
-    </HydrationBoundary>
-  );
+    if (!post) {
+      throw new TRPCError({ code: 'NOT_FOUND' })
+    }
+
+    if (post.authorId !== ctx.user.id && ctx.user.role !== 'ADMIN') {
+      throw new TRPCError({ code: 'FORBIDDEN' })
+    }
+
+    return ctx.prisma.post.update({
+      where: { id: input.id },
+      data: { title: input.title },
+    })
+  })
+```
+
+---
+
+## 12. 错误处理
+
+### 12.1 服务端抛出 TRPCError
+
+```typescript
+import { TRPCError } from '@trpc/server'
+
+const getById = publicProcedure
+  .input(z.object({ id: z.string() }))
+  .query(async ({ ctx, input }) => {
+    const post = await ctx.prisma.post.findUnique({
+      where: { id: input.id },
+    })
+
+    if (!post) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: '文章不存在',
+      })
+    }
+
+    return post
+  })
+```
+
+### 12.2 常见错误码
+
+| tRPC code | HTTP | 场景 |
+| --- | --- | --- |
+| `BAD_REQUEST` | 400 | 输入错误 |
+| `UNAUTHORIZED` | 401 | 未登录 |
+| `FORBIDDEN` | 403 | 无权限 |
+| `NOT_FOUND` | 404 | 资源不存在 |
+| `METHOD_NOT_SUPPORTED` | 405 | HTTP 方法不支持 |
+| `TIMEOUT` | 408 | 超时 |
+| `CONFLICT` | 409 | 状态冲突、唯一约束冲突 |
+| `PRECONDITION_FAILED` | 412 | 前置条件失败 |
+| `PAYLOAD_TOO_LARGE` | 413 | 请求体过大 |
+| `INTERNAL_SERVER_ERROR` | 500 | 未预期错误 |
+
+### 12.3 自定义错误格式
+
+```typescript
+const t = initTRPC.context<Context>().create({
+  errorFormatter({ shape, error }) {
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        zodError:
+          error.code === 'BAD_REQUEST' && error.cause instanceof ZodError
+            ? error.cause.flatten()
+            : null,
+      },
+    }
+  },
+})
+```
+
+客户端：
+
+```tsx
+const post = trpc.post.getById.useQuery({ id })
+
+if (post.error?.data?.code === 'NOT_FOUND') {
+  return <p>文章不存在</p>
 }
 ```
 
-### 11.10 在客户端组件中使用数据
+---
 
-在客户端组件中直接使用 hooks 获取数据：
+## 13. 缓存、失效与乐观更新
+
+### 13.1 经典 hooks 失效缓存
 
 ```typescript
-// app/client-greeting.tsx
-'use client'; // hooks 只能在客户端组件中使用
+const utils = trpc.useUtils()
 
-import { useQuery } from '@tanstack/react-query';
-import { useTRPC } from '~/trpc/client';
-
-export function ClientGreeting() {
-  const trpc = useTRPC();
-  
-  // 使用 useQuery hook 获取数据
-  // 数据会从 Hydration 后的状态恢复，无需再次请求
-  const greeting = useQuery(trpc.hello.queryOptions({ text: 'world' }));
-
-  if (!greeting.data) return <div>Loading...</div>;
-  
-  return <div>{greeting.data.greeting}</div>;
-}
+const createPost = trpc.post.create.useMutation({
+  onSuccess() {
+    utils.post.list.invalidate()
+  },
+})
 ```
 
-### 11.11 简化版：使用辅助函数
-
-为了简化代码，可以创建辅助函数：
+### 13.2 TanStack Query 风格失效缓存
 
 ```typescript
-// trpc/server.tsx 中添加
+const trpc = useTRPC()
+const queryClient = useQueryClient()
 
-import type { TRPCQueryOptions } from '@tanstack/react-query';
+const mutation = useMutation(
+  trpc.post.create.mutationOptions({
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: trpc.post.list.queryKey(),
+      })
+    },
+  }),
+)
+```
 
-/**
- * HydrateClient 组件
- * 简化服务端数据传递给客户端的包装组件
- */
-export function HydrateClient(props: { children: React.ReactNode }) {
-  const queryClient = getQueryClient();
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      {props.children}
-    </HydrationBoundary>
-  );
-}
+### 13.3 乐观更新
 
-/**
- * 预获取查询数据的辅助函数
- * 支持普通查询和无限查询
- */
-export function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
-  queryOptions: T
-) {
-  const queryClient = getQueryClient();
-  if (queryOptions.queryKey[1]?.type === 'infinite') {
-    // 无限查询
-    void queryClient.prefetchInfiniteQuery(queryOptions as any);
-  } else {
-    // 普通查询
-    void queryClient.prefetchQuery(queryOptions);
+```typescript
+const updateTitle = trpc.post.updateTitle.useMutation({
+  async onMutate(input) {
+    await utils.post.byId.cancel({ id: input.id })
+
+    const previous = utils.post.byId.getData({ id: input.id })
+
+    utils.post.byId.setData({ id: input.id }, (old) =>
+      old ? { ...old, title: input.title } : old,
+    )
+
+    return { previous }
+  },
+  onError(_error, input, context) {
+    utils.post.byId.setData({ id: input.id }, context?.previous)
+  },
+  onSettled(_data, _error, input) {
+    utils.post.byId.invalidate({ id: input.id })
+  },
+})
+```
+
+---
+
+## 14. Subscription
+
+Subscription 用于实时消息、通知、进度流。服务端可以返回 async iterable。
+
+```typescript
+import { observable } from '@trpc/server/observable'
+
+const messageRouter = router({
+  onMessage: protectedProcedure.subscription(({ ctx }) => {
+    return observable<{ text: string; from: string }>((emit) => {
+      const unsubscribe = messageBus.on(ctx.user.id, (message) => {
+        emit.next(message)
+      })
+
+      return () => {
+        unsubscribe()
+      }
+    })
+  }),
+})
+```
+
+客户端通常配合 `wsLink` 或支持 subscription 的传输方式。普通 CRUD 项目可以先跳过，等真正需要实时能力再引入。
+
+---
+
+## 15. 测试
+
+### 15.1 使用 Caller 测试 Router
+
+```typescript
+import { describe, expect, it } from 'vitest'
+import { appRouter } from '@/server/routers/_app'
+
+describe('post router', () => {
+  it('lists posts', async () => {
+    const caller = appRouter.createCaller({
+      prisma: testPrisma,
+      user: null,
+      headers: new Headers(),
+    })
+
+    const result = await caller.post.list({ limit: 10 })
+
+    expect(result.items).toEqual(expect.any(Array))
+  })
+})
+```
+
+### 15.2 测试建议
+
+- Procedure 的输入边界用 Zod 测试覆盖。
+- 认证中间件测试未登录、普通用户、管理员。
+- 数据库逻辑用测试数据库，不要 mock 掉 Prisma 的所有行为。
+- 对复杂 Router 使用 caller，比走 HTTP 更快。
+
+---
+
+## 16. 和 Prisma 的典型组合
+
+### 16.1 架构分层
+
+```text
+Client Component
+  -> tRPC client
+  -> tRPC router / procedure
+  -> service
+  -> Prisma Client
+  -> database
+```
+
+### 16.2 Router 调 Service
+
+```typescript
+// src/server/services/post.service.ts
+import type { PrismaClient } from '@/generated/prisma/client'
+
+export function createPostService(prisma: PrismaClient) {
+  return {
+    list(limit: number) {
+      return prisma.post.findMany({
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      })
+    },
   }
 }
 ```
 
-使用简化版本：
-
 ```typescript
-// app/page.tsx 简化版
-import { HydrateClient, prefetch, trpc } from '~/trpc/server';
-import { ClientGreeting } from './client-greeting';
-
-export default async function Home() {
-  // 简化版预获取
-  prefetch(trpc.hello.queryOptions({ text: 'world' }));
-
-  return (
-    <HydrateClient>
-      <ClientGreeting />
-    </HydrateClient>
-  );
-}
+// src/server/routers/post.ts
+export const postRouter = router({
+  list: publicProcedure
+    .input(z.object({ limit: z.number().min(1).max(100).default(20) }))
+    .query(({ ctx, input }) => {
+      return createPostService(ctx.prisma).list(input.limit)
+    }),
+})
 ```
 
-### 11.12 使用 Suspense 处理加载状态
-
-可以使用 Suspense 和 Error Boundary 来处理加载和错误状态：
-
-```typescript
-// app/page.tsx - 服务端组件
-import { HydrateClient, prefetch, trpc } from '~/trpc/server';
-import { Suspense } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { ClientGreeting } from './client-greeting';
-
-export default async function Home() {
-  prefetch(trpc.hello.queryOptions());
-
-  return (
-    <HydrateClient>
-      <ErrorBoundary fallback={<div>出错了</div>}>
-        <Suspense fallback={<div>加载中...</div>}>
-          <ClientGreeting />
-        </Suspense>
-      </ErrorBoundary>
-    </HydrateClient>
-  );
-}
-```
-
-```typescript
-// app/client-greeting.tsx - 使用 useSuspenseQuery
-'use client';
-
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { useTRPC } from '~/trpc/client';
-
-export function ClientGreeting() {
-  const trpc = useTRPC();
-  
-  // useSuspenseQuery 会等待数据加载完成
-  // 不需要处理 loading 状态
-  const { data } = useSuspenseQuery(trpc.hello.queryOptions());
-
-  return <div>{data.greeting}</div>;
-}
-```
-
-### 11.13 在服务端组件中直接获取数据
-
-如果需要在服务端组件中直接访问数据（不通过 hydration），可以使用 caller：
-
-```typescript
-// trpc/server.tsx 中添加 caller
-import { headers } from 'next/headers';
-import { createTRPCContext } from './init';
-import { appRouter } from './routers/_app';
-
-// ... 现有代码 ...
-
-/**
- * 创建 caller
- * 可以直接在服务端组件中调用，无需 hydration
- * 注意：这种方法不会在客户端缓存中存储数据
- */
-export const caller = appRouter.createCaller(async () =>
-  createTRPCContext({ headers: await headers() })
-);
-```
-
-```typescript
-// app/page.tsx - 直接调用
-import { caller } from '~/trpc/server';
-
-export default async function Home() {
-  // 直接调用，返回实际数据（不是 Promise）
-  const greeting = await caller.hello({ text: 'world' });
-  
-  return <div>{greeting.greeting}</div>;
-}
-```
-
-如果既想在服务端使用数据，又想传递给客户端，可以使用 `fetchQuery`：
-
-```typescript
-// app/page.tsx
-import { getQueryClient, HydrateClient, trpc } from '~/trpc/server';
-import { ClientGreeting } from './client-greeting';
-
-export default async function Home() {
-  const queryClient = getQueryClient();
-  
-  // fetchQuery 会在服务端执行查询并返回数据
-  // 同时也会将数据存入 hydration 状态传给客户端
-  const greeting = await queryClient.fetchQuery(trpc.hello.queryOptions());
-  
-  // 在服务端可以使用数据
-  console.log(greeting.greeting);
-
-  return (
-    <HydrateClient>
-      <ClientGreeting />
-    </HydrateClient>
-  );
-}
-```
+简单项目可以直接在 Procedure 使用 Prisma；业务规则变复杂后再抽 Service。
 
 ---
 
-## 12. 常见问题
+## 17. 最佳实践清单
 
-### 11.1 tRPC 与 GraphQL 相比有何优势？
-
-| 方面 | tRPC | GraphQL |
-|------|------|---------|
-| 类型系统 | 原生 TypeScript | 需要额外 schema |
-| 学习曲线 | 低（纯 TypeScript） | 中等（GraphQL 语法） |
-| 生态系统 | 较小 | 成熟（Apollo, Relay） |
-| 工具支持 | 有限 | 丰富（GraphiQL 等） |
-| 实时通信 | 需要 WebSocket | 原生支持 Subscription |
-
-### 11.2 tRPC 能用于微服务吗？
-
-可以，但需要额外配置：
-
-- 使用多个 tRPC 服务器
-
-- 通过服务网关转发
-
-- 或考虑使用 tRPC Proxy 项目
-
-### 11.3 如何处理 CORS？
-
-```typescript
-import cors from 'cors';
-
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true,
-}));
-
-app.use('/trpc', trpcExpress.createExpressMiddleware({
-  router: appRouter,
-  createContext,
-  cors: false, // 已通过 cors 中间件处理
-}));
-```
-
-### 11.4 如何调试 tRPC？
-
-```typescript
-// 开启调试日志
-const t = initTRPC.create({
-  logger: {
-    log: ({ path, type, next }) => {
-      console.log('Calling:', path, type);
-      return next();
-    },
-  },
-});
-```
-
-### 11.5 tRPC 支持哪些框架？
-
-- **后端**: Express, Fastify, AWS Lambda, Azure Functions, Next.js API Routes, NestJS
-
-- **前端**: React, React Native, SolidJS, Svelte, Vue
-
-- **传输**: HTTP, WebSocket, Streaming
+- Router 按业务域拆，不要把所有接口塞进 `_app.ts`。
+- 每个外部输入都用 `.input()` 校验。
+- 认证信息在 Context 解析，权限规则在 Middleware 或 Service 判断。
+- 不在客户端导入服务端实现，只导入 `AppRouter` 类型。
+- Prisma 只在服务端使用，前端通过 tRPC 调用。
+- 返回给前端的数据用 `select` 控制字段，避免泄露敏感信息。
+- Query 不做写操作，Mutation 不伪装成查询。
+- 客户端缓存更新优先用 invalidate；交互要求高时再做乐观更新。
+- Next.js App Router 中，RSC 预取用 `queryOptions + HydrationBoundary`。
+- 公共开放 API 需要给外部用户使用时，优先考虑 REST/OpenAPI 或 GraphQL。
 
 ---
 
-## 参考资源
+## 18. 学习路线
+
+1. 理解 Router、Procedure、Context、Middleware、Link。
+2. 用 standalone 或 Express 写一个最小服务端。
+3. 加 Zod 输入校验，掌握 Query / Mutation。
+4. 接入 React 客户端，练习 `useQuery`、`useMutation`、缓存失效。
+5. 加 Prisma，把数据库访问放进 Context。
+6. 加认证中间件，拆 `publicProcedure`、`protectedProcedure`、`adminProcedure`。
+7. 学 Next.js App Router 集成、RSC prefetch、Hydration。
+8. 学错误格式化、日志、测试、Subscription。
+
+---
+
+## 19. 常见问题
+
+### Q1：tRPC 需要代码生成吗？
+
+不需要。客户端从服务端导出的 `AppRouter` 类型中推导 API 类型。
+
+### Q2：tRPC 可以给非 TypeScript 客户端用吗？
+
+技术上可以通过 HTTP 调用，但体验会差很多。面向外部多语言客户端时，REST/OpenAPI 或 GraphQL 更合适。
+
+### Q3：为什么还要 Zod？TypeScript 不是已经有类型了吗？
+
+TypeScript 只在编译期存在，用户请求进来时是运行时数据。Zod 负责运行时校验。
+
+### Q4：Query 和 Mutation 的区别只是名字吗？
+
+不是。Query 面向读取并由 TanStack Query 缓存；Mutation 面向写入和副作用。混用会让缓存和语义都变乱。
+
+### Q5：经典 `@trpc/react-query` 和新 `@trpc/tanstack-react-query` 选哪个？
+
+新项目，尤其是 Next.js App Router，优先考虑 `@trpc/tanstack-react-query`。已有项目使用经典 hooks 没问题，迁移可以逐步做。
+
+---
+
+## 20. 官方参考
 
 - [tRPC 官方文档](https://trpc.io/docs)
-- [tRPC GitHub 仓库](https://github.com/trpc/trpc)
-- [tRPC Discord 社区](https://trpc.io/discord)
+- [Routers](https://trpc.io/docs/server/routers)
+- [Procedures](https://trpc.io/docs/server/procedures)
+- [Context](https://trpc.io/docs/server/context)
+- [React Query 集成](https://trpc.io/docs/client/react)
+- [TanStack React Query 集成](https://trpc.io/docs/client/tanstack-react-query)
+- [Next.js App Router 示例](https://trpc.io/docs/client/tanstack-react-query/server-components)
+- [Error Handling](https://trpc.io/docs/server/error-handling)
 
 ---
 
-*文档更新时间: 2026-04-19*
+*更新时间：2026-05-19*
