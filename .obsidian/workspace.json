@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "杂/未命名.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "未命名"
+              "title": "Logs"
             }
           },
           {
@@ -166,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "杂/未命名.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "未命名 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -225,12 +225,12 @@
   },
   "active": "44608f17ab591990",
   "lastOpenFiles": [
+    "杂/未命名.md",
     "Project notes/Polaris/Logs.md",
     "Front-end notes/Next.JS/Next.js.md",
     "Front-end notes/库/AgentKit学习指南.md",
     "Project notes/Polaris/inngest-knowledge-guide.md",
     "Project notes/Polaris/deepseek-reasoner-fix.md",
-    "杂/未命名.md",
     "算法/字节.md",
     "算法",
     "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md",
