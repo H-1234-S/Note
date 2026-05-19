@@ -770,8 +770,6 @@ Fetch 返回的 `body` 本质上就是一个 `ReadableStream`
 
 `WritableStream` 是 Web Streams API 里的“**可写流**”接口：它把“往某个目标持续写入数据”这件事抽象成一个标准对象，这个目标通常叫 **sink**。它自带 **背压（backpressure）** 和 **队列** 机制，所以适合处理一边产生、一边写入的数据。
 
-用来处理`ReadableStream`发送来的数据，本质上是**写数据**
-
 入口是 `getWriter()`，它会返回一个 `WritableStreamDefaultWriter`。这个 writer 负责真正写入数据，常用的方法有 `write()`、`close()`、`abort()`；另外还有 `ready`、`closed` 这些 Promise/状态属性，可以用来判断是否还在背压中、或者流是否已经关闭。
 
 ``` js
