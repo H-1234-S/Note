@@ -134,15 +134,15 @@ export const files: FileSystemTree = {
       "main.jsx": {
         file: {
           contents: `
-import React from "react";
-import { createRoot } from "react-dom/client";
-
-function App() {
-  return <h1>Hello WebContainer</h1>;
-}
-
-createRoot(document.getElementById("root")).render(<App />);
-`,
+				import React from "react";
+				import { createRoot } from "react-dom/client";
+				
+				function App() {
+				  return <h1>Hello WebContainer</h1>;
+				}
+				
+				createRoot(document.getElementById("root")).render(<App />);
+			`,
         },
       },
     },
