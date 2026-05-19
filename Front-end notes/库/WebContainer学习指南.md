@@ -360,6 +360,10 @@ export async function getWebContainer() {
   if (instance) {
     return instance;
   }
+  
+// 这会有点问题
+// 如果两个组件几乎同时调用时，instance此时还在等待，instance还是为null
+// 这样就会初始化两个instance
 
   instance = await WebContainer.boot({
     coep: "require-corp",
@@ -370,7 +374,9 @@ export async function getWebContainer() {
 }
 ```
 
+第二版：
 
+bootPromise 确保即使并发调用，也只执行一次 WebContainer.boot()
 
 ``` ts
 // 存储已创建的 WebContainer 实例
@@ -384,11 +390,12 @@ const getWebContainer = async (): Promise<WebContainer> => {
   if (!bootPromise) {
     bootPromise = WebContainer.boot({ coep: "credentialless" });
   }
+  
+  // 在此处会等待promise执行
   webcontainerInstance = await bootPromise;
   return webcontainerInstance;
 };
 ```
-
 
 React 组件中不要这样写：
 
@@ -460,10 +467,10 @@ const tree = {
 
 节点类型：
 
-| 类型 | 写法 |
-| --- | --- |
-| 文件 | `{ file: { contents: string | Uint8Array } }` |
-| 目录 | `{ directory: FileSystemTree }` |
+| 类型  | 写法                              |
+| --- | ------------------------------- |
+| 文件  | `{ file: { contents: string`    |
+| 目录  | `{ directory: FileSystemTree }` |
 | 软链接 | `{ file: { symlink: string } }` |
 
 ### 7.2 mount
