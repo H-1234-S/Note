@@ -49,8 +49,7 @@
               "title": "Next.js"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -167,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.JS/Next.js.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Next.js 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -210,7 +209,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5
+    "width": 290.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -224,8 +224,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "686f0811948dba59",
+  "active": "44608f17ab591990",
   "lastOpenFiles": [
+    "Front-end notes/Next.JS/Next.js.md",
     "Project notes/Polaris/Logs.md",
     "Front-end notes/库/AgentKit学习指南.md",
     "Project notes/Polaris/inngest-knowledge-guide.md",
@@ -261,7 +262,6 @@
     "学习/思考.md",
     "学习/技术栈.md",
     "学习/Ai.md",
-    "学习/我.md.md",
     "Project notes/VoxClone/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
