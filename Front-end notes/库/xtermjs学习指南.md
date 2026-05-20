@@ -1,4 +1,4 @@
-# xterm.js 学习指南
+## xterm.js 学习指南
 
 > 面向偏前端的全栈开发者。目标不是只会 `new Terminal()`，而是理解 xterm.js 在浏览器终端中的位置、输入输出链路、后端 PTY/WebSocket/WebContainer 如何接入，以及常用 API 和插件如何服务真实产品。
 
