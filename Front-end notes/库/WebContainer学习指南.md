@@ -1054,6 +1054,8 @@ shell.resize({
 
 ### 8.7 杀死进程
 
+如果用户想要停止正在运行的开发服务器（比如挂载的 Vite 或 Express 服务），就可以调用这个方法
+
 ```ts
 const devServer = await webcontainer.spawn("npm", ["run", "start"]);
 
