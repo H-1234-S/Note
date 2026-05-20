@@ -436,6 +436,8 @@ terminal.paste("npm install");
 
 ## 8. 尺寸和 FitAddon
 
+**终端**是按**网格文本**设计的，也就是**行和列**分别能装下多少个字符。
+
 终端尺寸不是 CSS 宽高，而是：
 
 ```txt
@@ -446,8 +448,11 @@ cols x rows
 
 后端 PTY 也必须知道这个尺寸，否则全屏程序、换行、vim/top 等都会显示异常。
 
+后端的 PTY 进程在内核中有一个极其严格的结构体定义（Window Size），它只接收两个核心参数：
 
-
+- `ws_col` (列数)
+    
+- `ws_row` (行数)
 ### 8.1 安装和使用 FitAddon
 
 ```bash
