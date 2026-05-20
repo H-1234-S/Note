@@ -444,6 +444,8 @@ cols x rows
 
 也就是“多少列字符、多少行字符”。
 
+`fitAddon.fit()` 
+
 后端 PTY 也必须知道这个尺寸，否则全屏程序、换行、vim/top 等都会显示异常。
 
 ### 8.1 安装和使用 FitAddon

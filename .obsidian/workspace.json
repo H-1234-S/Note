@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React/构建Mini React.md",
+                "file": "Front-end notes/库/xtermjs学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "构建Mini React 的大纲"
+              "title": "xtermjs学习指南 的大纲"
             }
           },
           {
@@ -252,8 +252,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "91d7d072c6570716",
+  "active": "e717b1493360cbd0",
   "lastOpenFiles": [
+    "Front-end notes/React/构建Mini React.md",
     "Front-end notes/库/xtermjs学习指南.md",
     "Front-end notes/库/WebContainer学习指南.md",
     "Front-end notes/React/React.md",
@@ -280,7 +281,6 @@
     "Front-end notes/Langchain/docs/第3章-LCEL表达式语言.md",
     "Front-end notes/Langchain/docs/第1章-LangChain入门与架构.md",
     "Front-end notes/Langchain/docs/第0章-大模型前置知识.md",
-    "Front-end notes/Langchain/README.md",
     "Front-end notes/Langchain/README.md.tmp.1544.1778846331361",
     "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md.tmp.1544.1778846198857",
     "Front-end notes/Langchain/docs/第6章-Tools与Agents.md.tmp.1544.1778846081963",
