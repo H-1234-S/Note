@@ -1667,7 +1667,7 @@ export default App
 
 * 调用useState返回的**set函数**时，会造成组件的重新渲染
 
-* 组件在重新渲染的时候，**useRef的值不会被重新初始化，** 同时改变`ref.curren`
+* 组件在重新渲染的时候，**useRef的值不会被重新初始化，** 同时改变`useRef`的值也不会触发组件的重新渲染
 
 ~~~typescript
 import React, { useLayoutEffect, useRef, useState } from 'react';
@@ -1700,6 +1700,12 @@ function App() {
 
 export default App;
 ~~~
+
+**核心特征：**
+
+1. `useRef` 返回的对象在组件的**整个生命周期内保持不变**。
+    
+2. 修改 `ref.current` **绝不会触发组件的重新**
 
 ## useImperativeHandle
 
