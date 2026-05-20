@@ -512,6 +512,11 @@ fitAddon.fit();
 ### 8.2 监听容器变化
 
 ```ts
+// 浏览器在下一次重绘之前，调用回调函数
+requestAnimationFrame(() => fitAddon.fit());
+
+//------------------------------------------
+
 const resizeObserver = new ResizeObserver(() => {
   fitAddon.fit();
 });
@@ -538,6 +543,8 @@ terminal.onResize(({ cols, rows }) => {
 ```ts
 ptyProcess.resize(cols, rows);
 ```
+
+
 
 ### 8.3 proposeDimensions
 
