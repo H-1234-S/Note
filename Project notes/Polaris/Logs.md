@@ -795,6 +795,6 @@ await writer.close();
 `write()` 会把 chunk 交给底层 sink 处理，并返回一个 Promise；`close()` 会在把前面的 chunk 都处理完之后关闭流；`abort()` 则会直接把流切到错误状态，并丢弃队列里还没处理的写入。
 ## webcontainers
 
-
+`webcontainer` 提供了一种浏览器内`node`环境，可以在浏览器内执行node应用和对应命令
 
 ## xterm
