@@ -1666,7 +1666,8 @@ export default App
 ### 数据存储
 
 * 调用useState返回的**set函数**时，会造成组件的重新渲染
-* 组件在重新渲染的时候，**useRef的值不会被重新初始化。**
+
+* 组件在重新渲染的时候，**useRef的值不会被重新初始化，** 同时改变`ref.curren`
 
 ~~~typescript
 import React, { useLayoutEffect, useRef, useState } from 'react';
