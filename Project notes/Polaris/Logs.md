@@ -639,7 +639,8 @@ export default function ChatPage() {
 
 # webcontainers terminal preview
 
-## SharedArrayBuffer
+## web api
+### SharedArrayBuffer
 
 首先明确一下浏览器中的**进程**和**线程**概念，现在浏览器都是多进程的
 ```
@@ -760,13 +761,13 @@ Cross-Origin-Embedder-Policy：credentialless
 
 - [`Cross-Origin-Opener-Policy`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Opener-Policy) 设置为 `same-origin`（来保护你的源站点免受攻击）
 - [`Cross-Origin-Embedder-Policy`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy) 设置为 `require-corp` 或 `credentialless`（保护受害者免受你的源站点的影响）
-## WebAssembly
-## ReadableStream
+### WebAssembly
+### ReadableStream
 
 类似于一个数据源，用于发送数据
 
 Fetch 返回的 `body` 本质上就是一个 `ReadableStream`
-## WritableStream
+### WritableStream
 
 `WritableStream` 是 Web Streams API 里的“**可写流**”接口：它把“往某个目标持续写入数据”这件事抽象成一个标准对象，这个目标通常叫 **sink**。它自带 **背压（backpressure）** 和 **队列** 机制，所以适合处理一边产生、一边写入的数据。
 
@@ -796,6 +797,12 @@ await writer.close();
 ## webcontainers
 
 `webcontainer` 提供了一种浏览器内`node`环境，可以在浏览器内执行node应用和对应命令
+
+核心概念
+
+运行流程
+
+架构设计
 
 ## xterm
 
