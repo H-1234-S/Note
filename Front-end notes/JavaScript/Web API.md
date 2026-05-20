@@ -1,26 +1,3 @@
-
-
-### 中频使用（特定场景）
-9. [Canvas 绘图](#9-canvas-绘图)
-10. [IntersectionObserver](#10-intersectionobserver)
-11. [地理位置与设备传感器](#11-地理位置与设备传感器)
-12. [MutationObserver](#12-mutationobserver)
-13. [IndexedDB 数据库](#13-indexeddb-数据库)
-14. [音视频 API](#14-音视频-api)
-15. [拖拽 API](#15-拖拽-api)
-
-### 专业级（高级应用）
-16. [WebSocket 实时通信](#16-websocket-实时通信)
-17. [Server-Sent Events](#17-server-sent-events)
-18. [BroadcastChannel](#18-broadcastchannel)
-19. [Web Worker](#19-web-worker)
-20. [Performance 性能监控](#20-performance-性能监控)
-21. [requestIdleCallback](#21-requestidlecallback)
-22. [Visual Viewport](#22-visual-viewport)
-23. [Pointer Lock](#23-pointer-lock)
-
----
-
 ## 1. DOM API
 
 DOM（Document Object Model）是将 HTML/XML 文档当作树形结构操作的接口，是网页开发的基础。
