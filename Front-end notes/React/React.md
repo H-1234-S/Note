@@ -1638,6 +1638,7 @@ const refValue = useRef(initialValue)
 ### 通过Ref操作DOM节点
 
 * 改变 ref.current 属性时，React 不会重新渲染组件。React 不知道它何时会发生改变，因为 ref 是一个普通的 JavaScript 对象。
+
 * 除了 初始化 外不要在渲染期间写入或者读取 ref.current，否则会使组件行为变得不可预测。
 
 ~~~typescript
@@ -1666,7 +1667,6 @@ export default App
 
 * 调用useState返回的**set函数**时，会造成组件的重新渲染
 * 组件在重新渲染的时候，**useRef的值不会被重新初始化。**
-
 
 ~~~typescript
 import React, { useLayoutEffect, useRef, useState } from 'react';
