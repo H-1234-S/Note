@@ -799,4 +799,4 @@ await writer.close();
 
 ## xterm
 
-`xterm.js` 是一个运行在浏览器里的终端模拟器组件，渲染终端组件、解析 ANSI/VT escape sequences
+`xterm.js` 是一个运行在浏览器里的终端模拟器组件，用于渲染终端组件、解析 ANSI/VT escape sequences
