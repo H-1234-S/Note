@@ -1007,6 +1007,14 @@ process.output.pipeTo(stream).catch(console.error);
 
 ### 8.4 等待退出码
 
+`WebContainerProcess`的`exit`属性是一个Promise，用于监听进程的结束状态。
+
+进程运行完毕、正常退出或被异常终止时，这个 Promise 就会 resolve，并返回一个数字类型的 **状态码**
+
+- `0`：代表进程执行成功，顺利结束。
+    
+- `非 0`（如 `1`）：代表进程执行出错，或被中途强行停止。
+
 ```ts
 const testProcess = await webcontainer.spawn("npm", ["test"]);
 const exitCode = await testProcess.exit;
