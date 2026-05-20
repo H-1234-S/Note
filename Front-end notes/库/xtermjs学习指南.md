@@ -749,6 +749,604 @@ terminal.onResize(({ cols, rows }) => {
 - `terminal.onData()` 把输入写到 `shell.input`。
 - `terminal.onResize()` 调用 WebContainer process 的 `resize()`。
 
+### 10.1 WebContainer 集成的三个对象
+
+把 xterm.js 和 WebContainer 接起来时，你会同时管理三个对象：
+
+| 对象 | 来自哪里 | 负责什么 |
+| --- | --- | --- |
+| `terminal` | xterm.js | 渲染输出、接收输入、维护 cols/rows |
+| `webcontainer` | `@webcontainer/api` | 浏览器内 Node.js 运行时和虚拟文件系统 |
+| `process` | `webcontainer.spawn()` | 某个具体进程，例如 `jsh`、`npm install`、`npm run dev` |
+
+不要把它们混在一起：
+
+- `terminal.write()` 只是写到屏幕。
+- `webcontainer.fs.writeFile()` 是写虚拟文件系统。
+- `process.input.getWriter().write()` 是把输入送给进程。
+- `process.output.pipeTo(...)` 是把进程输出接出来。
+
+### 10.2 最小可交互 shell
+
+下面是一个更完整的 WebContainer shell 接线版本。
+
+```ts
+import { WebContainer, type WebContainerProcess } from "@webcontainer/api";
+import { Terminal } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import "@xterm/xterm/css/xterm.css";
+
+export async function createWebContainerTerminal(container: HTMLElement) {
+  const webcontainer = await WebContainer.boot();
+
+  const terminal = new Terminal({
+    cursorBlink: true,
+    scrollback: 5000,
+    convertEol: true,
+    fontFamily: "Menlo, Monaco, Consolas, monospace",
+    fontSize: 14,
+  });
+
+  const fitAddon = new FitAddon();
+  terminal.loadAddon(fitAddon);
+  terminal.open(container);
+  fitAddon.fit();
+  terminal.focus();
+
+  const shell = await webcontainer.spawn("jsh", {
+    terminal: {
+      cols: terminal.cols,
+      rows: terminal.rows,
+    },
+  });
+
+  const outputPromise = shell.output.pipeTo(
+    new WritableStream({
+      write(chunk) {
+        terminal.write(chunk);
+      },
+    })
+  );
+
+  const inputWriter = shell.input.getWriter();
+
+  const dataDisposable = terminal.onData((data) => {
+    inputWriter.write(data);
+  });
+
+  const resizeDisposable = terminal.onResize(({ cols, rows }) => {
+    shell.resize({ cols, rows });
+  });
+
+  const resizeObserver = new ResizeObserver(() => {
+    fitAddon.fit();
+  });
+
+  resizeObserver.observe(container);
+
+  return {
+    webcontainer,
+    terminal,
+    shell,
+    fitAddon,
+    dispose() {
+      dataDisposable.dispose();
+      resizeDisposable.dispose();
+      resizeObserver.disconnect();
+      inputWriter.releaseLock();
+      shell.kill();
+      terminal.dispose();
+      outputPromise.catch(() => {});
+    },
+  };
+}
+```
+
+关键解释：
+
+- `webcontainer.spawn("jsh")`：启动 WebContainer 内置 shell，适合做交互式终端。
+- `terminal: { cols, rows }`：告诉 WebContainer 进程当前终端大小。
+- `shell.output.pipeTo(...)`：把 shell 的输出流接到 xterm.js。
+- `shell.input.getWriter()`：拿到 shell stdin 的 writer。
+- `terminal.onData(...)`：用户输入什么，就写入 shell。
+- `terminal.onResize(...)`：终端尺寸变化时同步给 shell。
+- `shell.kill()`：组件销毁时停止进程，避免后台进程残留。
+
+### 10.3 交互式 shell 和一次性命令的区别
+
+WebContainer 里你通常会跑两类进程。
+
+第一类：交互式 shell。
+
+```ts
+const shell = await webcontainer.spawn("jsh", {
+  terminal: {
+    cols: terminal.cols,
+    rows: terminal.rows,
+  },
+});
+```
+
+特点：
+
+- 长时间存在。
+- 用户通过 xterm.js 输入命令。
+- 输出持续流向 terminal。
+- 需要处理 resize。
+
+第二类：一次性命令。
+
+```ts
+const install = await webcontainer.spawn("npm", ["install"]);
+
+install.output.pipeTo(
+  new WritableStream({
+    write(chunk) {
+      terminal.write(chunk);
+    },
+  })
+);
+
+const exitCode = await install.exit;
+```
+
+特点：
+
+- 运行完就退出。
+- 通常不需要 `process.input`。
+- 需要等待 `process.exit` 判断成功失败。
+- 适合 `npm install`、`npm test`、`npm run build`。
+
+### 10.4 写一个命令运行器
+
+你可以封装一个函数，把 WebContainer 命令输出统一写到 xterm.js。
+
+```ts
+async function runCommand(
+  webcontainer: WebContainer,
+  terminal: Terminal,
+  command: string,
+  args: string[] = []
+) {
+  terminal.writeln(`\r\n$ ${command} ${args.join(" ")}`);
+
+  const process = await webcontainer.spawn(command, args, {
+    terminal: {
+      cols: terminal.cols,
+      rows: terminal.rows,
+    },
+  });
+
+  const outputPromise = process.output.pipeTo(
+    new WritableStream({
+      write(chunk) {
+        terminal.write(chunk);
+      },
+    })
+  );
+
+  const exitCode = await process.exit;
+
+  await outputPromise.catch(() => {});
+
+  if (exitCode === 0) {
+    terminal.writeln(`\r\nCommand completed: ${command}`);
+  } else {
+    terminal.writeln(`\r\nCommand failed with exit code ${exitCode}`);
+  }
+
+  return exitCode;
+}
+```
+
+使用：
+
+```ts
+await runCommand(webcontainer, terminal, "npm", ["install"]);
+await runCommand(webcontainer, terminal, "npm", ["run", "build"]);
+```
+
+这个函数做了三件事：
+
+- 启动 WebContainer 进程。
+- 把 `process.output` 持续写入 `terminal.write()`。
+- 等待 `process.exit`，把退出结果显示给用户。
+
+### 10.5 npm install + dev server + 终端输出
+
+在线 Playground 常见流程：
+
+```txt
+boot WebContainer
+  -> mount 项目文件
+  -> npm install
+  -> npm run dev
+  -> server-ready 后 iframe 预览
+  -> xterm.js 显示所有命令输出
+```
+
+示例：
+
+```ts
+async function startProject(
+  webcontainer: WebContainer,
+  terminal: Terminal,
+  files: Parameters<WebContainer["mount"]>[0],
+  iframe: HTMLIFrameElement
+) {
+  terminal.writeln("Mounting files...");
+  await webcontainer.mount(files);
+
+  webcontainer.on("server-ready", (_port, url) => {
+    terminal.writeln(`\r\nPreview ready: ${url}`);
+    iframe.src = url;
+  });
+
+  terminal.writeln("Installing dependencies...");
+  const installCode = await runCommand(webcontainer, terminal, "npm", ["install"]);
+
+  if (installCode !== 0) {
+    terminal.writeln("Install failed. Dev server will not start.");
+    return;
+  }
+
+  terminal.writeln("Starting dev server...");
+
+  const devServer = await webcontainer.spawn("npm", ["run", "dev"], {
+    terminal: {
+      cols: terminal.cols,
+      rows: terminal.rows,
+    },
+  });
+
+  devServer.output.pipeTo(
+    new WritableStream({
+      write(chunk) {
+        terminal.write(chunk);
+      },
+    })
+  );
+
+  return devServer;
+}
+```
+
+这里 dev server 不等待 `exit`，因为它是长时间运行的进程。你应该保存返回的 `devServer`，重新运行或卸载页面时调用：
+
+```ts
+devServer.kill();
+```
+
+### 10.6 xterm.js + WebContainer + iframe 预览的完整数据流
+
+```mermaid
+flowchart LR
+  Editor["编辑器"] -->|"fs.writeFile"| FS["WebContainer FS"]
+  Terminal["xterm.js"] -->|"onData"| Stdin["process.input"]
+  Process["jsh / npm / vite"] -->|"output stream"| Terminal
+  Process -->|"open port"| ServerReady["server-ready"]
+  ServerReady --> Iframe["iframe preview"]
+  Resize["ResizeObserver"] --> Fit["fitAddon.fit"]
+  Fit -->|"onResize"| ProcessResize["process.resize"]
+```
+
+这张图里有两条不要混淆的链路：
+
+- 代码编辑链路：编辑器写入 `webcontainer.fs`，Vite HMR 或 dev server 处理文件变化。
+- 终端链路：xterm.js 接用户输入，WebContainer process 返回输出。
+
+编辑器内容变化不应该直接 `terminal.write()`，除非你想显示日志。终端输出也不应该直接改文件。
+
+### 10.7 React Hook 封装
+
+如果你主要在 Next.js/React 中使用，可以把 xterm + WebContainer 接线封装成 hook。
+
+```tsx
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { WebContainer, type WebContainerProcess } from "@webcontainer/api";
+import { Terminal } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import "@xterm/xterm/css/xterm.css";
+
+let bootPromise: Promise<WebContainer> | null = null;
+
+function bootWebContainer() {
+  if (!bootPromise) {
+    bootPromise = WebContainer.boot();
+  }
+
+  return bootPromise;
+}
+
+export function useWebContainerTerminal() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const terminalRef = useRef<Terminal | null>(null);
+  const shellRef = useRef<WebContainerProcess | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!containerRef.current) {
+      return;
+    }
+
+    let disposed = false;
+    let inputWriter: WritableStreamDefaultWriter<string> | null = null;
+    const disposables: Array<{ dispose: () => void }> = [];
+
+    async function start() {
+      const terminal = new Terminal({
+        cursorBlink: true,
+        scrollback: 5000,
+      });
+
+      const fitAddon = new FitAddon();
+      terminal.loadAddon(fitAddon);
+      terminal.open(containerRef.current!);
+      fitAddon.fit();
+      terminal.focus();
+
+      terminalRef.current = terminal;
+
+      const webcontainer = await bootWebContainer();
+
+      if (disposed) {
+        terminal.dispose();
+        return;
+      }
+
+      const shell = await webcontainer.spawn("jsh", {
+        terminal: {
+          cols: terminal.cols,
+          rows: terminal.rows,
+        },
+      });
+
+      shellRef.current = shell;
+
+      shell.output
+        .pipeTo(
+          new WritableStream({
+            write(chunk) {
+              terminal.write(chunk);
+            },
+          })
+        )
+        .catch(() => {});
+
+      inputWriter = shell.input.getWriter();
+
+      disposables.push(
+        terminal.onData((data) => {
+          inputWriter?.write(data);
+        })
+      );
+
+      disposables.push(
+        terminal.onResize(({ cols, rows }) => {
+          shell.resize({ cols, rows });
+        })
+      );
+
+      const resizeObserver = new ResizeObserver(() => {
+        fitAddon.fit();
+      });
+
+      resizeObserver.observe(containerRef.current!);
+
+      disposables.push({
+        dispose() {
+          resizeObserver.disconnect();
+        },
+      });
+
+      setReady(true);
+    }
+
+    start();
+
+    return () => {
+      disposed = true;
+      setReady(false);
+
+      for (const disposable of disposables) {
+        disposable.dispose();
+      }
+
+      inputWriter?.releaseLock();
+      shellRef.current?.kill();
+      terminalRef.current?.dispose();
+      shellRef.current = null;
+      terminalRef.current = null;
+    };
+  }, []);
+
+  return {
+    containerRef,
+    terminal: terminalRef.current,
+    shell: shellRef.current,
+    ready,
+  };
+}
+```
+
+组件中使用：
+
+```tsx
+export function TerminalPanel() {
+  const { containerRef, ready } = useWebContainerTerminal();
+
+  return (
+    <section>
+      <div>{ready ? "Terminal ready" : "Starting terminal..."}</div>
+      <div ref={containerRef} style={{ height: 420, width: "100%" }} />
+    </section>
+  );
+}
+```
+
+这个 hook 的价值：
+
+- 只 boot 一次 WebContainer。
+- 组件卸载时清理 terminal、shell 和监听器。
+- xterm.js 仍然保持命令式实例，不放入 React state。
+- 避免 React render 触发 terminal 重建。
+
+### 10.8 在同一个终端里跑 shell 和任务日志
+
+有时候你既想保留交互式 shell，又想按钮触发 `npm install`。不建议同时把多个进程输出无脑写进同一个 terminal，因为输出会混在一起。
+
+更清晰的方式是：
+
+方案一：一个终端只接一个交互 shell。用户自己在 shell 里输入 `npm install`。
+
+方案二：任务按钮单独启动一次性命令，并在同一个 terminal 中显示，但按钮运行期间提示用户不要同时操作 shell。
+
+方案三：拆成两个 xterm.js：
+
+```txt
+Shell Terminal: jsh 交互
+Task Terminal: npm install/build/dev 日志
+```
+
+如果你要把命令写入 shell，而不是另外 spawn 一个进程，可以用：
+
+```ts
+const writer = shell.input.getWriter();
+await writer.write("npm install\n");
+await writer.write("npm run dev\n");
+```
+
+这等价于用户在终端中输入命令。优点是体验自然；缺点是你不容易拿到每个命令准确的退出码。
+
+如果你需要退出码，用单独 `webcontainer.spawn("npm", ["install"])` 更可靠。
+
+### 10.9 resize 的正确顺序
+
+推荐顺序：
+
+```ts
+const resizeObserver = new ResizeObserver(() => {
+  fitAddon.fit();
+});
+
+terminal.onResize(({ cols, rows }) => {
+  shell.resize({ cols, rows });
+});
+```
+
+解释：
+
+- `ResizeObserver` 观察 DOM 容器变化。
+- `fitAddon.fit()` 根据容器计算新的 cols/rows。
+- fit 内部触发 `terminal.resize()`。
+- `terminal.onResize()` 再把 cols/rows 传给 WebContainer process。
+
+不要直接拿容器像素宽高传给 `shell.resize()`。它需要的是字符列数和行数，不是 CSS 像素。
+
+### 10.10 终端输出和 React state
+
+WebContainer process 输出可能很多。不要这样：
+
+```ts
+shell.output.pipeTo(
+  new WritableStream({
+    write(chunk) {
+      setLogs((current) => current + chunk);
+      terminal.write(chunk);
+    },
+  })
+);
+```
+
+如果输出频繁，React 会被大量 setState 拖慢。更推荐：
+
+```ts
+shell.output.pipeTo(
+  new WritableStream({
+    write(chunk) {
+      terminal.write(chunk);
+    },
+  })
+);
+```
+
+如果确实要保存日志，可做批处理：
+
+```ts
+let pending = "";
+let scheduled = false;
+
+function appendLog(chunk: string) {
+  pending += chunk;
+
+  if (scheduled) {
+    return;
+  }
+
+  scheduled = true;
+
+  requestAnimationFrame(() => {
+    setLogs((current) => current + pending);
+    pending = "";
+    scheduled = false;
+  });
+}
+```
+
+### 10.11 常见坑
+
+坑一：忘记引入 xterm.css。
+
+```ts
+import "@xterm/xterm/css/xterm.css";
+```
+
+坑二：容器没高度，`fitAddon.fit()` 得到异常尺寸。
+
+```tsx
+<div ref={containerRef} style={{ height: 420, width: "100%" }} />
+```
+
+坑三：没有把 resize 同步给 WebContainer process。
+
+```ts
+terminal.onResize(({ cols, rows }) => {
+  shell.resize({ cols, rows });
+});
+```
+
+坑四：释放时没有 kill 进程。
+
+```ts
+return () => {
+  shell.kill();
+  terminal.dispose();
+};
+```
+
+坑五：多个组件同时 `WebContainer.boot()`。
+
+```ts
+let bootPromise: Promise<WebContainer> | null = null;
+
+function bootWebContainer() {
+  bootPromise ??= WebContainer.boot();
+  return bootPromise;
+}
+```
+
+坑六：`writer.releaseLock()` 后还继续写。
+
+```ts
+const writer = shell.input.getWriter();
+writer.releaseLock();
+await writer.write("ls\n"); // 错误
+```
+
+释放 lock 后如果还要写，需要重新 `getWriter()`。
+
 ## 11. React/Next.js 封装
 
 xterm.js 是命令式 DOM 组件。React 里不要每次 render 都创建终端，应在 `useEffect` 中创建和销毁。
@@ -1901,4 +2499,3 @@ terminal.parser.registerOscHandler(1337, handler);
 - Encoding: https://xtermjs.org/docs/guides/encoding/
 - Security: https://xtermjs.org/docs/guides/security/
 - Link Handling: https://xtermjs.org/docs/guides/link-handling/
-
