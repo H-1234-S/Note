@@ -839,6 +839,7 @@ Node.js 本身是用 C++ 和 JavaScript 编写的，无法直接在浏览器中�
     
 - 当你启动 WebContainer 时，浏览器会加载这些 Wasm 模块。这意味着，你的浏览器实际上是在运行一个由 Wasm 驱动的、高度定制的 Node.js 运行时
 
+---
 **虚拟网络栈与 Service Worker**
 
 由于浏览器沙盒的安全限制，Wasm 进程无法直接监听电脑的物理端口（比如 `localhost:3000`）。WebContainer 引入了**虚拟网络栈**来解决这个问题：
@@ -846,6 +847,11 @@ Node.js 本身是用 C++ 和 JavaScript 编写的，无法直接在浏览器中�
 - **网络虚拟化：** 当你在 WebContainer 里启动一个 Express 或 Vite 服务器并监听 `3000` 端口时，它只是在浏览器内存中标记了这个端口。
     
 - **Service Worker 桥梁：** WebContainer 会注册一个 Service Worker。当你的预览组件（如 `iframe`）请求页面时，Service Worker 会拦截请求，并在内存中找到对应的虚拟 Node.js 进程，将渲染好的页面数据返回。整个过程完全不需要经过真实的物理网络。
+
+
+
+
+---
 
 运行流程
 
