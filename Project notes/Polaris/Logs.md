@@ -767,9 +767,11 @@ WebAssembly 是一种运行在现代 Web 浏览器中的新型代码，不仅提
 
 原先 Web浏览器只能运行 JavaScript代码，但一些好用的库是用 c++、c、rust写的，比如 node是用c++写的，我如果想让node在web浏览器上运行怎么办？可以将其编译为WebAssembly，通过调用 JS API 加载其代码
 
-### Service Worker API
+### [Service Worker API](https://developer.mozilla.org/zh-CN/docs/Web/API/Service_Worker_API)
 
+Service worker 本质上充当 Web 应用程序、浏览器与网络（可用时）之间的代理服务器。
 
+这个 API 旨在创建有效的离线体验，它会**拦截网络请求**并根据网络是否可用来采取适当的动作、更新来自服务器的资源。
 ### ReadableStream
 
 类似于一个数据源，用于发送数据
