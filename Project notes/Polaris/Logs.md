@@ -824,6 +824,8 @@ WebContainer 允许你在浏览器里**创建和管理进程**。
     
 - 运行 `npm run dev`，它就启动一个“持续监听代码并编译”的虚拟进程。
 
+WebContainer 提供了一个 `webcontainerInstance.spawn()` 方法，用代码去执行命令，也就是创建或启动进程
+
 ---
 **WebAssembly 化的 Node.js 核心**
 
