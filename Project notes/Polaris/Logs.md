@@ -850,6 +850,7 @@ WebContainer 引入了**虚拟网络栈**来解决这个问题：
     
 - **Service Worker 桥梁：** WebContainer 会注册一个 Service Worker。当你的预览组件（如 `iframe`）请求页面时，Service Worker 会拦截请求，并在内存中找到对应的虚拟 Node.js 进程，将渲染好的页面数据返回。整个过程完全不需要经过真实的物理网络。
 
+JS运行到`iframe`标签时，会向src属性的url发送请求，正常流程是进行DNS解析找到IP+Port，但是问题是该url是node启动的一个服务
 
 
 
