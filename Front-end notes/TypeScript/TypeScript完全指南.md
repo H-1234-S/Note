@@ -1,4 +1,4 @@
-# TypeScript 系统学习指南
+## TypeScript 系统学习指南
 
 > 版本基线：截至 2026-05-21，本文按 TypeScript 6.0 稳定版整理，并补充 TypeScript 7 native preview 的方向。学习时优先阅读官方 Handbook 与 Release Notes。
 
