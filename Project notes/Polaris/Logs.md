@@ -895,7 +895,7 @@ iframe.src = url
 
 1. **加载 Wasm 镜像：** 浏览器向 StackBlitz 的 CDN 请求 WebContainer 的核心资产，主要是被编译成 **WebAssembly (Wasm)** 的 Node.js 运行时环境，以及定制的二进制工具链。
     
-2. **启动沙盒环境：** 浏览器在后台启动一个独立的 **Web Worker**
+2. **启动沙盒环境：** 浏览器在后台启动一个独立的 **Web Worker**，Wasm文件在后台进程中运行
     
 3. **加载核心：** Wasm 文件在 Web Worker 中被实例化。此时，一个完全运行在浏览器内存里、拥有独立 CPU 执行环境的 **Node.js 运行时**成功创建
 
