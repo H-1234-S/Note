@@ -811,7 +811,7 @@ webcontainer在浏览器内存中维护了一个**完全虚拟的文件系统**�
 
 WebContainer 允许你在浏览器里**创建和管理进程**。
 
-- 它提供了一个类似 Node.js `child_process.spawn` 的 API。
+- 它提供了一个类似 Node.js `child_process.spawn` 的 API，也就是`webcontainerInstance.spawn()` 方法
     
 - 你可以执行 `npm install`、`npm run dev` 甚至是运行 `node index.js`。
     
@@ -823,8 +823,6 @@ WebContainer 允许你在浏览器里**创建和管理进程**。
 - 运行一个 `npm install`，它就启动一个“下载与解压”的虚拟进程。
     
 - 运行 `npm run dev`，它就启动一个“持续监听代码并编译”的虚拟进程。
-
-WebContainer 提供了一个 `webcontainerInstance.spawn()` 方法，用代码去执行命令，也就是创建或启动进程
 
 ---
 **WebAssembly 化的 Node.js 核心**
