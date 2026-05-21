@@ -935,9 +935,29 @@ WebContainer初始化之后，相当于创建了一个"虚拟机"，里面没有
 3. **代码编译：** Vite 开始扫描虚拟文件系统里的代码，进行打包和编译。整个编译计算完全消耗你当前这台电脑的 CPU 性能。
 
 ---
+**网络捕获与页面渲染**
+
+```
+[ 1. Vite 启动 ] ───> 执行 app.listen(3000)
+[ 2. 内存登记 ] ───> 登记表写入 { port: 3000, handler } 
+[ 3. 触发事件 ] ───> 触发 'server-ready'，传出虚拟 URL 
+[ 4. 绑定视图 ] ───> 外层收到 URL，赋值给 <iframe src="url"> 
+[ 5. 流量拦截 ] ───> iframe 发起请求 -> Service Worker 拦截 -> 转发给 Wasm 
+[ 6. 最终呈现 ] ───> Wasm 现场吐出 HTML -> iframe 渲染
+```
+
+- **端口标记：** Vite 编译完成后，在代码里执行 `listen(3000)`。WebContainer 拦截此操作，并在内部的 **JavaScript 登记表**中记录下 3000 端口已被 Vite 进程占用。
+    
+- **发出就绪信号：** 登记成功后，WebContainer 向外层的宿主页面抛出 `server-ready` 事件，并附带一个虚拟的预览 URL。
+    
+- **iframe 承接：** 外层宿主页面监听到这个事件，把虚拟 URL 填入 `<iframe src="..."/>`。
+    
+- **Service Worker 拦截与响应：** `iframe` 加载该 URL 产生请求，**Service Worker** 在中间一把截住，转头去登记表找到 Vite 进程。Vite 进程把编译好的前端 HTML/JS 传回给 Service Worker，Service Worker 包装后喂给 `iframe`。
+
+---
+### 架构设计
 
 
-架构设计
 
 ## xterm
 
