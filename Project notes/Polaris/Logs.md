@@ -853,14 +853,22 @@ Node.js 本身是用 C++ 和 JavaScript 编写的，无法直接在浏览器中�
 WebContainer 引入了**虚拟网络栈**来解决这个问题：
 
 - **网络虚拟化：** 当你在 WebContainer 里启动一个 Express 或 Vite 服务器并监听 `3000` 端口时，它只是在浏览器内存中标记了这个端口。
-    
+
+	- 标记该端口用于当service worker拦截到请求后，知道应该把该请求往哪里转发
+	
+	- 当 Wasm Node.js 进程往这个登记表里写下 `{ port: 3000, ... }` 的那一瞬间，WebContainer 的内核就会立刻捕捉到这个动作。它会做两件事：
+	
+		1. **生成虚拟 URL：** 基于这个端口号，在内存中生成一个专属的虚拟预览网址。
+
+		2. **发出通知：** 触发 `webcontainerInstance.on('server-ready', (port, url) => { ... })` 事件。
+	
+	- 模拟真实的 TCP/IP 握手行为，因为node底层一些服务会检查端口号存不存在
+
 - **Service Worker 桥梁：** WebContainer 会注册一个 Service Worker。当你的预览组件（如 `iframe`）请求页面时，Service Worker 会拦截请求，并在内存中找到对应的虚拟 Node.js 进程，将渲染好的页面数据返回。整个过程完全不需要经过真实的物理网络。
 
 JS运行到`iframe`标签时，会向src属性的url发送请求，正常流程是进行DNS解析找到IP+Port，但是问题是该url是WebContainers返回，因此Service Worker 拦截请求到WebContainers本地服务
 
 WebContainers 在浏览器里跑一个 **虚拟化的 TCP 网络栈**，并把它映射到 **Service Worker** 上，所以可以在浏览器里直接起 HTTP 服务，并返回一个 preview URL 
-
-
 
 ---
 
