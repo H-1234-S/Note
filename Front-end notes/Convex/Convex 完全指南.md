@@ -761,13 +761,13 @@ const updateStatus = useMutation(api.tasks.updateStatus).withOptimisticUpdate(
 
 Convex 和 Next.js App Router 的关键判断：
 
-| 位置 | 推荐 API | 是否实时 |
-| --- | --- | --- |
-| Client Component | `useQuery` | 是 |
-| Client Component 写入 | `useMutation` / `useAction` | mutation 后触发实时更新 |
-| Server Component 预加载后保持实时 | `preloadQuery` + `usePreloadedQuery` | 首屏有数据，hydration 后继续实时 |
-| Server Component 只读渲染 | `fetchQuery` | 否 |
-| Server Action / Route Handler | `fetchQuery` / `fetchMutation` / `fetchAction` | 否 |
+| 位置                            | 推荐 API                                         | 是否实时                  |
+| ----------------------------- | ---------------------------------------------- | --------------------- |
+| Client Component              | `useQuery`                                     | 是                     |
+| Client Component 写入           | `useMutation` / `useAction`                    | mutation 后触发实时更新      |
+| Server Component 预加载后保持实时     | `preloadQuery` + `usePreloadedQuery`           | 首屏有数据，hydration 后继续实时 |
+| Server Component 只读渲染         | `fetchQuery`                                   | 否                     |
+| Server Action / Route Handler | `fetchQuery` / `fetchMutation` / `fetchAction` | 否                     |
 
 ### 9.1 预加载数据并保持实时
 
