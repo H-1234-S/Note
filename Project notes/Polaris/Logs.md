@@ -766,6 +766,10 @@ Cross-Origin-Embedder-Policy：credentialless
 WebAssembly 是一种运行在现代 Web 浏览器中的新型代码，不仅提供新的性能特性，同时还在性能方面有着巨大提升，可以以接近本地速度的方式运行多种语言编写的代码
 
 原先 Web浏览器只能运行 JavaScript代码，但一些好用的库是用 c++、c、rust写的，比如 node是用c++写的，我如果想让node在web浏览器上运行怎么办？可以将其编译为WebAssembly，通过调用 JS API 加载其代码
+
+### Service Worker API
+
+
 ### ReadableStream
 
 类似于一个数据源，用于发送数据
@@ -850,7 +854,9 @@ WebContainer 引入了**虚拟网络栈**来解决这个问题：
     
 - **Service Worker 桥梁：** WebContainer 会注册一个 Service Worker。当你的预览组件（如 `iframe`）请求页面时，Service Worker 会拦截请求，并在内存中找到对应的虚拟 Node.js 进程，将渲染好的页面数据返回。整个过程完全不需要经过真实的物理网络。
 
-JS运行到`iframe`标签时，会向src属性的url发送请求，正常流程是进行DNS解析找到IP+Port，但是问题是该url是node启动的一个服务
+JS运行到`iframe`标签时，会向src属性的url发送请求，正常流程是进行DNS解析找到IP+Port，但是问题是该url是WebContainers返回，因此Service Worker 拦截请求到WebContainers本地服务
+
+WebContainers 在浏览器里跑一个 **虚拟化的 TCP 网络栈**，并把它映射到 **Service Worker** 上，所以可以在浏览器里直接起 HTTP 服务，并返回一个 preview URL 
 
 
 
