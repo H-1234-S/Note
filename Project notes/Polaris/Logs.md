@@ -797,8 +797,41 @@ await writer.close();
 ## webcontainers
 
 `webcontainer` 提供了一种浏览器内`node`环境，可以在浏览器内执行node应用和对应命令
+### 核心概念
 
-核心概念
+**虚拟文件系统**
+
+webcontainer在浏览器内存中维护了一个**完全虚拟的文件系统**。
+
+- **挂载 (Mounting)：** 你可以将一个包含文件结构、代码内容的 JavaScript 对象直接“挂载”到 WebContainer 中。
+    
+- **实时同步：** 浏览器中的代码编辑器（如 Monaco Editor）对文件的修改，会直接映射到这个虚拟文件系统中，供内部的 Node.js 读取。
+
+**进程管理**
+
+WebContainer 允许你在浏览器里**创建和管理进程**。
+
+- 它提供了一个类似 Node.js `child_process.spawn` 的 API。
+    
+- 你可以执行 `npm install`、`npm run dev` 甚至是运行 `node index.js`。
+    
+- 这些命令不是发给远程服务器执行的，而是由浏览器中的 JavaScript 引擎直接解释并执行。
+
+**WebAssembly 化的 Node.js 核心**
+
+Node.js 本身是用 C++ 和 JavaScript 编写的，无法直接在浏览器中运行。
+
+- StackBlitz 团队将 Node.js 核心及其依赖的工具链编译成了 **WebAssembly (Wasm)**。
+    
+- 当你启动 WebContainer 时，浏览器会加载这些 Wasm 模块。这意味着，你的浏览器实际上是在运行一个由 Wasm 驱动的、高度定制的 Node.js 运行时
+
+**虚拟网络栈与 Service Worker**
+
+由于浏览器沙盒的安全限制，Wasm 进程无法直接监听电脑的物理端口（比如 `localhost:3000`）。WebContainer 引入了**虚拟网络栈**来解决这个问题：
+
+- **网络虚拟化：** 当你在 WebContainer 里启动一个 Express 或 Vite 服务器并监听 `3000` 端口时，它只是在浏览器内存中标记了这个端口。
+    
+- **Service Worker 桥梁：** WebContainer 会注册一个 Service Worker。当你的预览组件（如 `iframe`）请求页面时，Service Worker 会拦截请求，并在内存中找到对应的虚拟 Node.js 进程，将渲染好的页面数据返回。整个过程完全不需要经过真实的物理网络。
 
 运行流程
 
