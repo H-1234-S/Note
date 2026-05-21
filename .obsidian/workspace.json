@@ -181,7 +181,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5
+    "width": 290.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -197,8 +198,10 @@
   },
   "active": "b39d47c0776be871",
   "lastOpenFiles": [
-    "八股/浏览器原理面试八股整理.md",
+    "八股/JavaScript篇_高频八股文.md",
+    "八股/JavaScript面试八股整理.md",
     "八股/计算机网络面试八股整理.md",
+    "八股/浏览器原理面试八股整理.md",
     "八股/浏览器篇_高频八股文.md",
     "八股/TypeScript篇_高频八股文.md",
     "八股/Next.js篇_高频八股文.md",
@@ -227,8 +230,6 @@
     "Front-end notes/PostgreSQL/08-备份恢复与运维.md",
     "Front-end notes/PostgreSQL/07-安全权限与多租户.md",
     "Front-end notes/PostgreSQL/06-高级SQL能力.md",
-    "Front-end notes/PostgreSQL/05-索引与查询优化.md",
-    "Front-end notes/PostgreSQL/04-函数事务与并发.md",
     "Front-end notes/PostgreSQL",
     "Front-end notes/Node.js",
     "算法",
