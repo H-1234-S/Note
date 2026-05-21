@@ -821,7 +821,7 @@ WebContainer 允许你在浏览器里**创建和管理进程**。
     
 - 这些命令不是发给远程服务器执行的，而是由浏览器中的 JavaScript 引擎直接解释并执行。
 
-	- Node.js核心被webcontainer编译成WebAssembly搬到浏览器上，浏览器的 **V8 引擎**直接去跑这个工具
+	- Node.js核心被WebContainer编译成WebAssembly搬到浏览器上，浏览器的 **V8 引擎**直接去跑这个工具
 
 > `webcontainer`在底层用到了`web worker`，一种浏览器的多线程方案，开辟了独立的工作线程
 
