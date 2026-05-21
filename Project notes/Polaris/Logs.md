@@ -842,7 +842,9 @@ Node.js 本身是用 C++ 和 JavaScript 编写的，无法直接在浏览器中�
 ---
 **虚拟网络栈与 Service Worker**
 
-由于浏览器沙盒的安全限制，Wasm 进程无法直接监听电脑的物理端口（比如 `localhost:3000`）。WebContainer 引入了**虚拟网络栈**来解决这个问题：
+由于浏览器沙盒的安全限制，Wasm 进程无法直接监听电脑的物理端口（比如 `localhost:3000`），它是怎么让 `iframe` 成功访问到网页的呢？
+
+WebContainer 引入了**虚拟网络栈**来解决这个问题：
 
 - **网络虚拟化：** 当你在 WebContainer 里启动一个 Express 或 Vite 服务器并监听 `3000` 端口时，它只是在浏览器内存中标记了这个端口。
     
