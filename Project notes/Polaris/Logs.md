@@ -817,7 +817,12 @@ WebContainer 允许你在浏览器里**创建和管理进程**。
     
 - 这些命令不是发给远程服务器执行的，而是由浏览器中的 JavaScript 引擎直接解释并执行。
 
-`webcontainer`%% 在底层用到了 %%
+`webcontainer`在底层用到了`web worker`，一种浏览器的多线程方案，开辟了独立的工作线程
+
+例如：
+- 运行一个 `npm install`，它就启动一个“下载与解压”的虚拟进程。
+    
+- 运行 `npm run dev`，它就启动一个“持续监听代码并编译”的虚拟进程。
 
 ---
 **WebAssembly 化的 Node.js 核心**
