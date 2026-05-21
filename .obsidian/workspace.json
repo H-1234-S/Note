@@ -107,7 +107,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 311.504695892334
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -223,8 +223,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "96afc7d5481a5b94",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
+    "Front-end notes/Nest.js",
+    "Front-end notes/Hono",
     "Front-end notes/PostgreSQL/12-核心原理深入.md",
     "Front-end notes/Express/Express 深入专题：中间件、请求链、路由、错误处理、Body、Cookie、Session、JWT、文件上传.md",
     "Front-end notes/Node.js/Node.js核心原理深度讲解.md",
@@ -255,12 +257,10 @@
     "2026-05-20.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/Tanstack Form/TanStack Form 完整指南.md",
-    "Project notes/Polaris/Logs.md",
     "算法",
     "Front-end notes/Langchain/README.md.tmp.1544.1778846331361",
     "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md.tmp.1544.1778846198857",
     "Front-end notes/Langchain/docs/第6章-Tools与Agents.md.tmp.1544.1778846081963",
-    "Front-end notes/Langchain/docs/第5章-Memory与Chain.md.tmp.1544.1778845992822",
     "Project notes/VoxClone/需求.canvas",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
