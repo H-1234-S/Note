@@ -762,6 +762,8 @@ Cross-Origin-Embedder-Policy：credentialless
 - [`Cross-Origin-Opener-Policy`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Opener-Policy) 设置为 `same-origin`（来保护你的源站点免受攻击）
 - [`Cross-Origin-Embedder-Policy`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy) 设置为 `require-corp` 或 `credentialless`（保护受害者免受你的源站点的影响）
 ### WebAssembly
+
+
 ### ReadableStream
 
 类似于一个数据源，用于发送数据
@@ -816,6 +818,8 @@ WebContainer 允许你在浏览器里**创建和管理进程**。
 - 你可以执行 `npm install`、`npm run dev` 甚至是运行 `node index.js`。
     
 - 这些命令不是发给远程服务器执行的，而是由浏览器中的 JavaScript 引擎直接解释并执行。
+
+	- node核心被webcontainer编译成WebAssembly
 
 > `webcontainer`在底层用到了`web worker`，一种浏览器的多线程方案，开辟了独立的工作线程
 
