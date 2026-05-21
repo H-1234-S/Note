@@ -871,7 +871,6 @@ JS运行到`iframe`标签时，会向src属性的url发送请求，正常流程�
 WebContainers 在浏览器里跑一个 **虚拟化的 TCP 网络栈**，并把它映射到 **Service Worker** 上，所以可以在浏览器里直接起 HTTP 服务，并返回一个 preview URL 
 
 ---
-
 ### 运行流程
 
 **可以按下面五步来理解：**
