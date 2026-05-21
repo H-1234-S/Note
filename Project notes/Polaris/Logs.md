@@ -817,6 +817,9 @@ WebContainer 允许你在浏览器里**创建和管理进程**。
     
 - 这些命令不是发给远程服务器执行的，而是由浏览器中的 JavaScript 引擎直接解释并执行。
 
+`webcontainer`%% 在底层用到了 %%
+
+---
 **WebAssembly 化的 Node.js 核心**
 
 Node.js 本身是用 C++ 和 JavaScript 编写的，无法直接在浏览器中运行。
