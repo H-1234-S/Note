@@ -763,8 +763,9 @@ Cross-Origin-Embedder-Policy：credentialless
 - [`Cross-Origin-Embedder-Policy`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy) 设置为 `require-corp` 或 `credentialless`（保护受害者免受你的源站点的影响）
 ### [WebAssembly](https://developer.mozilla.org/zh-CN/docs/WebAssembly/Guides/Concepts)
 
-原先 Web浏览器只能运行 JavaScript代码，但一些好用的库是用 c++、c、rust写的，可以将其编译为WebAssembly，
 WebAssembly 是一种运行在现代 Web 浏览器中的新型代码，
+
+原先 Web浏览器只能运行 JavaScript代码，但一些好用的库是用 c++、c、rust写的，比如 node是用c++写的，我如果想让node在浏览器duan可以将其编译为WebAssembly，通过调用 JS API 加载其代码
 ### ReadableStream
 
 类似于一个数据源，用于发送数据
