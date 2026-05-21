@@ -1,4 +1,4 @@
-# Node.js 学习指南
+## Node.js 学习指南
 
 > 基于 Node.js 官方文档整理。当前时间：2026-05-21。  
 > 最新 Current：Node.js v26.2.0；最新 LTS：Node.js v24.15.0。学习新能力可以关注 v26，生产项目通常优先选择 LTS。  
