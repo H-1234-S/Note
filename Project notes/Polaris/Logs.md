@@ -1010,3 +1010,9 @@ WebContainer初始化之后，相当于创建了一个"虚拟机"，里面没有
 ## xterm
 
 `xterm.js` 是一个运行在浏览器里的终端模拟器组件，用于渲染终端组件、解析 ANSI/VT escape sequences
+
+核心概念
+
+运行流程
+
+架构设计
