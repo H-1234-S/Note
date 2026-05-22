@@ -1236,6 +1236,7 @@ export const saveAvatar = mutation({
   },
 });
 
+// 生成一个可以公开访问的完整 URL，可以供前端展示
 export const getAvatarUrl = query({
   args: { storageId: v.id("_storage") },
   handler: async (ctx, args) => {
