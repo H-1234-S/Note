@@ -1018,6 +1018,10 @@ type ServiceInstance = InstanceType<typeof Service>;
 
 ### 10.4 Awaited
 
+Awaited 的强大的特性：**递归解包**
+
+不管你的 Promise 嵌套了多少层（比如 Promise<Promise），它都能一路拆到最底层的基本类型。
+
 ```ts
 type Data = Awaited<Promise<Promise<string>>>;
 // string
