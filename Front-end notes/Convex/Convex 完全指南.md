@@ -849,6 +849,18 @@ Server DB
 useQuery订阅缓存
 ```
 
+**withOptimisticUpdate执行流程：**
+- 调用 `mutate(args)`
+
+- Convex 先执行你在 `withOptimisticUpdate((localStore, args) => ...)` 里写的函数。这个函数拿到的是当前客户端里“已加载的查询结果视图”`localStore`，你可以用 `getQuery` 读某个 query 的当前值，用 `setQuery` 直接改它；这些 query 结果要当成不可变数据处理
+
+- 因为 `useQuery` 订阅的是 Convex 客户端缓存，所以一旦 `setQuery` 改了缓存，界面会立即重新渲染。
+
+- 与此同时，真正的 mutation 在服务端执行。
+
+- 如果 mutation 成功，客户端会收到新的真实查询结果，乐观补丁被撤销，UI 以服务端结果为准。
+
+- 如果 mutation 失败，mutation 的 promise 会 reject，同时这次乐观更新会被回滚。
 ---
 
 ## 9. Next.js Server Rendering
