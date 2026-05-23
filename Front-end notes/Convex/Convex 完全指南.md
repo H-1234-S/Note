@@ -1308,21 +1308,21 @@ content = buffer.toString("base64");
 ```
 把网络上下载下来的图片/文件（原始二进制），转换成一段可以放在 JSON 里传输的纯文本（Base64）
 
-### 第一步：`response.arrayBuffer()`
+第一步：`response.arrayBuffer()`
 
-- **在干嘛：** 把网络请求的响应体，变成 `ArrayBuffer`（也就是我们上一轮聊到的“纯粹的原始字节内存”）。
+- **在干嘛：** 把网络请求的响应体，变成 `ArrayBuffer`（也就是“纯粹的原始字节内存”）
     
 - **为什么：** 因为网络传输过来的文件（比如一张 PNG 图片、一个 PDF）都是一堆 `0` 和 `1` 的二进制。`response.arrayBuffer()` 是现代浏览器和 Node.js 通用的、标准的接收二进制数据的方式。
     
 
-### 第二步：`Buffer.from(...)`
+第二步：`Buffer.from(...)`
 
 - **在干嘛：** 把通用的 `ArrayBuffer` 包装成 Node.js 特有的 `Buffer` 对象。
     
-- **为什么：** 上一轮我们说过，`ArrayBuffer` 是个毛坯房，自己没有操作数据的能力。虽然在浏览器里我们一般用 `Uint8Array`，但在 **Node.js** 的世界里，系统自带的 `Buffer` 对象才是“老大哥”。`Buffer` 身上自带了极其丰富的工具方法（比如转码、拼接），所以这里要先把它投喂给 Node.js 的 `Buffer`。
+- **为什么：** `ArrayBuffer` 自己没有操作数据的能力。虽然在浏览器里我们一般用 `Uint8Array`，但在 **Node.js** 的世界里，`Buffer` 身上自带了极其丰富的工具方法（比如转码、拼接）
     
 
-### 第三步：`buffer.toString("base64")`
+第三步：`buffer.toString("base64")`
 
 - **在干嘛：** 把这堆二进制字节，翻译成 **Base64** 编码的**纯文本字符串**。
     
