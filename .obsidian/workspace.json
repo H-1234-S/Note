@@ -238,7 +238,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5
+    "width": 290.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -254,10 +255,11 @@
   },
   "active": "28c8f460ceb4750e",
   "lastOpenFiles": [
+    "Front-end notes/Convex/Convex 完全指南.md",
+    "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/octokit-knowledge-guide.md",
     "杂/未命名.md",
     "八股/浏览器原理面试八股整理.md",
-    "Front-end notes/Convex/Convex 完全指南.md",
     "Front-end notes/TypeScript/TypeScript完全指南.md",
     "八股/React面试八股整理.md",
     "八股/浏览器篇_高频八股文.md",
@@ -285,7 +287,6 @@
     "Front-end notes/PostgreSQL/11-PostgreSQL18新特性.md",
     "Front-end notes/PostgreSQL/examples/accounting.sql",
     "Front-end notes/PostgreSQL/examples",
-    "Front-end notes/PostgreSQL/10-练习项目.md",
     "Front-end notes/PostgreSQL",
     "Front-end notes/Node.js",
     "算法",

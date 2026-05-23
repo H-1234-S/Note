@@ -17,7 +17,6 @@ Convex 不是“一个数据库 SDK”，而是一套把数据库、后端函数
 7. 继续学习 Auth、文件存储、全文搜索、向量搜索、HTTP Actions、调度任务和部署。
 
 ---
-
 ## 1. Convex 是什么
 
 Convex 是一个 TypeScript-first 的后端平台。你在项目的 `convex/` 目录里写后端函数，Convex CLI 会把这些函数同步到 Convex deployment。前端通过自动生成的 `api` 对象调用这些函数。
@@ -54,6 +53,91 @@ Convex 的核心价值：
 | 后端能力 | 文件存储、HTTP Actions、定时任务、内部函数、鉴权、环境变量 |
 
 官方文档把 Convex 函数分为三类：Queries 读数据并可缓存/订阅，Mutations 写数据并在事务中运行，Actions 用于调用外部 API 或执行副作用。
+
+### 1.1 工作原理图
+
+其实调用 `use` 就是向服务端发送请求
+
+```
+初次加载:
+  useQuery → Convex Server → Database → 返回数据 → 组件渲染
+
+数据变更:
+  useMutation → Convex Server → Database事务处理 → WebSocket推送 → 所有订阅组件自动更新
+
+实时订阅:
+  useQuery → 建立 WebSocket 连接 → 数据变化时推送更新 → 组件自动重渲染
+```
+
+**架构：**
+```
+浏览器 React
+   ↓
+useQuery / useMutation
+   ↓
+Convex Client SDK
+   ↓
+WebSocket
+   ↓
+Convex Cloud Runtime
+   ↓
+你的 query/mutation/action
+   ↓
+Convex Database
+   ↓
+实时推送结果回浏览器
+```
+
+其实这么理解还是片面的，`convex` 还做了 `Optimistic UX` + `Subscription Cache`
+
+**例如调用 `useQuery`：**
+```
+React 执行 useQuery
+
+Convex SDK 会先到浏览器里缓存查找有没有这个 query 的缓存结果，如果有就拿来用，所以感觉是同步的
+
+同时，后台通过 WebSocket 请求 Convex Cloud，这里是异步的，执行完函数后返回结果
+
+收到服务器返回的结果后，cache.set 并且通知 React Render
+```
+
+其实`useQuery`不是`Promise API`，而是`subscribe API`，React hook管理异步过程，`subscribe API`为了持续监听
+``` js
+const data = subscribe(remoteSource)
+```
+
+---
+### 1.2 convex运行流程
+
+前端调用 `api.xxx.xxx` 本身不是执行函数，它是一个 **函数引用（function reference）**。
+
+当把它传给 `useQuery / useMutation / useAction` 时，Convex Client SDK 会向 Convex Server 发请求
+
+然后在服务器端执行对应的 server function。
+
+传统开发：
+```
+React 前端
+↓
+请求 Express API
+↓
+Node.js 服务
+↓
+MongoDB / PostgreSQL
+```
+
+convex开发：
+```
+React 前端
+↓
+调用 Convex 函数
+↓
+Convex Cloud
+↓
+内置数据库
+↓
+自动实时同步前端
+```
 
 ---
 
