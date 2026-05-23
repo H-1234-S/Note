@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
+                "file": "Front-end notes/Convex/Convex 完全指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 的大纲"
+              "title": "Convex 完全指南 的大纲"
             }
           },
           {
@@ -238,8 +238,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5,
-    "collapsed": true
+    "width": 290.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -253,10 +252,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "28c8f460ceb4750e",
+  "active": "a750318952ca300c",
   "lastOpenFiles": [
-    "Front-end notes/Convex/Convex 完全指南.md",
     "Project notes/Polaris/Logs.md",
+    "Front-end notes/Convex/Convex 完全指南.md",
     "Project notes/Polaris/octokit-knowledge-guide.md",
     "杂/未命名.md",
     "八股/浏览器原理面试八股整理.md",

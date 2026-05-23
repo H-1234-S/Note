@@ -839,6 +839,16 @@ const updateStatus = useMutation(api.tasks.updateStatus).withOptimisticUpdate(
 
 如果 mutation 失败，Convex 会回滚乐观更新。
 
+其实useQuery订阅的是convex在浏览器维护的缓存，
+
+```
+Server DB
+    ↓
+同步到客户端缓存
+    ↓
+useQuery订阅缓存
+```
+
 ---
 
 ## 9. Next.js Server Rendering
