@@ -62,9 +62,19 @@
               "icon": "lucide-file",
               "title": "octokit-knowledge-guide"
             }
+          },
+          {
+            "id": "f68a99492f94fa98",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -239,11 +249,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "e1de470d74dd9c83",
+  "active": "f68a99492f94fa98",
   "lastOpenFiles": [
+    "Project notes/Polaris/octokit-knowledge-guide.md",
     "八股/浏览器原理面试八股整理.md",
     "Front-end notes/Convex/Convex 完全指南.md",
-    "Project notes/Polaris/octokit-knowledge-guide.md",
     "Front-end notes/TypeScript/TypeScript完全指南.md",
     "八股/React面试八股整理.md",
     "八股/浏览器篇_高频八股文.md",
