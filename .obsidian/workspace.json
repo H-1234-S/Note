@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/TypeScript/TypeScript完全指南.md",
+                "file": "Front-end notes/Convex/Convex 完全指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "TypeScript完全指南 的大纲"
+              "title": "Convex 完全指南 的大纲"
             }
           },
           {
@@ -252,8 +252,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "ed4e7f2d0b9f101c",
+  "active": "a750318952ca300c",
   "lastOpenFiles": [
+    "Front-end notes/TypeScript/TypeScript完全指南.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "八股/浏览器原理面试八股整理.md",
     "八股/React面试八股整理.md",
@@ -285,7 +286,6 @@
     "Front-end notes/PostgreSQL/10-练习项目.md",
     "Front-end notes/PostgreSQL/09-应用开发实践.md",
     "Front-end notes/PostgreSQL/08-备份恢复与运维.md",
-    "Front-end notes/PostgreSQL/07-安全权限与多租户.md",
     "Front-end notes/PostgreSQL",
     "Front-end notes/Node.js",
     "算法",

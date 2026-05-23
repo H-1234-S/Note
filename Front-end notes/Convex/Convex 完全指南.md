@@ -1295,6 +1295,41 @@ export const fetchAndStoreImage = action({
 });
 ```
 
+### 13.3 获取文件
+
+**格式转化：**
+``` js
+const response = await ky.get(file.storageUrl);
+// 把响应体读成 ArrayBuffer（原始字节）
+// 在 Node 里转成 Buffer
+const buffer = Buffer.from(await response.arrayBuffer());
+// 把字节编成 base64 文本
+content = buffer.toString("base64");
+```
+把网络上下载下来的图片/文件（原始二进制），转换成一段可以放在 JSON 里传输的纯文本（Base64）
+
+### 第一步：`response.arrayBuffer()`
+
+- **在干嘛：** 把网络请求的响应体，变成 `ArrayBuffer`（也就是我们上一轮聊到的“纯粹的原始字节内存”）。
+    
+- **为什么：** 因为网络传输过来的文件（比如一张 PNG 图片、一个 PDF）都是一堆 `0` 和 `1` 的二进制。`response.arrayBuffer()` 是现代浏览器和 Node.js 通用的、标准的接收二进制数据的方式。
+    
+
+### 第二步：`Buffer.from(...)`
+
+- **在干嘛：** 把通用的 `ArrayBuffer` 包装成 Node.js 特有的 `Buffer` 对象。
+    
+- **为什么：** 上一轮我们说过，`ArrayBuffer` 是个毛坯房，自己没有操作数据的能力。虽然在浏览器里我们一般用 `Uint8Array`，但在 **Node.js** 的世界里，系统自带的 `Buffer` 对象才是“老大哥”。`Buffer` 身上自带了极其丰富的工具方法（比如转码、拼接），所以这里要先把它投喂给 Node.js 的 `Buffer`。
+    
+
+### 第三步：`buffer.toString("base64")`
+
+- **在干嘛：** 把这堆二进制字节，翻译成 **Base64** 编码的**纯文本字符串**。
+    
+- **为什么：** **这是最关键的一步。** 如果你要把这个文件再次发送给别的地方（比如存入数据库，或者作为一个 API 接口的 JSON 响应体返回给前端），**JSON 格式是没办法直接塞进二进制的**。JSON 只认识文本、数字、布尔值。
+    
+    Base64 就像是一种“密码本”，它可以把任何二进制文件（哪怕是复杂的音视频），强行翻译成由 `A-Z, a-z, 0-9, +, /` 组成的纯文本。
+
 ---
 
 ## 14. HTTP Actions
