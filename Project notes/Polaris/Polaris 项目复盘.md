@@ -18,4 +18,10 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 - **Convex 后端**收到请求后，通过配置好的公钥自动验证 Token 是否合法
 - 如果合法，在 Convex 写的数据库操作函数里就能直接读取到 `ctx.auth.currentIdentity()`
 
-## 需求二：
+## 需求二：项目页面搭建
+
+### GitHub导入功能
+
+### 创建项目功能
+
+### 
