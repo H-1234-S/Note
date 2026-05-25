@@ -7,5 +7,7 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 
 ## 需求一：登录注册功能
 
-**登录注册功能**调用的是 `Clerk` 的 `SignInButton` 和 `SignUpButton` 组件
+**登录注册功能**调用的是 `Clerk` 的 `SignInButton` 和 `SignUpButton` 组件，组件自动处理登录注册功能。
+
+
 

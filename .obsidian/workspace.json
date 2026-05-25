@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/project-architecture-design.md",
+                "file": "Project notes/Polaris/Polaris 项目复盘.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "project-architecture-design 的大纲"
+              "title": "Polaris 项目复盘 的大纲"
             }
           },
           {
@@ -238,8 +238,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5,
-    "collapsed": true
+    "width": 290.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -255,6 +254,7 @@
   },
   "active": "a4fd1b88efd0617e",
   "lastOpenFiles": [
+    "Front-end notes/Convex/Convex 完全指南.md",
     "Project notes/Polaris/Polaris 项目复盘.md",
     "Project notes/Polaris/project-architecture-design.md",
     "Project notes/Polaris/octokit-knowledge-guide.md",
@@ -264,7 +264,6 @@
     "Project notes/Polaris/codemirror-quick-edit-plugin.md",
     "Project notes/Polaris/codemirror-knowledge-guide.md",
     "Project notes/Polaris/codemirror-ghost-text-suggestion.md",
-    "Front-end notes/Convex/Convex 完全指南.md",
     "杂/未命名.md",
     "八股/浏览器原理面试八股整理.md",
     "Front-end notes/TypeScript/TypeScript完全指南.md",
