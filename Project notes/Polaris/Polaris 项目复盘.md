@@ -11,8 +11,11 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 
 `Convex` 本身并没有身份验证功能，可以通过集成 `Clerk Auth` 服务进行身份验证，这是[官方文档](https://docs.convex.dev/auth/clerk#nextjs)
 
-整个流程是：
-用户通过 `Clerk` 组件输入账号密码登录
-`Clerk` 在前端生成一个加密的 **JWT Token**
-Convex 客户端（`ConvexProviderWithClerk`）会自动把这个 Token 塞进每一次对 Convex 后端的请求里
+**整个流程是：**
+- 用户通过 `Clerk` 组件输入账号密码登录
+- `Clerk` 在前端生成一个加密的 **JWT Token**
+- Convex 客户端（`ConvexProviderWithClerk`）会自动把这个 Token 塞进每一次对 Convex 后端的请求里
+- **Convex 后端**收到请求后，通过配置好的公钥自动验证 Token 是否合法
+- 如果合法，在 Convex 写的数据库操作函数里就能直接读取到 `ctx.auth.currentIdentity()`
 
+## 需求二：
