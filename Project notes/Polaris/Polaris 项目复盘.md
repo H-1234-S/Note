@@ -20,8 +20,10 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 
 ## 需求二：项目页面搭建
 
-### GitHub导入功能
+### 创建项目
 
-### 创建项目功能
+### 查找之前创建的项目
 
-### 
+### GitHub导入
+
+
