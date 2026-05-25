@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Polaris 项目复盘.md",
+                "file": "Project notes/Polaris/project-architecture-design.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Polaris 项目复盘 的大纲"
+              "title": "project-architecture-design 的大纲"
             }
           },
           {
@@ -252,7 +252,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "a4fd1b88efd0617e",
+  "active": "f96078a459b5ea81",
   "lastOpenFiles": [
     "Front-end notes/Convex/Convex 完全指南.md",
     "Project notes/Polaris/Polaris 项目复盘.md",
