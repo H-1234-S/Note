@@ -9,5 +9,6 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 
 **登录注册功能**调用的是 `Clerk` 的 `SignInButton` 和 `SignUpButton` 组件，组件自动处理登录注册功能。
 
+`Convex` 本身并没有身份验证功能，可以通过集成 `Clerk Auth` 服务进行身份验证
 
 
