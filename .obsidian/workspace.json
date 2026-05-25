@@ -67,10 +67,14 @@
             "id": "a4fd1b88efd0617e",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Project notes/Polaris/复盘.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "复盘"
             }
           }
         ],
@@ -131,7 +135,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 219.50469589233398
+    "width": 219.50469589233398,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -250,6 +255,7 @@
   },
   "active": "a4fd1b88efd0617e",
   "lastOpenFiles": [
+    "Project notes/Polaris/复盘.md",
     "Project notes/Polaris/project-architecture-design.md",
     "Project notes/Polaris/octokit-knowledge-guide.md",
     "Project notes/Polaris/Logs.md",
@@ -276,7 +282,6 @@
     "Front-end notes/Hono/Hono学习指南.md",
     "Front-end notes/Node.js/node.js学习指南.md",
     "Front-end notes/PostgreSQL/02-SQL基础.md",
-    "Front-end notes/PostgreSQL/01-快速上手.md",
     "Front-end notes/Nest.js",
     "Front-end notes/Hono",
     "Front-end notes/Express",
