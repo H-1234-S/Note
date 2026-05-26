@@ -92,7 +92,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -209,13 +209,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
+                "file": "Project notes/Polaris/project-architecture-design.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Tailwind CSS 完整指南 的大纲"
+              "title": "project-architecture-design 的大纲"
             }
           },
           {
@@ -252,7 +252,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5
+    "width": 290.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -266,8 +267,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "ed4e7f2d0b9f101c",
+  "active": "f96078a459b5ea81",
   "lastOpenFiles": [
+    "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
     "Project notes/Polaris/Polaris 项目复盘.md",
     "Project notes/Polaris/project-architecture-design.md",
     "Front-end notes/Convex/Convex 完全指南.md",
@@ -294,7 +296,6 @@
     "Front-end notes/Nest.js/NestJS 学习指南.md",
     "Front-end notes/Hono/Hono学习指南.md",
     "Front-end notes/Node.js/node.js学习指南.md",
-    "Front-end notes/PostgreSQL/02-SQL基础.md",
     "Front-end notes/Nest.js",
     "Front-end notes/Hono",
     "Front-end notes/Express",
