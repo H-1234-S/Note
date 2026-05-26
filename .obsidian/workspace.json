@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -253,11 +253,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "f96078a459b5ea81",
+  "active": "a4fd1b88efd0617e",
   "lastOpenFiles": [
+    "Project notes/Polaris/project-architecture-design.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Project notes/Polaris/Polaris 项目复盘.md",
-    "Project notes/Polaris/project-architecture-design.md",
     "Project notes/Polaris/octokit-knowledge-guide.md",
     "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/inngest-knowledge-guide.md",
