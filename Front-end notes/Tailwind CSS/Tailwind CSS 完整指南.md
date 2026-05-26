@@ -708,27 +708,27 @@ Tailwind 内置了一套精心设计的设计系统：
 
 #### 4.10.1 定位偏移
 
-| 类名 | 作用 |
-|------|------|
-| `inset-0` | top: 0; right: 0; bottom: 0; left: 0 |
-| `inset-1` | top: 0.25rem; right: 0.25rem; bottom: 0.25rem; left: 0.25rem |
-| `inset-2` | top: 0.5rem; right: 0.5rem; bottom: 0.5rem; left: 0.5rem |
-| `inset-4` | top: 1rem; right: 1rem; bottom: 1rem; left: 1rem |
-| `inset-auto` | top: auto; right: auto; bottom: auto; left: auto |
-| `inset-full` | top: 100%; right: 100%; bottom: 100%; left: 100% |
-| `inset-px` | top: 1px; right: 1px; bottom: 1px; left: 1px |
-| `-inset-1` | 负值偏移 |
-| `top-0` | top: 0 |
-| `top-1` | top: 0.25rem |
-| `top-2` | top: 0.5rem |
-| `top-4` | top: 1rem |
-| `top-auto` | top: auto |
-| `top-1/2` | top: 50% |
-| `top-full` | top: 100% |
-| `right-0` | right: 0 |
-| `bottom-0` | bottom: 0 |
-| `left-0` | left: 0 |
-| `left-1/2` | left: 50% |
+| 类名           | 作用                                                           |
+| ------------ | ------------------------------------------------------------ |
+| `inset-0`    | top: 0; right: 0; bottom: 0; left: 0                         |
+| `inset-1`    | top: 0.25rem; right: 0.25rem; bottom: 0.25rem; left: 0.25rem |
+| `inset-2`    | top: 0.5rem; right: 0.5rem; bottom: 0.5rem; left: 0.5rem     |
+| `inset-4`    | top: 1rem; right: 1rem; bottom: 1rem; left: 1rem             |
+| `inset-auto` | top: auto; right: auto; bottom: auto; left: auto             |
+| `inset-full` | top: 100%; right: 100%; bottom: 100%; left: 100%             |
+| `inset-px`   | top: 1px; right: 1px; bottom: 1px; left: 1px                 |
+| `-inset-1`   | 负值偏移                                                         |
+| `top-0`      | top: 0                                                       |
+| `top-1`      | top: 0.25rem                                                 |
+| `top-2`      | top: 0.5rem                                                  |
+| `top-4`      | top: 1rem                                                    |
+| `top-auto`   | top: auto                                                    |
+| `top-1/2`    | top: 50%                                                     |
+| `top-full`   | top: 100%                                                    |
+| `right-0`    | right: 0                                                     |
+| `bottom-0`   | bottom: 0                                                    |
+| `left-0`     | left: 0                                                      |
+| `left-1/2`   | left: 50%                                                    |
 
 #### 4.10.2 Z-Index
 
