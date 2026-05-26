@@ -5,7 +5,7 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 ---
 # 需求分析
 
-## 需求一：登录注册功能
+## 需求一：Login and registration Feature
 
 **登录注册功能**调用的是 `Clerk` 的 `SignInButton` 和 `SignUpButton` 组件，组件自动处理登录注册功能。
 
@@ -18,6 +18,12 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 - **Convex 后端**收到请求后，通过配置好的公钥自动验证 Token 是否合法
 - 如果合法，在 Convex 写的数据库操作函数里就能直接读取到 `ctx.auth.currentIdentity()`
 
-## 需求二：Agent 功能
+## 需求二：File list Feature
+
+
+
+## 需求三：Code Editor Feature
+
+## 需求四：Conversation Feature
 
 
