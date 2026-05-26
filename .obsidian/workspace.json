@@ -238,7 +238,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5
+    "width": 290.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -254,9 +255,11 @@
   },
   "active": "7fe18aef2434ce57",
   "lastOpenFiles": [
-    "八股/JavaScript面试八股整理.md",
-    "Project notes/Polaris/project-requirements-and-data-flow.md",
+    "学习/思考.md",
+    "学习/目标.md",
     "Project notes/Polaris/Polaris 项目复盘.md",
+    "Project notes/Polaris/project-requirements-and-data-flow.md",
+    "八股/JavaScript面试八股整理.md",
     "Front-end notes/库/codemirror知识详解.md",
     "杂/未命名.md",
     "Project notes/Polaris/project-architecture-design.md",
@@ -278,8 +281,6 @@
     "八股/JavaScript篇_高频八股文.md",
     "八股/TypeScript篇_高频八股文.md",
     "八股/Next.js篇_高频八股文.md",
-    "八股/React篇_高频八股文.md",
-    "Front-end notes/JavaScript/Web API.md",
     "Project notes/VoxClone/需求.canvas",
     "Front-end notes/Nest.js",
     "Front-end notes/Hono",
