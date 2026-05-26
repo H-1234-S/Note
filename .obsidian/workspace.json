@@ -238,8 +238,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5,
-    "collapsed": true
+    "width": 290.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -255,8 +254,9 @@
   },
   "active": "7fe18aef2434ce57",
   "lastOpenFiles": [
-    "Project notes/Polaris/Polaris 项目复盘.md",
+    "八股/JavaScript面试八股整理.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
+    "Project notes/Polaris/Polaris 项目复盘.md",
     "Front-end notes/库/codemirror知识详解.md",
     "杂/未命名.md",
     "Project notes/Polaris/project-architecture-design.md",
@@ -276,7 +276,6 @@
     "八股/浏览器篇_高频八股文.md",
     "八股/计算机网络面试八股整理.md",
     "八股/JavaScript篇_高频八股文.md",
-    "八股/JavaScript面试八股整理.md",
     "八股/TypeScript篇_高频八股文.md",
     "八股/Next.js篇_高频八股文.md",
     "八股/React篇_高频八股文.md",
