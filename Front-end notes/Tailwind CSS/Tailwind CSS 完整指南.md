@@ -698,13 +698,13 @@ Tailwind 内置了一套精心设计的设计系统：
 
 ### 4.10 定位 (Positioning)
 
-| 类名 | 作用 |
-|------|------|
-| `static` | position: static |
-| `fixed` | position: fixed |
+| 类名         | 作用                 |
+| ---------- | ------------------ |
+| `static`   | position: static   |
+| `fixed`    | position: fixed    |
 | `absolute` | position: absolute |
 | `relative` | position: relative |
-| `sticky` | position: sticky |
+| `sticky`   | position: sticky   |
 
 #### 4.10.1 定位偏移
 
