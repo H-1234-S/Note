@@ -92,7 +92,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -209,13 +209,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React/Zustand学习指南.md",
+                "file": "Project notes/Polaris/Polaris 项目复盘.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Zustand学习指南 的大纲"
+              "title": "Polaris 项目复盘 的大纲"
             }
           },
           {
@@ -267,11 +267,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "596dadddbcfcde1a",
+  "active": "a4fd1b88efd0617e",
   "lastOpenFiles": [
-    "Front-end notes/React/React Router.md",
-    "Front-end notes/React/Zustand学习指南.md",
     "Project notes/Polaris/Logs.md",
+    "Front-end notes/React/Zustand学习指南.md",
+    "Front-end notes/React/React Router.md",
     "Project notes/Polaris/Polaris 项目复盘.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
     "学习/思考.md",

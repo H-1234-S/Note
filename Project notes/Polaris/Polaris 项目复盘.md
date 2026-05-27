@@ -34,7 +34,26 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 
 ### File store
 
+**文件内容展示：**
+```
+用户点击文件
 
+zustand 的 openFile 函数获取文件id并进行处理
+
+	作为预览打开
+	作为固定打开
+	已打开那么只需要激活
+	
+Tab 组件调用useEditor hook 获取 file 状态并且渲染标签
+
+则导航栏展示该文件标签
+
+内容部分展示，同样的调用useEditor hook 获取 activeId
+
+根据该id请求数据库返回content
+
+content内容传递给 codeEditor 组件，组件渲染文本
+```
 
 ## 需求三：Code Editor Feature
 
