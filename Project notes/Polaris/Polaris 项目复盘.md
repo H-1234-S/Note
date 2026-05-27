@@ -20,7 +20,11 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 
 ## 需求二：File Manager Feature
 
+新建文件/文件夹、重命名文件/文件夹、删除文件/文件夹、一键合上所有文件夹
 
+`index` 获取 `root` 文件，通过遍历渲染所有 `root` 文件，也就是 `tree` 组件
+
+对于每一个 `tree` 组件，如果是**文件**则正常渲染，如果是**文件夹**则通过递归渲染文件夹
 
 ## 需求三：Code Editor Feature
 

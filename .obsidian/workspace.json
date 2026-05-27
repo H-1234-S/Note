@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/project-requirements-and-data-flow.md",
+                "file": "Project notes/Polaris/Polaris 项目复盘.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "project-requirements-and-data-flow 的大纲"
+              "title": "Polaris 项目复盘 的大纲"
             }
           },
           {
@@ -238,8 +238,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5,
-    "collapsed": true
+    "width": 290.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -253,12 +252,12 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "7fe18aef2434ce57",
+  "active": "a4fd1b88efd0617e",
   "lastOpenFiles": [
+    "Project notes/Polaris/project-requirements-and-data-flow.md",
     "学习/思考.md",
     "学习/目标.md",
     "Project notes/Polaris/Polaris 项目复盘.md",
-    "Project notes/Polaris/project-requirements-and-data-flow.md",
     "八股/JavaScript面试八股整理.md",
     "Front-end notes/库/codemirror知识详解.md",
     "杂/未命名.md",
