@@ -20,6 +20,8 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 
 ## 需求二：File Manager Feature
 
+### File Explorer
+
 新建文件/文件夹、重命名文件/文件夹、删除文件/文件夹、一键合上所有文件夹
 
 `index` 获取 `root` 文件，通过遍历渲染所有 `root` 文件，也就是 `tree` 组件
@@ -28,7 +30,11 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 
 对于**右键触发**使用 `Shadcn/ui` 的 `Context Menu` 组件，该组件自动监控右键触发事件，展示弹窗
 
-**注意：**
+对于文件/文件夹缩进，采用层级控制，层级 * 基础像素 = 缩进，文件夹多填充
+
+### File store
+
+
 
 ## 需求三：Code Editor Feature
 
