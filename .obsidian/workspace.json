@@ -64,7 +64,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -181,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
+                "file": "Project notes/Polaris/Polaris 项目复盘.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 的大纲"
+              "title": "Polaris 项目复盘 的大纲"
             }
           },
           {
@@ -224,8 +224,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5,
-    "collapsed": true
+    "width": 290.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -239,12 +238,12 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b84314ba7eff7a5f",
+  "active": "a14e8314083c4a22",
   "lastOpenFiles": [
+    "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/Polaris 项目复盘.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
     "Project notes/VoxClone/需求.canvas",
-    "Project notes/Polaris/Logs.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Front-end notes/库/codemirror知识详解.md",
     "Front-end notes/React/Zustand学习指南.md",

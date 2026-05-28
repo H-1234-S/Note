@@ -398,6 +398,11 @@ return true;
 - 渲染插件：根据状态算 `DecorationSet`，也是 `ViewPlugin` 的典型用法。
 
 若全塞进一个插件，请求、状态、DOM 会缠在一起，难测也难维护。
+
+---
 ## 需求四：Conversation Feature
 
+**数据流动：**
+```
 
+```
