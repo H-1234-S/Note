@@ -381,9 +381,40 @@ Your suggestion is inserted immediately after the cursor, so never suggest code 
 > **终止请求怎么实现的？**
 
 ```
+AbortController Web API 用于手动取消一个或多个异步操作（通常用于取消fetch请求）
+
+AbortController 实例，有一个 abort() 方法，负责发出取消信号
+
+AbortSignal 对象：信号源，通过 controller.signal 获取
+需要把这个信号传递给想要控制的异步操作（比如 fetch），让它时刻监听取消指令。
 
 ```
 
+**代码示例：**
+``` ts
+// 1. 创建一个控制器实例
+const controller = new AbortController();
+const { signal } = controller; // 结构出其中的 signal
+
+// 2. 发起 fetch 请求，并传入 signal
+fetch('https://api.example.com/data', { signal })
+  .then(response => response.json())
+  .then(data => console.log("获取成功:", data))
+  .catch(error => {
+    // 3. 捕获取消异常
+    if (error.name === 'AbortError') {
+      console.log('请求已被手动取消！');
+    } else {
+      console.error('发生了其他网络错误:', error);
+    }
+  });
+
+// 4. 在需要的时候（例如用户点击了取消按钮，或者页面销毁时）触发取消
+// 模拟 500ms 后用户失去了耐心，取消请求
+setTimeout(() => {
+  controller.abort(); 
+}, 500);
+```
 > **实现快速编辑插件：**
 
 在codemirror创建跟随光标移动的悬浮提示时，`codemirror官方`推荐使用`Tooltip`扩展
