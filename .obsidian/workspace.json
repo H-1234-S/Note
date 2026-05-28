@@ -64,7 +64,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -181,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Polaris 项目复盘.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Polaris 项目复盘 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -239,11 +239,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "a14e8314083c4a22",
+  "active": "b84314ba7eff7a5f",
   "lastOpenFiles": [
+    "Project notes/Polaris/Polaris 项目复盘.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
     "Project notes/VoxClone/需求.canvas",
-    "Project notes/Polaris/Polaris 项目复盘.md",
     "Project notes/Polaris/Logs.md",
     "Front-end notes/Convex/Convex 完全指南.md",
     "Front-end notes/库/codemirror知识详解.md",

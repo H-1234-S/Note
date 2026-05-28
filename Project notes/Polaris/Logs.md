@@ -420,6 +420,8 @@ setTimeout(() => {
 
 `AbortSignal.timeout()` (超时自动取消)
 
+---
+
 > **实现快速编辑插件：**
 
 在codemirror创建跟随光标移动的悬浮提示时，`codemirror官方`推荐使用`Tooltip`扩展
