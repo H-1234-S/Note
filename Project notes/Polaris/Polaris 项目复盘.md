@@ -85,8 +85,18 @@ codemirror 设计思路类似于 react，采用的是 state 和 view 分离的�
 	语法高亮扩展、语言扩展、小地图扩展、主题扩展、快捷键扩展，自定义了幽灵文本扩展、快速编辑扩展、快速工具扩展
 	还加载了一些自定义设置
 	
-用户进行输入，codemirror 产生 transaction，
+用户进行输入，codemirror 派发一个 transaction
+
+oldstate 和 transaction 在 StateField.update 函数中更新生成 newState
+
+所有 StateField 更新
+
+更新完毕后，CM6 会将旧 State、新 State 和事务打包成一个 ViewUpdate 对象，传递给所有的 View 插件
+
+视图进行绘制，代码展示
 ```
+
+### 
 ## 需求四：Conversation Feature
 
 

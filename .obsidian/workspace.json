@@ -49,8 +49,7 @@
               "title": "Logs"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -167,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
+                "file": "Project notes/Polaris/Polaris 项目复盘.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 的大纲"
+              "title": "Polaris 项目复盘 的大纲"
             }
           },
           {
@@ -224,14 +223,14 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b84314ba7eff7a5f",
+  "active": "a4fd1b88efd0617e",
   "lastOpenFiles": [
-    "Front-end notes/库/codemirror知识详解.md",
-    "Project notes/Polaris/Polaris 项目复盘.md",
-    "Front-end notes/React/Zustand学习指南.md",
     "Project notes/Polaris/Logs.md",
-    "Front-end notes/React/React Router.md",
+    "Project notes/Polaris/Polaris 项目复盘.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
+    "Front-end notes/库/codemirror知识详解.md",
+    "Front-end notes/React/Zustand学习指南.md",
+    "Front-end notes/React/React Router.md",
     "学习/思考.md",
     "学习/目标.md",
     "八股/JavaScript面试八股整理.md",
