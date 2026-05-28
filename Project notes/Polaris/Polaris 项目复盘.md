@@ -410,8 +410,8 @@ return true;
 
 	如果当前有正在处理的消息，那么用户实现的是暂停功能
 	调用 handleCancel 函数，向 /api/message/cancel 发送请求
-	首先调用发送 updateMessageStatus 请求，并传入 messageId，将状态更改为 cancelled
-	其次触发 inngest
-	
+	首先触发 inngest 的 messageCancel 事件，取消当前执行的函数
+	其次向 convex 发送 updateMessageStatus 请求，并传入 messageId，将状态更改为 cancelled
+
 
 ```
