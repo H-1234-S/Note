@@ -415,6 +415,11 @@ setTimeout(() => {
   controller.abort(); 
 }, 500);
 ```
+
+还可以实现 `一个控制器取消多个fetch请求`、`可以一次性移除一堆事件监听器`
+
+`AbortSignal.timeout()` (超时自动取消)
+
 > **实现快速编辑插件：**
 
 在codemirror创建跟随光标移动的悬浮提示时，`codemirror官方`推荐使用`Tooltip`扩展
