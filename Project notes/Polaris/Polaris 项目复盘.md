@@ -59,7 +59,7 @@ content内容传递给 codeEditor 组件，组件渲染文本
 ```
 用户点击 x 号，调用 useEditorStore hook 的 closeTab 函数，同时传入要关闭文件的 id
 
-在closeTab ha
+在 closeTab 函数里，正常浅拷贝状态，
 ```
 ## 需求三：Code Editor Feature
 
