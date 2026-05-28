@@ -78,11 +78,11 @@ codemirror 设计思路类似于 react，采用的是 state 和 view 分离的�
 
 **代码编辑器功能：**
 ```
-在 code-editor 文件里，使用 useEffect 初始化 codemirror
+在 code-editor 文件里，使用 useEffect 初始化 codemirror，在每次 语言扩展 发生变化时重新运行
 	对于第三方库，应该在 DOM 挂载后再初始化
 
 通过 extention 扩展 codemirror 功能
-	语法高亮扩展、
+	语法高亮扩展、语言扩展、小地图扩展、主题扩展
 ```
 ## 需求四：Conversation Feature
 
