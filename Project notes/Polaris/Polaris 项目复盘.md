@@ -55,6 +55,10 @@ Tab 组件调用useEditor hook 获取 file 状态并且渲染标签
 content内容传递给 codeEditor 组件，组件渲染文本
 ```
 
+**关闭文件功能：**
+```
+
+```
 ## 需求三：Code Editor Feature
 
 ## 需求四：Conversation Feature
