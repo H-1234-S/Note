@@ -59,9 +59,23 @@ content内容传递给 codeEditor 组件，组件渲染文本
 ```
 用户点击 x 号，调用 useEditorStore hook 的 closeTab 函数，同时传入要关闭文件的 id
 
-在 closeTab 函数里，正常浅拷贝状态，
+在 closeTab 函数里，正常浅拷贝状态，获取要删除元素的数组下标
+
+关闭旧标签打开新标签逻辑：
+	如果关闭标签是当前激活标签才进行操作
+	如果标签全关闭，那么newActiveTabId = null
+	如果关闭最后一个标签，那么激活关闭后的array tab的倒数第一个
+	否则激活下一个标签
+
 ```
 ## 需求三：Code Editor Feature
+
+### code editor
+
+code editor 功能采用的是 codemirror6 这个库，codemirror6 是一个浏览器中代码编辑器组件，专门让网页具备 vs code 代码输入体验
+
+codemirror 设计思路类似于 react，采用的是 state 和 view 分离的设计，transaction驱动状态更新，state 更新驱动视图更新。几乎所有的功能都是通过extension集成，并且每个 extension 维护自己的状态
+
 
 ## 需求四：Conversation Feature
 

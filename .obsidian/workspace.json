@@ -252,8 +252,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 290.5,
-    "collapsed": true
+    "width": 290.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -269,9 +268,9 @@
   },
   "active": "a4fd1b88efd0617e",
   "lastOpenFiles": [
-    "Front-end notes/React/Zustand学习指南.md",
-    "Project notes/Polaris/Polaris 项目复盘.md",
     "Project notes/Polaris/Logs.md",
+    "Project notes/Polaris/Polaris 项目复盘.md",
+    "Front-end notes/React/Zustand学习指南.md",
     "Front-end notes/React/React Router.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
     "学习/思考.md",
