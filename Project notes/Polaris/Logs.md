@@ -378,6 +378,12 @@ Your suggestion is inserted immediately after the cursor, so never suggest code 
 最后，tab 键接受
 ```
 
+> **终止请求怎么实现的？**
+
+```
+
+```
+
 > **实现快速编辑插件：**
 
 在codemirror创建跟随光标移动的悬浮提示时，`codemirror官方`推荐使用`Tooltip`扩展
