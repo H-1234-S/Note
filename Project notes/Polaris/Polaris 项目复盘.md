@@ -404,5 +404,12 @@ return true;
 
 **数据流动：**
 ```
+用户在 conversation 组件输入，点击提交后/点击暂停后
+
+运行 handleSubmit 函数
+
+	如果当前有正在处理的消息，那么用户实现的是暂停功能
+	调用 handleCancel 函数，向 /api/message/cancel 发送请求，触发 inngest
+	
 
 ```
