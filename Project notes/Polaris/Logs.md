@@ -440,7 +440,7 @@ quickEditTooltipField.update()后执行，调用 createQuickEditTooltip 函数�
 
 当 quickEditTooltipField 变化时，通知 showTooltip 重新渲染，显示悬浮提示框
 
-执行顺序：按注册顺序执行
+执行顺序：按注册顺序执行(每次产生transaction时)
 1. quickEditState.update() 先运行，发现 showQuickEditEffect → 返回 false
 2. quickEditTooltipField.update() 后运行，发现 showQuickEditEffect → 重新创建 tooltip 并返回空数组（因为 isQuickEditActive 变为 false）
 ```
