@@ -76,7 +76,10 @@ code editor 功能采用的是 codemirror6 这个库，codemirror6 是一个浏�
 
 codemirror 设计思路类似于 react，采用的是 state 和 view 分离的设计，transaction驱动状态更新，state 更新驱动视图更新。几乎所有的功能都是通过extension集成，并且每个 extension 维护自己的状态
 
-
+**代码编辑器功能：**
+```
+在 code-editor 文件里，使用 useEffect 初始化 codemirror，
+```
 ## 需求四：Conversation Feature
 
 
