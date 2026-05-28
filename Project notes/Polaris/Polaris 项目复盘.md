@@ -84,6 +84,8 @@ codemirror 设计思路类似于 react，采用的是 state 和 view 分离的�
 通过 extention 扩展 codemirror 功能
 	语法高亮扩展、语言扩展、小地图扩展、主题扩展、快捷键扩展，自定义了幽灵文本扩展、快速编辑扩展、快速工具扩展
 	还加载了一些自定义设置
+	
+用户进行输入，codemirror 产生 transaction，
 ```
 ## 需求四：Conversation Feature
 
