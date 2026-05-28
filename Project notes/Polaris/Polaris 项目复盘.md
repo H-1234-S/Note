@@ -34,9 +34,9 @@ Shadcn/ui、Tailwind css、React、Next.js、Convex、Inngest、AgentKit、Webco
 
 ### File store
 
-**文件内容展示：**
+**打开文件功能：**
 ```
-用户点击文件
+用户单击文件，作为预览打开（双击作为固定打开）
 
 zustand 的 openFile 函数获取文件id并进行处理
 
