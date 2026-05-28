@@ -8,34 +8,6 @@
         "type": "tabs",
         "children": [
           {
-            "id": "b39d47c0776be871",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "八股/计算机网络面试八股整理.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "计算机网络面试八股整理"
-            }
-          },
-          {
-            "id": "025ec84070cb6fdb",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "八股/浏览器原理面试八股整理.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "浏览器原理面试八股整理"
-            }
-          },
-          {
             "id": "a4fd1b88efd0617e",
             "type": "leaf",
             "state": {
@@ -92,7 +64,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -209,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Polaris 项目复盘.md",
+                "file": "Front-end notes/React/Zustand学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Polaris 项目复盘 的大纲"
+              "title": "Zustand学习指南 的大纲"
             }
           },
           {
@@ -266,10 +238,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "a4fd1b88efd0617e",
+  "active": "596dadddbcfcde1a",
   "lastOpenFiles": [
-    "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/Polaris 项目复盘.md",
+    "Project notes/Polaris/Logs.md",
     "Front-end notes/React/Zustand学习指南.md",
     "Front-end notes/React/React Router.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
