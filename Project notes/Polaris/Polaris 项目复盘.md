@@ -95,8 +95,11 @@ oldstate 和 transaction 在 StateField.update 函数中更新生成 newState
 
 视图进行绘制，代码展示
 ```
+### suggestion
 
-### 
+suggestion 功能，也就是代码提示通过自定义 codemirror extention 实现
+
+
 ## 需求四：Conversation Feature
 
 
