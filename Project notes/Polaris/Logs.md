@@ -1292,4 +1292,4 @@ export interface IAddon {
 
 ## Octokit
 
-Octokit是GitHub 官方出品的、专门用来调用 GitHub API 的 SDK
+Octokit 是 GitHub 官方出品的、专门用来调用 GitHub API 的 SDK，
