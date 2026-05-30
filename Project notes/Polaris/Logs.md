@@ -1423,5 +1423,7 @@ tree t67890
 
 在inngest函数中，初始化octokit，传递用户的githubtoken
 
+首先调用octokit.rest.users.getAuthenticated方法，获取用户信息
 
+	因为导出时需要以当前用户名义创建仓库、写git对象
 ```
