@@ -1407,7 +1407,7 @@ tree t67890
 
 之后就按照export导出流程进行导出就好，获取用户信息、初始化仓库、获取初始commit的sha、创建文件、创建tree、进行commit，最后将主分支引用更新为指向新提交
 
-这其实是git底层操作了，创建文件内容对象 -> 挂载到目录结构上 -> 
+这其实是git底层操作了，创建文件内容对象 -> 挂载到目录结构上 -> commit提交 -> 更改主分支引用
 
 需要注意的点是：git规定，除初始commit之外，之后每次commit都需要有parent
 
@@ -1453,5 +1453,9 @@ octokit初始化仓库之后，就要对扁平的文件结构进行处理，转�
 	
 	其实createBlob是创建一个文件内容对象，需要挂载到tree也就是项目目录结构中
 
-之后再调用octokit.rest.git.createTree方法创建tree，
+之后再调用octokit.rest.git.createTree方法创建tree，将items挂载到tree中
+
+随后调用octokit.rest.git.createCommit方法进行提交，注意parent指向上一次提交的sha
+
+最后调用octokit.rest.git.updateRef，将主分支引用更新为指向我们的新提交
 ```
