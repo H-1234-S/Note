@@ -1431,5 +1431,7 @@ tree t67890
 
 创建仓库完毕后，需要调用octokit.rest.git.getRef方法拿到仓库初始commit的sha
 
-	因为git规定，除初始commit外，之后的每次commit都要有
+	因为git规定，除初始commit外，之后的每次commit都要有一个parent，其实相当于指针，指向上一次提交	
+
+
 ```
