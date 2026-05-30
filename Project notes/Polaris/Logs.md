@@ -1308,7 +1308,15 @@ API Route 通过 Clerk 读取用户绑定的 GitHub OAuth token
 **import 使用的方法：**
 ``` js
 octokit.rest.git.getTree
-// 
+
+	{
+	  path: "src/index.js",
+	  type: "blob",
+	  sha: "abc123"
+	}
+
+// 读取某一分支下全部的文件路径
+// 注意：返回的是文件结构，并不返回文件内容
 
 octokit.rest.git.getBlob
 ```
