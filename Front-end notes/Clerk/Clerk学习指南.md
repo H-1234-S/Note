@@ -191,19 +191,19 @@ Webhook 是 Clerk 把用户和组织变化推送给你应用的事件机制。�
 
 ```mermaid
 flowchart LR
-  A[用户浏览器] --> B[Clerk 前端组件 / Hooks]
-  B --> C[Clerk Frontend API]
-  C --> D[Clerk Session 服务]
-  D --> E[Cookie / Session Token]
-  A --> F[Next.js App Router 请求]
-  F --> G[clerkMiddleware / proxy.ts]
-  G --> H[auth() 读取请求认证上下文]
-  H --> I[Server Component / Route Handler / Server Action]
-  I --> J[受保护资源]
-  I --> K[clerkClient Backend API]
-  K --> L[User / Organization / Membership]
-  L --> M[Webhook 事件]
-  M --> N[业务数据库同步]
+  A["用户浏览器"] --> B["Clerk 前端组件与 Hooks"]
+  B --> C["Clerk Frontend API"]
+  C --> D["Clerk Session 服务"]
+  D --> E["Cookie 与 Session Token"]
+  A --> F["Next.js App Router 请求"]
+  F --> G["clerkMiddleware 与 proxy.ts"]
+  G --> H["auth 读取请求认证上下文"]
+  H --> I["Server Component、Route Handler、Server Action"]
+  I --> J["受保护资源"]
+  I --> K["clerkClient Backend API"]
+  K --> L["User、Organization、Membership"]
+  L --> M["Webhook 事件"]
+  M --> N["业务数据库同步"]
 ```
 
 ---
@@ -265,17 +265,17 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-  A[请求 /dashboard] --> B{proxy.ts / middleware.ts matcher 命中?}
-  B -- 否 --> C[进入普通 Next.js 路由]
-  B -- 是 --> D[clerkMiddleware 执行]
-  D --> E{是否受保护路由?}
-  E -- 否 --> C
-  E -- 是 --> F[auth.protect()]
-  F --> G{已登录?}
-  G -- 否 --> H[重定向到登录页]
-  G -- 是 --> I{权限满足?}
-  I -- 否 --> J[404 或自定义处理]
-  I -- 是 --> K[进入页面 / Route Handler]
+  A["请求 /dashboard"] --> B{"proxy.ts 或 middleware.ts matcher 命中？"}
+  B -- "否" --> C["进入普通 Next.js 路由"]
+  B -- "是" --> D["clerkMiddleware 执行"]
+  D --> E{"是否受保护路由？"}
+  E -- "否" --> C
+  E -- "是" --> F["auth.protect 执行"]
+  F --> G{"已登录？"}
+  G -- "否" --> H["重定向到登录页"]
+  G -- "是" --> I{"权限满足？"}
+  I -- "否" --> J["404 或自定义处理"]
+  I -- "是" --> K["进入页面或 Route Handler"]
 ```
 
 ### 3.4 服务端鉴权流程
@@ -344,8 +344,8 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   participant C as Clerk
-  participant W as /api/webhooks
-  participant V as verifyWebhook()
+  participant W as api_webhooks
+  participant V as verifyWebhook
   participant DB as 业务数据库
 
   C->>W: POST webhook event + 签名头
@@ -1311,17 +1311,17 @@ export const config = {
 
 ```mermaid
 flowchart TD
-  A[请求进入 Next.js] --> B{matcher 是否匹配}
-  B -- 否 --> C[跳过 clerkMiddleware]
-  B -- 是 --> D[执行 clerkMiddleware]
-  D --> E[读取 Cookie / Session Token]
-  E --> F[生成 Auth 上下文]
-  F --> G{createRouteMatcher 命中受保护路由}
-  G -- 否 --> H[继续处理请求]
-  G -- 是 --> I[auth.protect 或 auth().has]
-  I --> J{认证 / 授权通过}
-  J -- 是 --> H
-  J -- 否 --> K[重定向登录 / 返回 404 / 自定义响应]
+  A["请求进入 Next.js"] --> B{"matcher 是否匹配？"}
+  B -- "否" --> C["跳过 clerkMiddleware"]
+  B -- "是" --> D["执行 clerkMiddleware"]
+  D --> E["读取 Cookie 与 Session Token"]
+  E --> F["生成 Auth 上下文"]
+  F --> G{"createRouteMatcher 命中受保护路由？"}
+  G -- "否" --> H["继续处理请求"]
+  G -- "是" --> I["auth.protect 或 auth.has"]
+  I --> J{"认证或授权通过？"}
+  J -- "是" --> H
+  J -- "否" --> K["重定向登录、返回 404 或自定义响应"]
 ```
 
 ### 8.4 完整保护示例
@@ -1706,13 +1706,13 @@ SaaS 用户通常不是孤立个人，而是属于某个团队、公司或项目
 
 ```mermaid
 flowchart TD
-  U[User] --> M1[Membership: org A admin]
-  U --> M2[Membership: org B member]
-  M1 --> O1[Organization A]
-  M2 --> O2[Organization B]
-  O1 --> R1[Projects / Members / Billing]
-  O2 --> R2[Projects / Members / Billing]
-  S[Current Session] --> AO[Active Organization]
+  U["User"] --> M1["Membership: org A admin"]
+  U --> M2["Membership: org B member"]
+  M1 --> O1["Organization A"]
+  M2 --> O2["Organization B"]
+  O1 --> R1["Projects、Members、Billing"]
+  O2 --> R2["Projects、Members、Billing"]
+  S["Current Session"] --> AO["Active Organization"]
   AO --> O1
 ```
 
@@ -1885,7 +1885,7 @@ sequenceDiagram
   participant U as 用户
   participant UI as App UI
   participant C as Clerk
-  participant S as Server auth()
+  participant S as Server auth
   participant DB as Tenant Data
 
   U->>UI: 选择组织 Acme
@@ -2011,16 +2011,16 @@ export async function POST(req: NextRequest) {
 
 ```mermaid
 flowchart TD
-  A[Clerk user.created] --> B[/api/webhooks]
-  B --> C[verifyWebhook 验签]
-  C --> D{事件类型}
-  D --> E[user.created / updated]
-  D --> F[user.deleted]
-  D --> G[organization.created / updated]
-  E --> H[upsert users 表]
-  F --> I[soft delete users 表]
-  G --> J[upsert tenants 表]
-  H --> K[返回 2xx]
+  A["Clerk user.created"] --> B["/api/webhooks"]
+  B --> C["verifyWebhook 验签"]
+  C --> D{"事件类型"}
+  D --> E["user.created 或 user.updated"]
+  D --> F["user.deleted"]
+  D --> G["organization.created 或 organization.updated"]
+  E --> H["upsert users 表"]
+  F --> I["soft delete users 表"]
+  G --> J["upsert tenants 表"]
+  H --> K["返回 2xx"]
   I --> K
   J --> K
 ```
@@ -2094,14 +2094,14 @@ Clerk 在实际系统中兼具两者特征：session 是 Clerk 托管的状态�
 
 ```mermaid
 flowchart LR
-  A[浏览器 Cookie] --> B[proxy.ts / clerkMiddleware]
-  B --> C[请求级 Auth 上下文]
-  C --> D[auth()]
-  D --> E[Server Component]
-  D --> F[Route Handler]
-  D --> G[Server Action]
-  C --> H[ClerkProvider hydration]
-  H --> I[useAuth / useUser]
+  A["浏览器 Cookie"] --> B["proxy.ts 与 clerkMiddleware"]
+  B --> C["请求级 Auth 上下文"]
+  C --> D["auth"]
+  D --> E["Server Component"]
+  D --> F["Route Handler"]
+  D --> G["Server Action"]
+  C --> H["ClerkProvider hydration"]
+  H --> I["useAuth 与 useUser"]
 ```
 
 ### 13.6 自定义 JWT claims 的思路
@@ -2739,18 +2739,18 @@ export async function POST(req: NextRequest) {
 
 ```mermaid
 flowchart TD
-  A[用户访问 /dashboard] --> B[clerkMiddleware]
-  B --> C{已登录?}
-  C -- 否 --> D[/sign-in]
-  C -- 是 --> E{有 active org?}
-  E -- 否 --> F[/create-organization]
-  E -- 是 --> G[auth() 读取 orgId/orgRole]
-  G --> H[查询组织与业务数据]
-  H --> I[渲染 Dashboard]
-  J[管理员访问 /admin] --> K[auth.protect role org:admin]
-  K --> L[邀请成员 Server Action]
-  M[Clerk 用户/组织变化] --> N[/api/webhooks verifyWebhook]
-  N --> O[同步业务数据库]
+  A["用户访问 /dashboard"] --> B["clerkMiddleware"]
+  B --> C{"已登录？"}
+  C -- "否" --> D["/sign-in"]
+  C -- "是" --> E{"有 active org？"}
+  E -- "否" --> F["/create-organization"]
+  E -- "是" --> G["auth 读取 orgId 和 orgRole"]
+  G --> H["查询组织与业务数据"]
+  H --> I["渲染 Dashboard"]
+  J["管理员访问 /admin"] --> K["auth.protect 校验 org:admin"]
+  K --> L["邀请成员 Server Action"]
+  M["Clerk 用户或组织变化"] --> N["/api/webhooks verifyWebhook"]
+  N --> O["同步业务数据库"]
 ```
 
 ---

@@ -48,23 +48,9 @@
               "icon": "lucide-file",
               "title": "octokit-knowledge-guide"
             }
-          },
-          {
-            "id": "4db50d9c63cfeb4c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/Clerk/Clerk学习指南.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Clerk学习指南"
-            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -181,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Clerk/Clerk学习指南.md",
+                "file": "Project notes/Polaris/octokit-knowledge-guide.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Clerk学习指南 的大纲"
+              "title": "octokit-knowledge-guide 的大纲"
             }
           },
           {
@@ -238,10 +224,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "4db50d9c63cfeb4c",
+  "active": "822025c5af5d3678",
   "lastOpenFiles": [
-    "Project notes/Polaris/octokit-knowledge-guide.md",
     "Front-end notes/Clerk/Clerk学习指南.md",
+    "Project notes/Polaris/octokit-knowledge-guide.md",
     "Front-end notes/库/Inngest学习指南.md",
     "Front-end notes/Git/Git学习指南.md",
     "Project notes/Polaris/Logs.md",
