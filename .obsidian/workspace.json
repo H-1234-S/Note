@@ -135,8 +135,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 297.504695892334,
-    "collapsed": true
+    "width": 297.504695892334
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -252,8 +251,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b84314ba7eff7a5f",
+  "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
+    "Front-end notes/Clerk",
     "Front-end notes/库/Inngest学习指南.md",
     "Project notes/Polaris/Logs.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
@@ -281,7 +281,6 @@
     "Project notes/Polaris/codemirror-quick-edit-plugin.md",
     "Project notes/Polaris/codemirror-knowledge-guide.md",
     "Project notes/Polaris/codemirror-ghost-text-suggestion.md",
-    "Project notes/Polaris/webcontainers-knowledge-guide.md",
     "Front-end notes/Nest.js",
     "Front-end notes/Hono",
     "Front-end notes/Express",
