@@ -1384,4 +1384,8 @@ github import 思路：拿到仓库内“文件结构快照”，按照**文件�
 
 在inngset中，初始化 octokit，调用 octokit.rest.git.getTree 获得“目录结构快照”
 
+对于得到的目录结构，先通过path创建文件夹，同时创建一个键为path，值为id的映射
+
+该映射用于 创建文件夹时 和 创建文件时 的parentId
+
 ```
