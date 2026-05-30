@@ -48,9 +48,23 @@
               "icon": "lucide-file",
               "title": "octokit-knowledge-guide"
             }
+          },
+          {
+            "id": "232189f26467224c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Front-end notes/Git/Git学习指南.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Git学习指南"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -107,7 +121,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 297.504695892334
+    "width": 297.504695892334,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -166,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
+                "file": "Front-end notes/Git/Git学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 的大纲"
+              "title": "Git学习指南 的大纲"
             }
           },
           {
@@ -223,11 +238,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "232189f26467224c",
   "lastOpenFiles": [
-    "Front-end notes/Git",
     "Project notes/Polaris/octokit-knowledge-guide.md",
+    "Project notes/VoxClone/需求.canvas",
+    "Front-end notes/Git/Git学习指南.md",
     "Project notes/Polaris/Logs.md",
+    "Front-end notes/Git",
     "八股/计算机网络面试八股整理.md",
     "八股/浏览器原理面试八股整理.md",
     "八股/JavaScript面试八股整理.md",
@@ -239,7 +256,6 @@
     "Project notes/Polaris/Polaris 项目复盘.md",
     "杂/未命名.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
-    "Project notes/VoxClone/需求.canvas",
     "Front-end notes/库/codemirror知识详解.md",
     "Front-end notes/React/Zustand学习指南.md",
     "Front-end notes/React/React Router.md",
@@ -251,7 +267,6 @@
     "Project notes/Polaris/codemirror-knowledge-guide.md",
     "Project notes/Polaris/codemirror-ghost-text-suggestion.md",
     "Project notes/Polaris/webcontainers-knowledge-guide.md",
-    "Front-end notes/Tailwind CSS/Tailwind CSS 完整指南.md",
     "Front-end notes/Nest.js",
     "Front-end notes/Hono",
     "Front-end notes/Express",
@@ -261,7 +276,6 @@
     "Front-end notes/Node.js",
     "算法",
     "Front-end notes/Langchain/README.md.tmp.1544.1778846331361",
-    "Front-end notes/Langchain/docs/第7章-LangGraph与多智能体.md.tmp.1544.1778846198857",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
