@@ -1405,7 +1405,9 @@ tree t67890
 
 首先从convex拿到的是一个扁平的文件数组，形如[{parentId,name,context}]，但是用于octokit的git.createTree提交的item，需要的是[{path,type,sha}]，需要将扁平的文件数组转为路径
 
-之后就按照export导出流程进行导出就好，需要注意的点是：git规定，除初始commit之外，之后每次commit都需要有parent
+之后就按照export导出流程进行导出就好，获取用户信息、初始化仓库、获取初始commit的sha、创建文件、创建tree、
+
+需要注意的点是：git规定，除初始commit之外，之后每次commit都需要有parent
 
 **运行流程：**
 ```
