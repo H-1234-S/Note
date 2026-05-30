@@ -1429,5 +1429,7 @@ tree t67890
 
 之后调用octokit.rest.repos.createForAuthenticatedUser方法，为已认证用户创建一个新仓库
 
-创建仓库完毕后，
+创建仓库完毕后，需要调用octokit.rest.git.getRef方法拿到仓库初始commit的sha
+
+	因为git规定，除初始commit外，之后的每次commit都要有
 ```
