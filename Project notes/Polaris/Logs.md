@@ -1331,7 +1331,7 @@ git 仓库可以理解为一个 “链表 + 树” 的结构
 一次**提交**，也就是commit，它是一个记录对象，里面存：
 - 作者
 - 提交信息
-- 父 commit
+- 父 commit  -- 用于回退commit
 - **tree SHA**
 
 例如：
@@ -1343,7 +1343,27 @@ commit a1b2c3
 └── tree: t12345
 ```
 
+**tree又是什么？** 其实 tree 是一个 “目录结构快照”，例如：
 
+项目结构：
+```
+my-app/
+  src/
+    index.js
+  package.json
+```
+
+git会存成：
+```
+tree t12345
+├── src → tree t67890
+└── package.json → blob b11111
+
+tree t67890
+└── index.js → blob b22222
+```
+
+因此，实际上从 main 分支开始找，找到 commit，再找到 tree
 ## github import
 
 
