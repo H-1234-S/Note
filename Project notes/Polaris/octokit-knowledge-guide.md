@@ -254,6 +254,13 @@ const initialCommitSha = ref.object.sha;
 
 Git 里除第一个 commit 外，每个 commit 必须有 parent；`auto_init` 产生的就是这个 parent。
 
+```
+1. GitHub 自动创建初始 commit（README）  →  main 指向它
+2. getRef("heads/main")                  →  拿到初始 commit SHA 作为 parent
+3. createCommit({ parents: [initialCommitSha] })  →  新 commit 合法地接在初始 commit 之后
+4. updateRef("heads/main", sha: newCommitSha)     →  把 main 移到新 commit
+```
+
 ---
 
 ### 6.5 `git.getTree`
