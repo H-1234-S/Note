@@ -1405,7 +1405,7 @@ tree t67890
 
 首先从convex拿到的是一个扁平的文件数组，形如[{parentId,name,context}]，但是用于octokit的git.createTree提交的item，需要的是[{path,type,sha}]，需要将扁平的文件数组转为路径
 
-
+之后就按照export导出流程进行导出就好，需要注意的点shi
 
 **运行流程：**
 ```
