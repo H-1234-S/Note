@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/octokit-knowledge-guide.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "octokit-knowledge-guide 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -224,10 +224,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "822025c5af5d3678",
+  "active": "b84314ba7eff7a5f",
   "lastOpenFiles": [
-    "Front-end notes/Clerk/Clerk学习指南.md",
     "Project notes/Polaris/octokit-knowledge-guide.md",
+    "Front-end notes/Clerk/Clerk学习指南.md",
     "Front-end notes/库/Inngest学习指南.md",
     "Front-end notes/Git/Git学习指南.md",
     "Project notes/Polaris/Logs.md",
