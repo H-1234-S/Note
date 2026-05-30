@@ -1429,5 +1429,5 @@ tree t67890
 
 之后调用octokit.rest.repos.createForAuthenticatedUser方法，为已认证用户创建一个新仓库
 
-	
+创建仓库完毕后，
 ```
