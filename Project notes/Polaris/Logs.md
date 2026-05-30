@@ -1435,5 +1435,7 @@ tree t67890
 
 octokit初始化仓库之后，就要对扁平的文件结构进行处理，转为path
 
-首先
+首先向getProjectFilesWithUrls函数发送请求，获取项目中的所有文件(如果文件为存储文件则携带url)
+
+
 ```
