@@ -1403,9 +1403,25 @@ tree t67890
 
 > **github export思路：** 
 
+首先从convex拿到的是一个扁平的文件数组，形如[{parentId,name,context}]，但是用于octokit的git.createTree提交的item，需要的是[{path,type,sha}]，需要将扁平的文件数组转为路径
+
 
 
 **运行流程：**
 ```
+用户点击export按钮，输入仓库名、可见性、描述后，点击导出
+
+向/api/github/export发送post请求
+
+在 app router 中首先验证用户身份，获取github token
+
+之后触发inngset后台任务，同时传递projectId、repoName、visibility、description、githubToken参数
+
+把github export 任务交给inngset后台可靠执行，返回Success
+
+--------------------------------------------------
+
+在inngest函数中，初始化octokit，传递用户的githubtoken
+
 
 ```
