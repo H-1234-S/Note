@@ -135,7 +135,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 297.504695892334
+    "width": 297.504695892334,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -251,7 +252,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "b84314ba7eff7a5f",
   "lastOpenFiles": [
     "Front-end notes/Clerk",
     "Front-end notes/库/Inngest学习指南.md",
