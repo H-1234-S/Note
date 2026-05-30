@@ -1324,6 +1324,25 @@ octokit.rest.git.getBlob
 
 > **Git 底层对象模型**
 
+git 仓库可以理解为一个 “链表 + 树” 的结构
+
+一个**分支**，例如 `main` 分支可以理解为一个**指针**，指向 `commit`，分支其实保存了 `commit SHA`
+
+一次**提交**，也就是commit，它是一个记录对象，里面存：
+- 作者
+- 提交信息
+- 父 commit
+- **tree SHA**
+
+例如：
+``` text
+commit a1b2c3
+├── author: xxx
+├── message: fix bug
+├── parent: z9y8x7
+└── tree: t12345
+```
+
 
 ## github import
 
