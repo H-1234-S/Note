@@ -1426,4 +1426,8 @@ tree t67890
 首先调用octokit.rest.users.getAuthenticated方法，获取用户信息
 
 	因为导出时需要以当前用户名义创建仓库、写git对象
+
+之后调用octokit.rest.repos.createForAuthenticatedUser方法，为已认证用户创建一个新仓库
+
+	
 ```
