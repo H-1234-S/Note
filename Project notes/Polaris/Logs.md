@@ -1441,5 +1441,7 @@ octokit初始化仓库之后，就要对扁平的文件结构进行处理，转�
 
 	其实很简单，每个文件都有一个parentId，如果不为空则表示有父文件，向上遍历就好	
 
-然后需要调用octokit.rest.git.createBlob方法，传递
+然后需要调用octokit.rest.git.createBlob方法，该方法返回一个sha，其实相当于文件的指纹
+
+	在这里为了一次提交仓库中所有的文件，
 ```
