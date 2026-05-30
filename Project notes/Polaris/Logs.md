@@ -677,7 +677,7 @@ export default function ChatPage() {
 
 如果存在该字段，则取出对应字段的value，去调用该工具
 
-这里并不是模型调用，模型只是建议调用，本质上是agentkit执行
+这里并不是模型调用，模型只是**建议调用**，本质上是agentkit执行
 
 当tool执行完毕后，agenkit会将result封装为tool_result，也就是将结果返回ai
 
