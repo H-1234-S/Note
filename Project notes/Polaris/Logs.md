@@ -1449,5 +1449,5 @@ octokit初始化仓库之后，就要对扁平的文件结构进行处理，转�
 	
 	对于文本文件正常utf-8传递内容，对于二进制文件，需要将原始字节码编码为base64编码再进行发送内容
 
-之后再调用octokit.rest.git.createTree方法，
+之后再调用octokit.rest.git.createTree方法创建tree，
 ```
