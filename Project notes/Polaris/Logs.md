@@ -1292,4 +1292,17 @@ export interface IAddon {
 
 ## Octokit
 
-Octokit 是 GitHub 官方出品的、专门用来调用 GitHub API 的 SDK，
+Octokit 是 GitHub 官方出品的、专门用来调用 GitHub API 的 SDK，它把 REST API 封装成方法调用
+
+因为 import/export 功能涉及到很多 github rest api 的调用，如果不使用该 skd 需要手动维护封装
+
+```
+API Route 通过 Clerk 读取用户绑定的 GitHub OAuth token
+
+然后通过 Inngest 事件传给后台任务
+
+初始化octokit：const octokit = new Octokit({ auth: githubToken })
+```
+## github import
+
+
