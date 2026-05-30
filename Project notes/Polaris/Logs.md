@@ -1386,6 +1386,9 @@ github import 思路：拿到仓库内“文件结构快照”，按照**文件�
 
 对于得到的目录结构，先通过path创建文件夹，同时创建一个键为path，值为id的映射
 
-该映射用于 创建文件夹时 和 创建文件时 的parentId
+	该映射用于 创建文件夹时 和 创建文件时 的parentId
 
+对于文件，通过octokit.rest.git.getBlob传递SHA获取content
+
+因为github是按base64格式返回数据，需要对数据parse一下
 ```
