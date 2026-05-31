@@ -69,10 +69,20 @@ inngest是一个**事件驱动的后台任务/工作流编排平台**，只是**
 8. 从失败步骤恢复，而非重头执行
 ```
 
+inngsest.send参数怎么传递到inngest.function的：
 
-**run实例存储什么？**
 ```
-
+inngest.send({ name, data })
+  ↓
+Inngest 接收并保存这条事件
+  ↓
+按 event.name 匹配到函数 triggers
+  ↓
+为匹配到的函数创建 run
+  ↓
+启动函数时，把这条 event 注入到 handler({ event, step, runId })
+  ↓
+你在函数里读取 event.data.accountId
 ```
 # firecrawl scrape
 
