@@ -678,91 +678,607 @@ function createWorkInProgress(current, pendingProps) {
 
 ## 第三部分：调度系统 Scheduler
 
-### 3.1 为什么需要 Scheduler？
+### 3.0 从 mini-react 的调度说起
 
-浏览器的事件循环机制：
-
-```
-┌───────────────────────────┐
-│   宏任务队列                │
-│   - setTimeout             │
-│   - setInterval            │
-│   - I/O                    │
-└───────────────────────────┘
-         ↓
-┌───────────────────────────┐
-│   执行一个宏任务            │
-└───────────────────────────┘
-         ↓
-┌───────────────────────────┐
-│   执行所有微任务            │
-│   - Promise.then           │
-│   - MutationObserver       │
-└───────────────────────────┘
-         ↓
-┌───────────────────────────┐
-│   渲染（如果需要）          │
-│   - requestAnimationFrame  │
-│   - 样式计算                │
-│   - 布局                    │
-│   - 绘制                    │
-└───────────────────────────┘
-```
-
-**问题：**
-- JS 执行和渲染互斥
-- 长任务会阻塞渲染，导致掉帧
-- 浏览器刷新率通常是 60Hz（16.6ms 一帧）
-
-**Scheduler 的目标：**
-1. **时间切片**：将长任务拆分，每个切片 5ms
-2. **优先级调度**：高优先级任务优先执行
-3. **可中断恢复**：低优先级任务可被打断
-
-### 3.2 优先级系统
+#### 回顾：你的 mini-react 如何调度任务？
 
 ```javascript
-// Scheduler 的优先级（5 个等级）
+// 你的实现
+function workLoop(deadline) {
+  let shouldYield = false;
+  
+  while (nextUnitOfWork && !shouldYield) {
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+    shouldYield = deadline.timeRemaining() < 1;
+  }
+  
+  if (nextUnitOfWork) {
+    requestIdleCallback(workLoop);
+  } else {
+    commitRoot();
+  }
+}
+
+requestIdleCallback(workLoop);
+```
+
+这个实现已经有了时间切片的概念！但有几个致命问题：
+
+#### 问题 1：requestIdleCallback 的缺陷
+
+```javascript
+// 你的 mini-react
+requestIdleCallback(workLoop);
+
+// 问题：
+// 1. Safari 不支持（兼容性差）
+// 2. 触发频率不稳定（可能 20ms 才触发一次）
+// 3. 后台标签页可能完全不触发
+// 4. 无法控制优先级
+```
+
+**实际测试：**
+
+```javascript
+// 测试 requestIdleCallback 的触发频率
+let lastTime = performance.now();
+let count = 0;
+
+function test(deadline) {
+  const now = performance.now();
+  const gap = now - lastTime;
+  console.log(`第 ${++count} 次触发，距离上次 ${gap.toFixed(2)}ms`);
+  lastTime = now;
+  requestIdleCallback(test);
+}
+
+requestIdleCallback(test);
+
+// 输出（Chrome）：
+// 第 1 次触发，距离上次 50.20ms
+// 第 2 次触发，距离上次 16.80ms
+// 第 3 次触发，距离上次 33.40ms
+// 触发时机非常不稳定！
+```
+
+#### 问题 2：没有优先级概念
+
+```javascript
+// 场景：用户正在输入，同时有一个大列表在渲染
+function App() {
+  const [query, setQuery] = useState('');
+  const [list, setList] = useState([]);
+  
+  return (
+    <>
+      <input value={query} onChange={e => setQuery(e.target.value)} />
+      <List items={list} />  {/* 1000+ 个节点 */}
+    </>
+  );
+}
+
+// 你的 mini-react：
+// - 用户输入和列表渲染是平等的
+// - 无法打断正在进行的列表渲染
+// - 用户感觉输入卡顿
+```
+
+#### 问题 3：没有任务队列
+
+```javascript
+// 你的 mini-react
+const setState = action => {
+  hook.queue.push(action);
+  
+  // 每次都重新开启 work loop
+  wipRoot = {
+    dom: currentRoot.dom,
+    props: currentRoot.props,
+    alternate: currentRoot,
+  };
+  nextUnitOfWork = wipRoot;
+};
+
+// 问题：
+// - 多个 setState 会触发多次渲染
+// - 没有任务优先级排序
+// - 无法合并相同优先级的任务
+```
+
+### 3.1 React 官方的解决方案：独立的 Scheduler
+
+React 为什么要实现独立的 Scheduler？
+
+**设计目标：**
+
+1. **跨平台兼容**：不依赖 `requestIdleCallback`
+2. **精确的时间切片**：5ms 一个切片，可配置
+3. **优先级调度**：支持 5 个优先级等级
+4. **任务队列管理**：支持延迟任务和立即任务
+5. **饥饿问题处理**：低优先级任务不会永远得不到执行
+
+#### 浏览器事件循环基础
+
+在深入 Scheduler 之前，先理解浏览器的事件循环：
+
+```
+┌─────────────────────────────────────┐
+│   1. 执行一个宏任务                   │
+│      - script 标签                   │
+│      - setTimeout / setInterval      │
+│      - I/O                           │
+│      - MessageChannel                │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│   2. 执行所有微任务                   │
+│      - Promise.then                  │
+│      - MutationObserver              │
+│      - queueMicrotask                │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│   3. 渲染（如果需要）                 │
+│      - requestAnimationFrame         │
+│      - 样式计算（Recalculate Style）  │
+│      - 布局（Layout）                 │
+│      - 绘制（Paint）                  │
+│      - 合成（Composite）              │
+└─────────────────────────────────────┘
+              ↓
+         回到步骤 1
+```
+
+**关键点：**
+
+- **JS 执行和渲染互斥**：JS 执行时不会渲染
+- **60Hz 刷新率**：浏览器每 16.6ms 渲染一帧
+- **长任务阻塞**：超过 16.6ms 的 JS 任务会导致掉帧
+
+**示例：长任务导致卡顿**
+
+```javascript
+// 模拟长任务
+function heavyTask() {
+  const start = performance.now();
+  while (performance.now() - start < 100) {
+    // 阻塞 100ms
+  }
+}
+
+button.addEventListener('click', () => {
+  heavyTask();  // 阻塞 100ms
+  // 这期间浏览器无法响应用户操作，无法渲染
+});
+
+// 用户点击按钮后，会感觉卡顿 100ms
+```
+
+### 3.2 为什么用 MessageChannel 而不是 setTimeout？
+
+React 需要一个宏任务 API 来实现时间切片，有几个候选方案：
+
+#### 方案对比
+
+| 方案 | 触发时机 | 最小延迟 | 兼容性 | React 是否使用 |
+|------|---------|---------|--------|---------------|
+| `requestIdleCallback` | 浏览器空闲时 | 不确定（可能 20ms+） | 差（Safari 不支持） | ❌ |
+| `setTimeout(fn, 0)` | 下一个宏任务 | 4ms（嵌套 5 层后） | 好 | ❌ |
+| `MessageChannel` | 下一个宏任务 | 无最小延迟 | 好 | ✅ |
+| `setImmediate` | 下一个宏任务 | 无最小延迟 | 差（只有 IE/Node） | ❌ |
+
+#### setTimeout 的问题
+
+```javascript
+// setTimeout 的最小延迟
+let count = 0;
+let lastTime = performance.now();
+
+function test() {
+  const now = performance.now();
+  const gap = now - lastTime;
+  console.log(`第 ${++count} 次，间隔 ${gap.toFixed(2)}ms`);
+  lastTime = now;
+  
+  if (count < 10) {
+    setTimeout(test, 0);
+  }
+}
+
+setTimeout(test, 0);
+
+// 输出（Chrome）：
+// 第 1 次，间隔 1.20ms
+// 第 2 次，间隔 1.10ms
+// 第 3 次，间隔 1.05ms
+// 第 4 次，间隔 1.15ms
+// 第 5 次，间隔 4.20ms  ← 从第 5 次开始，最小 4ms
+// 第 6 次，间隔 4.10ms
+// 第 7 次，间隔 4.05ms
+// ...
+
+// 浏览器限制：嵌套 5 层以上的 setTimeout，最小延迟 4ms
+```
+
+**为什么 4ms 是个问题？**
+
+```javascript
+// React 的时间切片是 5ms
+// 如果用 setTimeout，每次让步需要等待 4ms
+// 实际可用时间只有 1ms，效率太低
+
+时间线：
+0ms:   开始执行任务
+5ms:   时间片用完，调用 setTimeout(callback, 0)
+9ms:   callback 被执行（等待了 4ms）
+14ms:  时间片用完，再次调用 setTimeout
+18ms:  callback 被执行
+...
+
+// 每个时间片实际只工作 5ms，但总耗时 9ms
+// 效率：5 / 9 = 55.6%
+```
+
+#### MessageChannel 的优势
+
+```javascript
+// MessageChannel 实现
+const channel = new MessageChannel();
+const port1 = channel.port1;
+const port2 = channel.port2;
+
+let count = 0;
+let lastTime = performance.now();
+
+port1.onmessage = function test() {
+  const now = performance.now();
+  const gap = now - lastTime;
+  console.log(`第 ${++count} 次，间隔 ${gap.toFixed(2)}ms`);
+  lastTime = now;
+  
+  if (count < 10) {
+    port2.postMessage(null);
+  }
+};
+
+port2.postMessage(null);
+
+// 输出（Chrome）：
+// 第 1 次，间隔 0.80ms
+// 第 2 次，间隔 0.75ms
+// 第 3 次，间隔 0.70ms
+// 第 4 次，间隔 0.85ms
+// 第 5 次，间隔 0.80ms  ← 没有 4ms 限制
+// 第 6 次，间隔 0.75ms
+// ...
+
+// MessageChannel 没有最小延迟限制
+// 效率：5 / 5.8 ≈ 86%
+```
+
+**React 的实现：**
+
+```javascript
+// packages/scheduler/src/forks/Scheduler.js
+
+const channel = new MessageChannel();
+const port = channel.port2;
+
+channel.port1.onmessage = performWorkUntilDeadline;
+
+function requestHostCallback(callback) {
+  scheduledHostCallback = callback;
+  if (!isMessageLoopRunning) {
+    isMessageLoopRunning = true;
+    port.postMessage(null);  // 触发宏任务
+  }
+}
+
+function performWorkUntilDeadline() {
+  if (scheduledHostCallback !== null) {
+    const currentTime = getCurrentTime();
+    startTime = currentTime;
+    deadline = currentTime + yieldInterval;  // 5ms 后让步
+    
+    const hasTimeRemaining = true;
+    let hasMoreWork = true;
+    
+    try {
+      hasMoreWork = scheduledHostCallback(hasTimeRemaining, currentTime);
+    } finally {
+      if (hasMoreWork) {
+        // 还有工作，继续调度
+        port.postMessage(null);
+      } else {
+        isMessageLoopRunning = false;
+        scheduledHostCallback = null;
+      }
+    }
+  } else {
+    isMessageLoopRunning = false;
+  }
+}
+```
+
+### 3.3 优先级系统：Scheduler Priority vs Lane Priority
+
+React 有两套优先级系统，为什么？
+
+#### Scheduler 优先级（5 个等级）
+
+```javascript
+// packages/scheduler/src/SchedulerPriorities.js
+
+export const NoPriority = 0;
 export const ImmediatePriority = 1;      // 立即执行（最高优先级）
 export const UserBlockingPriority = 2;   // 用户交互（250ms 超时）
 export const NormalPriority = 3;         // 正常优先级（5s 超时）
 export const LowPriority = 4;            // 低优先级（10s 超时）
 export const IdlePriority = 5;           // 空闲优先级（永不超时）
 
-// React 的 Lane 优先级（31 个等级）
+// 超时时间
+const IMMEDIATE_PRIORITY_TIMEOUT = -1;        // 立即过期
+const USER_BLOCKING_PRIORITY_TIMEOUT = 250;   // 250ms
+const NORMAL_PRIORITY_TIMEOUT = 5000;         // 5s
+const LOW_PRIORITY_TIMEOUT = 10000;           // 10s
+const IDLE_PRIORITY_TIMEOUT = maxSigned31BitInt;  // 永不过期
+```
+
+**为什么需要超时时间？**
+
+```javascript
+// 场景：防止饥饿问题
+// 低优先级任务一直被高优先级任务打断，永远得不到执行
+
+// 示例：
+scheduleCallback(NormalPriority, task1);  // 5s 后过期
+scheduleCallback(NormalPriority, task2);  // 5s 后过期
+
+// 3s 后，来了一个高优先级任务
+scheduleCallback(UserBlockingPriority, task3);
+
+// task3 会打断 task1 和 task2
+// 但 2s 后，task1 和 task2 过期了
+// 即使有更多高优先级任务，也必须先执行 task1 和 task2
+```
+
+#### Lane 优先级（31 个等级）
+
+```javascript
+// packages/react-reconciler/src/ReactFiberLane.js
+
+export const NoLanes = 0b0000000000000000000000000000000;
+export const NoLane = NoLanes;
+
+// 同步优先级
 export const SyncLane = 0b0000000000000000000000000000001;
+
+// 连续输入优先级
+export const InputContinuousHydrationLane = 0b0000000000000000000000000000010;
 export const InputContinuousLane = 0b0000000000000000000000000000100;
+
+// 默认优先级
+export const DefaultHydrationLane = 0b0000000000000000000000000001000;
 export const DefaultLane = 0b0000000000000000000000000010000;
+
+// Transition 优先级（16 个）
 export const TransitionLane1 = 0b0000000000000000000000001000000;
-// ... 更多 Transition Lanes
+export const TransitionLane2 = 0b0000000000000000000000010000000;
+// ... TransitionLane3 ~ TransitionLane16
+
+// 空闲优先级
+export const IdleHydrationLane = 0b0010000000000000000000000000000;
 export const IdleLane = 0b0100000000000000000000000000000;
 
-// Lane 到 Scheduler 优先级的映射
+// 离屏优先级
+export const OffscreenLane = 0b1000000000000000000000000000000;
+```
+
+**为什么需要 31 个等级？**
+
+```javascript
+// Lane 模型的优势：支持批量操作
+
+// 场景 1：合并多个更新
+const lane1 = 0b0000000000000000000000000000001;  // SyncLane
+const lane2 = 0b0000000000000000000000000010000;  // DefaultLane
+const merged = lane1 | lane2;  // 0b0000000000000000000000000010001
+
+// 场景 2：检查是否包含某个优先级
+function includesSomeLane(set, subset) {
+  return (set & subset) !== NoLanes;
+}
+
+// 场景 3：移除某个优先级
+function removeLanes(set, subset) {
+  return set & ~subset;
+}
+
+// 场景 4：获取最高优先级
+function getHighestPriorityLane(lanes) {
+  return lanes & -lanes;  // 位运算技巧：获取最低位的 1
+}
+
+// 示例：
+const lanes = 0b0000000000000000000000000010100;
+//                                      ↑ ↑
+//                                      | DefaultLane
+//                                      InputContinuousLane
+
+getHighestPriorityLane(lanes);
+// 返回 0b0000000000000000000000000000100 (InputContinuousLane)
+```
+
+#### Lane 到 Scheduler 优先级的映射
+
+```javascript
+// packages/react-reconciler/src/ReactFiberWorkLoop.js
+
 function lanesToSchedulerPriority(lanes) {
-  if (includesSyncLane(lanes)) {
+  // 找到最高优先级的 lane
+  const lane = getHighestPriorityLane(lanes);
+  
+  if (lane === SyncLane) {
     return ImmediatePriority;
   }
-  if (includesInputContinuousLane(lanes)) {
+  
+  if ((lane & InputContinuousLane) !== NoLanes) {
     return UserBlockingPriority;
   }
-  if (includesDefaultLane(lanes)) {
+  
+  if ((lane & DefaultLane) !== NoLanes) {
     return NormalPriority;
   }
-  if (includesTransitionLane(lanes)) {
-    return LowPriority;
+  
+  if ((lane & TransitionLanes) !== NoLanes) {
+    return NormalPriority;
   }
-  return IdlePriority;
+  
+  if ((lane & IdleLane) !== NoLanes) {
+    return IdlePriority;
+  }
+  
+  return NormalPriority;
 }
 ```
 
-### 3.3 任务调度核心实现
+**为什么需要两套优先级？**
+
+1. **Scheduler 是独立的**：可以被其他库使用，不依赖 React
+2. **Lane 更细粒度**：支持 Transition、Suspense 等复杂场景
+3. **Lane 支持批量操作**：位运算高效合并和检查优先级
+
+### 3.4 任务队列：taskQueue 和 timerQueue
+
+Scheduler 维护两个队列，为什么？
+
+#### 数据结构
 
 ```javascript
-// 任务队列（最小堆实现）
-const taskQueue = [];           // 未过期的任务
-const timerQueue = [];          // 延迟任务
+// packages/scheduler/src/Scheduler.js
 
-// 调度任务
+// 任务队列（最小堆）
+const taskQueue = [];      // 已经可以执行的任务
+const timerQueue = [];     // 延迟任务（还没到执行时间）
+
+// 任务对象
+const newTask = {
+  id: taskIdCounter++,           // 任务 ID
+  callback,                      // 任务函数
+  priorityLevel,                 // 优先级
+  startTime,                     // 开始时间
+  expirationTime,                // 过期时间
+  sortIndex: -1,                 // 排序索引
+};
+```
+
+#### 为什么用最小堆？
+
+```javascript
+// 最小堆的特点：
+// 1. 父节点总是小于子节点
+// 2. 插入：O(log n)
+// 3. 取最小值：O(1)
+// 4. 删除最小值：O(log n)
+
+// 对比数组：
+// 1. 插入：O(1)
+// 2. 取最小值：O(n) - 需要遍历
+// 3. 删除最小值：O(n)
+
+// Scheduler 需要频繁获取最高优先级任务，最小堆更高效
+```
+
+**最小堆实现：**
+
+```javascript
+// packages/scheduler/src/SchedulerMinHeap.js
+
+export function push(heap, node) {
+  const index = heap.length;
+  heap.push(node);
+  siftUp(heap, node, index);
+}
+
+export function peek(heap) {
+  return heap.length === 0 ? null : heap[0];
+}
+
+export function pop(heap) {
+  if (heap.length === 0) {
+    return null;
+  }
+  const first = heap[0];
+  const last = heap.pop();
+  
+  if (last !== first) {
+    heap[0] = last;
+    siftDown(heap, last, 0);
+  }
+  
+  return first;
+}
+
+function siftUp(heap, node, i) {
+  let index = i;
+  
+  while (index > 0) {
+    const parentIndex = (index - 1) >>> 1;  // 父节点索引
+    const parent = heap[parentIndex];
+    
+    if (compare(parent, node) > 0) {
+      // 父节点大于当前节点，交换
+      heap[parentIndex] = node;
+      heap[index] = parent;
+      index = parentIndex;
+    } else {
+      return;
+    }
+  }
+}
+
+function siftDown(heap, node, i) {
+  let index = i;
+  const length = heap.length;
+  const halfLength = length >>> 1;
+  
+  while (index < halfLength) {
+    const leftIndex = (index + 1) * 2 - 1;
+    const left = heap[leftIndex];
+    const rightIndex = leftIndex + 1;
+    const right = heap[rightIndex];
+    
+    // 找到最小的子节点
+    if (compare(left, node) < 0) {
+      if (rightIndex < length && compare(right, left) < 0) {
+        heap[index] = right;
+        heap[rightIndex] = node;
+        index = rightIndex;
+      } else {
+        heap[index] = left;
+        heap[leftIndex] = node;
+        index = leftIndex;
+      }
+    } else if (rightIndex < length && compare(right, node) < 0) {
+      heap[index] = right;
+      heap[rightIndex] = node;
+      index = rightIndex;
+    } else {
+      return;
+    }
+  }
+}
+
+function compare(a, b) {
+  // 按 sortIndex 排序
+  const diff = a.sortIndex - b.sortIndex;
+  return diff !== 0 ? diff : a.id - b.id;
+}
+```
+
+#### taskQueue vs timerQueue
+
+```javascript
 function scheduleCallback(priorityLevel, callback, options) {
   const currentTime = getCurrentTime();
   
@@ -775,30 +1291,29 @@ function scheduleCallback(priorityLevel, callback, options) {
     startTime = currentTime;
   }
   
-  // 根据优先级计算超时时间
+  // 计算过期时间
   let timeout;
   switch (priorityLevel) {
     case ImmediatePriority:
-      timeout = -1;
+      timeout = IMMEDIATE_PRIORITY_TIMEOUT;  // -1
       break;
     case UserBlockingPriority:
-      timeout = 250;
+      timeout = USER_BLOCKING_PRIORITY_TIMEOUT;  // 250ms
       break;
     case IdlePriority:
-      timeout = maxSigned31BitInt;  // 永不超时
+      timeout = IDLE_PRIORITY_TIMEOUT;  // 永不过期
       break;
     case LowPriority:
-      timeout = 10000;
+      timeout = LOW_PRIORITY_TIMEOUT;  // 10s
       break;
     case NormalPriority:
     default:
-      timeout = 5000;
+      timeout = NORMAL_PRIORITY_TIMEOUT;  // 5s
       break;
   }
   
   const expirationTime = startTime + timeout;
   
-  // 创建任务
   const newTask = {
     id: taskIdCounter++,
     callback,
@@ -809,17 +1324,23 @@ function scheduleCallback(priorityLevel, callback, options) {
   };
   
   if (startTime > currentTime) {
-    // 延迟任务，加入 timerQueue
-    newTask.sortIndex = startTime;
+    // ===== 延迟任务，加入 timerQueue =====
+    newTask.sortIndex = startTime;  // 按开始时间排序
     push(timerQueue, newTask);
     
     if (peek(taskQueue) === null && newTask === peek(timerQueue)) {
+      // taskQueue 为空，且这是最早的延迟任务
       // 设置定时器
+      if (isHostTimeoutScheduled) {
+        cancelHostTimeout();
+      } else {
+        isHostTimeoutScheduled = true;
+      }
       requestHostTimeout(handleTimeout, startTime - currentTime);
     }
   } else {
-    // 立即执行的任务，加入 taskQueue
-    newTask.sortIndex = expirationTime;
+    // ===== 立即任务，加入 taskQueue =====
+    newTask.sortIndex = expirationTime;  // 按过期时间排序
     push(taskQueue, newTask);
     
     // 开始调度
@@ -831,6 +1352,68 @@ function scheduleCallback(priorityLevel, callback, options) {
   
   return newTask;
 }
+```
+
+**关键点：**
+
+1. **timerQueue 按 startTime 排序**：最早开始的任务在堆顶
+2. **taskQueue 按 expirationTime 排序**：最早过期的任务在堆顶
+3. **延迟任务到期后移到 taskQueue**：通过 `advanceTimers` 函数
+
+#### advanceTimers：移动到期任务
+
+```javascript
+function advanceTimers(currentTime) {
+  // 检查 timerQueue，将到期的任务移到 taskQueue
+  let timer = peek(timerQueue);
+  
+  while (timer !== null) {
+    if (timer.callback === null) {
+      // 任务被取消，移除
+      pop(timerQueue);
+    } else if (timer.startTime <= currentTime) {
+      // 任务到期，移到 taskQueue
+      pop(timerQueue);
+      timer.sortIndex = timer.expirationTime;
+      push(taskQueue, timer);
+    } else {
+      // 还没到期，停止检查
+      return;
+    }
+    timer = peek(timerQueue);
+  }
+}
+```
+
+**示例：任务调度流程**
+
+```javascript
+// t=0ms: 调度 3 个任务
+scheduleCallback(NormalPriority, task1);           // 立即执行
+scheduleCallback(NormalPriority, task2, { delay: 100 });  // 100ms 后执行
+scheduleCallback(UserBlockingPriority, task3);     // 立即执行
+
+// 初始状态：
+taskQueue = [
+  { id: 1, callback: task1, expirationTime: 5000, sortIndex: 5000 },
+  { id: 3, callback: task3, expirationTime: 250, sortIndex: 250 },
+]
+// task3 在堆顶（expirationTime 更小）
+
+timerQueue = [
+  { id: 2, callback: task2, startTime: 100, sortIndex: 100 },
+]
+
+// t=100ms: advanceTimers 被调用
+advanceTimers(100);
+
+// task2 移到 taskQueue：
+taskQueue = [
+  { id: 3, callback: task3, expirationTime: 250, sortIndex: 250 },
+  { id: 2, callback: task2, expirationTime: 5100, sortIndex: 5100 },
+  { id: 1, callback: task1, expirationTime: 5000, sortIndex: 5000 },
+]
+// task3 仍在堆顶
 ```
 
 ### 3.4 时间切片实现
