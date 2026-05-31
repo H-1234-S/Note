@@ -33,6 +33,6 @@
 
 因此需要先使用 prisma.voice.create 生成一个占位符，获取 voiceId
 
-之后调用 uploadAudio 函数上传音频数据
+之后调用 uploadAudio 函数上传音频数据，同时将 r2ObjectKey 补充到表中
 
 ```
