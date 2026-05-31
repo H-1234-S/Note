@@ -70,7 +70,10 @@ inngest是一个**事件驱动的后台任务/工作流编排平台**，只是**
 ```
 
 
+**run实例存储什么？**
+```
 
+```
 # firecrawl scrape
 
 ## firecrawl

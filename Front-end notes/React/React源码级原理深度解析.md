@@ -1416,52 +1416,41 @@ taskQueue = [
 // task3 仍在堆顶
 ```
 
-### 3.4 时间切片实现
+### 3.5 时间切片与 shouldYield
+
+#### 从 mini-react 到 React 官方
+
+**你的 mini-react：**
 
 ```javascript
-// 使用 MessageChannel 实现时间切片
-const channel = new MessageChannel();
-const port = channel.port2;
-channel.port1.onmessage = performWorkUntilDeadline;
-
-let scheduledHostCallback = null;
-let startTime = -1;
-
-function requestHostCallback(callback) {
-  scheduledHostCallback = callback;
-  // 发送消息，触发宏任务
-  port.postMessage(null);
-}
-
-function performWorkUntilDeadline() {
-  if (scheduledHostCallback !== null) {
-    const currentTime = getCurrentTime();
-    startTime = currentTime;
-    
-    // 计算截止时间（5ms 后）
-    const deadline = currentTime + yieldInterval;
-    
-    const hasTimeRemaining = true;
-    let hasMoreWork = true;
-    
-    try {
-      // 执行任务
-      hasMoreWork = scheduledHostCallback(hasTimeRemaining, currentTime);
-    } finally {
-      if (hasMoreWork) {
-        // 还有任务，继续调度
-        port.postMessage(null);
-      } else {
-        scheduledHostCallback = null;
-      }
-    }
+function workLoop(deadline) {
+  let shouldYield = false;
+  
+  while (nextUnitOfWork && !shouldYield) {
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+    shouldYield = deadline.timeRemaining() < 1;  // 剩余时间 < 1ms
+  }
+  
+  if (nextUnitOfWork) {
+    requestIdleCallback(workLoop);
+  } else {
+    commitRoot();
   }
 }
+```
 
-// 判断是否需要让出控制权
+**React 官方：**
+
+```javascript
+// packages/scheduler/src/Scheduler.js
+
+let yieldInterval = 5;  // 5ms 一个时间切片
+let deadline = 0;
+let startTime = -1;
+
 function shouldYieldToHost() {
   const currentTime = getCurrentTime();
-  return currentTime >= startTime + yieldInterval;  // 超过 5ms
+  return currentTime >= deadline;  // 超过截止时间就让步
 }
 
 // 工作循环
@@ -1472,34 +1461,92 @@ function workLoopConcurrent() {
 }
 ```
 
-**为什么用 MessageChannel 而不是 setTimeout？**
-
-1. **setTimeout 有最小延迟**：4ms（嵌套 5 层以上）
-2. **MessageChannel 更精确**：宏任务，但没有最小延迟
-3. **requestIdleCallback 不稳定**：兼容性差，触发时机不可控
-
-### 3.5 任务执行流程
+#### 为什么是 5ms？
 
 ```javascript
-function flushWork(hasTimeRemaining, initialTime) {
-  isHostCallbackScheduled = false;
-  isPerformingWork = true;
-  
-  try {
-    return workLoop(hasTimeRemaining, initialTime);
-  } finally {
-    currentTask = null;
-    isPerformingWork = false;
+// 浏览器渲染流程：
+// 1 帧 = 16.6ms (60Hz)
+// 
+// 理想情况：
+// ┌─────────────────────────────────────┐
+// │  JS (10ms)  │  Render (6.6ms)       │
+// └─────────────────────────────────────┘
+// 0ms          10ms                   16.6ms
+//
+// 如果 JS 执行超过 16.6ms，就会掉帧
+
+// React 的策略：
+// - 每 5ms 让步一次
+// - 给浏览器机会处理用户输入、渲染等
+// - 即使任务很重，也能保持响应
+
+// 时间线：
+// 0ms:   开始执行 React 任务
+// 5ms:   让步，浏览器可以处理其他事情
+// 6ms:   继续执行 React 任务
+// 11ms:  让步
+// 12ms:  继续执行
+// 16.6ms: 浏览器渲染
+```
+
+**可配置的时间切片：**
+
+```javascript
+// React 允许配置时间切片大小
+// 但默认 5ms 是经过大量测试的最优值
+
+// 如果设置太小（如 1ms）：
+// - 让步太频繁，效率低
+// - 每次让步都有开销（保存/恢复状态）
+
+// 如果设置太大（如 50ms）：
+// - 可能阻塞用户输入
+// - 可能导致掉帧
+
+// 5ms 是一个平衡点
+```
+
+#### performWorkUntilDeadline 实现
+
+```javascript
+function performWorkUntilDeadline() {
+  if (scheduledHostCallback !== null) {
+    const currentTime = getCurrentTime();
+    startTime = currentTime;
+    deadline = currentTime + yieldInterval;  // 设置截止时间
+    
+    const hasTimeRemaining = true;
+    let hasMoreWork = true;
+    
+    try {
+      // 执行任务，返回是否还有更多工作
+      hasMoreWork = scheduledHostCallback(hasTimeRemaining, currentTime);
+    } finally {
+      if (hasMoreWork) {
+        // 还有工作，继续调度
+        port.postMessage(null);
+      } else {
+        // 工作完成
+        isMessageLoopRunning = false;
+        scheduledHostCallback = null;
+      }
+    }
+  } else {
+    isMessageLoopRunning = false;
   }
 }
+```
 
+#### workLoop：任务执行循环
+
+```javascript
 function workLoop(hasTimeRemaining, initialTime) {
   let currentTime = initialTime;
   
-  // 将到期的延迟任务移到 taskQueue
+  // 1. 将到期的延迟任务移到 taskQueue
   advanceTimers(currentTime);
   
-  // 取出最高优先级任务
+  // 2. 取出最高优先级任务
   currentTask = peek(taskQueue);
   
   while (currentTask !== null) {
@@ -1507,16 +1554,20 @@ function workLoop(hasTimeRemaining, initialTime) {
       currentTask.expirationTime > currentTime &&
       (!hasTimeRemaining || shouldYieldToHost())
     ) {
-      // 任务未过期且时间片用完，中断
+      // 任务未过期 且 时间片用完，中断
       break;
     }
     
     const callback = currentTask.callback;
+    
     if (typeof callback === 'function') {
       currentTask.callback = null;
+      currentPriorityLevel = currentTask.priorityLevel;
+      
+      // 判断任务是否超时
       const didUserCallbackTimeout = currentTask.expirationTime <= currentTime;
       
-      // 执行任务
+      // 3. 执行任务
       const continuationCallback = callback(didUserCallbackTimeout);
       
       currentTime = getCurrentTime();
@@ -1531,125 +1582,590 @@ function workLoop(hasTimeRemaining, initialTime) {
         }
       }
       
+      // 4. 再次检查延迟任务
       advanceTimers(currentTime);
     } else {
+      // callback 为 null，任务被取消
       pop(taskQueue);
     }
     
+    // 5. 取下一个任务
     currentTask = peek(taskQueue);
   }
   
-  // 返回是否还有任务
+  // 6. 返回是否还有任务
   if (currentTask !== null) {
-    return true;
+    return true;  // 还有任务
   } else {
+    // taskQueue 为空，检查 timerQueue
     const firstTimer = peek(timerQueue);
     if (firstTimer !== null) {
+      // 设置定时器，等待下一个延迟任务
       requestHostTimeout(handleTimeout, firstTimer.startTime - currentTime);
     }
-    return false;
+    return false;  // 没有任务了
   }
 }
+```
+
+**关键点：**
+
+1. **任务可以返回函数**：表示还有工作要做，下次继续执行
+2. **任务超时会被标记**：`didUserCallbackTimeout` 参数
+3. **每次循环都检查时间**：`shouldYieldToHost()`
+4. **过期任务优先执行**：即使时间片用完，也要执行过期任务
+
+#### 示例：可中断的任务
+
+```javascript
+// React 的 render 任务
+function performConcurrentWorkOnRoot(root, didTimeout) {
+  // 开始渲染
+  let exitStatus = renderRootConcurrent(root, lanes);
+  
+  if (exitStatus === RootInProgress) {
+    // 渲染未完成，返回函数继续执行
+    return performConcurrentWorkOnRoot.bind(null, root);
+  }
+  
+  // 渲染完成，进入 commit 阶段
+  commitRoot(root);
+  
+  // 返回 null 表示任务完成
+  return null;
+}
+
+// 调度
+scheduleCallback(
+  schedulerPriorityLevel,
+  performConcurrentWorkOnRoot.bind(null, root)
+);
+
+// 执行流程：
+// 第 1 次调用：渲染 100 个 Fiber，时间片用完，返回函数
+// 第 2 次调用：继续渲染 100 个 Fiber，时间片用完，返回函数
+// 第 3 次调用：渲染完成，commit，返回 null
+```
+
+### 3.6 完整执行流程示例
+
+让我们追踪一次完整的调度流程：
+
+```javascript
+// 场景：用户点击按钮，触发两个更新
+function App() {
+  const [count, setCount] = useState(0);
+  const [list, setList] = useState([]);
+  
+  const handleClick = () => {
+    setCount(c => c + 1);  // 高优先级
+    startTransition(() => {
+      setList(generateLargeList());  // 低优先级
+    });
+  };
+  
+  return (
+    <>
+      <button onClick={handleClick}>Count: {count}</button>
+      <List items={list} />
+    </>
+  );
+}
+```
+
+#### 时序图
+
+```mermaid
+sequenceDiagram
+    participant User as 用户点击
+    participant Event as 事件处理
+    participant React as React
+    participant Scheduler as Scheduler
+    participant Browser as 浏览器
+    
+    User->>Event: 点击按钮
+    Event->>React: setCount(c => c + 1)
+    React->>React: 标记 SyncLane
+    Event->>React: setList(...) in Transition
+    React->>React: 标记 TransitionLane
+    
+    React->>Scheduler: scheduleCallback(ImmediatePriority, task1)
+    Scheduler->>Scheduler: push(taskQueue, task1)
+    Scheduler->>Scheduler: requestHostCallback(flushWork)
+    Scheduler->>Browser: port.postMessage(null)
+    
+    Browser->>Scheduler: performWorkUntilDeadline
+    Scheduler->>Scheduler: deadline = now + 5ms
+    Scheduler->>Scheduler: workLoop
+    Scheduler->>React: task1() - 渲染 count
+    React->>React: renderRootSync
+    React->>React: commitRoot
+    Scheduler->>Scheduler: task1 完成，pop(taskQueue)
+    
+    Scheduler->>React: scheduleCallback(NormalPriority, task2)
+    Scheduler->>Scheduler: push(taskQueue, task2)
+    Scheduler->>Browser: port.postMessage(null)
+    
+    Browser->>Scheduler: performWorkUntilDeadline
+    Scheduler->>React: task2() - 渲染 list
+    React->>React: renderRootConcurrent
+    React->>React: workLoopConcurrent
+    React->>Scheduler: shouldYieldToHost() = true
+    React->>Scheduler: 返回 continuationCallback
+    
+    Scheduler->>Browser: port.postMessage(null)
+    Browser->>Scheduler: performWorkUntilDeadline
+    Scheduler->>React: task2() - 继续渲染 list
+    React->>React: workLoopConcurrent
+    React->>React: 渲染完成
+    React->>React: commitRoot
+    Scheduler->>Scheduler: task2 完成
+```
+
+#### 详细步骤
+
+**1. 用户点击，触发更新**
+
+```javascript
+// t=0ms
+setCount(c => c + 1);  // SyncLane
+startTransition(() => {
+  setList(generateLargeList());  // TransitionLane
+});
+```
+
+**2. 调度高优先级任务**
+
+```javascript
+// scheduleUpdateOnFiber
+const lane = SyncLane;
+const schedulerPriority = ImmediatePriority;
+
+scheduleCallback(
+  ImmediatePriority,
+  performSyncWorkOnRoot.bind(null, root)
+);
+
+// taskQueue = [
+//   { id: 1, callback: performSyncWorkOnRoot, expirationTime: -1 }
+// ]
+```
+
+**3. 执行高优先级任务**
+
+```javascript
+// t=1ms: MessageChannel 触发
+performWorkUntilDeadline();
+  → workLoop()
+    → task1 = peek(taskQueue)  // performSyncWorkOnRoot
+    → task1.callback()
+      → renderRootSync()  // 同步渲染，不可中断
+      → commitRoot()
+    → pop(taskQueue)  // 任务完成
+
+// 高优先级任务完成，count 更新到 DOM
+```
+
+**4. 调度低优先级任务**
+
+```javascript
+// t=5ms
+const lane = TransitionLane;
+const schedulerPriority = NormalPriority;
+
+scheduleCallback(
+  NormalPriority,
+  performConcurrentWorkOnRoot.bind(null, root)
+);
+
+// taskQueue = [
+//   { id: 2, callback: performConcurrentWorkOnRoot, expirationTime: 5005 }
+// ]
+```
+
+**5. 执行低优先级任务（第 1 次）**
+
+```javascript
+// t=6ms: MessageChannel 触发
+performWorkUntilDeadline();
+  deadline = 6 + 5 = 11ms
+  
+  → workLoop()
+    → task2 = peek(taskQueue)
+    → task2.callback()
+      → renderRootConcurrent()
+        → workLoopConcurrent()
+          while (workInProgress !== null && !shouldYieldToHost()) {
+            performUnitOfWork(workInProgress);
+          }
+          // t=11ms: shouldYieldToHost() = true
+          // 渲染了 100 个 Fiber，但还没完成
+      → return performConcurrentWorkOnRoot  // 返回函数
+    
+    → task2.callback = performConcurrentWorkOnRoot  // 更新 callback
+    → return true  // 还有工作
+
+// 任务未完成，继续调度
+port.postMessage(null);
+```
+
+**6. 执行低优先级任务（第 2 次）**
+
+```javascript
+// t=12ms: MessageChannel 触发
+performWorkUntilDeadline();
+  deadline = 12 + 5 = 17ms
+  
+  → workLoop()
+    → task2.callback()
+      → renderRootConcurrent()
+        → workLoopConcurrent()
+          // 继续渲染剩余的 Fiber
+          // t=15ms: 渲染完成
+      → commitRoot()
+      → return null  // 任务完成
+    
+    → pop(taskQueue)
+    → return false  // 没有任务了
+
+// 所有任务完成
+```
+
+**时间线总结：**
+
+```
+0ms:   用户点击
+1ms:   调度高优先级任务
+1ms:   执行高优先级任务（同步）
+5ms:   高优先级任务完成，count 更新
+6ms:   调度低优先级任务
+6ms:   执行低优先级任务（第 1 次）
+11ms:  时间片用完，让步
+12ms:  继续执行低优先级任务（第 2 次）
+15ms:  低优先级任务完成，list 更新
+16.6ms: 浏览器渲染
+
+总耗时：15ms
+用户感知：count 立即更新（5ms），list 稍后更新（15ms）
 ```
 
 ---
 
 ## 第四部分：协调过程 Reconciliation
 
-### 4.1 Render 阶段概览
+### 4.0 从 mini-react 的 Reconciliation 说起
 
-Render 阶段是**纯内存操作**，可以被中断：
+#### 回顾：你的 mini-react 如何协调？
 
 ```javascript
-function renderRootConcurrent(root, lanes) {
-  // 准备新的工作栈
-  prepareFreshStack(root, lanes);
+// 你的实现
+function reconcileChildren(wipFiber, elements) {
+  let index = 0;
+  let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
+  let prevSibling = null;
   
-  do {
-    try {
-      workLoopConcurrent();
-      break;
-    } catch (thrownValue) {
-      handleError(root, thrownValue);
+  while (index < elements.length || oldFiber != null) {
+    const element = elements[index];
+    let newFiber = null;
+    
+    // 比较 type
+    const sameType = oldFiber && element && element.type === oldFiber.type;
+    
+    if (sameType) {
+      // 更新
+      newFiber = {
+        type: oldFiber.type,
+        props: element.props,
+        dom: oldFiber.dom,
+        parent: wipFiber,
+        alternate: oldFiber,
+        effectTag: 'UPDATE',
+      };
     }
-  } while (true);
-  
-  // 工作完成
-  if (workInProgress !== null) {
-    // 还有工作，返回 InProgress
-    return RootInProgress;
-  } else {
-    // 工作完成，返回完成状态
-    return workInProgressRootExitStatus;
-  }
-}
-
-function workLoopConcurrent() {
-  // 可中断的工作循环
-  while (workInProgress !== null && !shouldYield()) {
-    performUnitOfWork(workInProgress);
-  }
-}
-
-function workLoopSync() {
-  // 同步工作循环（不可中断）
-  while (workInProgress !== null) {
-    performUnitOfWork(workInProgress);
+    
+    if (element && !sameType) {
+      // 新增
+      newFiber = {
+        type: element.type,
+        props: element.props,
+        dom: null,
+        parent: wipFiber,
+        alternate: null,
+        effectTag: 'PLACEMENT',
+      };
+    }
+    
+    if (oldFiber && !sameType) {
+      // 删除
+      oldFiber.effectTag = 'DELETION';
+      deletions.push(oldFiber);
+    }
+    
+    if (oldFiber) {
+      oldFiber = oldFiber.sibling;
+    }
+    
+    if (index === 0) {
+      wipFiber.child = newFiber;
+    } else if (element) {
+      prevSibling.sibling = newFiber;
+    }
+    
+    prevSibling = newFiber;
+    index++;
   }
 }
 ```
 
-### 4.2 beginWork：向下遍历
+这个实现已经有了 Diff 的核心思想！但有几个问题：
 
-`beginWork` 的核心任务：
-1. 根据 `current` 判断是否可以复用
-2. 调用组件函数/类方法，获取子元素
-3. 进行 Diff，生成子 Fiber
-4. 标记副作用
+#### 问题 1：没有 key 的支持
 
 ```javascript
-function beginWork(current, workInProgress, renderLanes) {
-  // 1. 尝试复用（bailout 优化）
-  if (current !== null) {
-    const oldProps = current.memoizedProps;
-    const newProps = workInProgress.pendingProps;
-    
-    if (
-      oldProps !== newProps ||
-      hasLegacyContextChanged() ||
-      workInProgress.type !== current.type
-    ) {
-      didReceiveUpdate = true;
-    } else if (!includesSomeLane(renderLanes, workInProgress.lanes)) {
-      // props 没变，且优先级不够，跳过
-      didReceiveUpdate = false;
-      return bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
-    }
+// 场景：列表插入
+旧：[A, B, C]
+新：[A, D, B, C]
+
+// 你的 mini-react：
+// 1. A vs A：type 相同，UPDATE
+// 2. B vs D：type 不同，DELETE B，PLACEMENT D
+// 3. C vs B：type 不同，DELETE C，PLACEMENT B
+// 4. null vs C：PLACEMENT C
+
+// 结果：1 次 UPDATE + 3 次 DELETE + 3 次 PLACEMENT
+// 实际上只需要：1 次 UPDATE + 1 次 PLACEMENT
+```
+
+**为什么没有 key 会导致性能问题？**
+
+```javascript
+// 没有 key 的情况
+<ul>
+  <li>A</li>
+  <li>B</li>
+  <li>C</li>
+</ul>
+
+// 插入 D
+<ul>
+  <li>A</li>
+  <li>D</li>  {/* 新增 */}
+  <li>B</li>
+  <li>C</li>
+</ul>
+
+// 你的 mini-react 会认为：
+// - 第 2 个位置：B → D（删除 B，创建 D）
+// - 第 3 个位置：C → B（删除 C，创建 B）
+// - 第 4 个位置：null → C（创建 C）
+
+// 有 key 的情况
+<ul>
+  <li key="a">A</li>
+  <li key="b">B</li>
+  <li key="c">C</li>
+</ul>
+
+// 插入 D
+<ul>
+  <li key="a">A</li>
+  <li key="d">D</li>  {/* 新增 */}
+  <li key="b">B</li>
+  <li key="c">C</li>
+</ul>
+
+// React 官方会认为：
+// - key="a"：复用
+// - key="d"：新增
+// - key="b"：复用（移动）
+// - key="c"：复用（移动）
+```
+
+#### 问题 2：没有 bailout 优化
+
+```javascript
+// 场景：父组件更新，子组件 props 没变
+function Parent() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <>
+      <button onClick={() => setCount(c => c + 1)}>{count}</button>
+      <Child name="Alice" />  {/* props 没变 */}
+    </>
+  );
+}
+
+// 你的 mini-react：
+// - 每次 Parent 更新，Child 都会重新渲染
+// - 即使 Child 的 props 没有变化
+
+// React 官方：
+// - 检查 props 是否变化
+// - 如果没变，跳过 Child 的渲染（bailout）
+```
+
+#### 问题 3：没有 subtreeFlags 优化
+
+```javascript
+// 你的 mini-react 在 Commit 阶段：
+function commitRoot() {
+  deletions.forEach(commitWork);
+  commitWork(wipRoot.child);  // 遍历整棵树
+  currentRoot = wipRoot;
+  wipRoot = null;
+}
+
+function commitWork(fiber) {
+  if (!fiber) return;
+  
+  // 处理当前节点
+  // ...
+  
+  // 递归处理子节点
+  commitWork(fiber.child);
+  commitWork(fiber.sibling);
+}
+
+// 问题：
+// - 即使子树没有任何副作用，也要遍历
+// - 浪费时间
+```
+
+**React 官方的解决方案：subtreeFlags**
+
+```javascript
+// Render 阶段：收集子树的副作用
+function completeWork(current, workInProgress) {
+  // ...
+  
+  // 收集子树的副作用标记
+  let subtreeFlags = NoFlags;
+  let child = workInProgress.child;
+  
+  while (child !== null) {
+    subtreeFlags |= child.subtreeFlags;
+    subtreeFlags |= child.flags;
+    child = child.sibling;
   }
   
-  // 2. 清空优先级
-  workInProgress.lanes = NoLanes;
+  workInProgress.subtreeFlags = subtreeFlags;
+}
+
+// Commit 阶段：快速跳过没有副作用的子树
+function commitMutationEffects(root, finishedWork) {
+  if ((finishedWork.subtreeFlags & MutationMask) === NoFlags) {
+    // 子树没有副作用，跳过
+    return;
+  }
   
-  // 3. 根据 tag 处理不同类型组件
-  switch (workInProgress.tag) {
-    case FunctionComponent: {
-      const Component = workInProgress.type;
-      const unresolvedProps = workInProgress.pendingProps;
-      return updateFunctionComponent(
-        current,
-        workInProgress,
-        Component,
-        unresolvedProps,
-        renderLanes
-      );
+  // 有副作用，继续处理
+  commitMutationEffectsOnFiber(finishedWork);
+}
+```
+
+### 4.1 Child Reconciliation：核心 Diff 算法
+
+React 的 Diff 算法基于三个假设：
+
+1. **不同类型的元素会产生不同的树**
+2. **通过 key 标识哪些元素是稳定的**
+3. **只对同层节点进行比较**（不跨层比较）
+
+#### 单节点 Diff
+
+```javascript
+// packages/react-reconciler/src/ReactChildFiber.js
+
+function reconcileSingleElement(
+  returnFiber,
+  currentFirstChild,
+  element,
+  lanes
+) {
+  const key = element.key;
+  let child = currentFirstChild;
+  
+  // 遍历旧的子节点
+  while (child !== null) {
+    // 1. 比较 key
+    if (child.key === key) {
+      // 2. 比较 type
+      if (child.elementType === element.type) {
+        // ===== key 和 type 都相同，复用 =====
+        deleteRemainingChildren(returnFiber, child.sibling);
+        
+        const existing = useFiber(child, element.props);
+        existing.ref = coerceRef(returnFiber, child, element);
+        existing.return = returnFiber;
+        return existing;
+      } else {
+        // key 相同但 type 不同，删除所有旧节点
+        deleteRemainingChildren(returnFiber, child);
+        break;
+      }
+    } else {
+      // key 不同，删除当前节点
+      deleteChild(returnFiber, child);
     }
-    case ClassComponent: {
-      const Component = workInProgress.type;
-      const unresolvedProps = workInProgress.pendingProps;
-      return updateClassComponent(
-        current,
-        workInProgress,
-        Component,
+    child = child.sibling;
+  }
+  
+  // 创建新节点
+  const created = createFiberFromElement(element, returnFiber.mode, lanes);
+  created.ref = coerceRef(returnFiber, currentFirstChild, element);
+  created.return = returnFiber;
+  return created;
+}
+```
+
+**为什么 key 相同但 type 不同要删除所有节点？**
+
+```javascript
+// 场景：
+旧：<div key="a">A</div> → <span key="b">B</span> → <p key="c">C</p>
+新：<span key="a">A</span>
+
+// 流程：
+// 1. 比较第 1 个节点：
+//    - key 相同（都是 "a"）
+//    - type 不同（div vs span）
+//    - 删除所有旧节点（div、span、p）
+//    - 创建新节点（span）
+
+// 为什么要删除所有？
+// - key 相同说明这是同一个元素
+// - type 不同说明元素类型变了
+// - 既然类型变了，后面的兄弟节点也不可能复用
+// - 直接删除所有，避免无意义的比较
+```
+
+**示例：单节点 Diff 流程**
+
+```javascript
+// 示例 1：type 相同，复用
+旧：<div key="a">A</div> → <span key="b">B</span> → <p key="c">C</p>
+新：<div key="a">A+</div>
+
+// 流程：
+// 1. 比较 key="a"：相同
+// 2. 比较 type=div：相同
+// 3. 复用 div，更新 props
+// 4. 删除 span 和 p
+
+// 示例 2：key 不同，删除并创建
+旧：<div key="a">A</div> → <span key="b">B</span> → <p key="c">C</p>
+新：<div key="d">D</div>
+
+// 流程：
+// 1. 比较 key：a vs d，不同
+// 2. 删除 div(key="a")
+// 3. 比较 key：b vs d，不同
+// 4. 删除 span(key="b")
+// 5. 比较 key：c vs d，不同
+// 6. 删除 p(key="c")
+// 7. 创建新的 div(key="d")
+```
         unresolvedProps,
         renderLanes
       );
@@ -1665,14 +2181,363 @@ function beginWork(current, workInProgress, renderLanes) {
 }
 ```
 
-### 4.3 Diff 算法详解
+#### 多节点 Diff：两轮遍历
 
-React 的 Diff 算法基于三个假设：
-1. **不同类型的元素会产生不同的树**
-2. **通过 key 标识哪些元素是稳定的**
-3. **只对同层节点进行比较**
+多节点 Diff 是 React 最复杂的部分，采用**两轮遍历**策略。
 
-#### 4.3.1 单节点 Diff
+**为什么需要两轮遍历？**
+
+```javascript
+// 常见场景分析：
+// 1. 节点更新：A B C → A B' C（最常见）
+// 2. 节点新增：A B C → A B C D
+// 3. 节点删除：A B C D → A B C
+// 4. 节点移动：A B C → A C B（较少见）
+
+// React 的策略：
+// - 第一轮遍历：处理更新（最常见的情况）
+// - 第二轮遍历：处理移动、新增、删除
+```
+
+**完整实现：**
+
+```javascript
+function reconcileChildrenArray(
+  returnFiber,
+  currentFirstChild,
+  newChildren,
+  lanes
+) {
+  let resultingFirstChild = null;
+  let previousNewFiber = null;
+  
+  let oldFiber = currentFirstChild;
+  let lastPlacedIndex = 0;  // 最后一个不需要移动的节点的索引
+  let newIdx = 0;
+  let nextOldFiber = null;
+  
+  // ===== 第一轮遍历：处理更新的节点 =====
+  for (; oldFiber !== null && newIdx < newChildren.length; newIdx++) {
+    if (oldFiber.index > newIdx) {
+      nextOldFiber = oldFiber;
+      oldFiber = null;
+    } else {
+      nextOldFiber = oldFiber.sibling;
+    }
+    
+    // 尝试复用
+    const newFiber = updateSlot(
+      returnFiber,
+      oldFiber,
+      newChildren[newIdx],
+      lanes
+    );
+    
+    if (newFiber === null) {
+      // key 不同，跳出第一轮遍历
+      if (oldFiber === null) {
+        oldFiber = nextOldFiber;
+      }
+      break;
+    }
+    
+    if (shouldTrackSideEffects) {
+      if (oldFiber && newFiber.alternate === null) {
+        // 没有复用，删除旧节点
+        deleteChild(returnFiber, oldFiber);
+      }
+    }
+    
+    lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);
+    
+    if (previousNewFiber === null) {
+      resultingFirstChild = newFiber;
+    } else {
+      previousNewFiber.sibling = newFiber;
+    }
+    previousNewFiber = newFiber;
+    oldFiber = nextOldFiber;
+  }
+  
+  // ===== 情况 1：新节点遍历完，删除剩余旧节点 =====
+  if (newIdx === newChildren.length) {
+    deleteRemainingChildren(returnFiber, oldFiber);
+    return resultingFirstChild;
+  }
+  
+  // ===== 情况 2：旧节点遍历完，插入剩余新节点 =====
+  if (oldFiber === null) {
+    for (; newIdx < newChildren.length; newIdx++) {
+      const newFiber = createChild(returnFiber, newChildren[newIdx], lanes);
+      if (newFiber === null) continue;
+      
+      lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);
+      
+      if (previousNewFiber === null) {
+        resultingFirstChild = newFiber;
+      } else {
+        previousNewFiber.sibling = newFiber;
+      }
+      previousNewFiber = newFiber;
+    }
+    return resultingFirstChild;
+  }
+  
+  // ===== 第二轮遍历：处理移动的节点 =====
+  // 将剩余旧节点放入 Map
+  const existingChildren = mapRemainingChildren(returnFiber, oldFiber);
+  
+  for (; newIdx < newChildren.length; newIdx++) {
+    const newFiber = updateFromMap(
+      existingChildren,
+      returnFiber,
+      newIdx,
+      newChildren[newIdx],
+      lanes
+    );
+    
+    if (newFiber !== null) {
+      if (shouldTrackSideEffects) {
+        if (newFiber.alternate !== null) {
+          // 复用了，从 Map 中删除
+          existingChildren.delete(
+            newFiber.key === null ? newIdx : newFiber.key
+          );
+        }
+      }
+      
+      lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);
+      
+      if (previousNewFiber === null) {
+        resultingFirstChild = newFiber;
+      } else {
+        previousNewFiber.sibling = newFiber;
+      }
+      previousNewFiber = newFiber;
+    }
+  }
+  
+  // 删除 Map 中剩余的旧节点
+  if (shouldTrackSideEffects) {
+    existingChildren.forEach(child => deleteChild(returnFiber, child));
+  }
+  
+  return resultingFirstChild;
+}
+```
+
+**关键函数：updateSlot**
+
+```javascript
+function updateSlot(returnFiber, oldFiber, newChild, lanes) {
+  const key = oldFiber !== null ? oldFiber.key : null;
+  
+  if (typeof newChild === 'object' && newChild !== null) {
+    if (newChild.key === key) {
+      // key 相同，尝试复用
+      if (newChild.type === oldFiber.type) {
+        return useFiber(oldFiber, newChild.props);
+      } else {
+        return createFiberFromElement(newChild, returnFiber.mode, lanes);
+      }
+    } else {
+      // key 不同，返回 null，跳出第一轮遍历
+      return null;
+    }
+  }
+  
+  return null;
+}
+```
+
+**关键函数：placeChild**
+
+```javascript
+function placeChild(newFiber, lastPlacedIndex, newIndex) {
+  newFiber.index = newIndex;
+  
+  if (!shouldTrackSideEffects) {
+    // 首次渲染，不需要标记
+    return lastPlacedIndex;
+  }
+  
+  const current = newFiber.alternate;
+  if (current !== null) {
+    const oldIndex = current.index;
+    if (oldIndex < lastPlacedIndex) {
+      // ===== 需要移动 =====
+      newFiber.flags |= Placement;
+      return lastPlacedIndex;
+    } else {
+      // ===== 不需要移动 =====
+      return oldIndex;
+    }
+  } else {
+    // 新插入的节点
+    newFiber.flags |= Placement;
+    return lastPlacedIndex;
+  }
+}
+```
+
+**核心算法：lastPlacedIndex**
+
+这是 React Diff 算法的精髓！
+
+```javascript
+// lastPlacedIndex 的含义：
+// "最后一个不需要移动的节点在旧列表中的位置"
+
+// 规则：
+// - 如果节点的 oldIndex < lastPlacedIndex，需要移动
+// - 如果节点的 oldIndex >= lastPlacedIndex，不需要移动，更新 lastPlacedIndex
+
+// 为什么这样设计？
+// - 只向右移动，不向左移动
+// - 最小化 DOM 操作次数
+```
+
+**示例 1：节点移动**
+
+```javascript
+旧：A(0) → B(1) → C(2) → D(3)
+新：A(0) → C(1) → B(2) → D(3)
+
+// 第一轮遍历：
+newIdx=0: A vs A
+  - key 相同，type 相同，复用
+  - oldIndex=0, lastPlacedIndex=0
+  - 0 >= 0，不移动
+  - lastPlacedIndex = 0
+
+newIdx=1: B vs C
+  - key 不同，跳出第一轮遍历
+
+// 第二轮遍历：
+// 将 B(1)、C(2)、D(3) 放入 Map
+existingChildren = {
+  B: Fiber(B, oldIndex=1),
+  C: Fiber(C, oldIndex=2),
+  D: Fiber(D, oldIndex=3),
+}
+
+newIdx=1: 处理 C
+  - 在 Map 中找到 C，oldIndex=2
+  - 2 >= 0，不移动
+  - lastPlacedIndex = 2
+  - 从 Map 删除 C
+
+newIdx=2: 处理 B
+  - 在 Map 中找到 B，oldIndex=1
+  - 1 < 2，需要移动！
+  - 标记 Placement
+  - lastPlacedIndex = 2（不变）
+  - 从 Map 删除 B
+
+newIdx=3: 处理 D
+  - 在 Map 中找到 D，oldIndex=3
+  - 3 >= 2，不移动
+  - lastPlacedIndex = 3
+  - 从 Map 删除 D
+
+// 结果：只移动 B
+```
+
+**示例 2：节点新增**
+
+```javascript
+旧：A(0) → B(1) → C(2)
+新：A(0) → D(1) → B(2) → C(3)
+
+// 第一轮遍历：
+newIdx=0: A vs A
+  - 复用，lastPlacedIndex = 0
+
+newIdx=1: B vs D
+  - key 不同，跳出
+
+// 第二轮遍历：
+existingChildren = {
+  B: Fiber(B, oldIndex=1),
+  C: Fiber(C, oldIndex=2),
+}
+
+newIdx=1: 处理 D
+  - Map 中没有 D，创建新节点
+  - 标记 Placement
+  - lastPlacedIndex = 0（不变）
+
+newIdx=2: 处理 B
+  - 在 Map 中找到 B，oldIndex=1
+  - 1 >= 0，不移动
+  - lastPlacedIndex = 1
+
+newIdx=3: 处理 C
+  - 在 Map 中找到 C，oldIndex=2
+  - 2 >= 1，不移动
+  - lastPlacedIndex = 2
+
+// 结果：只插入 D
+```
+
+**示例 3：最坏情况**
+
+```javascript
+旧：A(0) → B(1) → C(2) → D(3)
+新：D(0) → C(1) → B(2) → A(3)
+
+// 第一轮遍历：
+newIdx=0: A vs D
+  - key 不同，跳出
+
+// 第二轮遍历：
+existingChildren = {
+  A: Fiber(A, oldIndex=0),
+  B: Fiber(B, oldIndex=1),
+  C: Fiber(C, oldIndex=2),
+  D: Fiber(D, oldIndex=3),
+}
+
+newIdx=0: 处理 D
+  - oldIndex=3
+  - 3 >= 0，不移动
+  - lastPlacedIndex = 3
+
+newIdx=1: 处理 C
+  - oldIndex=2
+  - 2 < 3，移动！
+
+newIdx=2: 处理 B
+  - oldIndex=1
+  - 1 < 3，移动！
+
+newIdx=3: 处理 A
+  - oldIndex=0
+  - 0 < 3，移动！
+
+// 结果：移动 C、B、A（3 次移动）
+// 实际上只需要移动 D 到最前面（1 次移动）
+
+// 这是 React Diff 算法的局限性：
+// - 只向右移动，不向左移动
+// - 某些情况下不是最优解
+// - 但算法简单，时间复杂度 O(n)
+```
+
+**为什么不用最优算法？**
+
+```javascript
+// 最优算法（最长递增子序列）：
+// - 可以找到最少的移动次数
+// - 时间复杂度 O(n log n)
+// - 实现复杂
+
+// React 的选择：
+// - 简单的 O(n) 算法
+// - 大多数情况下表现良好
+// - 最坏情况也可以接受
+// - 代码简单，易于维护
+```
 
 ```javascript
 function reconcileSingleElement(
@@ -1730,9 +2595,467 @@ function reconcileSingleElement(
    - 删除 C
 ```
 
-#### 4.3.2 多节点 Diff
+### 4.2 bailout 优化：跳过不必要的渲染
 
-多节点 Diff 分为**两轮遍历**：
+#### 从 mini-react 到 React 官方
+
+**你的 mini-react：**
+
+```javascript
+// 你的实现：每次都重新渲染
+function reconcileChildren(wipFiber, elements) {
+  // 总是创建新的 Fiber 或更新
+  // 没有检查 props 是否变化
+}
+```
+
+**React 官方：bailout 策略**
+
+```javascript
+function beginWork(current, workInProgress, renderLanes) {
+  if (current !== null) {
+    const oldProps = current.memoizedProps;
+    const newProps = workInProgress.pendingProps;
+    
+    if (
+      oldProps === newProps &&
+      !hasLegacyContextChanged() &&
+      !includesSomeLane(renderLanes, workInProgress.lanes)
+    ) {
+      // ===== 满足 bailout 条件，跳过渲染 =====
+      return bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
+    }
+  }
+  
+  // 继续渲染
+  // ...
+}
+```
+
+#### bailout 的四个条件
+
+```javascript
+// 1. oldProps === newProps
+//    - props 引用相等（浅比较）
+//    - 这就是为什么 React.memo 有效
+
+// 2. !hasLegacyContextChanged()
+//    - Context 没有变化
+
+// 3. workInProgress.type === current.type
+//    - 组件类型没有变化
+
+// 4. !includesSomeLane(renderLanes, workInProgress.lanes)
+//    - 当前优先级不包含此 Fiber 的更新
+```
+
+**bailoutOnAlreadyFinishedWork 实现：**
+
+```javascript
+function bailoutOnAlreadyFinishedWork(
+  current,
+  workInProgress,
+  renderLanes
+) {
+  // 清空优先级
+  workInProgress.lanes = NoLanes;
+  
+  // 检查子树是否有更新
+  if (!includesSomeLane(renderLanes, workInProgress.childLanes)) {
+    // ===== 子树也没有更新，直接跳过整个子树 =====
+    return null;
+  }
+  
+  // ===== 子树有更新，克隆子节点继续处理 =====
+  cloneChildFibers(current, workInProgress);
+  return workInProgress.child;
+}
+```
+
+**关键点：childLanes**
+
+```javascript
+// childLanes 的作用：
+// - 记录子树中所有更新的优先级
+// - 快速判断子树是否需要处理
+
+// 示例：
+//       App (lanes: NoLanes, childLanes: DefaultLane)
+//        |
+//      Header (lanes: NoLanes, childLanes: NoLanes)
+//        |
+//      Content (lanes: DefaultLane, childLanes: NoLanes)
+//        |
+//      Footer (lanes: NoLanes, childLanes: NoLanes)
+
+// 处理 App：
+// - App 自己没有更新（lanes: NoLanes）
+// - 但子树有更新（childLanes: DefaultLane）
+// - 不能跳过，继续处理子节点
+
+// 处理 Header：
+// - Header 自己没有更新
+// - 子树也没有更新（childLanes: NoLanes）
+// - 跳过整个 Header 子树
+
+// 处理 Content：
+// - Content 有更新（lanes: DefaultLane）
+// - 重新渲染 Content
+```
+
+#### 示例：bailout 的威力
+
+```javascript
+function App() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <>
+      <button onClick={() => setCount(c => c + 1)}>{count}</button>
+      <ExpensiveTree />  {/* props 没变 */}
+    </>
+  );
+}
+
+function ExpensiveTree() {
+  // 渲染 1000 个节点
+  return (
+    <div>
+      {Array.from({ length: 1000 }, (_, i) => (
+        <div key={i}>Item {i}</div>
+      ))}
+    </div>
+  );
+}
+
+// 没有 bailout：
+// - 每次 setCount，ExpensiveTree 都重新渲染
+// - 需要处理 1000+ 个 Fiber 节点
+
+// 有 bailout：
+// - ExpensiveTree 的 props 没变（都是 undefined）
+// - oldProps === newProps（都是 {}）
+// - 跳过 ExpensiveTree 及其 1000 个子节点
+// - 只处理 button 节点
+```
+
+#### React.memo 的本质
+
+```javascript
+// React.memo 的实现
+function memo(type, compare) {
+  const elementType = {
+    $$typeof: REACT_MEMO_TYPE,
+    type,
+    compare: compare === undefined ? null : compare,
+  };
+  return elementType;
+}
+
+// 在 beginWork 中处理
+function updateMemoComponent(
+  current,
+  workInProgress,
+  Component,
+  nextProps,
+  renderLanes
+) {
+  if (current === null) {
+    // 首次渲染
+    return mountMemoComponent(/* ... */);
+  }
+  
+  const currentChild = current.child;
+  
+  if (!includesSomeLane(renderLanes, workInProgress.lanes)) {
+    // 优先级不够，bailout
+    return bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
+  }
+  
+  const prevProps = currentChild.memoizedProps;
+  
+  // 使用自定义比较函数或默认的浅比较
+  let compare = Component.compare;
+  compare = compare !== null ? compare : shallowEqual;
+  
+  if (compare(prevProps, nextProps) && current.ref === workInProgress.ref) {
+    // ===== props 相等，bailout =====
+    return bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
+  }
+  
+  // props 不等，继续渲染
+  // ...
+}
+
+// 默认的浅比较
+function shallowEqual(objA, objB) {
+  if (Object.is(objA, objB)) {
+    return true;
+  }
+  
+  if (
+    typeof objA !== 'object' ||
+    objA === null ||
+    typeof objB !== 'object' ||
+    objB === null
+  ) {
+    return false;
+  }
+  
+  const keysA = Object.keys(objA);
+  const keysB = Object.keys(objB);
+  
+  if (keysA.length !== keysB.length) {
+    return false;
+  }
+  
+  for (let i = 0; i < keysA.length; i++) {
+    const key = keysA[i];
+    if (
+      !objB.hasOwnProperty(key) ||
+      !Object.is(objA[key], objB[key])
+    ) {
+      return false;
+    }
+  }
+  
+  return true;
+}
+```
+
+**React.memo 的常见陷阱：**
+
+```javascript
+// ❌ 错误：每次渲染创建新对象
+function Parent() {
+  return <Child config={{ theme: 'dark' }} />;
+}
+
+const Child = React.memo(function Child({ config }) {
+  // 每次 Parent 渲染，config 都是新对象
+  // React.memo 无效
+  return <div>{config.theme}</div>;
+});
+
+// ✅ 正确：使用 useMemo
+function Parent() {
+  const config = useMemo(() => ({ theme: 'dark' }), []);
+  return <Child config={config} />;
+}
+
+// ✅ 正确：直接传递原始值
+function Parent() {
+  return <Child theme="dark" />;
+}
+
+const Child = React.memo(function Child({ theme }) {
+  return <div>{theme}</div>;
+});
+```
+
+### 4.3 Fiber 复用策略
+
+#### useFiber：复用 Fiber 节点
+
+```javascript
+function useFiber(fiber, pendingProps) {
+  // 复用 alternate Fiber
+  const clone = createWorkInProgress(fiber, pendingProps);
+  clone.index = 0;
+  clone.sibling = null;
+  return clone;
+}
+
+function createWorkInProgress(current, pendingProps) {
+  let workInProgress = current.alternate;
+  
+  if (workInProgress === null) {
+    // ===== 首次渲染：创建新 Fiber =====
+    workInProgress = createFiber(
+      current.tag,
+      pendingProps,
+      current.key,
+      current.mode
+    );
+    workInProgress.elementType = current.elementType;
+    workInProgress.type = current.type;
+    workInProgress.stateNode = current.stateNode;
+    
+    // 建立双向连接
+    workInProgress.alternate = current;
+    current.alternate = workInProgress;
+  } else {
+    // ===== 更新渲染：复用 Fiber =====
+    workInProgress.pendingProps = pendingProps;
+    workInProgress.type = current.type;
+    
+    // 清空副作用
+    workInProgress.flags = NoFlags;
+    workInProgress.subtreeFlags = NoFlags;
+    workInProgress.deletions = null;
+  }
+  
+  // 复制状态
+  workInProgress.childLanes = current.childLanes;
+  workInProgress.lanes = current.lanes;
+  workInProgress.child = current.child;
+  workInProgress.memoizedProps = current.memoizedProps;
+  workInProgress.memoizedState = current.memoizedState;
+  workInProgress.updateQueue = current.updateQueue;
+  workInProgress.dependencies = current.dependencies;
+  
+  return workInProgress;
+}
+```
+
+**双缓存机制的优势：**
+
+```javascript
+// 初始状态：
+FiberRoot.current → Fiber Tree A
+
+// 更新过程：
+FiberRoot.current → Fiber Tree A
+                    ↓ alternate
+                    Fiber Tree B (正在构建)
+
+// 提交完成：
+FiberRoot.current → Fiber Tree B
+                    ↓ alternate
+                    Fiber Tree A (保留，下次更新复用)
+
+// 下次更新：
+FiberRoot.current → Fiber Tree B
+                    ↓ alternate
+                    Fiber Tree A (复用，不需要创建新对象)
+
+// 优势：
+// 1. 内存复用：两棵树交替使用
+// 2. 快速切换：只需改变指针
+// 3. 回滚能力：更新失败可以保留 current 树
+```
+
+### 4.4 subtreeFlags：快速跳过子树
+
+#### 从 mini-react 到 React 官方
+
+**你的 mini-react：**
+
+```javascript
+// Commit 阶段：遍历整棵树
+function commitWork(fiber) {
+  if (!fiber) return;
+  
+  // 处理当前节点
+  if (fiber.effectTag === 'PLACEMENT') {
+    // ...
+  } else if (fiber.effectTag === 'UPDATE') {
+    // ...
+  } else if (fiber.effectTag === 'DELETION') {
+    // ...
+  }
+  
+  // 递归处理子节点（即使没有副作用）
+  commitWork(fiber.child);
+  commitWork(fiber.sibling);
+}
+```
+
+**React 官方：subtreeFlags 优化**
+
+```javascript
+// Render 阶段：收集子树的副作用
+function completeWork(current, workInProgress, renderLanes) {
+  // ... 处理节点
+  
+  // 收集子树的副作用标记
+  bubbleProperties(workInProgress);
+  
+  return null;
+}
+
+function bubbleProperties(completedWork) {
+  let subtreeFlags = NoFlags;
+  let child = completedWork.child;
+  
+  // 遍历所有子节点
+  while (child !== null) {
+    subtreeFlags |= child.subtreeFlags;
+    subtreeFlags |= child.flags;
+    child = child.sibling;
+  }
+  
+  completedWork.subtreeFlags = subtreeFlags;
+}
+
+// Commit 阶段：快速跳过没有副作用的子树
+function commitMutationEffects(root, finishedWork, committedLanes) {
+  if ((finishedWork.subtreeFlags & MutationMask) === NoFlags) {
+    // ===== 子树没有副作用，跳过 =====
+    return;
+  }
+  
+  // 有副作用，继续处理
+  commitMutationEffectsOnFiber(finishedWork, root, committedLanes);
+}
+```
+
+**示例：subtreeFlags 的威力**
+
+```javascript
+// 组件树：
+//       App (flags: Update, subtreeFlags: Update | Placement)
+//        |
+//      ├─ Header (flags: NoFlags, subtreeFlags: NoFlags)
+//      |   └─ Logo (flags: NoFlags, subtreeFlags: NoFlags)
+//      |
+//      ├─ Content (flags: Update, subtreeFlags: Placement)
+//      |   ├─ Article (flags: NoFlags, subtreeFlags: Placement)
+//      |   |   └─ Paragraph (flags: Placement, subtreeFlags: NoFlags)
+//      |   └─ Sidebar (flags: NoFlags, subtreeFlags: NoFlags)
+//      |
+//      └─ Footer (flags: NoFlags, subtreeFlags: NoFlags)
+
+// Commit 阶段遍历：
+// 1. App: subtreeFlags 有副作用，继续
+// 2. Header: subtreeFlags 无副作用，跳过整个 Header 子树
+// 3. Content: subtreeFlags 有副作用，继续
+// 4. Article: subtreeFlags 有副作用，继续
+// 5. Paragraph: flags 有副作用，处理
+// 6. Sidebar: subtreeFlags 无副作用，跳过
+// 7. Footer: subtreeFlags 无副作用，跳过
+
+// 结果：
+// - 只处理了 App、Content、Article、Paragraph
+// - 跳过了 Header、Logo、Sidebar、Footer
+// - 大幅减少遍历次数
+```
+
+**对比 React 17 的 Effect List：**
+
+```javascript
+// React 17：维护副作用链表
+// - Render 阶段：将有副作用的 Fiber 串成链表
+// - Commit 阶段：只遍历链表
+
+// 优点：Commit 阶段只遍历有副作用的节点
+// 缺点：
+// - 需要维护链表（额外开销）
+// - 代码复杂
+// - 难以支持 Suspense（需要暂停/恢复链表）
+
+// React 18：使用 subtreeFlags
+// - Render 阶段：向上冒泡副作用标记
+// - Commit 阶段：根据 subtreeFlags 跳过子树
+
+// 优点：
+// - 代码简单
+// - 支持 Suspense
+// - 性能相当（大多数情况下）
+
+// 缺点：
+// - 仍需要遍历树结构（但可以快速跳过）
+```
 
 ```javascript
 function reconcileChildrenArray(
