@@ -34,9 +34,23 @@
               "icon": "lucide-file",
               "title": "React源码级原理深度解析"
             }
+          },
+          {
+            "id": "b5498422e2d2be4c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Project notes/Polaris/Logs.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Logs"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -153,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/React/React源码级原理深度解析.md",
+                "file": "Project notes/Polaris/Logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "React源码级原理深度解析 的大纲"
+              "title": "Logs 的大纲"
             }
           },
           {
@@ -210,8 +224,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "822025c5af5d3678",
+  "active": "b5498422e2d2be4c",
   "lastOpenFiles": [
+    "Front-end notes/React/React源码级原理深度解析.md",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197847869",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197808702",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197773739",
@@ -220,11 +235,9 @@
     "Front-end notes/React/React源码深度剖析-从mini-react到官方实现.md",
     "Front-end notes/React/React源码深度剖析-从mini-react到官方实现.md.tmp.19680.1780197399807",
     "Front-end notes/React/React源码深度剖析-从mini-react到官方实现.md.tmp.19680.1780197379332",
-    "Front-end notes/React/React源码级原理深度解析.md",
     "Front-end notes/React/React源码深度剖析-从mini-react到官方实现.md.tmp.19680.1780197359407",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197225115",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197152976",
-    "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197137078",
     "Front-end notes/Node.js/Node.js核心原理深度讲解.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Front-end notes/TypeScript/TypeScript完全指南.md",
