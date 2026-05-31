@@ -13,5 +13,7 @@
 
 当用户点击暂停时，也就是调用stopRecording函数
 
-在函数中调用recorder.stopRecording方法暂停录音，调用recorder.getBlob方法获取音频数据
+在函数中调用recorder.stopRecording方法暂停录音，调用recorder.getBlob方法获取类型为audio/wav音频数据
+
+
 ```
