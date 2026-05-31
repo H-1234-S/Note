@@ -23,7 +23,7 @@
 
 如果用户选择完其他参数，点击提交后，向/api/voices/create发送请求，将基本的参数用查询参数传递，将file在请求体里
 
-在route
+在route中进行基本的鉴权操作，safeParse数据
 
 
 
