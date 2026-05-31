@@ -9,5 +9,9 @@
 ```
 用户点击录制按钮，其实是调用startRecording函数
 
-在函数中对recordRTC初始化
+在函数获取麦克风权限、中对recordRTC初始化，调用recorder.startRecording方法开始录音
+
+当用户点击暂停时，也就是调用stopRecording函数
+
+在函数中调用recorder.stopRecording方法暂停录音，调用recorder.getBlob方法获取音频数据
 ```
