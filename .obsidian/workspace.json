@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/Logs.md",
+                "file": "Front-end notes/React/React源码级原理深度解析.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Logs 的大纲"
+              "title": "React源码级原理深度解析 的大纲"
             }
           },
           {
@@ -224,10 +224,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b5498422e2d2be4c",
+  "active": "822025c5af5d3678",
   "lastOpenFiles": [
-    "Front-end notes/React/React源码级原理深度解析.md",
     "Project notes/Polaris/Logs.md",
+    "Front-end notes/React/React源码级原理深度解析.md",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198519142",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198463213",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198421804",

@@ -43,16 +43,16 @@
 
 但 React 官方实现还有很多你的 mini-react 没有的东西：
 
-| 特性 | mini-react | React 官方 | 为什么需要？ |
-|------|-----------|-----------|------------|
-| **优先级调度** | ❌ 所有更新平等 | ✅ Lane 模型 | 高优先级任务（用户输入）可以打断低优先级任务（列表渲染） |
-| **Scheduler** | ❌ 直接用 `requestIdleCallback` | ✅ 独立的调度器 | `requestIdleCallback` 兼容性差，React 用 `MessageChannel` 实现 |
-| **批量更新** | ❌ 每次 `setState` 都渲染 | ✅ 自动批处理 | 多个 `setState` 合并成一次渲染 |
-| **bailout 优化** | ❌ 每次都重新渲染 | ✅ props 没变就跳过 | 避免不必要的渲染 |
-| **subtreeFlags** | ❌ 遍历整棵树 | ✅ 快速跳过子树 | Commit 阶段不需要遍历没有副作用的子树 |
-| **updateQueue** | ❌ 直接替换 state | ✅ 更新队列 | 支持多个 `setState` 排队执行 |
-| **Context 优化** | ❌ | ✅ 依赖追踪 | Context 变化只更新依赖的组件 |
-| **并发特性** | ❌ | ✅ Suspense、Transition | 提升用户体验 |
+| 特性               | mini-react                  | React 官方              | 为什么需要？                                                 |
+| ---------------- | --------------------------- | --------------------- | ------------------------------------------------------ |
+| **优先级调度**        | ❌ 所有更新平等                    | ✅ Lane 模型             | 高优先级任务（用户输入）可以打断低优先级任务（列表渲染）                           |
+| **Scheduler**    | ❌ 直接用 `requestIdleCallback` | ✅ 独立的调度器              | `requestIdleCallback` 兼容性差，React 用 `MessageChannel` 实现 |
+| **批量更新**         | ❌ 每次 `setState` 都渲染         | ✅ 自动批处理               | 多个 `setState` 合并成一次渲染                                  |
+| **bailout 优化**   | ❌ 每次都重新渲染                   | ✅ props 没变就跳过         | 避免不必要的渲染                                               |
+| **subtreeFlags** | ❌ 遍历整棵树                     | ✅ 快速跳过子树              | Commit 阶段不需要遍历没有副作用的子树                                 |
+| **updateQueue**  | ❌ 直接替换 state                | ✅ 更新队列                | 支持多个 `setState` 排队执行                                   |
+| **Context 优化**   | ❌                           | ✅ 依赖追踪                | Context 变化只更新依赖的组件                                     |
+| **并发特性**         | ❌                           | ✅ Suspense、Transition | 提升用户体验                                                 |
 
 ### 本文的组织方式
 
