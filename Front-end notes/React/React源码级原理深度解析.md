@@ -2,8 +2,17 @@
 
 > 面向已掌握 React 使用和 mini React 实现的开发者，系统讲解 React 底层运行原理
 
+## 阅读指南
+
+本文采用"问题驱动"的方式，每个知识点都会回答：
+1. **要解决什么问题？**
+2. **mini-react 为什么做不到？**
+3. **React 官方是如何解决的？**
+4. **这样设计的 trade-off 是什么？**
+
 ## 目录
 
+- [前言：从 mini-react 到 React 官方实现](#前言从-mini-react-到-react-官方实现)
 - [第一部分：架构设计](#第一部分架构设计)
 - [第二部分：Fiber 架构深入](#第二部分fiber-架构深入)
 - [第三部分：调度系统 Scheduler](#第三部分调度系统-scheduler)
@@ -15,9 +24,161 @@
 
 ---
 
+## 前言：从 mini-react 到 React 官方实现
+
+### 你的 mini-react 已经实现了什么？
+
+回顾你的 mini-react 实现，你已经掌握了 React 的核心概念：
+
+1. ✅ **虚拟 DOM**：`createElement` 创建轻量级 JS 对象
+2. ✅ **Fiber 架构**：通过 `child`、`sibling`、`parent` 构建链表
+3. ✅ **可中断渲染**：`requestIdleCallback` + `workLoop`
+4. ✅ **双缓存**：`currentRoot` 和 `wipRoot` 交替切换
+5. ✅ **Diff 算法**：通过 `alternate` 对比新旧节点
+6. ✅ **副作用标记**：`PLACEMENT`、`UPDATE`、`DELETION`
+7. ✅ **Commit 阶段**：一次性提交所有 DOM 变更
+8. ✅ **Hooks**：`useState` 的基础实现
+
+### React 官方实现多了什么？
+
+但 React 官方实现还有很多你的 mini-react 没有的东西：
+
+| 特性 | mini-react | React 官方 | 为什么需要？ |
+|------|-----------|-----------|------------|
+| **优先级调度** | ❌ 所有更新平等 | ✅ Lane 模型 | 高优先级任务（用户输入）可以打断低优先级任务（列表渲染） |
+| **Scheduler** | ❌ 直接用 `requestIdleCallback` | ✅ 独立的调度器 | `requestIdleCallback` 兼容性差，React 用 `MessageChannel` 实现 |
+| **批量更新** | ❌ 每次 `setState` 都渲染 | ✅ 自动批处理 | 多个 `setState` 合并成一次渲染 |
+| **bailout 优化** | ❌ 每次都重新渲染 | ✅ props 没变就跳过 | 避免不必要的渲染 |
+| **subtreeFlags** | ❌ 遍历整棵树 | ✅ 快速跳过子树 | Commit 阶段不需要遍历没有副作用的子树 |
+| **updateQueue** | ❌ 直接替换 state | ✅ 更新队列 | 支持多个 `setState` 排队执行 |
+| **Context 优化** | ❌ | ✅ 依赖追踪 | Context 变化只更新依赖的组件 |
+| **并发特性** | ❌ | ✅ Suspense、Transition | 提升用户体验 |
+
+### 本文的组织方式
+
+接下来，我会按照以下路径展开：
+
+1. **对比差异**：每个知识点都会先展示 mini-react 的实现，再讲解 React 官方的改进
+2. **问题驱动**：解释为什么需要这个特性，解决了什么问题
+3. **源码级讲解**：结合关键源码，讲解实现原理
+4. **图解 + 执行流程**：用图表和时序图帮助理解
+
+---
+
 ## 第一部分：架构设计
 
-### 1.1 React 的三层架构
+### 1.1 从 mini-react 的问题说起
+
+#### 问题 1：你的 mini-react 能处理这个场景吗？
+
+```javascript
+function App() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  
+  const handleInput = (e) => {
+    setQuery(e.target.value);  // 用户输入
+  };
+  
+  useEffect(() => {
+    // 搜索 10000 条数据，很慢
+    const data = searchInLargeDataset(query);
+    setResults(data);
+  }, [query]);
+  
+  return (
+    <>
+      <input value={query} onChange={handleInput} />
+      <ResultList items={results} />  {/* 渲染 1000+ 个节点 */}
+    </>
+  );
+}
+```
+
+**在你的 mini-react 中会发生什么？**
+
+```
+用户输入 "a"
+  ↓
+setQuery("a") 触发更新
+  ↓
+workLoop 开始处理 Fiber 树
+  ↓
+渲染 ResultList（1000+ 个节点，耗时 100ms）
+  ↓
+用户继续输入 "b"，但必须等待
+  ↓
+100ms 后才能响应用户输入
+  ↓
+用户感觉卡顿 ❌
+```
+
+**为什么会卡顿？**
+
+虽然你实现了 `requestIdleCallback` 和时间切片，但有一个致命问题：
+
+```javascript
+// 你的 mini-react
+function workLoop(deadline) {
+  let shouldYield = false;
+  
+  while (nextUnitOfWork && !shouldYield) {
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+    shouldYield = deadline.timeRemaining() < 1;
+  }
+  
+  requestIdleCallback(workLoop);
+}
+```
+
+**问题在哪？**
+
+1. **所有更新都是平等的**：用户输入和列表渲染没有优先级区分
+2. **无法打断正在进行的更新**：一旦开始渲染列表，必须等它完成
+3. **`requestIdleCallback` 的问题**：
+   - 兼容性差（Safari 不支持）
+   - 触发频率不稳定（可能 20ms 才触发一次）
+   - 在后台标签页可能完全不触发
+
+#### 问题 2：多次 setState 会发生什么？
+
+```javascript
+function handleClick() {
+  setCount(c => c + 1);  // 第 1 次
+  setCount(c => c + 1);  // 第 2 次
+  setCount(c => c + 1);  // 第 3 次
+}
+```
+
+**在你的 mini-react 中：**
+
+```javascript
+// 你的 useState 实现
+const setState = action => {
+  hook.queue.push(action);
+  
+  // 每次都重新开启 work loop
+  wipRoot = {
+    dom: currentRoot.dom,
+    props: currentRoot.props,
+    alternate: currentRoot,
+  };
+  nextUnitOfWork = wipRoot;
+  deletions = [];
+};
+```
+
+**会触发 3 次渲染！**
+
+```
+setCount(1) → 开始渲染 → Commit
+setCount(2) → 开始渲染 → Commit
+setCount(3) → 开始渲染 → Commit
+
+总共 3 次 DOM 操作，性能浪费
+```
+
+### 1.2 React 官方的解决方案：三层架构
 
 React 16+ 采用了清晰的三层架构设计：
 
@@ -27,6 +188,7 @@ React 16+ 采用了清晰的三层架构设计：
 │   - 任务优先级管理                    │
 │   - 时间切片                         │
 │   - 任务调度                         │
+│   - 批量更新                         │
 └─────────────────────────────────────┘
               ↓
 ┌─────────────────────────────────────┐
@@ -34,6 +196,7 @@ React 16+ 采用了清晰的三层架构设计：
 │   - Fiber 树构建                     │
 │   - Diff 算法                        │
 │   - 副作用标记                       │
+│   - 优先级判断                       │
 └─────────────────────────────────────┘
               ↓
 ┌─────────────────────────────────────┐
@@ -48,6 +211,165 @@ React 16+ 采用了清晰的三层架构设计：
 
 1. **Scheduler 与 Reconciler 解耦**：调度逻辑独立，可中断可恢复
 2. **Reconciler 与 Renderer 解耦**：协调过程平台无关，渲染层可替换
+3. **异步可中断更新**：支持时间切片，避免长任务阻塞
+
+#### 解决问题 1：优先级调度
+
+```javascript
+// React 官方的处理流程
+用户输入 "a"
+  ↓
+setQuery("a") → 标记为 SyncLane（最高优先级）
+  ↓
+开始渲染 ResultList（DefaultLane，低优先级）
+  ↓
+用户输入 "b"，产生新的 SyncLane 更新
+  ↓
+Scheduler 检测到高优先级任务
+  ↓
+打断 ResultList 渲染，保存进度
+  ↓
+立即处理 setQuery("b")，更新输入框
+  ↓
+继续渲染 ResultList（基于最新的 "b"）
+  ↓
+用户感觉流畅 ✅
+```
+
+**关键代码：**
+
+```javascript
+// 调度更新时分配优先级
+function scheduleUpdateOnFiber(fiber, lane) {
+  // 根据更新类型分配不同的 lane
+  // 用户输入 → SyncLane
+  // 普通更新 → DefaultLane
+  // Transition → TransitionLane
+  
+  if (lane === SyncLane) {
+    // 同步更新，立即执行
+    performSyncWorkOnRoot(root);
+  } else {
+    // 异步更新，调度执行
+    ensureRootIsScheduled(root);
+  }
+}
+
+// 工作循环中检查是否需要让步
+function workLoopConcurrent() {
+  while (workInProgress !== null && !shouldYield()) {
+    performUnitOfWork(workInProgress);
+  }
+}
+
+function shouldYield() {
+  // 检查是否有更高优先级的任务
+  const currentTime = getCurrentTime();
+  if (currentTime >= deadline) {
+    // 时间片用完
+    return true;
+  }
+  
+  // 检查是否有更高优先级的任务等待
+  if (hasHigherPriorityWork()) {
+    return true;
+  }
+  
+  return false;
+}
+```
+
+#### 解决问题 2：批量更新
+
+```javascript
+// React 18 的自动批处理
+function handleClick() {
+  setCount(c => c + 1);  // 不会立即渲染
+  setCount(c => c + 1);  // 不会立即渲染
+  setCount(c => c + 1);  // 不会立即渲染
+  // React 会合并这 3 次更新，只渲染 1 次
+}
+
+// 实现原理
+let executionContext = NoContext;
+
+function batchedUpdates(fn) {
+  const prevContext = executionContext;
+  executionContext |= BatchedContext;  // 标记批量更新
+  
+  try {
+    return fn();
+  } finally {
+    executionContext = prevContext;
+    
+    if (executionContext === NoContext) {
+      // 批量更新结束，刷新队列
+      flushSyncCallbacks();
+    }
+  }
+}
+```
+
+### 1.3 为什么需要独立的 Scheduler？
+
+**mini-react 的问题：**
+
+```javascript
+// 直接使用 requestIdleCallback
+requestIdleCallback(workLoop);
+```
+
+**React 官方为什么不用 `requestIdleCallback`？**
+
+1. **兼容性问题**：Safari 不支持
+2. **触发频率不稳定**：可能 20ms 才触发一次，太慢
+3. **后台标签页不触发**：用户切换标签页后，更新会停止
+4. **无法控制优先级**：所有任务都是平等的
+
+**React 的解决方案：MessageChannel**
+
+```javascript
+// Scheduler 使用 MessageChannel 实现时间切片
+const channel = new MessageChannel();
+const port = channel.port2;
+
+channel.port1.onmessage = performWorkUntilDeadline;
+
+function requestHostCallback(callback) {
+  scheduledHostCallback = callback;
+  port.postMessage(null);  // 触发宏任务
+}
+
+function performWorkUntilDeadline() {
+  const currentTime = getCurrentTime();
+  deadline = currentTime + yieldInterval;  // 5ms 后让步
+  
+  const hasMoreWork = scheduledHostCallback(true, currentTime);
+  
+  if (hasMoreWork) {
+    // 还有工作，继续调度
+    port.postMessage(null);
+  }
+}
+```
+
+**为什么用 MessageChannel？**
+
+1. **兼容性好**：所有现代浏览器都支持
+2. **触发及时**：宏任务，在下一个事件循环立即执行
+3. **可控性强**：可以精确控制时间切片（5ms）
+4. **支持优先级**：可以根据优先级决定是否让步
+
+**对比：**
+
+| 方案 | 触发时机 | 兼容性 | 可控性 | React 是否使用 |
+|------|---------|--------|--------|---------------|
+| `requestIdleCallback` | 浏览器空闲时 | 差（Safari 不支持） | 差 | ❌ |
+| `setTimeout(fn, 0)` | 下一个宏任务 | 好 | 一般（最小 4ms 延迟） | ❌ |
+| `MessageChannel` | 下一个宏任务 | 好 | 好（无最小延迟） | ✅ |
+| `setImmediate` | 下一个宏任务 | 差（只有 IE 支持） | 好 | ❌ |
+
+---
 3. **异步可中断更新**：支持时间切片，避免长任务阻塞
 
 ### 1.2 为什么需要 Fiber 架构？
