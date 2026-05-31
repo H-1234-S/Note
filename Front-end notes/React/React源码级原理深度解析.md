@@ -1972,29 +1972,204 @@ commitHookEffectListMount(HookLayout | HookHasEffect, finishedWork);
 
 ## 第六部分：Hooks 实现原理
 
-### 6.1 Hooks 的数据结构
+### 6.0 从 mini-react 的 Hooks 说起
+
+#### 回顾：你的 mini-react 中的 useState
 
 ```javascript
-// Hook 对象
-type Hook = {
-  memoizedState: any;        // 当前状态
-  baseState: any;            // 基础状态（用于计算最终状态）
-  baseQueue: Update<any>;    // 基础更新队列
-  queue: UpdateQueue<any>;   // 更新队列
-  next: Hook | null;         // 下一个 Hook
-};
+// 你的实现
+let wipFiber = null;
+let hookIndex = null;
 
-// 函数组件的 memoizedState 存储 Hooks 链表
-FunctionComponent.memoizedState = Hook1 → Hook2 → Hook3 → ...
+function useState(initial) {
+  const oldHook =
+    wipFiber.alternate &&
+    wipFiber.alternate.hooks &&
+    wipFiber.alternate.hooks[hookIndex];
+    
+  const hook = {
+    state: oldHook ? oldHook.state : initial,
+    queue: [],
+  };
+  
+  // 处理更新队列
+  const actions = oldHook ? oldHook.queue : [];
+  actions.forEach(action => {
+    hook.state = action(hook.state);
+  });
+  
+  const setState = action => {
+    hook.queue.push(action);
+    
+    // 触发重新渲染
+    wipRoot = {
+      dom: currentRoot.dom,
+      props: currentRoot.props,
+      alternate: currentRoot,
+    };
+    nextUnitOfWork = wipRoot;
+    deletions = [];
+  };
+  
+  wipFiber.hooks.push(hook);
+  hookIndex++;
+  return [hook.state, setState];
+}
 ```
 
-**不同 Hook 的 memoizedState：**
+这个实现已经很好了！你理解了 Hooks 的核心概念：
+
+1. ✅ **链表结构**：通过 `hookIndex` 维护调用顺序
+2. ✅ **状态复用**：通过 `alternate` 获取旧状态
+3. ✅ **更新队列**：`queue` 存储多个 `setState`
+4. ✅ **触发渲染**：`setState` 重新设置 `wipRoot`
+
+#### 但是，有几个问题你的实现无法解决
+
+**问题 1：闭包陷阱**
 
 ```javascript
-// useState
-hook.memoizedState = state;
+function Counter() {
+  const [count, setCount] = useState(0);
+  
+  const handleClick = () => {
+    setTimeout(() => {
+      setCount(count + 1);  // 闭包捕获的是旧的 count
+    }, 3000);
+  };
+  
+  return <button onClick={handleClick}>Count: {count}</button>;
+}
 
-// useReducer
+// 用户快速点击 3 次
+// 期望：count 变成 3
+// 实际：count 变成 1（因为 3 次 setTimeout 都捕获了 count = 0）
+```
+
+**你的 mini-react 能处理这个吗？**
+
+不能！因为你的 `setState` 直接执行 `action(hook.state)`，而 `action` 是 `count + 1`，这个 `count` 是闭包捕获的旧值。
+
+**问题 2：优先级更新**
+
+```javascript
+// 场景：有一个低优先级更新正在进行
+setState(1);  // 低优先级
+
+// 突然来了一个高优先级更新
+setState(2);  // 高优先级
+
+// 期望：先执行高优先级，再执行低优先级
+// 你的 mini-react：按顺序执行，无法区分优先级
+```
+
+**问题 3：批量更新**
+
+```javascript
+function handleClick() {
+  setCount(c => c + 1);
+  setCount(c => c + 1);
+  setCount(c => c + 1);
+}
+
+// 你的 mini-react：每次 setState 都触发渲染（3 次）
+// React 官方：合并成 1 次渲染
+```
+
+### 6.1 Hooks 的数据结构
+
+#### mini-react vs React 官方
+
+**你的 mini-react：**
+
+```javascript
+const hook = {
+  state: 0,           // 当前状态
+  queue: [action1, action2],  // 更新队列
+};
+```
+
+**React 官方：**
+
+```javascript
+type Hook = {
+  memoizedState: any,        // 当前状态
+  baseState: any,            // 基础状态（用于优先级更新）
+  baseQueue: Update<any>,    // 基础更新队列
+  queue: UpdateQueue<any>,   // 更新队列
+  next: Hook | null,         // 下一个 Hook
+};
+```
+
+**为什么需要 `baseState` 和 `baseQueue`？**
+
+这是为了解决**优先级更新**的问题。让我们通过一个例子理解：
+
+```javascript
+// 场景：有 3 个更新
+setState(1);  // 低优先级
+setState(2);  // 高优先级
+setState(3);  // 低优先级
+
+// 第一次渲染：只处理高优先级更新
+baseState = 0
+baseQueue = [update1(低), update3(低)]
+memoizedState = 2  // 只执行了 update2
+
+// 第二次渲染：处理所有更新
+baseState = 0  // 从基础状态开始
+执行 update1 → state = 1
+执行 update2 → state = 2
+执行 update3 → state = 3
+memoizedState = 3
+```
+
+**图解优先级更新：**
+
+```
+初始状态：state = 0
+
+更新队列：
+┌─────────┐    ┌─────────┐    ┌─────────┐
+│ update1 │ -> │ update2 │ -> │ update3 │
+│ 低优先级 │    │ 高优先级 │    │ 低优先级 │
+│ +1      │    │ +2      │    │ +3      │
+└─────────┘    └─────────┘    └─────────┘
+
+第一次渲染（只处理高优先级）：
+baseState = 0
+跳过 update1 → 放入 baseQueue
+执行 update2 → state = 2
+跳过 update3 → 放入 baseQueue
+memoizedState = 2
+
+第二次渲染（处理所有更新）：
+从 baseState = 0 开始
+执行 update1 → state = 1
+执行 update2 → state = 3  // 基于 state = 1
+执行 update3 → state = 6  // 基于 state = 3
+memoizedState = 6
+```
+
+**为什么这样设计？**
+
+保证**状态的一致性**。如果不从 `baseState` 重新计算，可能会丢失更新：
+
+```javascript
+// 错误的做法：
+第一次渲染：state = 2（只执行 update2）
+第二次渲染：state = 2 + 1 + 3 = 6  // ❌ 错误！
+
+// 正确的做法：
+第一次渲染：state = 2
+第二次渲染：从 baseState = 0 重新计算
+  0 + 1 + 2 + 3 = 6  // ✅ 正确！
+```
+
+#### 不同 Hook 的 memoizedState
+
+```javascript
+// useState / useReducer
 hook.memoizedState = state;
 
 // useEffect
@@ -2016,37 +2191,107 @@ hook.memoizedState = [value, deps];
 hook.memoizedState = [callback, deps];
 ```
 
-### 6.2 Hooks 的调用时机
+**为什么 useEffect 的结构这么复杂？**
 
-React 使用全局变量区分 mount 和 update：
+因为 effect 需要：
+1. **延迟执行**：不能在渲染时立即执行
+2. **清理函数**：需要保存上一次的清理函数
+3. **依赖比较**：需要保存依赖数组
+4. **链表组织**：一个组件可能有多个 effect
+
+### 6.2 Dispatcher 切换机制
+
+#### 为什么需要 Dispatcher？
+
+**问题：如何区分 mount 和 update？**
 
 ```javascript
-// 当前正在渲染的 Fiber
+// 第一次渲染（mount）
+const [count, setCount] = useState(0);  // 需要初始化
+
+// 第二次渲染（update）
+const [count, setCount] = useState(0);  // 需要复用旧状态
+```
+
+**你的 mini-react 的做法：**
+
+```javascript
+function useState(initial) {
+  const oldHook = wipFiber.alternate?.hooks?.[hookIndex];
+  
+  // 通过 oldHook 是否存在判断是 mount 还是 update
+  const hook = {
+    state: oldHook ? oldHook.state : initial,
+    queue: [],
+  };
+  // ...
+}
+```
+
+这样可以工作，但有个问题：**每次都要判断**。
+
+**React 官方的做法：Dispatcher 切换**
+
+```javascript
+// 全局变量
 let currentlyRenderingFiber = null;
-
-// 当前正在工作的 Hook
 let workInProgressHook = null;
-
-// 当前 Hook 对应的旧 Hook
 let currentHook = null;
 
-// Mount 时的 Hooks 实现
+// Mount 时的实现
 const HooksDispatcherOnMount = {
   useState: mountState,
   useEffect: mountEffect,
-  useLayoutEffect: mountLayoutEffect,
-  useMemo: mountMemo,
-  useCallback: mountCallback,
-  useRef: mountRef,
   // ...
 };
 
-// Update 时的 Hooks 实现
+// Update 时的实现
 const HooksDispatcherOnUpdate = {
   useState: updateState,
   useEffect: updateEffect,
-  useLayoutEffect: updateLayoutEffect,
-  useMemo: updateMemo,
+  // ...
+};
+
+// 渲染函数组件时切换 Dispatcher
+function renderWithHooks(current, workInProgress, Component, props) {
+  currentlyRenderingFiber = workInProgress;
+  
+  // 根据 current 判断是 mount 还是 update
+  ReactCurrentDispatcher.current =
+    current === null || current.memoizedState === null
+      ? HooksDispatcherOnMount
+      : HooksDispatcherOnUpdate;
+  
+  // 执行组件函数
+  let children = Component(props);
+  
+  // 重置
+  ReactCurrentDispatcher.current = ContextOnlyDispatcher;
+  return children;
+}
+```
+
+**优势：**
+
+1. **性能更好**：不需要每次都判断
+2. **代码更清晰**：mount 和 update 逻辑分离
+3. **错误检测**：可以检测 Hooks 是否在正确的地方调用
+
+**错误检测示例：**
+
+```javascript
+// ContextOnlyDispatcher：用于检测错误
+const ContextOnlyDispatcher = {
+  useState() {
+    throw new Error('Hooks can only be called inside a function component');
+  },
+};
+
+// 如果在组件外调用 useState
+const [count, setCount] = useState(0);  // ❌ 抛出错误
+```
+
+
   useCallback: updateCallback,
   useRef: updateRef,
   // ...
@@ -2108,7 +2353,243 @@ function App() {
 // Hooks 链表长度不一致，导致错乱
 ```
 
-### 6.3 useState 实现
+### 6.3 useState 的完整实现
+
+#### 回顾问题：闭包陷阱
+
+```javascript
+function Counter() {
+  const [count, setCount] = useState(0);
+  
+  const handleClick = () => {
+    setTimeout(() => {
+      setCount(count + 1);  // 闭包捕获的是旧的 count
+    }, 3000);
+  };
+  
+  return <button onClick={handleClick}>Count: {count}</button>;
+}
+```
+
+**你的 mini-react 为什么无法解决？**
+
+```javascript
+// 你的实现
+const setState = action => {
+  hook.queue.push(action);  // action 是 count + 1，count 已经被闭包捕获
+  // ...
+};
+
+// 用户点击 3 次
+// queue = [0 + 1, 0 + 1, 0 + 1]
+// 最终 state = 1  ❌
+```
+
+**React 官方的解决方案：函数式更新**
+
+```javascript
+// 正确的写法
+setCount(c => c + 1);  // 传入函数，而不是值
+
+// 这样 queue 中存的是函数
+// queue = [c => c + 1, c => c + 1, c => c + 1]
+// 执行时：0 → 1 → 2 → 3  ✅
+```
+
+#### mountState 实现
+
+```javascript
+function mountState(initialState) {
+  // 创建 Hook 对象
+  const hook = mountWorkInProgressHook();
+  
+  // 处理初始值（可能是函数）
+  if (typeof initialState === 'function') {
+    initialState = initialState();
+  }
+  
+  hook.memoizedState = hook.baseState = initialState;
+  
+  // 创建更新队列
+  const queue = {
+    pending: null,              // 待处理的更新（环形链表）
+    lanes: NoLanes,             // 优先级
+    dispatch: null,             // dispatch 函数
+    lastRenderedReducer: basicStateReducer,  // 用于 eager state
+    lastRenderedState: initialState,         // 用于 eager state
+  };
+  hook.queue = queue;
+  
+  // 创建 dispatch 函数（绑定当前 Fiber 和 queue）
+  const dispatch = dispatchSetState.bind(
+    null,
+    currentlyRenderingFiber,
+    queue
+  );
+  queue.dispatch = dispatch;
+  
+  return [hook.memoizedState, dispatch];
+}
+
+function mountWorkInProgressHook() {
+  const hook = {
+    memoizedState: null,
+    baseState: null,
+    baseQueue: null,
+    queue: null,
+    next: null,
+  };
+  
+  if (workInProgressHook === null) {
+    // 第一个 Hook
+    currentlyRenderingFiber.memoizedState = workInProgressHook = hook;
+  } else {
+    // 后续 Hook，追加到链表
+    workInProgressHook = workInProgressHook.next = hook;
+  }
+  
+  return workInProgressHook;
+}
+```
+
+**关键点：**
+
+1. **queue 是环形链表**：`pending` 指向最后一个更新，`pending.next` 指向第一个更新
+2. **dispatch 绑定了 Fiber 和 queue**：这样 `setState` 知道更新哪个组件
+3. **lastRenderedState 用于 eager state 优化**：后面会讲
+
+#### updateState 实现
+
+```javascript
+function updateState(initialState) {
+  return updateReducer(basicStateReducer, initialState);
+}
+
+function updateReducer(reducer, initialArg) {
+  const hook = updateWorkInProgressHook();
+  const queue = hook.queue;
+  
+  const current = currentHook;
+  const pendingQueue = queue.pending;
+  
+  if (pendingQueue !== null) {
+    // 有新的更新
+    queue.pending = null;
+    
+    // 将环形链表展开
+    const first = pendingQueue.next;
+    let newState = current.baseState;
+    
+    let newBaseState = null;
+    let newBaseQueueFirst = null;
+    let newBaseQueueLast = null;
+    let update = first;
+    
+    // 遍历更新队列
+    do {
+      const updateLane = update.lane;
+      
+      if (!isSubsetOfLanes(renderLanes, updateLane)) {
+        // 优先级不够，跳过这个更新
+        const clone = {
+          lane: updateLane,
+          action: update.action,
+          hasEagerState: update.hasEagerState,
+          eagerState: update.eagerState,
+          next: null,
+        };
+        
+        if (newBaseQueueLast === null) {
+          newBaseQueueFirst = newBaseQueueLast = clone;
+          newBaseState = newState;  // 保存基础状态
+        } else {
+          newBaseQueueLast = newBaseQueueLast.next = clone;
+        }
+      } else {
+        // 优先级足够，执行更新
+        if (newBaseQueueLast !== null) {
+          // 如果前面有跳过的更新，这个更新也要加入 baseQueue
+          const clone = {
+            lane: NoLane,  // 标记为已处理
+            action: update.action,
+            hasEagerState: update.hasEagerState,
+            eagerState: update.eagerState,
+            next: null,
+          };
+          newBaseQueueLast = newBaseQueueLast.next = clone;
+        }
+        
+        // 计算新状态
+        if (update.hasEagerState) {
+          // 使用预计算的状态
+          newState = update.eagerState;
+        } else {
+          const action = update.action;
+          newState = reducer(newState, action);
+        }
+      }
+      
+      update = update.next;
+    } while (update !== null && update !== first);
+    
+    // 更新 Hook
+    if (newBaseQueueLast === null) {
+      newBaseState = newState;
+    } else {
+      newBaseQueueLast.next = newBaseQueueFirst;
+    }
+    
+    hook.memoizedState = newState;
+    hook.baseState = newBaseState;
+    hook.baseQueue = newBaseQueueFirst;
+    
+    queue.lastRenderedState = newState;
+  }
+  
+  const dispatch = queue.dispatch;
+  return [hook.memoizedState, dispatch];
+}
+```
+
+**关键逻辑：优先级更新**
+
+```javascript
+// 场景：3 个更新，优先级不同
+update1: lane = DefaultLane, action = c => c + 1
+update2: lane = SyncLane,    action = c => c + 2
+update3: lane = DefaultLane, action = c => c + 3
+
+// 第一次渲染（renderLanes = SyncLane）
+遍历 update1：优先级不够，跳过，加入 baseQueue
+  newBaseState = 0
+  newBaseQueue = [update1]
+  
+遍历 update2：优先级足够，执行
+  newState = 0 + 2 = 2
+  因为前面有跳过的，update2 也加入 baseQueue
+  newBaseQueue = [update1, update2]
+  
+遍历 update3：优先级不够，跳过
+  newBaseQueue = [update1, update2, update3]
+
+结果：
+  memoizedState = 2
+  baseState = 0
+  baseQueue = [update1, update2, update3]
+
+// 第二次渲染（renderLanes = DefaultLane）
+从 baseState = 0 开始
+执行 update1 → state = 1
+执行 update2 → state = 3
+执行 update3 → state = 6
+
+结果：
+  memoizedState = 6
+  baseState = 6
+  baseQueue = null
+```
+
+
 
 ```javascript
 // ===== Mount 阶段 =====
@@ -2300,7 +2781,269 @@ function updateWorkInProgressHook() {
 }
 ```
 
-### 6.4 dispatchSetState：触发更新
+#### dispatchSetState：触发更新
+
+```javascript
+function dispatchSetState(fiber, queue, action) {
+  // 1. 分配优先级
+  const lane = requestUpdateLane(fiber);
+  
+  // 2. 创建 update 对象
+  const update = {
+    lane,
+    action,
+    hasEagerState: false,
+    eagerState: null,
+    next: null,
+  };
+  
+  // 3. 判断是否在渲染阶段
+  if (fiber === currentlyRenderingFiber) {
+    // 在渲染阶段调用 setState（比如在 render 中直接调用）
+    enqueueRenderPhaseUpdate(queue, update);
+  } else {
+    // 4. Eager State 优化
+    const alternate = fiber.alternate;
+    
+    if (
+      fiber.lanes === NoLanes &&
+      (alternate === null || alternate.lanes === NoLanes)
+    ) {
+      // 当前没有更新，尝试提前计算状态
+      const lastRenderedReducer = queue.lastRenderedReducer;
+      if (lastRenderedReducer !== null) {
+        try {
+          const currentState = queue.lastRenderedState;
+          const eagerState = lastRenderedReducer(currentState, action);
+          
+          update.hasEagerState = true;
+          update.eagerState = eagerState;
+          
+          if (Object.is(eagerState, currentState)) {
+            // 状态没变，不需要调度更新
+            return;
+          }
+        } catch (error) {
+          // 计算失败，继续正常流程
+        }
+      }
+    }
+    
+    // 5. 将 update 加入队列（环形链表）
+    const pending = queue.pending;
+    if (pending === null) {
+      update.next = update;  // 形成环
+    } else {
+      update.next = pending.next;
+      pending.next = update;
+    }
+    queue.pending = update;
+    
+    // 6. 调度更新
+    scheduleUpdateOnFiber(fiber, lane);
+  }
+}
+```
+
+**关键优化：Eager State**
+
+**问题：为什么需要 Eager State？**
+
+```javascript
+// 场景：用户快速点击按钮
+function Counter() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <button onClick={() => setCount(1)}>
+      Count: {count}
+    </button>
+  );
+}
+
+// 用户点击 3 次
+setCount(1);  // 第 1 次
+setCount(1);  // 第 2 次
+setCount(1);  // 第 3 次
+
+// 没有 Eager State：触发 3 次渲染
+// 有 Eager State：只触发 1 次渲染
+```
+
+**Eager State 的逻辑：**
+
+```javascript
+// 第 1 次 setCount(1)
+currentState = 0
+eagerState = 1
+Object.is(1, 0) = false  → 调度更新
+
+// 第 2 次 setCount(1)（在第 1 次渲染完成前）
+currentState = 0  // 还没渲染，lastRenderedState 还是 0
+eagerState = 1
+Object.is(1, 0) = false  → 调度更新
+
+// 第 3 次 setCount(1)（在第 1 次渲染完成后）
+currentState = 1  // 已经渲染完成，lastRenderedState 更新为 1
+eagerState = 1
+Object.is(1, 1) = true  → 跳过更新 ✅
+```
+
+**为什么要检查 `fiber.lanes === NoLanes`？**
+
+```javascript
+if (
+  fiber.lanes === NoLanes &&
+  (alternate === null || alternate.lanes === NoLanes)
+) {
+  // 只有在没有更新时才能使用 Eager State
+}
+```
+
+因为如果有正在进行的更新，`lastRenderedState` 可能不准确：
+
+```javascript
+// 场景：有一个更新正在进行
+setCount(5);  // 正在渲染中，lastRenderedState 还是 0
+
+// 此时又来了一个更新
+setCount(5);  // 如果用 Eager State，会误判为相同而跳过
+
+// 正确做法：不使用 Eager State，让它正常排队
+```
+
+#### 环形链表的设计
+
+**为什么用环形链表？**
+
+```javascript
+// 普通链表
+update1 → update2 → update3 → null
+
+// 环形链表
+pending → update3 → update1 → update2 → update3
+          ↑___________________________|
+
+// pending 指向最后一个节点
+// pending.next 指向第一个节点
+```
+
+**优势：**
+
+1. **O(1) 插入**：直接在 `pending` 后面插入
+2. **O(1) 获取首尾**：`pending` 是尾，`pending.next` 是首
+3. **方便遍历**：从 `pending.next` 开始，到 `pending` 结束
+
+**插入过程：**
+
+```javascript
+// 初始状态：空队列
+queue.pending = null;
+
+// 插入 update1
+update1.next = update1;  // 自己指向自己
+queue.pending = update1;
+
+// 插入 update2
+update2.next = pending.next;  // update2 → update1
+pending.next = update2;       // update1 → update2
+queue.pending = update2;      // pending 指向 update2
+
+// 结果：update2 → update1 → update2（环形）
+```
+
+### 6.4 为什么 Hooks 必须按固定顺序调用？
+
+#### 回顾你的 mini-react
+
+```javascript
+// 你的实现
+let hookIndex = 0;
+
+function useState(initial) {
+  const oldHook = wipFiber.alternate?.hooks?.[hookIndex];
+  // ...
+  hookIndex++;
+}
+```
+
+**问题：如果在条件语句中调用会怎样？**
+
+```javascript
+function App() {
+  const [count, setCount] = useState(0);
+  
+  if (count > 0) {
+    const [name, setName] = useState('');  // ❌ 条件调用
+  }
+  
+  const [age, setAge] = useState(18);
+  
+  return <div>{count}</div>;
+}
+```
+
+**第一次渲染（count = 0）：**
+
+```
+hookIndex = 0 → useState(0)   → hooks[0] = { state: 0 }
+hookIndex = 1 → 跳过
+hookIndex = 1 → useState(18)  → hooks[1] = { state: 18 }
+
+hooks = [
+  { state: 0 },   // count
+  { state: 18 },  // age
+]
+```
+
+**第二次渲染（count = 1）：**
+
+```
+hookIndex = 0 → useState(0)   → 读取 hooks[0] = { state: 0 }  ✅
+hookIndex = 1 → useState('')  → 读取 hooks[1] = { state: 18 } ❌ 错误！
+hookIndex = 2 → useState(18)  → 读取 hooks[2] = undefined     ❌ 错误！
+
+hooks = [
+  { state: 0 },   // count
+  { state: 18 },  // name（错误地读取了 age 的值）
+  undefined,      // age（找不到）
+]
+```
+
+**React 官方的检测：**
+
+```javascript
+// React 会在开发模式下检测 Hooks 数量是否变化
+function renderWithHooks(current, workInProgress, Component, props) {
+  // ...
+  
+  if (__DEV__) {
+    const hookCountBefore = workInProgressHook ? countHooks(workInProgressHook) : 0;
+  }
+  
+  let children = Component(props);
+  
+  if (__DEV__) {
+    const hookCountAfter = countHooks(workInProgress.memoizedState);
+    if (hookCountBefore !== hookCountAfter) {
+      console.error(
+        'Rendered fewer hooks than expected. ' +
+        'This may be caused by an accidental early return statement.'
+      );
+    }
+  }
+  
+  return children;
+}
+```
+
+**总结：Hooks 规则**
+
+1. ✅ **只在顶层调用 Hooks**：不要在循环、条件或嵌套函数中调用
+2. ✅ **只在 React 函数中调用 Hooks**：不要在普通 JS 函数中调用
+3. ✅ **自定义 Hooks 必须以 use 开头**：方便 lint 工具检测
+
+
 
 ```javascript
 function dispatchSetState(fiber, queue, action) {
@@ -2376,7 +3119,385 @@ setCount(1);  // 计算 eagerState = 1，不等于 0，调度更新
 setCount(1);  // 计算 eagerState = 1，等于当前 lastRenderedState = 1，跳过更新
 ```
 
-### 6.5 useEffect 实现
+### 6.5 完整执行流程：从 setState 到 DOM 更新
+
+让我们追踪一次完整的更新流程：
+
+```javascript
+function Counter() {
+  const [count, setCount] = useState(0);
+  
+  const handleClick = () => {
+    setCount(c => c + 1);
+  };
+  
+  return <button onClick={handleClick}>Count: {count}</button>;
+}
+```
+
+#### 流程图
+
+```mermaid
+sequenceDiagram
+    participant User as 用户点击
+    participant Event as 事件处理
+    participant Dispatch as dispatchSetState
+    participant Scheduler as 调度器
+    participant Reconciler as 协调器
+    participant Commit as 提交阶段
+    participant DOM as 真实 DOM
+
+    User->>Event: 点击按钮
+    Event->>Dispatch: setCount(c => c + 1)
+    Dispatch->>Dispatch: 创建 update 对象
+    Dispatch->>Dispatch: 加入更新队列
+    Dispatch->>Scheduler: scheduleUpdateOnFiber
+    Scheduler->>Scheduler: 分配优先级
+    Scheduler->>Reconciler: 开始 render 阶段
+    Reconciler->>Reconciler: beginWork (处理 Fiber)
+    Reconciler->>Reconciler: updateFunctionComponent
+    Reconciler->>Reconciler: renderWithHooks
+    Reconciler->>Reconciler: 执行 Component()
+    Reconciler->>Reconciler: 调用 useState
+    Reconciler->>Reconciler: 处理更新队列
+    Reconciler->>Reconciler: 计算新 state
+    Reconciler->>Reconciler: completeWork
+    Reconciler->>Commit: commitRoot
+    Commit->>Commit: commitMutationEffects
+    Commit->>DOM: 更新 DOM
+    DOM->>User: 显示新的 count
+```
+
+#### 详细步骤
+
+**1. 用户点击按钮**
+
+```javascript
+// 浏览器触发 click 事件
+<button onClick={handleClick}>
+```
+
+**2. 执行事件处理函数**
+
+```javascript
+const handleClick = () => {
+  setCount(c => c + 1);  // 调用 dispatch
+};
+```
+
+**3. dispatchSetState**
+
+```javascript
+function dispatchSetState(fiber, queue, action) {
+  // 创建 update
+  const update = {
+    lane: SyncLane,  // 用户交互，高优先级
+    action: c => c + 1,
+    hasEagerState: false,
+    eagerState: null,
+    next: null,
+  };
+  
+  // 加入队列
+  queue.pending = update;
+  
+  // 调度更新
+  scheduleUpdateOnFiber(fiber, SyncLane);
+}
+```
+
+**4. scheduleUpdateOnFiber**
+
+```javascript
+function scheduleUpdateOnFiber(fiber, lane) {
+  // 标记 Fiber 有更新
+  fiber.lanes = mergeLanes(fiber.lanes, lane);
+  
+  // 向上标记 childLanes
+  let parent = fiber.return;
+  while (parent !== null) {
+    parent.childLanes = mergeLanes(parent.childLanes, lane);
+    parent = parent.return;
+  }
+  
+  // 调度根节点
+  const root = markUpdateLaneFromFiberToRoot(fiber);
+  ensureRootIsScheduled(root);
+}
+```
+
+**5. ensureRootIsScheduled**
+
+```javascript
+function ensureRootIsScheduled(root) {
+  // 检查是否有更高优先级的任务
+  const nextLanes = getNextLanes(root, NoLanes);
+  
+  if (nextLanes === NoLanes) {
+    return;  // 没有工作
+  }
+  
+  const newCallbackPriority = getHighestPriorityLane(nextLanes);
+  
+  if (newCallbackPriority === SyncLane) {
+    // 同步优先级，立即执行
+    scheduleSyncCallback(performSyncWorkOnRoot.bind(null, root));
+    flushSyncCallbacks();
+  } else {
+    // 异步优先级，调度执行
+    const schedulerPriority = lanesToSchedulerPriority(newCallbackPriority);
+    scheduleCallback(schedulerPriority, performConcurrentWorkOnRoot.bind(null, root));
+  }
+}
+```
+
+**6. performSyncWorkOnRoot（Render 阶段开始）**
+
+```javascript
+function performSyncWorkOnRoot(root) {
+  const lanes = getNextLanes(root, NoLanes);
+  
+  // 开始渲染
+  renderRootSync(root, lanes);
+  
+  // 渲染完成，进入 Commit 阶段
+  const finishedWork = root.current.alternate;
+  root.finishedWork = finishedWork;
+  commitRoot(root);
+}
+```
+
+**7. renderRootSync**
+
+```javascript
+function renderRootSync(root, lanes) {
+  // 准备工作栈
+  prepareFreshStack(root, lanes);
+  
+  // 工作循环
+  workLoopSync();
+}
+
+function workLoopSync() {
+  while (workInProgress !== null) {
+    performUnitOfWork(workInProgress);
+  }
+}
+```
+
+**8. performUnitOfWork**
+
+```javascript
+function performUnitOfWork(unitOfWork) {
+  const current = unitOfWork.alternate;
+  
+  // beginWork：处理当前节点
+  let next = beginWork(current, unitOfWork, renderLanes);
+  
+  if (next === null) {
+    // 没有子节点，进入 completeWork
+    completeUnitOfWork(unitOfWork);
+  } else {
+    workInProgress = next;
+  }
+}
+```
+
+**9. beginWork → updateFunctionComponent**
+
+```javascript
+function updateFunctionComponent(current, workInProgress, Component, props, renderLanes) {
+  // 渲染函数组件
+  const nextChildren = renderWithHooks(
+    current,
+    workInProgress,
+    Component,
+    props,
+    renderLanes
+  );
+  
+  // 协调子节点
+  reconcileChildren(current, workInProgress, nextChildren, renderLanes);
+  
+  return workInProgress.child;
+}
+```
+
+**10. renderWithHooks**
+
+```javascript
+function renderWithHooks(current, workInProgress, Component, props, renderLanes) {
+  currentlyRenderingFiber = workInProgress;
+  workInProgress.memoizedState = null;
+  
+  // 切换 Dispatcher
+  ReactCurrentDispatcher.current = 
+    current === null ? HooksDispatcherOnMount : HooksDispatcherOnUpdate;
+  
+  // 执行组件函数
+  let children = Component(props);  // 这里会调用 useState
+  
+  return children;
+}
+```
+
+**11. useState → updateState**
+
+```javascript
+function updateState(initialState) {
+  return updateReducer(basicStateReducer, initialState);
+}
+
+function updateReducer(reducer, initialArg) {
+  const hook = updateWorkInProgressHook();
+  const queue = hook.queue;
+  
+  // 处理更新队列
+  const pendingQueue = queue.pending;
+  if (pendingQueue !== null) {
+    queue.pending = null;
+    
+    const first = pendingQueue.next;
+    let newState = hook.baseState;
+    let update = first;
+    
+    do {
+      const action = update.action;
+      newState = reducer(newState, action);  // 执行 c => c + 1
+      update = update.next;
+    } while (update !== first);
+    
+    hook.memoizedState = newState;  // 更新状态
+  }
+  
+  return [hook.memoizedState, queue.dispatch];
+}
+```
+
+**12. completeWork**
+
+```javascript
+function completeWork(current, workInProgress, renderLanes) {
+  const newProps = workInProgress.pendingProps;
+  
+  switch (workInProgress.tag) {
+    case HostComponent: {
+      if (current !== null && workInProgress.stateNode != null) {
+        // 更新节点
+        updateHostComponent(current, workInProgress, type, newProps);
+      }
+      return null;
+    }
+  }
+}
+
+function updateHostComponent(current, workInProgress, type, newProps) {
+  const oldProps = current.memoizedProps;
+  const instance = workInProgress.stateNode;
+  
+  // 比较 props，生成更新队列
+  const updatePayload = diffProperties(instance, type, oldProps, newProps);
+  
+  workInProgress.updateQueue = updatePayload;
+  
+  if (updatePayload) {
+    // 标记需要更新
+    markUpdate(workInProgress);
+  }
+}
+```
+
+**13. commitRoot（Commit 阶段开始）**
+
+```javascript
+function commitRoot(root) {
+  const finishedWork = root.finishedWork;
+  
+  // Before Mutation 阶段
+  commitBeforeMutationEffects(root, finishedWork);
+  
+  // Mutation 阶段
+  commitMutationEffects(root, finishedWork);
+  
+  // 切换 Fiber 树
+  root.current = finishedWork;
+  
+  // Layout 阶段
+  commitLayoutEffects(finishedWork, root);
+}
+```
+
+**14. commitMutationEffects**
+
+```javascript
+function commitMutationEffects(root, finishedWork) {
+  // 遍历 Fiber 树，执行 DOM 操作
+  commitMutationEffectsOnFiber(finishedWork, root);
+}
+
+function commitMutationEffectsOnFiber(finishedWork, root) {
+  const flags = finishedWork.flags;
+  
+  if (flags & Update) {
+    // 更新 DOM
+    const instance = finishedWork.stateNode;
+    const updatePayload = finishedWork.updateQueue;
+    
+    if (updatePayload !== null) {
+      commitUpdate(instance, updatePayload);
+    }
+  }
+}
+```
+
+**15. commitUpdate**
+
+```javascript
+function commitUpdate(domElement, updatePayload, type, oldProps, newProps) {
+  // 更新 DOM 属性
+  updateProperties(domElement, updatePayload, type, oldProps, newProps);
+}
+
+function updateProperties(domElement, updatePayload) {
+  // updatePayload = ['children', '1']
+  for (let i = 0; i < updatePayload.length; i += 2) {
+    const propKey = updatePayload[i];
+    const propValue = updatePayload[i + 1];
+    
+    if (propKey === 'children') {
+      setTextContent(domElement, propValue);  // 更新文本内容
+    }
+    // ... 其他属性
+  }
+}
+```
+
+**16. 完成！**
+
+```
+用户看到按钮文本从 "Count: 0" 变成 "Count: 1"
+```
+
+#### 时间线
+
+```
+0ms:   用户点击
+0ms:   dispatchSetState
+0ms:   scheduleUpdateOnFiber
+0ms:   ensureRootIsScheduled
+0ms:   performSyncWorkOnRoot (Render 开始)
+1ms:   workLoop 处理 Fiber 树
+2ms:   renderWithHooks 执行组件
+2ms:   useState 计算新状态
+3ms:   completeWork 标记更新
+3ms:   commitRoot (Commit 开始)
+4ms:   commitMutationEffects 更新 DOM
+4ms:   完成！
+
+总耗时：4ms
+```
+
+
 
 ```javascript
 // ===== Mount 阶段 =====
