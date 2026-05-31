@@ -93,7 +93,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -209,7 +210,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "822025c5af5d3678",
+  "active": "ed4e7f2d0b9f101c",
   "lastOpenFiles": [
     "Front-end notes/React/React源码深度剖析-从mini-react到官方实现.md",
     "Front-end notes/React/React源码深度剖析-从mini-react到官方实现.md.tmp.19680.1780197399807",
