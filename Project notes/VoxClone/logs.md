@@ -13,7 +13,10 @@
 
 当用户点击暂停时，也就是调用stopRecording函数
 
-在函数中调用recorder.stopRecording方法暂停录音，调用recorder.getBlob方法获取类型为audio/wav音频数据
+在函数中调用recorder.stopRecording方法暂停录音，调用recorder.getBlob方法获取类型为audio/wav的blob对象
+
+	blob 代表一段二进制数据，可以是任何东西的二进制形式
+
 
 
 ```
