@@ -196,7 +196,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 345.5
+    "width": 345.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -212,14 +213,15 @@
   },
   "active": "2a94904060512886",
   "lastOpenFiles": [
-    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Project notes/VoxClone/logs.md",
-    "Project notes/VoxClone/voxclone.md",
+    "Project notes/VoxClone/需求.canvas",
     "Project notes/VoxClone/面试问答完整版.md",
+    "Front-end notes/库/RecordRTC-用法指南.md",
+    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
+    "Project notes/VoxClone/voxclone.md",
     "Project notes/VoxClone/知识内容.md",
     "Project notes/VoxClone/知识点.md",
     "Front-end notes/JavaScript/Proto.md",
-    "Project notes/VoxClone/需求.canvas",
     "Project notes/Polaris/Logs.md",
     "Project notes/VoxClone/面试.md",
     "Front-end notes/React/React源码级原理深度解析.md",
@@ -247,8 +249,6 @@
     "Project notes/Polaris/project-requirements-and-data-flow.md",
     "八股/计算机网络面试八股整理.md",
     "八股/浏览器原理面试八股整理.md",
-    "八股/JavaScript面试八股整理.md",
-    "八股/JavaScript篇_高频八股文.md",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
