@@ -21,9 +21,9 @@
 
 将 blob 转为 file 之后，使用 tanstack form 管理表单数据
 
-如果用户选择完其他参数，点击提交后，向/api/voices/create发送请求
+如果用户选择完其他参数，点击提交后，向/api/voices/create发送请求，将基本的参数用查询参数传递，将file在请求体里
 
-	在这里使用 tanstack query 对请求进行管理
+在route
 
 
 
