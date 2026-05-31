@@ -9,5 +9,5 @@
 ```
 用户点击录制按钮，其实是调用startRecording函数
 
-在函数中对
+在函数中对recordRTC初始化
 ```
