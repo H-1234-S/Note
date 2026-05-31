@@ -21,10 +21,18 @@
 
 将 blob 转为 file 之后，使用 tanstack form 管理表单数据
 
-如果用户选择完其他参数，点击提交后，向/api/voices/create发送请求，将基本的参数用查询参数传递，将file在请求体里
+如果用户选择完其他参数，点击提交后，向/api/voices/create发送请求，将基本的参数用查询参数传递，file作为body发送
 
-在route中进行基本的鉴权操作，safeParse数据
+	也可以使用formData上传，但是解析需要用 request.formData() 来解析
 
+在route中进行基本的鉴权操作，safeParse数据，request.arrayBuffer 处理二进制数据
 
+对二进制数据进行大小校验、时长校验，时长校验使用了music-metadata库
+
+之后就需要将文件上传到 cloudflare 中，但是在 cloudflare 中使用 voices/orgs/${orgId}/${voice.id} 这种格式上传数据
+
+因此需要先使用 prisma.voice.create 生成一个占位符，获取 voiceId
+
+之后调用 uploadAudio 函数上传音频数据
 
 ```
