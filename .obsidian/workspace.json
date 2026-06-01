@@ -35,7 +35,8 @@
               "title": "logs"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -152,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/Polaris/project-requirements-and-data-flow.md",
+                "file": "Project notes/VoxClone/logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "project-requirements-and-data-flow 的大纲"
+              "title": "logs 的大纲"
             }
           },
           {
@@ -209,8 +210,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "7fe18aef2434ce57",
+  "active": "2a94904060512886",
   "lastOpenFiles": [
+    "Project notes/Polaris/project-requirements-and-data-flow.md",
     "Project notes/VoxClone/logs.md",
     "Project notes/VoxClone/需求.canvas",
     "Project notes/VoxClone/面试问答完整版.md",
@@ -244,7 +246,6 @@
     "Front-end notes/Clerk/Clerk学习指南.md",
     "Front-end notes/库/Inngest学习指南.md",
     "Front-end notes/Git/Git学习指南.md",
-    "Project notes/Polaris/project-requirements-and-data-flow.md",
     "八股/计算机网络面试八股整理.md",
     "八股/浏览器原理面试八股整理.md",
     "Pasted image 20260328115001.png",

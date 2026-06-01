@@ -40,4 +40,8 @@
 
 ```
 用户在 tts 页面输入文本，选择音色，调整对应参数，点击生成之后
+
+首先 tanstack form 管理表单数据，点击生成提交表单数据到 onSubmit 函数中进行处理
+
+onSubmit 函数中使用了 tanstack query 
 ```
