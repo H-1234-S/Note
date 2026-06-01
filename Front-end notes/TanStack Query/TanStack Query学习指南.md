@@ -1,4 +1,4 @@
-# TanStack Query 学习指南
+## TanStack Query 学习指南
 
 > 版本基准：TanStack Query v5，示例默认使用 React + TypeScript + `@tanstack/react-query`。  
 > 适合路径：先理解“服务端状态是什么”，再掌握 Query / Mutation / Cache，最后学习工程化封装、性能优化和常见坑。
