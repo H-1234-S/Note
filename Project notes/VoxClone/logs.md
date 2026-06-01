@@ -71,10 +71,11 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 	
 	预取数据，服务端将数据脱水后传递到客户端，客户端再将数据水合
 
-调用 useSuspenseQueries 直接命中缓存
+调用 useSuspenseQueries 直接命中缓存，从缓存中获取数据
+
+对数据进行渲染就好了，在这里实现了音频波形可视化，用到了一个第三方库叫 wavesurfer.js
 
 ```
-
 ## tRPC
 
 tRPC，全称 TypeScript Remote Procedure Call。它让**前端**像调用本地函数一样调用**服务端 Procedure**，同时把输入、输出、错误类型从服务端路由自动推导到客户端。
@@ -89,3 +90,8 @@ tRPC，全称 TypeScript Remote Procedure Call。它让**前端**像调用本地
 Tanstack Query 是一个用于管理**服务端状态**的异步状态管理库。它不负责发送请求，依旧可以使用 `fetch`、`axios`、`ky` 或使用 `tRPC` 请求数据
 
 它真正解决的是：请求结果如何缓存、什么时候重新请求、多个组件如何共享同一份数据、失败如何重试、修改数据后如何同步界面。
+
+## Wavesurfer
+
+
+## RecordRTC
