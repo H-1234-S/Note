@@ -889,6 +889,22 @@ const mutation = useMutation({
 });
 ```
 
+**3. 预加载数据**
+
+比如你在“文章列表页”已经拿到了每篇文章的 `id`、`title` 和 `summary`（摘要）。当用户点击某篇文章进入“详情页”时，详情页需要请求 `['post', id]`。
+
+为了让用户不看白屏，你可以把列表页已有的部分数据，提前塞进详情页的缓存里作为初始垫底数据：
+
+``` js
+// 在进入详情页前或初始化时
+queryClient.setQueryData(['post', post.id], {
+  id: post.id,
+  title: post.title,
+  summary: post.summary,
+  content: '加载中...', // 详情特有的字段先占位
+});
+```
+
 ### 9.4 `getQueryData`
 
 读取现有缓存，不触发请求。
