@@ -81,7 +81,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -198,13 +198,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/VoxClone/需求.canvas",
+                "file": "Project notes/VoxClone/logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "需求 的大纲"
+              "title": "logs 的大纲"
             }
           },
           {
@@ -241,8 +241,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 345.5,
-    "collapsed": true
+    "width": 345.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -256,14 +255,14 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "ed98ec86c9845e77",
+  "active": "2a94904060512886",
   "lastOpenFiles": [
+    "Front-end notes/tRPC/tRPC学习指南.md",
+    "Project notes/VoxClone/需求.canvas",
     "Project notes/VoxClone/logs.md",
     "Front-end notes/TanStack Query/TanStack Query学习指南.md",
-    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
-    "Project notes/VoxClone/需求.canvas",
     "Project notes/VoxClone/面试问答完整版.md",
     "Front-end notes/库/RecordRTC-用法指南.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
@@ -294,7 +293,6 @@
     "Front-end notes/Clerk/Clerk学习指南.md",
     "Front-end notes/库/Inngest学习指南.md",
     "Front-end notes/Git/Git学习指南.md",
-    "八股/计算机网络面试八股整理.md",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",

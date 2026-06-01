@@ -79,8 +79,9 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 ## tRPC
 
 tRPC，全称 TypeScript Remote Procedure Call。它让**前端**像调用本地函数一样调用**服务端 Procedure**，同时把输入、输出、错误类型从服务端路由自动推导到客户端。
+### 核心概念
 
-核心概念
+
 
 执行流程
 
