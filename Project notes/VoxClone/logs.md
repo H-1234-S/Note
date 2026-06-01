@@ -47,7 +47,13 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 同时 tanstack query 与 tRPC 进行集成
 	
-	
+	因为使用 tRPC 获取的数据本质上还是 server state，拿到的其实是后端数据
+	tRPC 是让你类型安全的调用服务端程序，类型安全的获取后端数据
+	Tanstack Query 则是类型安全的对服务端状态进行管理
+
+使用createMutation携带参数到trpc.generations.create程序执行
+
+
 ```
 
 ## tRPC
