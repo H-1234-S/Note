@@ -158,14 +158,31 @@ protectedProcedure.query(({ ctx }) => {
 前端调用 trpc.generations.create.mutate(...)
 
 	使用useTRPC获取的trpc实例其实就是从context中获取trpcClient，在trpc/client.tsx中初始化并注入到react组件树中
-	trpcClient中合并了短时间内多次请求，并根据不同的环境生成请求地址，同时还对数据序列化处理
+	trpcClient中使用httpBatchLink工具合并了短时间内多次请求，并根据不同的环境生成请求地址，同时还对数据序列化处理
 
 请求最终会打到 /api/trpc/generations.create 中，执行 route handle，也就是调用 fetchRequestHandler(fetch请求适配器)
 
-fetchRequestHandler 会调用 createTRPCContext 创建执行上下文、去 appRouter 里找对应 procedure 执行 prodecure、
+fetchRequestHandler 用来把来自 fetch 标准接口的请求转换成 tRPC 能处理的调用
 
+	接收 HTTP 请求
+	解析 tRPC 请求内容，例如 procedure 名称、input 参数等
+	会调用 createTRPCContext 创建执行上下文
+	去 appRouter 里找对应 procedure 执行
+	把结果包装成 HTTP Response
+
+前端请求的是 generations.create，会先在 approuter 里寻找 generations: generationsRouter，再在 generationsRouter 找到 create
+
+之后执行对应的 procedure前先执行 procedure middleware，可以在 middleware 中修改 ctx
+
+再之后就到了对前端传递的数据进行校验，也就是执行 input
+	
+	其实前端链式调用时会被trpc映射为请求，所以相当于发送请求
+	只要是请求就可以被伪造，别人发到 /api/trpc/[trpc] 的请求也可以执行，首先在middleware中对身份校验、之后在input中对参数校验
+
+通过校验后就会进入到 query/mutation 中执行业务逻辑
+
+最后的返回结果 trpc 会将结果序列化为 HTTP Response
 ```
-
 
 架构设计
 ## Tanstack Query
