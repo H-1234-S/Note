@@ -4279,6 +4279,8 @@ function Counter() {
   
   return <button onClick={handleClick}>Count: {count}</button>;
 }
+// 其实这个set函数里的参数在setTimeout执行的时候就将参数传递进去了
+// 所以如果在 3000ms 内 count 改了多次，这个 setTimeout 仍然只会把当时闭包里的 count +1
 ```
 
 **你的 mini-react 为什么无法解决？**
