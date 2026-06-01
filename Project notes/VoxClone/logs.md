@@ -67,6 +67,7 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 响应成功后携带 generationId 跳转到生成音频详情页
 
+
 ```
 
 ## tRPC
