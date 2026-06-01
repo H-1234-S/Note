@@ -43,5 +43,7 @@
 
 首先 tanstack form 管理表单数据，点击生成提交表单数据到 onSubmit 函数中进行处理
 
-onSubmit 函数中使用了 tanstack query 
+onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
+
+同时 tanstack query 集成了 tRPC，
 ```
