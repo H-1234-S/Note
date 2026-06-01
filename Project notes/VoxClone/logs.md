@@ -83,9 +83,37 @@ tRPC，全称 TypeScript Remote Procedure Call。它让**前端**像调用本地
 
 **Router**
 
+其实就是在 approuter 中将多个 procedure 组合到一起，然后导出 approuter type
+
+``` js
+// 1. 定义子路由
+const userRouter = t.router({
+  getById: t.procedure.query(() => { ... }),
+});
+
+// 2. 合并成根路由 (AppRouter)
+export const appRouter = t.router({
+  user: userRouter, // 挂载为 user 子模块
+});
+
+export type AppRouter = typeof appRouter; // 核心：只导出类型
+```
+
 **Procedure**
 
+procedure 其实就是前端调用后，在后端执行的业务逻辑，也就是每一个具体的接口
+
+主要分为三种类型：
+
+- **Query**：用于**获取数据**（对应 HTTP GET），它会被 Tanstack Query 缓存
+    
+- **Mutation**：用于**创建、更新、删除数据**（对应 HTTP POST/PUT/DELETE）
+    
+- **Subscription**：用于**实时双向通信**（基于 WebSocket）
+
 **Context**
+
+
 
 **Middleware**
 
