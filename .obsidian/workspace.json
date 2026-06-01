@@ -62,9 +62,26 @@
               "icon": "lucide-file",
               "title": "TanStack Query学习指南"
             }
+          },
+          {
+            "id": "ed98ec86c9845e77",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Project notes/VoxClone/需求.canvas",
+                "viewState": {
+                  "x": 5953.175651052813,
+                  "y": -871.9776653153057,
+                  "zoom": -1.1366728560380395
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "需求"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -181,13 +198,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/VoxClone/logs.md",
+                "file": "Project notes/VoxClone/需求.canvas",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "logs 的大纲"
+              "title": "需求 的大纲"
             }
           },
           {
@@ -239,10 +256,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2a94904060512886",
+  "active": "ed98ec86c9845e77",
   "lastOpenFiles": [
-    "Front-end notes/TanStack Query/TanStack Query学习指南.md",
     "Project notes/VoxClone/logs.md",
+    "Front-end notes/TanStack Query/TanStack Query学习指南.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
