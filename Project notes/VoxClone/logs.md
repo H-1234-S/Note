@@ -53,7 +53,7 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 使用createMutation携带参数到trpc.generations.create程序执行
 
-
+在 procedure 中对数据基本验证、鉴权，根据voiceId查找对应的r2ObjectKey
 ```
 
 ## tRPC
