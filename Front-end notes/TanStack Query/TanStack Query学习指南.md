@@ -873,7 +873,21 @@ const updateTodoMutation = useMutation({
 
 重点：`setQueryData` 必须以不可变方式返回新对象，不要原地修改旧数组或旧对象。
 
+**1. 用于乐观更新**
 
+**2. 用于突变成功后的数据同步**
+
+当你提交了一个表单（比如修改个人资料），后端在成功后通常会把**修改后的完整用户对象**返回给你。此时你没必要再去执行 `invalidateQueries` 让页面重新发请求加载，直接把后端返回的新数据塞进缓存即可。
+
+``` js
+const mutation = useMutation({
+  mutationFn: updateProfileApi,
+  onSuccess: (updatedProfile) => {
+    // 直接用后端返回的最新数据更新缓存，界面会立刻响应，且不产生新的网络请求
+    queryClient.setQueryData(['user', 'profile'], updatedProfile);
+  }
+});
+```
 
 ### 9.4 `getQueryData`
 
