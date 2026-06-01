@@ -35,8 +35,7 @@
               "title": "logs"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -153,13 +152,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Project notes/VoxClone/logs.md",
+                "file": "Project notes/Polaris/project-requirements-and-data-flow.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "logs 的大纲"
+              "title": "project-requirements-and-data-flow 的大纲"
             }
           },
           {
@@ -196,8 +195,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 345.5,
-    "collapsed": true
+    "width": 345.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -211,7 +209,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2a94904060512886",
+  "active": "7fe18aef2434ce57",
   "lastOpenFiles": [
     "Project notes/VoxClone/logs.md",
     "Project notes/VoxClone/需求.canvas",
