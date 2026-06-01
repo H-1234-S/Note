@@ -873,6 +873,8 @@ const updateTodoMutation = useMutation({
 
 重点：`setQueryData` 必须以不可变方式返回新对象，不要原地修改旧数组或旧对象。
 
+
+
 ### 9.4 `getQueryData`
 
 读取现有缓存，不触发请求。
@@ -1226,9 +1228,9 @@ function useToggleTodo() {
     onMutate: async (todoId: number) => {
       // 取消正在进行的重新获取，避免覆盖我们的乐观更新
       await queryClient.cancelQueries({ queryKey: ['todos'] })
-	  
+	  // 保存旧数据用于回滚
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
-
+	  // 乐观更新：立刻修改缓存让 UI 发生变化
       queryClient.setQueryData<Todo[]>(['todos'], (oldTodos) => {
         if (!oldTodos) return oldTodos
         return oldTodos.map((todo) =>
@@ -1237,7 +1239,7 @@ function useToggleTodo() {
             : todo,
         )
       })
-
+	  // 返回上下文对象（包含旧数据）
       return { previousTodos }
     },
     // 如果后端报错了，把数据回滚回去
