@@ -1224,8 +1224,9 @@ function useToggleTodo() {
   return useMutation({
     mutationFn: toggleTodo,
     onMutate: async (todoId: number) => {
+      // 取消正在进行的重新获取，避免覆盖我们的乐观更新
       await queryClient.cancelQueries({ queryKey: ['todos'] })
-
+	  
       const previousTodos = queryClient.getQueryData<Todo[]>(['todos'])
 
       queryClient.setQueryData<Todo[]>(['todos'], (oldTodos) => {
@@ -1239,6 +1240,7 @@ function useToggleTodo() {
 
       return { previousTodos }
     },
+    // 如果后端报错了，把数据回滚回去
     onError: (_error, _todoId, context) => {
       queryClient.setQueryData(['todos'], context?.previousTodos)
     },
