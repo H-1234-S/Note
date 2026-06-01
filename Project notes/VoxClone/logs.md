@@ -51,9 +51,11 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 	tRPC 是让你类型安全的调用服务端程序，类型安全的获取后端数据
 	Tanstack Query 则是类型安全的对服务端状态进行管理
 
-使用createMutation携带参数到trpc.generations.create程序执行
+使用 createMutation 携带参数到 trpc.generations.create 程序执行
 
-在 procedure 中对数据基本验证、鉴权，根据voiceId查找对应的r2ObjectKey
+在 procedure 中对数据基本验证、鉴权，根据 voiceId 查找对应的 r2ObjectKey
+
+调用 chatterbox.POST 
 ```
 
 ## tRPC
