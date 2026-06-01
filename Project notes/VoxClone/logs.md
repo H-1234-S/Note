@@ -57,6 +57,12 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 调用 chatterbox.POST 传入 r2ObjectKey，Chatterbox 后端根据 r2ObjectKey 去加载对应的参考音频，根据 prompt 生成新的音频
 
+返回的数据是 web 标准的 ArrayBuffer 原始二进制数据
+
+对于返回的 generation 音频，上传到 cloudflare 中，用于生成一个预览url，便于前端展示
+
+响应成功后携带 generationId 跳转到生成音频详情页
+
 
 ```
 
