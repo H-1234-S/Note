@@ -4303,6 +4303,8 @@ const setState = action => {
 // 正确的写法
 setCount(c => c + 1);  // 传入函数，而不是值
 
+// 如果传入的是函数，react会在执行set函数时将最新的状态作为prev传递给函数
+
 // 这样 queue 中存的是函数
 // queue = [c => c + 1, c => c + 1, c => c + 1]
 // 执行时：0 → 1 → 2 → 3  ✅
