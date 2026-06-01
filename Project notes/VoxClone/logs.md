@@ -151,7 +151,14 @@ protectedProcedure.query(({ ctx }) => {
 ---
 ### 执行流程
 
+用 generations.create 举例，前端调用 trpc.generations.create.mutate，后端执行对应的 create: orgProcedure.input(...).mutation(...)
 
+**完整链路：**
+```
+前端调用 trpc.generations.create.mutate(...)
+	
+	
+```
 
 
 架构设计
