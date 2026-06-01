@@ -878,7 +878,7 @@ type OptionalObject<T> = {
 
 ```ts
 type Getters<T> = {
-  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K];
+  [K in keyof T as |get${Capitalize<string & K>|}]: () => T[K];
 };
 
 type User = {
