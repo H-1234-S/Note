@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -167,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/tRPC/tRPC学习指南.md",
+                "file": "Project notes/VoxClone/logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "tRPC学习指南 的大纲"
+              "title": "logs 的大纲"
             }
           },
           {
@@ -224,8 +224,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b101a7009bbb2e36",
+  "active": "2a94904060512886",
   "lastOpenFiles": [
+    "Front-end notes/tRPC/tRPC学习指南.md",
     "Project notes/VoxClone/logs.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",
     "Project notes/VoxClone/需求.canvas",
@@ -252,7 +253,6 @@
     "Front-end notes/React/React源码深度剖析-从mini-react到官方实现.md",
     "Front-end notes/Node.js/Node.js核心原理深度讲解.md",
     "Front-end notes/TypeScript/TypeScript完全指南.md",
-    "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/库/Zustand学习指南.md",
     "Front-end notes/React/React Router.md",
     "Front-end notes/React/深入学习React.md",
