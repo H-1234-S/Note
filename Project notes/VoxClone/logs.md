@@ -160,9 +160,9 @@ protectedProcedure.query(({ ctx }) => {
 	使用useTRPC获取的trpc实例其实就是从context中获取trpcClient，在trpc/client.tsx中初始化并注入到react组件树中
 	trpcClient中合并了短时间内多次请求，并根据不同的环境生成请求地址，同时还对数据序列化处理
 
-请求最终会打到 /api/trpc/generations.create 中
+请求最终会打到 /api/trpc/generations.create 中，执行 route handle，也就是调用 fetchRequestHandler(fetch请求适配器)
 
-
+fetchRequestHandler 会调用 createTRPCContext 创建执行上下文、去 appRouter 里找对应 procedure 执行 prodecure、
 
 ```
 
