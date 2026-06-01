@@ -113,11 +113,40 @@ procedure 其实就是前端调用后，在后端执行的业务逻辑，也就�
 
 **Context**
 
-context 是每次请求共享的运行环境，每次有
+context 是每次请求共享的运行环境，每个请求至少会调用 createTRPCContext 函数一次，但是通常都会将 createTRPCContext 包一层 cache，如果同一请求调用多次时会使用缓存
 
 **Middleware**
 
+middleware 其实是在每次 procedure 执行前都会调用一次，通常可以用来鉴权等操作
+
+``` js
+// 1. 公开的过程，谁都能调
+export const publicProcedure = t.procedure;
+
+// 2. 强力中间件：检查登录状态，并把 user 注入到 ctx 中
+const isAuthed = t.middleware(({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  return next({
+    ctx: { user: ctx.session.user }, // 覆盖并增强 ctx 的类型！
+  });
+});
+
+// 3. 生产出一个“受保护的过程”
+export const protectedProcedure = t.procedure.use(isAuthed);
+
+// 使用时：这里的 ctx.user 100% 存在且带有强类型，免去去写 if(!user) 的痛苦
+protectedProcedure.query(({ ctx }) => {
+  return ctx.user.secretData; 
+});
+```
+
 **Data Transformers**
+
+因为传统的 JSON api 只能传字符串，没有`Date`、`Map`、`Set`等类型，例如你从数据库查出一个 `Date` 对象，经过网络传输变成 JSON 后，前端收到的就变成了一个 `string`，不得不手动 `new Date(dateStr)`
+
+但是 tRPC 通过集成 superjson，可以在后端发送前，自动将 `Date`、`Map`、`Set`、`BigInt`、`RegExp` 等复杂 JavaScript 对象序列化；在前端接收到时，自动还原成对应的原生对象。
 
 ---
 ### 执行流程
