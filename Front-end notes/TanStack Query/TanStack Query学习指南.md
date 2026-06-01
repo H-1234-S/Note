@@ -837,6 +837,18 @@ await queryClient.refetchQueries({
 
 ### 9.3 `setQueryData`
 
+通常情况下，我们是通过 `useQuery` 自动去服务器拉取数据并写入缓存的
+
+而 `setQueryData` 允许你**绕过异步请求，直接手动修改或向缓存中写入数据**。像是 TanStack Query 内部状态管理器的 `setState`。
+
+---
+
+`setQueryData` 是 `queryClient` 实例上的一个方法。它接受两个参数：
+
+1. **`queryKey`**：你要修改哪条缓存数据的唯一标识（数组形式）。
+    
+2. **`updater`**：新数据，或者一个通过旧数据计算新数据的函数。
+
 当 mutation 返回了新数据，可以直接写缓存，避免再请求一次。
 
 ```tsx
@@ -849,6 +861,7 @@ const updateTodoMutation = useMutation({
     )
 
     queryClient.setQueryData<Todo[]>(['todos'], (oldTodos) => {
+	  // 如果原本没缓存，返回缓存
       if (!oldTodos) return oldTodos
       return oldTodos.map((todo) =>
         todo.id === updatedTodo.id ? updatedTodo : todo,
