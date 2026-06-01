@@ -1,4 +1,4 @@
-# tRPC 深度学习指南
+## tRPC 深度学习指南
 
 > 版本基准：tRPC 11.x，npm latest 参考 `@trpc/server@11.17.0`。本文面向已经掌握 TypeScript / React / Node 基础的开发者，目标不是“会写一个 demo”，而是建立从 RPC 模型、类型推导、运行流程到中大型工程落地的完整认知。
 
