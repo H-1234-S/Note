@@ -4263,6 +4263,10 @@ function App() {
 
 #### 回顾问题：闭包陷阱
 
+对于 `setTimeout` 用到的外部值，如果是作为参数传给 `setTimeout`，那是在调用 `setTimeout` 时就确定了
+
+如果是回调里直接引用外部变量，那就是闭包读取执行时的值，不是创建时的值。
+
 ```javascript
 function Counter() {
   const [count, setCount] = useState(0);
