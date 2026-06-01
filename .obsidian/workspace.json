@@ -64,7 +64,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -181,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/TanStack Query/TanStack Query学习指南.md",
+                "file": "Project notes/VoxClone/logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "TanStack Query学习指南 的大纲"
+              "title": "logs 的大纲"
             }
           },
           {
@@ -238,10 +238,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "05d1b6c33e523787",
+  "active": "2a94904060512886",
   "lastOpenFiles": [
-    "Project notes/VoxClone/logs.md",
     "Front-end notes/TanStack Query/TanStack Query学习指南.md",
+    "Project notes/VoxClone/logs.md",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
     "Project notes/Polaris/project-requirements-and-data-flow.md",

@@ -69,8 +69,9 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 跳转到生成详情页，根据对应 generationId 预取对应数据
 	
-	预取数据，序列化注入到
+	预取数据，服务端将数据脱水后传递到客户端，客户端再将数据水合
 
+调用 useSuspenseQueries 直接命中缓存
 
 ```
 
