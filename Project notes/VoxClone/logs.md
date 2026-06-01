@@ -69,7 +69,9 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 跳转到生成详情页，根据对应 generationId 预取对应数据
 	
-	预取的数据 
+	预取数据，序列化注入到
+
+
 ```
 
 ## tRPC
