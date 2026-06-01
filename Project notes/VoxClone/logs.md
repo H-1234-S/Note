@@ -157,7 +157,7 @@ protectedProcedure.query(({ ctx }) => {
 ```
 前端调用 trpc.generations.create.mutate(...)
 	
-	
+请求最终会打到 /api/trpc/generations.create 中
 ```
 
 
