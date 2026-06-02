@@ -893,6 +893,35 @@ type UserGetters = Getters<User>;
 // }
 ```
 
+**要求递归把对象所有属性变成 readonly，但函数类型保持不变**
+
+``` js
+type DeepReadonly<T> = {
+    readonly [K in keyof T]: T[K] extends Function
+        ? T[K]
+        : T[K] extends Object
+        ? DeepReadonly<T[K]>
+        : T[K]
+}
+
+/**
+ *  获取对象所有的键，然后对键进行遍历
+ *  如果当前类型是函数，那么就返回函数类型
+ *  如果不是判断是不是对象类型，如果是对象类型通过递归处理
+ *  如果不是就返回原类型
+ *
+ *  对于数组处理，数组会走 DeepReadonly<T[K]>分支
+ *  因为数组本质上还是对象，只不过数组的下标是键等数字字符串
+ *  当数组进入 DeepReadonly 后，它的数字索引会被加上 readonly
+ *  类似于 readonly string[]）
+ *
+ *  其实函数底层本质也是数组，如果不对函数类型进行判断
+ *  那么它会进入 DeepReadonly<T[K]>分支
+ *  TypeScript 会把这个函数当成普通对象，去递归遍历它的内置属性
+ *  在此过程中函数的调用签名就会丢失
+ */
+```
+
 ### 9.5 Conditional Types
 
 ```ts
