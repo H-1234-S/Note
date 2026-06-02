@@ -45,8 +45,7 @@
               "title": "新标签页"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -103,7 +102,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 238.50469589233398
+    "width": 238.50469589233398,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -219,8 +219,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "9e8cfbe0e9051fa1",
+  "active": "9321d19e18678453",
   "lastOpenFiles": [
+    "AI/Trellis-使用指南.md",
     "AI/openspec 使用指南.md",
     "AI/Superpowers 使用指南.md",
     "Front-end notes/React/React源码级原理深度解析.md",
@@ -257,7 +258,6 @@
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197808702",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197773739",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197746386",
-    "Front-end notes/React/React源码深度剖析-从mini-react到官方实现.md",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
