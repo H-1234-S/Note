@@ -1286,11 +1286,6 @@ export default async function createUser(formData: FormData) {
 
 在使用`useActionState`时，服务器端函数的签名将改变，以接收一个新的`prevState`或`initialState`参数作为其第一个参数。
 
-
-
-
-
-
 ---
 # 内置组件
 
