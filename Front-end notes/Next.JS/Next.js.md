@@ -1849,28 +1849,3 @@ SELECT * FROM "Voice" WHERE "orgId" = '123';
 // 直接调用方法，简单明了
 const voices = await db.voice.findMany({ where: { orgId: '123' } });
 ```
-## Prisma
-
-Prisma是一个现代ORM工具
-
-
-
-
-
-
-
-
-
-
-
-
-
-
----
-# 可访问性
-
-可访问性是指设计和实现所有人都能使用的网络应用程序，包括残障人士。这是一个涵盖许多领域的广泛主题，例如键盘导航、语义 HTML、图像、颜色、视频等。
-
-
---- 
-
