@@ -1052,6 +1052,14 @@ superpowers 负责的是如何做？
 请严格按照 Superpowers 规范 开始执行开发。
 
 目标是完成 `xxx/specs/tasks.md`
+
+“在 `virtual-companion-ios/specs/tasks.md` 中有 7 个待办任务。**请不要让我一次次确认**，你现在作为 Master Agent，请开启自动化流水线，**按照顺序一个接一个地执行**：
+
+1. 为任务 1 派生子智能体，执行 TDD 并合并，更新 `tasks.md` 打勾。
+    
+2. 刷新全局上下文，基于最新的代码和 Spec，无缝进入任务 2。
+    
+3. 依此类推，直到 7 个任务全部打勾。期间如果遇到无法自动解决的报错，再停下来向我求助。”
 ```
 
 所以一般是让openspec去完善需求，让superpowers去执行
