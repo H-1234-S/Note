@@ -1044,7 +1044,9 @@ Report findings by severity. Include file and line references.
 
 ## 8. 与openspec结合
 
+openspec 负责的是做什么？
 
+superpowers 负责的是如何做？
 
 ## 9. 一页速查
 
