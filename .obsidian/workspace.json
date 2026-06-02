@@ -35,7 +35,8 @@
               "title": "Superpowers 使用指南"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -152,13 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "AI/openspec 使用指南.md",
+                "file": "AI/Superpowers 使用指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "openspec 使用指南 的大纲"
+              "title": "Superpowers 使用指南 的大纲"
             }
           },
           {
@@ -210,10 +211,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "9321d19e18678453",
+  "active": "8c223868b66abaf2",
   "lastOpenFiles": [
-    "AI/Superpowers 使用指南.md",
     "AI/openspec 使用指南.md",
+    "AI/Superpowers 使用指南.md",
     "Front-end notes/React/React源码级原理深度解析.md",
     "Front-end notes/Next.js/Nextjs深度学习指南.md",
     "Front-end notes/Next.js/Next.js.md",
