@@ -971,7 +971,7 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
   
 生成完整 HTML：服务器将整个组件树渲染成静态 HTML 字符串，作为响应发送给浏览器。这样浏览器能立即显示内容，无需等待 JavaScript。
 
-同时生成 RSC Payload：除了 HTML，服务器还会生成一个特殊的 RSC Payload（通常嵌入在 HTML 的 script标签中）。这个 Payload 是一个紧凑的数据结构，描述了组件树的结构、服务端组件的渲染结果、以及客户端组件的位置和 props。
+同时生成 RSC Payload：除了 HTML，服务器还会生成一个特殊的 RSC Payload（通常嵌入在 HTML 的 script标签中）。这个 Payload 是一个紧凑的数据结构，描述了组件树的结构、**服务端组件的渲染结果**、以及客户端组件的位置和 props。
 
 发送客户端组件 JavaScript：浏览器还会下载所有客户端组件的 JavaScript 代码（通过脚本标签）。
 
