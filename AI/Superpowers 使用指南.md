@@ -90,7 +90,6 @@ Superpowers：告诉 AI 它应该怎样工作。
     
 - **分支合并与清理（Finishing Branch）：** 所有测试通过后，自动运行测试集，并帮你合并代码或提交 PR。
 
-
 ## 4. 基本指令和操作
 
 Superpowers 的重点不是 “命令行工具”，而是 “skill 被触发后，代理按流程工作”。不同 harness 的触发方式不同：
