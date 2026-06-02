@@ -291,6 +291,8 @@ export default async function PostPage({
 - Client Component 的 props 必须可序列化。
 - Server Component 可以导入 Client Component，Client Component 不能直接导入 Server Component。
 
+
+
 ## 5. 路由系统
 
 ### 5.1 静态路由
