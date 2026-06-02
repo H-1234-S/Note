@@ -34,9 +34,19 @@
               "icon": "lucide-file",
               "title": "Superpowers 使用指南"
             }
+          },
+          {
+            "id": "9e8cfbe0e9051fa1",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -93,8 +103,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 238.50469589233398,
-    "collapsed": true
+    "width": 238.50469589233398
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -153,13 +162,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "AI/Superpowers 使用指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Superpowers 使用指南 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -211,7 +219,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "8c223868b66abaf2",
+  "active": "9e8cfbe0e9051fa1",
   "lastOpenFiles": [
     "AI/openspec 使用指南.md",
     "AI/Superpowers 使用指南.md",
