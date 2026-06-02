@@ -729,6 +729,16 @@ export async function updateSettings() {
 
 ## 11. Server Actions
 
+Server Actions 是Nextjs提供的跨端调用机制，可以在**Client Component** 里触发 **服务端逻辑**
+
+**原理是：** 客户端收到的不是函数对象，而是对这个函数的引用ID，客户端调用时：
+
+1. React 生成 POST 请求，把 actionId 和参数发送到服务端
+2. 服务端执行真正的函数逻辑
+3. 返回结果给客户端
+
+其实就是封装了一个请求或者叫api
+
 Server Actions 让表单和服务端逻辑更接近 React 组件。
 
 ```tsx

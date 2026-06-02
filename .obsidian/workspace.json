@@ -49,7 +49,8 @@
               "title": "Next.js"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -166,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.js/问题导向.md",
+                "file": "Front-end notes/Next.js/Nextjs深度学习指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "问题导向 的大纲"
+              "title": "Nextjs深度学习指南 的大纲"
             }
           },
           {
@@ -223,7 +224,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "ae17605479838e0f",
+  "active": "6ddd6e2f27680ace",
   "lastOpenFiles": [
     "Front-end notes/Next.js/Next.js.md",
     "Front-end notes/Next.js/问题导向.md",
