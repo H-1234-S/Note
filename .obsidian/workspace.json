@@ -39,13 +39,18 @@
             "id": "9e8cfbe0e9051fa1",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "AI/Trellis-使用指南.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "Trellis-使用指南"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -219,10 +224,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "9321d19e18678453",
+  "active": "9e8cfbe0e9051fa1",
   "lastOpenFiles": [
-    "AI/Trellis-使用指南.md",
     "AI/openspec 使用指南.md",
+    "AI/Trellis-使用指南.md",
     "AI/Superpowers 使用指南.md",
     "Front-end notes/React/React源码级原理深度解析.md",
     "Front-end notes/Next.js/Nextjs深度学习指南.md",
