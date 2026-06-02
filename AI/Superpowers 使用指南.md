@@ -1043,77 +1043,9 @@ Report findings by severity. Include file and line references.
 请运行测试、构建，汇总改动，列出风险，并给出下一步选项。
 ```
 
-## 8. 常见问题
+## 8. 与openspec结合
 
-### 8.1 安装后没反应
 
-检查：
-
-```text
-Tell me about your superpowers.
-```
-
-如果 agent 不知道 Superpowers：
-
-- 重启编码工具。
-- 确认插件安装在当前工具，而不是另一个工具。
-- Codex native skills 场景下，确认 `~/.agents/skills/superpowers` 存在。
-- Windows 下确认 junction 指向正确目录。
-
-### 8.2 Codex 里不能用 slash command
-
-Codex 环境里 Superpowers 更常见的用法是 skill discovery，而不是 slash command。直接说：
-
-```text
-请使用 brainstorming skill ...
-```
-
-通常比猜 `/brainstorm`、`/superpowers:brainstorm` 更可靠。
-
-### 8.3 它总是问问题，能不能直接做
-
-可以，但要区分任务类型。
-
-对于小任务：
-
-```text
-这是一个很小的改动，不需要完整 brainstorming。请直接实现，但完成前使用 verification-before-completion skill 验证。
-```
-
-对于复杂任务，不建议跳过设计阶段。
-
-### 8.4 会不会太慢
-
-会更慢一些，尤其是 brainstorm、plan、review 都走全的时候。但它换来的是：
-
-- 更少返工。
-- 更明确的边界。
-- 更容易审查。
-- 更稳定的长任务执行。
-
-建议：
-
-- 小任务只用 TDD 或 verification。
-- 中任务用 plan + TDD。
-- 大任务用 brainstorm + plan + TDD + review + finishing。
-
-### 8.5 如何更新
-
-如果是插件市场安装，通常按工具自己的插件更新方式。
-
-如果是手动 clone：
-
-```bash
-cd ~/.codex/superpowers
-git pull
-```
-
-Windows PowerShell：
-
-```powershell
-Set-Location "$env:USERPROFILE\.codex\superpowers"
-git pull
-```
 
 ## 9. 一页速查
 
@@ -1158,22 +1090,3 @@ Tell me about your superpowers.
 ```text
 请使用 verification-before-completion skill，运行必要测试和手动检查，确认真的完成。
 ```
-
-## 10. 推荐学习路径
-
-1. 安装 Superpowers。
-2. 用 `Tell me about your superpowers.` 验证。
-3. 跑完本文 Todo CLI 示例。
-4. 在自己的项目中找一个小功能，用 `brainstorming` 做设计。
-5. 用 `writing-plans` 写计划。
-6. 用 `test-driven-development` 执行一个小任务。
-7. 用 `requesting-code-review` 做审查。
-8. 用 `verification-before-completion` 收尾。
-9. 为团队规范写一个自定义 skill。
-
-## 11. 资料来源
-
-- Superpowers GitHub README：<https://github.com/obra/superpowers>
-- Codex 安装文档：<https://obra-superpowers.mintlify.app/installation/codex>
-- Superpowers release notes：<https://github.com/obra/superpowers/releases>
-
