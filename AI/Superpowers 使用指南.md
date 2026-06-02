@@ -74,130 +74,22 @@ Superpowers：告诉 AI 它应该怎样工作。
 - 你已经有非常成熟的内部 agent workflow，并且不想被外部流程约束。
 - 对 token、上下文消耗极其敏感的微任务。
 
-## 3. 安装和配置
+## 3. 工作流
 
-Superpowers 的安装方式取决于你使用的编码代理。多个工具之间互不共享安装状态，如果你同时用 Codex 和 Claude Code，需要分别安装。
+- **头脑风暴（Brainstorming）：** 在写代码前，AI 会主动退一步，向你抛出核心问题、分析技术架构和利弊（Trade-offs），直到你确认了设计文档，它才会进行下一步。
+    
+- **Git 工作树隔离（Git Worktrees）：** 自动创建一个干净的 Git 隔离工作空间（分支），不污染你的主分支。
+    
+- **制定拆分计划（Writing Plans）：** 将任务拆解为无数个“2-5分钟即可完成”的原子化小任务。
+    
+- **子智能体驱动开发（Subagent-Driven Development）：** 这是它最强的地方。针对每一个小任务，AI 会生成一个**全新的、干净的子 AI 智能体**去执行，完成后立刻销毁。这完美解决了长对话中 AI 性能退化、出错累积的问题。
+    
+- **测试驱动开发（TDD）：** 强制执行 `红 -> 绿 -> 重构` 流程。AI 必须**先写一个失败的测试（红）**，然后写出刚巧通过测试的代码（绿），最后重构。如果 AI 没写测试就敢写业务代码，Superpowers 的规则会强制把它的代码**无情删掉**重新来过。
+    
+- **代码评审（Code Review）：** 任务完成后，由另一个扮演 Reviewer 的子 AI 对代码质量和边缘情况进行双重检查。
+    
+- **分支合并与清理（Finishing Branch）：** 所有测试通过后，自动运行测试集，并帮你合并代码或提交 PR。
 
-### 3.1 Codex App
-
-在 Codex 桌面应用中：
-
-1. 打开左侧 `Plugins`。
-2. 在 Coding 分类中找到 `Superpowers`。
-3. 点击 `+` 安装。
-4. 新开一个会话验证。
-
-验证提示：
-
-```text
-Tell me about your superpowers.
-```
-
-或中文：
-
-```text
-请告诉我你现在可用的 Superpowers skills。
-```
-
-### 3.2 Codex CLI
-
-官方 README 显示 Codex CLI 可通过插件市场安装：
-
-```text
-/plugins
-```
-
-然后搜索：
-
-```text
-superpowers
-```
-
-选择 `Install Plugin`。
-
-如果你的 Codex 版本使用 native skill discovery，也可以让 Codex 按官方安装说明执行：
-
-```text
-Fetch and follow instructions from https://raw.githubusercontent.com/obra/superpowers/refs/heads/main/.codex/INSTALL.md
-```
-
-手动安装思路如下。
-
-macOS / Linux：
-
-```bash
-git clone https://github.com/obra/superpowers.git ~/.codex/superpowers
-mkdir -p ~/.agents/skills
-ln -s ~/.codex/superpowers/skills ~/.agents/skills/superpowers
-```
-
-Windows PowerShell：
-
-```powershell
-git clone https://github.com/obra/superpowers.git "$env:USERPROFILE\.codex\superpowers"
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.agents\skills"
-cmd /c mklink /J "$env:USERPROFILE\.agents\skills\superpowers" "$env:USERPROFILE\.codex\superpowers\skills"
-```
-
-验证：
-
-```powershell
-Get-ChildItem "$env:USERPROFILE\.agents\skills"
-```
-
-看到 `superpowers` junction 或 symlink 后，重启 Codex。
-
-### 3.3 Claude Code
-
-官方市场：
-
-```text
-/plugin install superpowers@claude-plugins-official
-```
-
-Superpowers 自己的 marketplace：
-
-```text
-/plugin marketplace add obra/superpowers-marketplace
-/plugin install superpowers@superpowers-marketplace
-```
-
-### 3.4 Cursor
-
-在 Cursor Agent chat 中执行：
-
-```text
-/add-plugin superpowers
-```
-
-也可以在插件市场搜索 `superpowers`。
-
-### 3.5 Gemini CLI
-
-```bash
-gemini extensions install https://github.com/obra/superpowers
-```
-
-更新：
-
-```bash
-gemini extensions update superpowers
-```
-
-### 3.6 OpenCode
-
-让 OpenCode 执行官方安装说明：
-
-```text
-Fetch and follow instructions from https://raw.githubusercontent.com/obra/superpowers/refs/heads/main/.opencode/INSTALL.md
-```
-
-### 3.7 GitHub Copilot CLI
-
-```bash
-copilot plugin marketplace add obra/superpowers-marketplace
-copilot plugin install superpowers@superpowers-marketplace
-```
 
 ## 4. 基本指令和操作
 
