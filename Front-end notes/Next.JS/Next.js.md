@@ -889,10 +889,6 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
 
 ### 工作原理
 
-
-
-
-
 --- 
 
 ## 3.服务端组件(Server Components)
