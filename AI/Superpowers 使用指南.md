@@ -1056,7 +1056,6 @@ superpowers 负责的是如何做？
 
 所以一般是让openspec去完善需求，让superpowers去执行
 
-
 ## 9. 一页速查
 
 ### 9.1 安装验证
