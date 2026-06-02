@@ -64,13 +64,17 @@
             }
           },
           {
-            "id": "459235c78bf85c5c",
+            "id": "76fbb9e6865e4c80",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Project notes/VoxClone/logs.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "logs"
             }
           }
         ],
@@ -191,12 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Project notes/VoxClone/logs.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "logs 的大纲"
             }
           },
           {
@@ -248,16 +253,16 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "459235c78bf85c5c",
+  "active": "76fbb9e6865e4c80",
   "lastOpenFiles": [
     "Front-end notes/TypeScript/TypeScript完全指南.md",
+    "Project notes/Polaris/Logs.md",
     "Front-end notes/React/React源码级原理深度解析.md",
     "Front-end notes/React/构建Mini React.md",
     "Front-end notes/React/React.md",
     "Front-end notes/TanStack Query/TanStack Query学习指南.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
     "Project notes/VoxClone/logs.md",
-    "Project notes/Polaris/Logs.md",
     "Project notes/VoxClone/需求.canvas",
     "Front-end notes/tRPC/tRPC学习指南.md",
     "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
