@@ -139,6 +139,18 @@ openspec/
 - `design.md`：技术方案、架构选择、关键取舍。
 - `tasks.md`：实现清单，AI 会按任务逐项完成并打勾。
 
+### 运行之后
+
+```
+openspec/
+├── specs/
+├── changes/
+│   ├── add-dark-mode/
+│   └── archive/
+```
+
+archive 就是一个历史的变更仓库
+
 ## 4. 核心概念：Delta Specs
 
 OpenSpec 的规格不是简单写一篇 PRD，而是通过增量规格说明“相对于当前系统，要新增、修改、删除什么”。
