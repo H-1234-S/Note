@@ -1,4 +1,4 @@
-# Superpowers 使用指南
+## Superpowers 使用指南
 
 > 适用对象：想用 Claude Code、Codex、Cursor、Gemini CLI、OpenCode、GitHub Copilot CLI 等 AI 编程助手进行更稳定工程开发的人。
 >

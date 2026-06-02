@@ -1,4 +1,4 @@
-# OpenSpec 使用指南
+## OpenSpec 使用指南
 
 > 适用版本：根据 Fission-AI/OpenSpec 官方仓库截至 2026-06-02 的文档整理。
 > 官方仓库：https://github.com/Fission-AI/OpenSpec
