@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "0834d1227d10d521",
+        "id": "f6814e0d1f285da5",
         "type": "tabs",
         "children": [
           {
-            "id": "5278797551578b1e",
+            "id": "bbf7cfc4d11bb460",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "八股/React面试八股整理.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "React面试八股整理"
             }
           }
         ]
@@ -133,12 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "八股/React面试八股整理.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "React面试八股整理 的大纲"
             }
           },
           {
@@ -175,8 +180,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 215.5,
-    "collapsed": true
+    "width": 215.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -190,36 +194,36 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "5278797551578b1e",
+  "active": "bbf7cfc4d11bb460",
   "lastOpenFiles": [
-    "Front-end notes/React/构建Mini React.md",
-    "Project notes/Polaris/Logs.md",
-    "Front-end notes/Next.js/Next.js.md",
-    "Project notes/VoxClone/logs.md",
+    "八股/浏览器篇_高频八股文.md",
+    "八股/浏览器原理面试八股整理.md",
+    "八股/React面试八股整理.md",
+    "学习/思考.md",
+    "学习/技术栈.md",
+    "学习/目标.md",
+    "项目/VoxClone/知识内容.md",
+    "项目/VoxClone/知识点.md",
+    "项目/VoxClone/面试问答完整版.md",
+    "Project notes/项目链接.md",
+    "项目/Polaris/Logs.md",
+    "笔记/React/构建Mini React.md",
+    "笔记/Next.js/Next.js.md",
+    "项目/VoxClone/logs.md",
     "自我介绍.md",
-    "Front-end notes/Next.js/Nextjs深度学习指南.md",
-    "Front-end notes/Next.js/问题导向.md",
-    "Front-end notes/Nest.js/NestJS 学习指南.md",
-    "Front-end notes/JavaScript/Proto.md",
+    "笔记/Next.js/Nextjs深度学习指南.md",
+    "笔记/Next.js/问题导向.md",
+    "笔记/Nest.js/NestJS 学习指南.md",
+    "笔记/JavaScript/Proto.md",
     "AI/RAG.md",
     "AI/Trellis 使用指南.md",
-    "Front-end notes/TypeScript/TypeScript完全指南.md",
+    "笔记/TypeScript/TypeScript完全指南.md",
     "AI/openspec 使用指南.md",
-    "Front-end notes/React/React源码级原理深度解析.md",
+    "笔记/React/React源码级原理深度解析.md",
     "八股/JavaScript篇_高频八股文.md",
-    "Front-end notes/JavaScript/闭包.md",
-    "AI/Superpowers 使用指南.md",
-    "杂/未命名.md",
-    "学习/Ai.md",
+    "笔记/JavaScript/闭包.md",
     "AI",
-    "Front-end notes/React/React.md",
-    "Front-end notes/TanStack Query/TanStack Query学习指南.md",
-    "Front-end notes/Prisma/Prisma ORM 学习指南.md",
-    "Project notes/VoxClone/需求.canvas",
-    "Front-end notes/tRPC/tRPC学习指南.md",
-    "Front-end notes/TanStack Query/TanStack Query 完全指南.md",
-    "Project notes/Polaris/project-requirements-and-data-flow.md",
-    "Project notes/VoxClone/面试问答完整版.md",
+    "项目/VoxClone/需求.canvas",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198519142",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198463213",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198421804",
@@ -231,15 +235,15 @@
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197746386",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
-    "Project notes/nextjs-dashboard/官方实战教程分析.canvas",
-    "Project notes/nextjs-dashboard/添加搜索功能.canvas",
+    "项目/nextjs-dashboard/官方实战教程分析.canvas",
+    "项目/nextjs-dashboard/添加搜索功能.canvas",
     "思考.canvas",
-    "Project notes/react-firebase/最后一条消息.canvas",
-    "Project notes/react-firebase/注册、登录.canvas",
-    "Project notes/react-firebase/消息同步.canvas",
-    "Project notes/react-firebase/消息撤回.canvas",
-    "Project notes/react-firebase/搜索.canvas",
-    "Project notes/react-firebase/拉黑.canvas",
+    "项目/react-firebase/最后一条消息.canvas",
+    "项目/react-firebase/注册、登录.canvas",
+    "项目/react-firebase/消息同步.canvas",
+    "项目/react-firebase/消息撤回.canvas",
+    "项目/react-firebase/搜索.canvas",
+    "项目/react-firebase/拉黑.canvas",
     "Pasted image 20260228185140.png"
   ]
 }

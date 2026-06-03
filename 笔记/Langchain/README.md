@@ -8,15 +8,15 @@
 
 | 章节 | 内容 | 难度 |
 |------|------|------|
-| [第 0 章 大模型前置知识](./docs/第0章-大模型前置知识.md) | Token、Prompt、Embedding、RAG、Agent 等核心概念 | 入门 |
-| [第 1 章 LangChain 入门与架构](./docs/第1章-LangChain入门与架构.md) | 安装、Hello World、LCEL 核心、整体架构 | 入门 |
-| [第 2 章 Model I/O 三件套](./docs/第2章-ModelIO三件套.md) | Prompts 模板、Models 接口、Output Parsers | 基础 |
-| [第 3 章 LCEL 表达式语言](./docs/第3章-LCEL表达式语言.md) | 管道组合、并行处理、批处理、分支路由 | 进阶 |
-| [第 4 章 数据连接与 RAG](./docs/第4章-数据连接与RAG.md) | 文档加载、分割、向量化、RAG 完整实现 | 核心 |
-| [第 5 章 Memory 与 Chain](./docs/第5章-Memory与Chain.md) | 对话记忆、多种 Memory 类型、Chain 类型 | 进阶 |
-| [第 6 章 Tools 与 Agents](./docs/第6章-Tools与Agents.md) | 工具定义、ReAct 模式、Agent Executor | 高级 |
-| [第 7 章 LangGraph 与多智能体](./docs/第7章-LangGraph与多智能体.md) | 状态机、多 Agent 协作、人机协同、检查点 | 高级 |
-| [第 8 章 调试监控与可观测性](./docs/第8章-调试监控与可观测性.md) | LangSmith、Callbacks、Token 追踪、错误处理 | 生产 |
+| [第 0 章 大模型前置知识](第0章-大模型前置知识.md) | Token、Prompt、Embedding、RAG、Agent 等核心概念 | 入门 |
+| [第 1 章 LangChain 入门与架构](第1章-LangChain入门与架构.md) | 安装、Hello World、LCEL 核心、整体架构 | 入门 |
+| [第 2 章 Model I/O 三件套](第2章-ModelIO三件套.md) | Prompts 模板、Models 接口、Output Parsers | 基础 |
+| [第 3 章 LCEL 表达式语言](第3章-LCEL表达式语言.md) | 管道组合、并行处理、批处理、分支路由 | 进阶 |
+| [第 4 章 数据连接与 RAG](第4章-数据连接与RAG.md) | 文档加载、分割、向量化、RAG 完整实现 | 核心 |
+| [第 5 章 Memory 与 Chain](第5章-Memory与Chain.md) | 对话记忆、多种 Memory 类型、Chain 类型 | 进阶 |
+| [第 6 章 Tools 与 Agents](第6章-Tools与Agents.md) | 工具定义、ReAct 模式、Agent Executor | 高级 |
+| [第 7 章 LangGraph 与多智能体](第7章-LangGraph与多智能体.md) | 状态机、多 Agent 协作、人机协同、检查点 | 高级 |
+| [第 8 章 调试监控与可观测性](第8章-调试监控与可观测性.md) | LangSmith、Callbacks、Token 追踪、错误处理 | 生产 |
 
 ---
 
