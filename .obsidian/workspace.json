@@ -64,7 +64,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -121,7 +121,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 238.50469589233398
+    "width": 238.50469589233398,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -180,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.js/Next.js.md",
+                "file": "自我介绍.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Next.js 的大纲"
+              "title": "自我介绍 的大纲"
             }
           },
           {
@@ -223,7 +224,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 345.5
+    "width": 345.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -237,8 +239,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "e738d4ae0acf16ae",
+  "active": "5dc8787c83c16f45",
   "lastOpenFiles": [
+    "Front-end notes/Next.js/Next.js.md",
     "Front-end notes/Next.js/Nextjs深度学习指南.md",
     "自我介绍.md",
     "Front-end notes/Next.js/问题导向.md",
@@ -254,7 +257,6 @@
     "八股/JavaScript篇_高频八股文.md",
     "Front-end notes/JavaScript/闭包.md",
     "AI/Superpowers 使用指南.md",
-    "Front-end notes/Next.js/Next.js.md",
     "杂/未命名.md",
     "学习/Ai.md",
     "AI",
