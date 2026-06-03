@@ -255,7 +255,7 @@ fn();
 执行过程：
 
 1. 全局上下文创建，声明 `outer` 和 `fn`。
-2. 调用 `outer`，创建 `outer` 执行上下文。
+2. 调用 `outer`，创建 `outer` 执行上下文，此时会将 `outer` 压入调用栈中 。
 3. 创建词法环境，绑定 `count = 0`。
 4. 创建 `inner` 函数，`inner.[[Environment]]` 指向 `outer` 的词法环境。
 5. `outer` 返回 `inner`，`outer` 执行上下文弹出。
