@@ -411,6 +411,26 @@ Function.prototype.myBind = function (context, ...boundArgs) {
 
 1. React 闭包陷阱：事件处理器或定时器捕获旧 state，导致读取到过期值。
 
+先看：
+``` js
+function Counter() {
+  const [count, setCount] = React.useState(0);
+
+  console.log("render", count);
+
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      {count}
+    </button>
+  );
+}
+/*
+每次调用set函数时，state更新，Counter函数重新执行，创建一个新的执行上下文
+因此count并不是在原来的基础上加一，而是销毁原来变量重新赋值为2，以此类推
+*/
+```
+
+
 ```javascript
 function Counter() {
   const [count, setCount] = React.useState(0);
