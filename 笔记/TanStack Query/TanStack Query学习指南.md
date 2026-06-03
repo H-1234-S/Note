@@ -476,6 +476,8 @@ function UserPanel({ userId }: { userId: string }) {
 
 ### 6.2 `staleTime`
 
+> 也就是多长时间内不用重新请求
+
 `staleTime` 表示数据在多长时间内被认为是 fresh。fresh 数据通常**不会**因为组件重新挂载、窗口聚焦等原因自动**重新请求**
 
 ```tsx
@@ -496,6 +498,8 @@ useQuery({
 - 订单状态、通知、任务进度等需要较新数据。
 
 ### 6.3 `gcTime`
+
+> 没有人用后缓存保存多长时间
 
 `gcTime` 表示 query 没有观察者后，缓存保留多久再被垃圾回收。v5 中它取代旧名 `cacheTime`。
 
