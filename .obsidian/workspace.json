@@ -4,53 +4,20 @@
     "type": "split",
     "children": [
       {
-        "id": "bb93d409631f343e",
+        "id": "0834d1227d10d521",
         "type": "tabs",
         "children": [
           {
-            "id": "034dd0db103c7028",
+            "id": "5278797551578b1e",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/React/构建Mini React.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "构建Mini React"
-            }
-          },
-          {
-            "id": "21016ad1749d217c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Project notes/Polaris/Logs.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Logs"
-            }
-          },
-          {
-            "id": "e738d4ae0acf16ae",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Front-end notes/Next.js/Next.js.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Next.js"
+              "title": "新标签页"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -166,13 +133,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Front-end notes/Next.js/Next.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Next.js 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -224,12 +190,12 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2da4a27ae2d15ba3",
+  "active": "5278797551578b1e",
   "lastOpenFiles": [
-    "Project notes/VoxClone/logs.md",
+    "Front-end notes/React/构建Mini React.md",
     "Project notes/Polaris/Logs.md",
     "Front-end notes/Next.js/Next.js.md",
-    "Front-end notes/React/构建Mini React.md",
+    "Project notes/VoxClone/logs.md",
     "自我介绍.md",
     "Front-end notes/Next.js/Nextjs深度学习指南.md",
     "Front-end notes/Next.js/问题导向.md",
