@@ -166,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "自我介绍.md",
+                "file": "Front-end notes/Next.js/Next.js.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "自我介绍 的大纲"
+              "title": "Next.js 的大纲"
             }
           },
           {
@@ -209,7 +209,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
+    "width": 215.5,
     "collapsed": true
   },
   "left-ribbon": {
@@ -226,13 +226,14 @@
   },
   "active": "2da4a27ae2d15ba3",
   "lastOpenFiles": [
+    "Project notes/VoxClone/logs.md",
+    "Project notes/Polaris/Logs.md",
+    "Front-end notes/Next.js/Next.js.md",
     "Front-end notes/React/构建Mini React.md",
     "自我介绍.md",
-    "Front-end notes/Next.js/Next.js.md",
     "Front-end notes/Next.js/Nextjs深度学习指南.md",
     "Front-end notes/Next.js/问题导向.md",
     "Front-end notes/Nest.js/NestJS 学习指南.md",
-    "Project notes/Polaris/Logs.md",
     "Front-end notes/JavaScript/Proto.md",
     "AI/RAG.md",
     "AI/Trellis 使用指南.md",
@@ -245,7 +246,6 @@
     "杂/未命名.md",
     "学习/Ai.md",
     "AI",
-    "Project notes/VoxClone/logs.md",
     "Front-end notes/React/React.md",
     "Front-end notes/TanStack Query/TanStack Query学习指南.md",
     "Front-end notes/Prisma/Prisma ORM 学习指南.md",
