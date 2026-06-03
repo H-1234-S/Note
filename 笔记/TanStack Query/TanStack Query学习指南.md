@@ -476,7 +476,7 @@ function UserPanel({ userId }: { userId: string }) {
 
 ### 6.2 `staleTime`
 
-`staleTime` 表示数据在多长时间内被认为是 fresh。fresh 数据通常不会因为组件重新挂载、窗口聚焦等原因自动重新请求。
+`staleTime` 表示数据在多长时间内被认为是 fresh。fresh 数据通常**不会**因为组件重新挂载、窗口聚焦等原因自动**重新请求**
 
 ```tsx
 useQuery({
