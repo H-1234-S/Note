@@ -113,6 +113,13 @@ function createElement(type,props,...children) {
 }
 ```
 
+## babel等编译工具的流程
+
+- **解析 JSX** → 生成 AST（抽象语法树）。
+- **转换 JSX AST 节点** → 调用 `React.createElement` 或 `jsx` 工厂函数。
+- **生成 JavaScript 代码** → 浏览器可执行。
+- **运行时** → React 接收这些调用结果，构建虚拟 DOM。
+
 # 创建render函数
 
 将创建的虚拟DOM添加到真实DOM中；只考虑添加，不考虑更新和删除
