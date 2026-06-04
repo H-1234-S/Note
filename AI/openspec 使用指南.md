@@ -62,6 +62,7 @@ Change B: /opsx:new ──► /opsx:ff ──────► /opsx:apply
 ```
 
 两个独立的工作流，Change A 和 Change B 的状态不会干扰，也不会污染上下文
+那这样我可以开五个窗口同时运行五个变更，最后再联调
 
 ## 2. 安装与初始化
 
