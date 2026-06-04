@@ -622,8 +622,7 @@ if (fiber.parent) {
 ```
 
 ---
-
-**跟踪fiber tree的根**
+## **跟踪fiber tree的根**
 
 ``` js
 let wipRoot = null
@@ -649,8 +648,7 @@ function render(element, container) {
 如果没有 `wipRoot` 记录 `fiber tree` 的顶端，处理完 `unitOfWork` 后，会找不到内存中的 `fiber tree`
 
 ---
-
-**提交fiber tree到DOM**
+## **提交fiber tree到DOM**
 
 ``` js
 function WorkLoop(deadline) {
