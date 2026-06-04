@@ -46,7 +46,11 @@ const element = React.createElement(
 
 创建一个 `element` 对象，也就是虚拟DOM
 
+现阶段只关注 `element` 对象中两个属性，`type` 和 `props`，因此该函数就是为了得到包含着两个属性的**对象**
+
 接收三个参数：`type` 、`props` 、`...children`
+
+`babel` 编译工具会将 `jsx` 代码编译为 `js` ，作为参数注入到 `createElement` 函数中
 
 ``` js
 function createElement(type,props,...children) {
