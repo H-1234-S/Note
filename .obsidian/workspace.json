@@ -6,6 +6,7 @@
       {
         "id": "9df012d69d9caacf",
         "type": "tabs",
+        "dimension": 54.46570972886763,
         "children": [
           {
             "id": "7b5837734fdac5c0",
@@ -64,20 +65,6 @@
             }
           },
           {
-            "id": "9acba3db136983ad",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/openspec 使用指南.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "openspec 使用指南"
-            }
-          },
-          {
             "id": "e5a8101b3a769665",
             "type": "leaf",
             "state": {
@@ -92,7 +79,28 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 4
+      },
+      {
+        "id": "38506f0ceed66ad6",
+        "type": "tabs",
+        "dimension": 45.53429027113238,
+        "children": [
+          {
+            "id": "cf8103e4ead3ff3a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "随笔.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "随笔"
+            }
+          }
+        ]
       }
     ],
     "direction": "vertical"
@@ -269,8 +277,9 @@
   },
   "active": "e5a8101b3a769665",
   "lastOpenFiles": [
-    "AI/openspec 使用指南.md",
+    "随笔.md",
     "笔记/React/构建Mini React.md",
+    "AI/openspec 使用指南.md",
     "八股/JavaScript面试八股整理.md",
     "笔记/Next.js/Nextjs深度学习指南.md",
     "八股/React面试八股整理.md",
@@ -294,7 +303,6 @@
     "笔记/Nest.js/NestJS 学习指南.md",
     "笔记/JavaScript/Proto.md",
     "AI/RAG.md",
-    "AI/Trellis 使用指南.md",
     "AI",
     "项目/VoxClone/需求.canvas",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198519142",
