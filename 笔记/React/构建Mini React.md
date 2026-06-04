@@ -298,6 +298,8 @@ function performUnitOfWork(nextUnitOfWork) {
 
 ## 处理一个 Fiber 节点
 
+> 也就是 `performUnitOfWork` 函数的具体实现
+
 - **创建真实DOM（如果没有）**
 	
 	如果当前的 Fiber 节点还没有对应的真实 DOM 节点，React 会根据 `fiber.type` 创建它，并且挂载到父节点上。
