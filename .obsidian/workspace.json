@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "笔记/Next.js/Nextjs深度学习指南.md",
+                "file": "AI/openspec 使用指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Nextjs深度学习指南 的大纲"
+              "title": "openspec 使用指南 的大纲"
             }
           },
           {
@@ -238,8 +238,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 334.5,
-    "collapsed": true
+    "width": 334.5
   },
   "left-ribbon": {
     "hiddenItems": {

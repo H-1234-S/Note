@@ -51,6 +51,18 @@ OpenSpec 是一个面向 AI 编程助手的规格驱动开发工具。它解决�
 /opsx:new：基于探索阶段的结果，创建新的 OpenSpec 文档或代码项目原型。
 /opsx:continue：对现有的OpenSpec 文档或项目原型进行迭代或扩展
 
+对于平行变更：
+
+```
+Change A: /opsx:new ──► /opsx:ff ──► /opsx:apply (in progress)
+                                         │
+                                    context switch
+                                         │
+Change B: /opsx:new ──► /opsx:ff ──────► /opsx:apply
+```
+
+两个独立的工作流，Change A 和 Change B 的状态不会干扰，也不会污染上下文
+
 ## 2. 安装与初始化
 
 ### 2.1 环境要求
