@@ -641,9 +641,12 @@ function render(element, container) {
 }
 ```
 
-`nextUnitOfWork` 相当于一个在fiber tree中**不断移动的指针**，当所有任务处理完成后，`nextUnitOfWork` 最终会被赋值为null
+为什么要记录根节点？
+	因为不想频繁改变dom结构，想要做完所有工作后一次性更改dom结构，那么就需要记录工作树的顶端，以防工作结束后找不到工作树
 
-如果没有 `wipRoot` 记录fiber tree的顶端，处理完 `unitOfWork` 后，会找不到内存中的fiber tree
+`nextUnitOfWork` 相当于一个在 `fiber tree` 中**不断移动的指针**，当所有任务处理完成后，`nextUnitOfWork` 最终会被赋值为 `null`
+
+如果没有 `wipRoot` 记录 `fiber tree` 的顶端，处理完 `unitOfWork` 后，会找不到内存中的 `fiber tree`
 
 ---
 
