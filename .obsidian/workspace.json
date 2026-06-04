@@ -92,7 +92,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -209,13 +209,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "笔记/React/构建Mini React.md",
+                "file": "AI/openspec 使用指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "构建Mini React 的大纲"
+              "title": "openspec 使用指南 的大纲"
             }
           },
           {
@@ -266,8 +266,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "ed4e7f2d0b9f101c",
+  "active": "9acba3db136983ad",
   "lastOpenFiles": [
+    "笔记/React/构建Mini React.md",
     "八股/JavaScript面试八股整理.md",
     "AI/openspec 使用指南.md",
     "笔记/Next.js/Nextjs深度学习指南.md",
@@ -286,7 +287,6 @@
     "项目/VoxClone/面试问答完整版.md",
     "Project notes/项目链接.md",
     "项目/Polaris/Logs.md",
-    "笔记/React/构建Mini React.md",
     "项目/VoxClone/logs.md",
     "自我介绍.md",
     "笔记/Next.js/问题导向.md",
