@@ -614,6 +614,13 @@ Fiber 节点通过三个核心指针将树形结构转化为**线性链表**，�
 
 因此，需要将渲染完的结果一次性插入到DOM中
 
+所以，先不改变原有dom结构，也就是去掉：
+``` js
+if (fiber.parent) {
+	fiber.parent.dom.appendChild(fiber.dom)
+}
+```
+
 ---
 
 **跟踪fiber tree的根**
