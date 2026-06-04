@@ -225,7 +225,9 @@ JS脚本执行 -----  样式布局 ----- 样式绘制
 
 >也就是将**同步更新变为可中断的异步更新**
 
-把原本的长时间的递归渲染工作拆成一个个小的工作单元
+首先react并不主动执行渲染任务，而是让浏览器在每一帧的空闲时间去执行任务
+
+并且把原本的长时间的递归渲染工作拆成一个个小的工作单元
 
 每当工作单元执行完后，如果有其他高优先级的任务，浏览器就会暂停渲染工作
 
@@ -258,7 +260,7 @@ function performUnitOfWork(nextUnitOfWork) {
 }
 ```
 
-`requestIdleCallback()` 方法插入一个函数，这个函数将在浏览器空闲时期被调用，也就是**在浏览器每一帧的空闲时间去执行任务**（[官方文档](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)）。 
+`requestIdleCallback()` 方法插入一个函数，这个函数将在浏览器主线程空闲时期被调用，也就是**在浏览器每一帧的空闲时间去执行任务**（[官方文档](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)）。 
 	
 - `requestIdleCallback()` 同时也给插入的函数提供一个参数 `deadline对象` 
 	
