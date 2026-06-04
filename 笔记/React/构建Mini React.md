@@ -229,7 +229,7 @@ JS脚本执行 -----  样式布局 ----- 样式绘制
 
 **例如**： 单元1 -> 单元2 -> 让出处理事件 -> 单元3 -> 让出处理事件 -> 单元4 -> commit -> 绘制
 
-> 怎么让步呢？
+> 怎么让步呢？也就是怎么知道该不该中断？
 
 **Work Loop：**
 
@@ -261,10 +261,6 @@ function performUnitOfWork(nextUnitOfWork) {
 	// 为子元素创建fiber节点
 	// 返回下一工作单元
 }
-
-/*
-
-*/
 ```
 
 `requestIdleCallback()` 方法插入一个函数，这个函数将在浏览器主线程空闲时期被调用，也就是**在浏览器每一帧的空闲时间去执行任务**（[官方文档](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)）。 
