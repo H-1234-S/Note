@@ -38,14 +38,18 @@ OpenSpec 是一个面向 AI 编程助手的规格驱动开发工具。它解决�
 最常见的完整流程是：
 
 ```text
-/opsx:propose -> /opsx:apply -> /opsx:sync -> /opsx:archive
+/opsx:explore ──► /opsx:new ──► /opsx:continue ──► ... ──► /opsx:apply
 ```
 
 如果启用扩展工作流，也可以使用更细粒度的流程：
 
 ```text
-/opsx:new -> /opsx:ff 或 /opsx:continue -> /opsx:apply -> /opsx:verify -> /opsx:archive
+/opsx:explore -> /opsx:new -> /opsx:ff 或 /opsx:continue -> /opsx:apply -> /opsx:verify -> /opsx:archive
 ```
+
+/opsx:explore：对于需求不明确的时候使用，进行探索需求
+/opsx:new：基于探索阶段的结果，创建新的 OpenSpec 文档或代码项目原型。
+/opsx:continue：对现有的OpenSpec 文档或项目原型进行迭代或扩展
 
 ## 2. 安装与初始化
 
