@@ -442,7 +442,16 @@ function Counter() {
     return () => clearInterval(timer);
   }, []);
 }
+/*
+在这段代码中，setInterval回调函数捕获的值是count为0
+这源于该函数创建时的词法环境，在创建时的词法环境中count的值始终未0
+
+
+
+*/
 ```
+
+
 
 修复方式：
 
