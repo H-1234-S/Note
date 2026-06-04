@@ -139,7 +139,7 @@ function render(element, container) {
         .filter(isProperty)
         .forEach(item => dom[item] = element.props[item])
 
-    element.props.children.map(child => {
+    element.props.children.forEach(child => {
         render(child, dom)
     })
     container.appendChild(dom)
