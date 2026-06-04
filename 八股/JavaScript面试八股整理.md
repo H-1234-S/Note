@@ -428,7 +428,7 @@ function Counter() {
 */
 ```
 
-
+再看：
 ```javascript
 function Counter() {
   const [count, setCount] = React.useState(0);
@@ -444,19 +444,21 @@ function Counter() {
 }
 /*
 在这段代码中，setInterval回调函数捕获的值是count为0
-这源于该函数创建时的词法环境，在创建时的词法环境中count的值始终未0
+这源于该函数创建时的词法环境，在创建时的词法环境中count的值始终为0
 
-
-
+因为useEffect依赖为空时，该定时器只会被创建一次，这个定时器的回调函数引用的外部词法环境中count值始终为0
 */
 ```
-
-
 
 修复方式：
 
 ```javascript
 setCount(prev => prev + 1);
+
+/*
+因为函数更新React会参与执行
+会在内部将上一次的旧状态注入prev中
+*/
 ```
 
 2. Node.js 中闭包保存连接、缓存、配置，能减少全局变量污染，但要避免闭包引用超大对象。
