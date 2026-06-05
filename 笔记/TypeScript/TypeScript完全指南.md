@@ -996,6 +996,10 @@ type PartialUser = Partial<User>;
 
 // Required 把一个现有对象类型 T 中的所有可选属性变为 必选
 type RequiredUser = Required<User>;
+// 实现
+type Required<T> = {
+    [P in keyof T]-?: T[P];
+};
 
 // Readonly 把一个现有对象类型 T 中的所有属性变为 只读
 type ReadonlyUser = Readonly<User>;
