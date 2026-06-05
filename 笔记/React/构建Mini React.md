@@ -848,7 +848,6 @@ function reconcileChildren(wipFiber, elements) {
 		
 		prevSibling = newFiber
 		index++
-		
 	}
 }
 ```
