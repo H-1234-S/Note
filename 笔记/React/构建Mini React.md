@@ -914,7 +914,7 @@ function reconcileChildren(wipFiber, elements) {
     
 - 如果新元素不存在，**旧的 Fiber** 在新的一轮渲染中**消失了**，那么需要移除旧节点
 	
-- 在React中还使用了key这一机制
+- 在React中还使用了key这一机制，可以看成diff算法中的节点身份机制
 	
 	- 意思是
 
