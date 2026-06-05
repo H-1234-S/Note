@@ -913,6 +913,10 @@ function reconcileChildren(wipFiber, elements) {
 - 如果**新增加了一个元素**，或者**旧位置的元素类型变了**，那么创建一个新的 DOM 节点
     
 - 如果新元素不存在，**旧的 Fiber** 在新的一轮渲染中**消失了**，那么需要移除旧节点
+	
+- 在React中还使用了key这一机制
+	
+	- 意思是
 
 ``` js
 if (sameType) {
