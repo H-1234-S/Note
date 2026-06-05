@@ -982,6 +982,8 @@ type B = UnwrapPromise<number>;
 提取函数返回值：
 
 ```ts
+// (...args: never[]) 表示不关心参数,只关心是不是函数
+// 类似于 (...args: any[]) / (...args: unknown[])
 type MyReturnType<T> = T extends (...args: never[]) => infer R ? R : never;
 
 function createUser() {
@@ -989,6 +991,7 @@ function createUser() {
 }
 
 type User = MyReturnType<typeof createUser>;
+// { id:string,name:string }
 ```
 
 ## 10. 内置工具类型
