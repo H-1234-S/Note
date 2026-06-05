@@ -820,6 +820,7 @@ function performUnitOfWork(fiber) {
 function reconcileChildren(wipFiber, elements) {
 	let index = 0
 	
+	// 与运算，当为假时返回假值；当为真时返回后一个值
 	let oldFiber =
 		wipFiber.alternate && wipFiber.alternate.child
 	let prevSibling = null
