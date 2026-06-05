@@ -812,11 +812,9 @@ function performUnitOfWork(fiber) {
 }
 ```
 
-**将旧 fibers 与新元素进行 reconcile。**
+**将旧 fibers 与 *新元素* 进行 reconcile。**
 
 **这里的 `element` 是这次想要渲染到 DOM 的东西，而 `oldFiber` 是上次渲染的东西。**
-
-将它们进行比较，看是否需要修改
 
 ```
 a && b
