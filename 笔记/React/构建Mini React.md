@@ -32,7 +32,7 @@ const element = (
 );
 ```
 
-通过`Babel` 等编译工具 将JSX代码编译为 JS
+通过`Babel` `SWC` 等编译工具 将JSX代码编译为 JS 
 
 ``` js
 const element = React.createElement(
