@@ -836,6 +836,8 @@ type Role = (typeof roles)[number];
 
 ### 9.2 keyof
 
+获取一个对象类型 T 中所有的键
+
 ```ts
 type User = {
   id: string;
@@ -893,7 +895,7 @@ type UserGetters = Getters<User>;
 // }
 ```
 
-**要求递归把对象所有属性变成 readonly，但函数类型保持不变**
+**深度只读：** 要求递归把对象所有属性变成 readonly，但函数类型保持不变
 
 ``` js
 type DeepReadonly<T> = {
@@ -923,6 +925,8 @@ type DeepReadonly<T> = {
 ```
 
 ### 9.5 Conditional Types
+
+条件类型
 
 ```ts
 type IsString<T> = T extends string ? true : false;
