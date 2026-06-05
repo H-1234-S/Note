@@ -816,6 +816,8 @@ function performUnitOfWork(fiber) {
 
 **这里的 `element` 是这次想要渲染到 DOM 的东西，而 `oldFiber` 是上次渲染的东西。**
 
+将它们进行比较，看是否需要修改
+
 ``` js
 function reconcileChildren(wipFiber, elements) {
 	let index = 0
