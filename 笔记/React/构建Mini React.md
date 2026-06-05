@@ -914,9 +914,17 @@ function reconcileChildren(wipFiber, elements) {
     
 - 如果新元素不存在，**旧的 Fiber** 在新的一轮渲染中**消失了**，那么需要移除旧节点
 	
-- 在React中还使用了key这一机制，可以看成diff算法中的节点身份机制
+- 在 React 中还使用了 key 这一机制，可以看成 diff 算法中的节点身份机制
 	
-	- 意思是
+	- React 内部维护了一套映射关系，知道哪一个 key 对应哪一个 fiber 节点
+	- 如果不加 key，dom 节点只是换了一个位置，例如从 `A B C` 换成 `C A B`，React 会对所有节点创建一个新节点
+	- 如果加了 key，React 直接将之前位置的 dom 节点移动到新位置即可，这不仅是**性能优化**，还保持**组件状态**
+	
+	- 还能引出一个问题，为什么不能用 index 作为 key？
+	
+		- 举个例子 map 第一次渲染时 `A(0) B(1) C(2)`
+		- 第二次渲染时在最前面加了一个D，那么 `D(0) A(1) B(2) C(3)`
+		- React 看见 `D A B` 键与 `A B C` 键一致，会认为 A 变为 D，B 变为 A，C 变为 B，状态错位
 
 ``` js
 if (sameType) {
