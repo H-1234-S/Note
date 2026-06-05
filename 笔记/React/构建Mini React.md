@@ -819,6 +819,7 @@ function performUnitOfWork(fiber) {
 ``` js
 function reconcileChildren(wipFiber, elements) {
 	let index = 0
+	
 	let oldFiber =
 		wipFiber.alternate && wipFiber.alternate.child
 	let prevSibling = null
