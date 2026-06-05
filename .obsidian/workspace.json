@@ -237,13 +237,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "回顾.md",
+                "file": "笔记/TypeScript/TypeScript完全指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "回顾 的大纲"
+              "title": "TypeScript完全指南 的大纲"
             }
           },
           {
@@ -280,8 +280,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 334.5,
-    "collapsed": true
+    "width": 334.5
   },
   "left-ribbon": {
     "hiddenItems": {
