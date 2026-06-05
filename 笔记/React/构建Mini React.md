@@ -918,7 +918,7 @@ function reconcileChildren(wipFiber, elements) {
 	
 	- React 内部维护了一套映射关系，知道哪一个 key 对应哪一个 fiber 节点
 	- 不加 key，React只能按位置比较，dom 节点只是换了一个位置，例如从 `A B C` 换成 `C A B`，React 会对所有节点重新计算
-	- 加了 key，React 直接将之前位置的 dom 节点移动到新位置即可，这不仅是**性能优化**，还保持**组件状态**
+	- 加了 key，React 先建立映射，`A B C` 三个节点都可以在映射中找到， 将之前位置的 dom 节点移动到新位置即可，这不仅是**性能优化**，还保持**组件状态**
 	
 	- 还能引出一个问题，为什么不能用 index 作为 key？
 	
