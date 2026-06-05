@@ -608,7 +608,7 @@ Fiber 节点通过三个核心指针将树形结构转化为**线性链表**，�
 ---
 # 渲染和提交
 
-每次处理一个元素时，都在向 DOM 添加一个新的节点。但是浏览器可能会在我们渲染整个树形结构之前中断我们的工作。
+每次处理一个元素时，都在向 DOM 添加一个新的节点。**注意：** 浏览器可能会在我们渲染整个树形结构之前中断我们的工作。
 
 在这种情况下，用户会看到一个不完整的 UI，同时也会触发浏览器的**回流**和**重绘**。
 
@@ -640,8 +640,7 @@ function render(element, container) {
 }
 ```
 
-为什么要记录根节点？
-	因为不想频繁改变dom结构，想要做完所有工作后一次性更改dom结构，那么就需要记录工作树的顶端，以防工作结束后找不到工作树
+> 为什么要记录根节点？
 
 `nextUnitOfWork` 相当于一个在 `fiber tree` 中**不断移动的指针**，当所有任务处理完成后，`nextUnitOfWork` 最终会被赋值为 `null`
 
@@ -680,7 +679,7 @@ function commitWork(fiber) {
         return
     }
 	
-	// 挂载到parent container 中
+	// 挂载到 parent container 中
     const domParent = fiber.parent.dom
     domParent.appendChild(fiber.dom)
     commitWork(fiber.child)
@@ -695,7 +694,7 @@ function commitWork(fiber) {
 ---
 # 调和
 
-处理更新和删除节点？
+如何更新和删除节点？
 
 > 在 `render` 函数中返回的元素(也就是 `wipRoot` )，与之前提交到 DOM 中的那个 fiber 树**进行比较**。
 
