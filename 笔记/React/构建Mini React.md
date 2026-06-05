@@ -893,6 +893,7 @@ function reconcileChildren(wipFiber, elements) {
 			// TODO 删除旧Fiber的节点
 		}
 		
+		// 处理的是子元素，并不是所有元素；相当于处理兄弟节点
 		if(oldFiber) {
 			oldFiber = oldFiber.sibling
 		}
