@@ -960,6 +960,11 @@ type Result = ToArrayNonDistributed<string | number>;
 
 `infer` 用于在条件类型中提取类型：
 
+意思是如果 `extends` 匹配成功，那么就将 `T` 的类型返回
+``` ts
+type ElemenType<T> = T extends Array<infer P> ? P : never
+```
+
 ```ts
 type UnwrapPromise<T> = T extends Promise<infer Value> ? Value : T;
 
