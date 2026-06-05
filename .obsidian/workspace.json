@@ -76,9 +76,19 @@
               "icon": "lucide-file",
               "title": "构建Mini React"
             }
+          },
+          {
+            "id": "9ecc7231656804cb",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
+            }
           }
         ],
-        "currentTab": 4
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -195,13 +205,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "笔记/React/构建Mini React.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "构建Mini React 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -238,7 +247,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 334.5
+    "width": 334.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -252,10 +262,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "e5a8101b3a769665",
+  "active": "9ecc7231656804cb",
   "lastOpenFiles": [
-    "随笔.md",
     "笔记/React/构建Mini React.md",
+    "随笔.md",
     "AI/openspec 使用指南.md",
     "八股/JavaScript面试八股整理.md",
     "笔记/Next.js/Nextjs深度学习指南.md",

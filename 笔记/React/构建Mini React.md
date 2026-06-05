@@ -695,11 +695,27 @@ function commitWork(fiber) {
 ---
 # 调和
 
-处理更新和删除节点
+处理更新和删除节点？
 
-比较在 `render` 函数中接收到的元素与最后提交到 DOM 的 fiber 树。
+> 在 `render` 函数中返回的元素(也就是 `wipRoot` )，与之前提交到 DOM 中的那个 fiber 树**进行比较**。
 
-**diff算法**
+因此，在完成 commit 操作之后需要保存对**最后添加到DOM树中的那个元素的引用**
+
+``` js
+let wipRoot = null
+let nextUnitOfWork = null
+
+function render(element, container) {
+    wipRoot = {
+        dom: container,
+        props: {
+            children: [element]
+        }
+    }
+
+    nextUnitOfWork = wipRoot
+}
+```
 
 ---
 
