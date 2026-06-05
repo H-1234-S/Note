@@ -772,7 +772,7 @@ function reconcileChildren(wipFiber, elements) {
             parent: wipFiber,
             dom: null,
         }
-
+		
         if (index === 0) {
             wipFiber.child = newFiber
         } else {
