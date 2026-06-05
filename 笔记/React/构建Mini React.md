@@ -818,11 +818,20 @@ function performUnitOfWork(fiber) {
 
 将它们进行比较，看是否需要修改
 
+```
+a && b
+
+如果 a 是假值
+→ 返回 a
+
+如果 a 是真值
+→ 返回 b
+```
+
 ``` js
 function reconcileChildren(wipFiber, elements) {
 	let index = 0
 	
-	// 与运算，当为假时返回假值；当为真时返回后一个值
 	let oldFiber =
 		wipFiber.alternate && wipFiber.alternate.child
 	let prevSibling = null
