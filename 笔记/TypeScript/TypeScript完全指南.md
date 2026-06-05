@@ -1031,9 +1031,11 @@ function updateUser(id: string, input: UpdateUserInput) {
 ```ts
 type Role = "admin" | "editor" | "viewer";
 
+// Exclude 表示从一个联合类型中排除所选属性
 type StaffRole = Exclude<Role, "viewer">;
 // "admin" | "editor"
 
+// Extract 表示从一个联合类型中抽取所选属性
 type VisibleRole = Extract<Role, "editor" | "viewer">;
 // "editor" | "viewer"
 
