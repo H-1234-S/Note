@@ -866,6 +866,8 @@ type Avatar = User["profile"]["avatar"];
 
 ### 9.4 Mapped Types
 
+映射类型，也就是 `[K in keyof T] : T[K]`
+
 ```ts
 type ReadonlyObject<T> = {
   readonly [K in keyof T]: T[K];
@@ -964,6 +966,8 @@ type Result = ToArrayNonDistributed<string | number>;
 ``` ts
 type ElemenType<T> = T extends Array<infer P> ? P : never
 ```
+
+实例：
 
 ```ts
 type UnwrapPromise<T> = T extends Promise<infer Value> ? Value : T;
