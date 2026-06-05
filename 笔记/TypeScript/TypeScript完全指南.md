@@ -1020,7 +1020,7 @@ type Required<T> = {
 // Readonly 把一个现有对象类型 T 中的所有属性变为 只读
 type ReadonlyUser = Readonly<User>;
 
-// Pick 表示从现有的类型中挑出所选类型
+// Pick 表示从一个现有对象类型 T 中挑出所选类型
 type UserPreview = Pick<User, "id" | "name">;
 // 实现
 type Pick<T,K extends keyof T> = {
