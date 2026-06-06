@@ -924,9 +924,9 @@ function reconcileChildren(wipFiber, elements) {
 	
 	- 还能引出一个问题，为什么不能用 index 作为 key？
 	
-		- 举个例子 map 第一次渲染时 `A(0) B(1) C(2)`
+		- 举个例子： map 第一次渲染时 `A(0) B(1) C(2)`
 		- 第二次渲染时在最前面加了一个D，那么 `D(0) A(1) B(2) C(3)`
-		- React 看见 `D A B` 键与 `A B C` **键一致**，同时**类型也一致**，会认为 A 变为 D，B 变为 A，C 变为 B，就导致状态错位
+		- React 看见 `D A B` 键与 `A B C` **键一致**，同时**类型也一致**，会认为 A 移动到 D，B 移动到 A，C 移动到 B，就导致**状态错位**
 
 ``` js
 if (sameType) {
