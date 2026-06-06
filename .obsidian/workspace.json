@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "八股/React面试八股整理.md",
+                "file": "笔记/React/构建Mini React.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "React面试八股整理 的大纲"
+              "title": "构建Mini React 的大纲"
             }
           },
           {
@@ -253,11 +253,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "4234efc24b684f03",
+  "active": "e5a8101b3a769665",
   "lastOpenFiles": [
+    "八股/React面试八股整理.md",
     "笔记/React/构建Mini React.md",
     "笔记/Next.js/Nextjs深度学习指南.md",
-    "八股/React面试八股整理.md",
     "八股/JavaScript面试八股整理.md",
     "AI/Superpowers 使用指南.md",
     "AI/openspec 使用指南.md",
