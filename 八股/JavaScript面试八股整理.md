@@ -350,6 +350,14 @@ flowchart TD
 
 ### 2.6 手写代码：call / apply / bind
 
+call 的调用
+
+``` js
+object.fn = fn
+object.fn()
+object
+```
+
 call 的本质是临时把函数挂载到对象上执行，再删除
 
 ```javascript
