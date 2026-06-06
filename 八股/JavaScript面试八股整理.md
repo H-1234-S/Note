@@ -438,6 +438,8 @@ console.log(obj.name)
 
 > `bind` 特殊点在于使用 `new` 操作符创建实例后，`this` 指向新实例，而不是传入的对象，**bind 绑定的 this 遇到 new 会失效**
 
+> `new BindPerson()` 创建出来的对象本质上还是 `Person` 的实例
+
 ``` js
 Function.prototype.myBind = function (context, ...boundArgs) {
   if (typeof this !== "function") {
