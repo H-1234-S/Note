@@ -417,6 +417,22 @@ Function.prototype.myApply = function (context, args) {
 > **注意：** `bind` 修改函数 `this` 指向，但是返回一个**新函数**
 
 ``` js
+function Person(name) {
+  this.name = name
+}
+
+const BindPerson =
+  Person.bind({})
+
+const p = new BindPerson("Tom")
+
+console.log(p.name)
+// Tom
+```
+
+`bind` 特殊点在于使用 `new` 操作符创建实例后，`this` 指向新实例，而不是传入的对象，**bind 绑定的 this 遇到 new 会失效**
+
+``` js
 Function.prototype.myBind = function (context, ...boundArgs) {
   if (typeof this !== "function") {
     throw new TypeError("myBind must be called on a function");
