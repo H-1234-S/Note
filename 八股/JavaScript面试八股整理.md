@@ -467,6 +467,7 @@ Function.prototype.myBind = function (context, ...boundArgs) {
   }
 
   if (targetFn.prototype) {
+    // Object.create 创建一个新对象，将新对象的proto指向targetFn.prototype
     boundFn.prototype = Object.create(targetFn.prototype);
   }
 
