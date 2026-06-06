@@ -364,8 +364,8 @@ Function.prototype.myCall = function (context, ...args) {
     throw new TypeError("myCall must be called on a function");
   }
 
-  // 传入为空时指向全局
-  // Object(context)
+  // globalThis 指向当前运行环境的全局对象
+  // Object(context) 
   context = context == null ? globalThis : Object(context);
   
   // 调用Symbol处理属性名一致的冲突，防止覆盖原有属性名
