@@ -439,7 +439,13 @@ console.log(obj.name)
 > `bind` 特殊点在于使用 `new` 操作符创建实例后，`this` 指向新实例，而不是传入的对象，**bind 绑定的 this 遇到 new 会失效**
 
 ``` js
-
+// 普通调用时,Bn 的 this 指向全局
+const Bn = test.myBind({})
+Bn()
+// new 调用时,this 指向 新创建的实例对象
+const Bn = test.myBind({})
+const p = new Bn()  // 实际上是 new boundFn
+// 相当于 p.__proto__ === boundFn.prototype
 ```
 
 > `new BindPerson()` 创建出来的对象本质上还是 `Person` 的实例
