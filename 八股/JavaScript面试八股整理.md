@@ -350,7 +350,7 @@ flowchart TD
 
 ### 2.6 手写代码：call / apply / bind
 
-call 改变函数 this 指向，可以传入多个参数，立即调用
+call 改变函数 this 指向，可以逐个传入参数；相当于**立即调用**该函数执行
 
 ``` js
 object.fn = fn
@@ -381,7 +381,7 @@ Function.prototype.myCall = function (context, ...args) {
 };
 ```
 
-
+apply 与 call 处理方法基本相同，不同点在于**对参数的处理**，apply 传递参数要求传递一个**数组**
 
 ``` js
 Function.prototype.myApply = function (context, args) {
