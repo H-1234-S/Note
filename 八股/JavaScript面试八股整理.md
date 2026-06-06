@@ -350,6 +350,8 @@ flowchart TD
 
 ### 2.6 手写代码：call / apply / bind
 
+call 改变函数 this 指向，可以传入多个参数，立即调用
+
 ``` js
 object.fn = fn
 object.fn()
