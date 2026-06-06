@@ -459,7 +459,7 @@ Function.prototype.myBind = function (context, ...boundArgs) {
   const targetFn = this;
 
   function boundFn(...args) {
-	// 判断是否为new调用
+	// 判断是否为new调用，instanceof 的本质是判断函数是否出现在对象的原型链上
     const isNewCall = this instanceof boundFn;
     const finalThis = isNewCall ? this : context;
     return targetFn.apply(finalThis, boundArgs.concat(args));
