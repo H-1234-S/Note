@@ -365,6 +365,8 @@ Function.prototype.myCall = function (context, ...args) {
   }
 
   context = context == null ? globalThis : Object(context);
+  
+  // 调用Symbol处理属性名一致的冲突，防止覆盖原有属性名
   const key = Symbol("fn");
   context[key] = this;
 
