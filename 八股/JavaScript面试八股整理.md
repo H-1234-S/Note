@@ -351,6 +351,7 @@ flowchart TD
 ### 2.6 手写代码：call / apply / bind
 
 call 改变函数 this 指向，可以逐个传入参数；相当于**立即调用**该函数执行
+	如果不传参数/传入为null，this指向全局对象
 
 ``` js
 object.fn = fn
