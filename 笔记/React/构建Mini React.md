@@ -1059,7 +1059,7 @@ function updateDom(dom, prevProps, nextProps) {
 }
 ```
 
-> `in` 运算符，指的是 如果指定的属性在指定的对象或其原型链中，则 **`in`** **运算符**返回 `true`。
+> `in` 运算符，指的是 如果指定的属性在指定的 对象 或其 原型链中，则 **`in`** **运算符**返回 `true`。
 
 > 对`isGone` 的展开
 ``` js
