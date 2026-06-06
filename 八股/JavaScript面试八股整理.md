@@ -483,6 +483,13 @@ Function.prototype.myBind = function (context, ...boundArgs) {
 3. `bind` 返回新函数，保存原函数、this 和预置参数。
 4. `bind` 需要兼容 `new`，构造调用时 this 应指向新实例。
 
+```
+bind总结：
+调用bind返回的是改变this指向的新函数，新函数内部还是执行的是原有函数逻辑，只不过this指向变了
+bind还支持函数柯里化，这其实用到了闭包
+如果用new调用返回的函数，那么this应该指向实例对象而不是传入的参数
+
+```
 ### 2.7 实际项目场景
 
 1. React 闭包陷阱：事件处理器或定时器捕获旧 state，导致读取到过期值。
