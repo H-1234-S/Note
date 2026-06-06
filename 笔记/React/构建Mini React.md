@@ -1142,7 +1142,7 @@ Object.keys(nextProps)
 这时requestIdleCallback在浏览器中每一帧的空闲时间插入wookloop函数
 
 performUnitOfWork函数处理fiber节点
-	为当前fiber节点创建对应dom，c'r
+	如果当前fiber节点不存在dom节点，为当前fiber节点创建对应dom，调用createDom函数
 	为子节点创建对应的fiber节点
 		reconcileChildren函数进行执行，也就是diff算法，差异化更新子节点
 		同时为子节点打上不同的操作标签，后续commitWork操作
