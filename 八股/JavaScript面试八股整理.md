@@ -350,6 +350,8 @@ flowchart TD
 
 ### 2.6 手写代码：call / apply / bind
 
+call 的本质是临时把函数挂载到对象上执行，再删除
+
 ```javascript
 Function.prototype.myCall = function (context, ...args) {
   if (typeof this !== "function") {
