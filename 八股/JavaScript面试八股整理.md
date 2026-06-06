@@ -458,6 +458,7 @@ Function.prototype.myBind = function (context, ...boundArgs) {
 
   const targetFn = this;
 
+  // 内部返回的是预设好参数的函数，不能在被更改this指向了
   function boundFn(...args) {
 	// 判断是否为new调用，instanceof 的本质是判断函数是否出现在对象的原型链上
     const isNewCall = this instanceof boundFn;
