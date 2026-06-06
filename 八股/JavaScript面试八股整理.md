@@ -369,7 +369,7 @@ Function.prototype.myCall = function (context, ...args) {
   }
 
   // globalThis 指向当前运行环境的全局对象
-  // Object(context) 用处处理基本数据类型
+  // Object(context) 用处处理基本数据类型，同时如果是对象，不会再创建新对象，直接返回对原对象的引用
   context = context == null ? globalThis : Object(context);
   
   // 调用Symbol处理属性名一致的冲突，防止覆盖原有属性名
