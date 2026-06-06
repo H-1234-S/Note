@@ -1131,6 +1131,36 @@ Object.keys(nextProps)
 
 # 目前复盘
 
+```
+首先react接收到信息，组件需要重新渲染
+
+首先render函数执行，创建wipFiber
+	alternate指针指向currentFiber
+	将wipFiber赋值给nextUnitOfWork
+	deletion跟踪要删除的节点
+
+这时requestIdleCallback在浏览器中每一帧的空闲时间插入wookloop函数
+
+performUnitOfWork函数处理fiber节点
+	为当前fiber节点创建对应dom，c'r
+	为子节点创建对应的fiber节点
+		reconcileChildren函数进行执行，也就是diff算法，差异化更新子节点
+		同时为子节点打上不同的操作标签，后续commitWork操作
+	
+	返回nextUnitOfWork
+	
+当所有fiber节点处理完毕，也就是nextUnitOfWork不存在，开始进行提交和渲染
+
+调用commitRoot函数，首先清空deletion数组
+
+之后commitWork中提交wipRoot的第一个子节点
+
+commitWork函数根据effectTag对传入的节点进行不同的操作
+	
+
+最后递归处理兄弟元素和子元素
+```
+
 ## 为什么需要 Fiber 架构？
 
 - **性能瓶颈**：传统的递归 `render` 一旦开始就无法中断。如果组件树很大，主线程会被长时间占用，导致浏览器无法响应用户输入或动画，产生卡顿。
