@@ -22,20 +22,6 @@
             }
           },
           {
-            "id": "329ac9db1c5a1976",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "八股/JavaScript面试八股整理.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "JavaScript面试八股整理"
-            }
-          },
-          {
             "id": "4234efc24b684f03",
             "type": "leaf",
             "state": {
@@ -64,21 +50,21 @@
             }
           },
           {
-            "id": "e5a8101b3a769665",
+            "id": "7359af780a278443",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "面试.md",
+                "file": "笔记/React/构建Mini React.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "面试"
+              "title": "构建Mini React"
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -195,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "面试.md",
+                "file": "笔记/React/构建Mini React.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "面试 的大纲"
+              "title": "构建Mini React 的大纲"
             }
           },
           {
@@ -252,19 +238,19 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "e5a8101b3a769665",
+  "active": "7359af780a278443",
   "lastOpenFiles": [
-    "学习/思考.md",
+    "八股/React面试八股整理.md",
+    "八股/JavaScript面试八股整理.md",
+    "笔记/React/构建Mini React.md",
+    "笔记/Next.js/Nextjs深度学习指南.md",
     "面试.md",
+    "学习/思考.md",
     "回顾.md",
     "随笔.md",
-    "笔记/React/构建Mini React.md",
     "笔记/React/commitWork.png",
     "笔记/React/commitWork.excalidraw.crswap",
     "笔记/React/commitWork.excalidraw",
-    "八股/React面试八股整理.md",
-    "笔记/Next.js/Nextjs深度学习指南.md",
-    "八股/JavaScript面试八股整理.md",
     "AI/Superpowers 使用指南.md",
     "AI/openspec 使用指南.md",
     "笔记/TypeScript/TypeScript完全指南.md",

@@ -414,7 +414,7 @@ Function.prototype.myApply = function (context, args) {
 
 如果不对参数进行判断，那么当不传参数时，`args` 是 `undefined`，对 `undefined` 展开不合法
 	
-> **注意：** `bind` 修改函数 `this` 指向，但是返回一个**新函数**
+> **注意：** `bind` 修改函数 `this` 指向，但是返回一个修改了this指向的**新函数**
 
 ``` js
 const obj = {}
