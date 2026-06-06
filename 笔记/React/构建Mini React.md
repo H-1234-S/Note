@@ -1054,6 +1054,7 @@ function updateDom(dom, prevProps, nextProps) {
 	Object.keys(nextProps)
 		.filter(isProperty)
 		.filter(isNew(prevProps, nextProps))
+		// 得到的是需要更新的属性
 		.forEach(name => {
 			dom[name] = nextProps[name]
 	})
@@ -1080,7 +1081,7 @@ function isGone(prev, next) {
 ---
 ## 事件监听器
 
-**对事件监听器特殊处理，如果事件处理器改变了，我们就将其从节点中移除。**
+`updateDom` 函数中**对事件监听器特殊处理，如果事件处理器改变了，我们就将其从节点中移除。**
 
 ``` js
 const isEvent = key => key.startsWith("on")
