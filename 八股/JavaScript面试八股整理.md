@@ -357,6 +357,7 @@ delete object.fn
 ```
 
 call 的本质是**临时把函数挂载到对象上执行**，再删除
+	处理null情况、处理基本
 
 ```javascript
 Function.prototype.myCall = function (context, ...args) {
@@ -365,7 +366,7 @@ Function.prototype.myCall = function (context, ...args) {
   }
 
   // globalThis 指向当前运行环境的全局对象
-  // Object(context) 
+  // Object(context) 用处处理基本数据类型
   context = context == null ? globalThis : Object(context);
   
   // 调用Symbol处理属性名一致的冲突，防止覆盖原有属性名
