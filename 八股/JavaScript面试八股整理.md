@@ -350,6 +350,10 @@ flowchart TD
 
 ### 2.6 手写代码：call / apply / bind
 
+``` js
+Function.prototype.call(thisArg, arg1, arg2, arg3...)
+```
+
 call 改变函数 this 指向，可以逐个传入参数；相当于**立即调用**该函数执行
 	如果不传参数/传入为null，this指向全局对象
 
@@ -382,7 +386,14 @@ Function.prototype.myCall = function (context, ...args) {
 };
 ```
 
-apply 与 call 处理方法基本相同，不同点在于**对参数的处理**，apply 传递参数要求传递一个**数组**
+为什么 `call` 不需要判断参数为空情况？
+	因为 `call` 采用的是剩余参数形式，如果传入参数为空，那么 `args` 是一个`[]数组`，对空数组的展开不会报错
+
+``` js
+Function.prototype.apply(thisArg, argsArray)
+```
+
+`apply` 与 `call` 处理方法基本相同，不同点在于**对参数的处理**，`apply` 传递参数要求传递一个**数组**
 
 ``` js
 Function.prototype.myApply = function (context, args) {
@@ -399,6 +410,8 @@ Function.prototype.myApply = function (context, args) {
   return result;
 };
 ```
+
+如果不对参数进行判断，那么当不传参数时，`args` 是 `undefined`，对 `undefined` 展开不合法
 
 ``` js
 Function.prototype.myBind = function (context, ...boundArgs) {
