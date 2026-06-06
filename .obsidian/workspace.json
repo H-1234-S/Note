@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "笔记/React/构建Mini React.md",
+                "file": "八股/JavaScript面试八股整理.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "构建Mini React 的大纲"
+              "title": "JavaScript面试八股整理 的大纲"
             }
           },
           {
@@ -238,8 +238,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 334.5,
-    "collapsed": true
+    "width": 334.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -253,13 +252,13 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "e5a8101b3a769665",
+  "active": "329ac9db1c5a1976",
   "lastOpenFiles": [
+    "笔记/React/构建Mini React.md",
     "AI/Superpowers 使用指南.md",
     "AI/openspec 使用指南.md",
     "笔记/TypeScript/TypeScript完全指南.md",
     "回顾.md",
-    "笔记/React/构建Mini React.md",
     "随笔.md",
     "八股/JavaScript面试八股整理.md",
     "笔记/Next.js/Nextjs深度学习指南.md",
