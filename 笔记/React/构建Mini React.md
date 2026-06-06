@@ -1045,6 +1045,7 @@ function updateDom(dom, prevProps, nextProps) {
 	Object.keys(prevProps)
 		.filter(isProperty)
 		.filter(isGone(prevProps, nextProps))
+		// 得到的是需要移除的属性
 		.forEach(name => {
 			dom[name] = ""
 	})
