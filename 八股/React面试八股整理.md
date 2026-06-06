@@ -201,6 +201,36 @@ Virtual DOM 是 React 用 JavaScript 对象描述 UI 结构的一种思想。状
 
 > Virtual DOM 的价值不是一定比手写 DOM 快，而是提供了一层抽象，让 React 可以用声明式方式描述 UI、跨平台渲染，并通过 Diff、批量更新和调度优化复杂应用的整体性能。
 
+什么叫声明式Ui？
+
+``` js
+function App() {
+  const [isLogin, setIsLogin] = useState(false)
+
+  return (
+    <button>
+      {isLogin ? "退出登录" : "登录"}
+    </button>
+  )
+}
+```
+
+当 `isLogin` 为 `false` 时 `ui` 长什么样子；当 `isLogin` 为 `true` 时 `ui` 长什么样子
+并没有手动更改 `DOM`，而是 `React` 自己怎么找 `DOM` 、怎么更新 `DOM` 、更新哪些 `DOM`
+
+命令式编程：
+
+``` js
+const button = document.querySelector("button")
+
+function updateUI(isLogin) {
+  if (isLogin) {
+    button.textContent = "退出登录"
+  } else {
+    button.textContent = "登录"
+  }
+}
+```
 ### 2. 底层原理
 
 真实 DOM 操作慢，主要慢在：
