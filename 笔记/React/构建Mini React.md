@@ -1158,7 +1158,8 @@ performUnitOfWork函数处理fiber节点
 commitWork函数根据effectTag对传入的节点进行不同的操作
 	是新节点直接将节点挂载到父节点
 	需要更新props调用updateDom函数
-		
+		updateDom函数中先移除不存在的props，添加新的props
+		对事件监听器特殊处理
 	
 	需要删除直接删除
 
