@@ -417,17 +417,23 @@ Function.prototype.myApply = function (context, args) {
 > **注意：** `bind` 修改函数 `this` 指向，但是返回一个**新函数**
 
 ``` js
+const obj = {}
 function Person(name) {
-  this.name = name
+  this.name = name
 }
-
 const BindPerson =
-  Person.bind({})
-
+  Person.bind(obj)
 const p = new BindPerson("Tom")
 
-console.log(p.name)
 // Tom
+console.log(p.name)
+// undefined
+console.log(obj.name)
+
+/*
+按照常理来说，BindPerson函数的this指向应该指向obj
+但是使用new调用BindPerson函数后，this指向函数创建的实例对象
+*/
 ```
 
 > `bind` 特殊点在于使用 `new` 操作符创建实例后，`this` 指向新实例，而不是传入的对象，**bind 绑定的 this 遇到 new 会失效**
