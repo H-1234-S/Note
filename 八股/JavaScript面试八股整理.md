@@ -364,7 +364,11 @@ Function.prototype.myCall = function (context, ...args) {
   delete context[key];
   return result;
 };
+```
 
+
+
+``` js
 Function.prototype.myApply = function (context, args) {
   if (typeof this !== "function") {
     throw new TypeError("myApply must be called on a function");
@@ -378,7 +382,9 @@ Function.prototype.myApply = function (context, args) {
   delete context[key];
   return result;
 };
+```
 
+``` js
 Function.prototype.myBind = function (context, ...boundArgs) {
   if (typeof this !== "function") {
     throw new TypeError("myBind must be called on a function");
