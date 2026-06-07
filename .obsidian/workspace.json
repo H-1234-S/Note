@@ -69,12 +69,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "笔记/React/构建Mini React.md",
+                "file": "笔记/React/构建 Mini React 学习笔记.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "构建Mini React"
+              "title": "构建 Mini React 学习笔记"
             }
           }
         ],
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "笔记/React/构建Mini React.md",
+                "file": "笔记/React/构建 Mini React 学习笔记.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "构建Mini React 的大纲"
+              "title": "构建 Mini React 学习笔记 的大纲"
             }
           },
           {
@@ -271,7 +271,7 @@
     "AI/Trellis-Usage-Guide.md.tmp.13780.1780825545585",
     "AI/MCP.md",
     "AI/Skill.md",
-    "笔记/React/构建Mini React.md",
+    "笔记/React/构建 Mini React 学习笔记.md",
     "八股/计算机网络面试八股整理.md",
     "八股/浏览器原理面试八股整理.md",
     "八股/React面试八股整理.md",
