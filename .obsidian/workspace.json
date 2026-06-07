@@ -135,7 +135,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 238.50469589233398
+    "width": 238.50469589233398,
+    "collapsed": true
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -237,7 +238,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 334.5
+    "width": 334.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -253,6 +255,17 @@
   },
   "active": "7359af780a278443",
   "lastOpenFiles": [
+    "AI/Trellis-Usage-Guide.md.tmp.13780.1780825698671",
+    "AI/Trellis-Usage-Guide.md.tmp.13780.1780825656651",
+    "AI/Trellis-Usage-Guide.md.tmp.13780.1780825637383",
+    "AI/Trellis-Usage-Guide.md.tmp.13780.1780825626161",
+    "AI/Trellis-Usage-Guide.md.tmp.13780.1780825607062",
+    "AI/Trellis-Usage-Guide.md.tmp.13780.1780825597344",
+    "AI/Trellis-Usage-Guide.md.tmp.13780.1780825587522",
+    "AI/Trellis-Usage-Guide.md.tmp.13780.1780825566665",
+    "AI/Trellis-Usage-Guide.md.tmp.13780.1780825545585",
+    "AI/Trellis-Usage-Guide.md.tmp.13780.1780825505659",
+    "AI/Trellis-Usage-Guide.md",
     "AI/Trellis 使用指南.md",
     "AI/openspec 使用指南.md",
     "AI/Superpowers 使用指南.md",
@@ -273,24 +286,13 @@
     "随笔.md",
     "笔记/React/commitWork.png",
     "笔记/React/commitWork.excalidraw.crswap",
-    "笔记/React/commitWork.excalidraw",
     "笔记/TypeScript/TypeScript完全指南.md",
     "笔记/Next.js/Next.js.md",
     "Environment.md",
     "笔记/TanStack Query/TanStack Query学习指南.md",
     "学习/技术栈.md",
     "学习/目标.md",
-    "项目/VoxClone/知识内容.md",
-    "项目/VoxClone/知识点.md",
-    "AI",
     "项目/VoxClone/需求.canvas",
-    "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198519142",
-    "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198463213",
-    "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198421804",
-    "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198365140",
-    "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198118579",
-    "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197847869",
-    "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780197808702",
     "Pasted image 20260328115001.png",
     "Pasted image 20260319134418.png",
     "项目/nextjs-dashboard/官方实战教程分析.canvas",
