@@ -1622,6 +1622,12 @@ function useState(initial) {
 
 useState只会在函数组件被调用时执行，也就是`fiber.type(fiber.props)` 时执行，但一个函数组件中可以**执行多次useState**
 
+**回顾**：
+
+```
+
+```
+
 ## 注意
 
 **为什么不要在循环、条件或嵌套函数中调用 Hook**
