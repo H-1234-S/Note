@@ -1449,6 +1449,15 @@ function commitDeletion(fiber,domParent) {
 }
 ```
 
+```
+App
+ └── Fragment
+      ├── div A
+      └── div B
+    
+可能还会有兄弟节点，因此node.sibling如果存在接着删
+```
+
 > **补充：** 为什么不需要遍历到底层，从下往上删？
 
 - 当调用 `parent.removeChild(child)` 时，这个 `child` 节点及其内部**所有的子孙节点**会一起从页面上消失。
