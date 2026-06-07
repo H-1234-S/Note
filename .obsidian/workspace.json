@@ -78,7 +78,7 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "八股/JavaScript面试八股整理.md",
+                "file": "笔记/React/构建Mini React.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "JavaScript面试八股整理 的大纲"
+              "title": "构建Mini React 的大纲"
             }
           },
           {
@@ -238,8 +238,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 334.5,
-    "collapsed": true
+    "width": 334.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -253,11 +252,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "938670671e2674fd",
+  "active": "7359af780a278443",
   "lastOpenFiles": [
+    "八股/JavaScript面试八股整理.md",
     "八股/计算机网络面试八股整理.md",
     "八股/浏览器原理面试八股整理.md",
-    "八股/JavaScript面试八股整理.md",
     "八股/React面试八股整理.md",
     "八股/浏览器篇_高频八股文.md",
     "八股/前端工程化篇_高频八股文.md",

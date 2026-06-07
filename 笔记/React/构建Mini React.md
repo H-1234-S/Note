@@ -1453,6 +1453,18 @@ function commitDeletion(fiber,domParent) {
 
 - 当调用 `parent.removeChild(child)` 时，这个 `child` 节点及其内部**所有的子孙节点**会一起从页面上消失。
 
+> **回顾：**
+
+```
+添加对函数式组件的支持
+
+函数组件并没有对应的html标签，因此它没有对应的dom节点
+
+函数组件相当于一个逻辑容器，return 返回的内容才是需要挂载到页面上的内容
+
+因此处理一个函数式fiber节点需要拿到对应的children，对children进行reconcileChildren
+```
+
 # Hooks
 
 ## 示例
