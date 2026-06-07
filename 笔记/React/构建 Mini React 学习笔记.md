@@ -1630,6 +1630,24 @@ set 更新的函数的 action 什么时候执行？
 调用 set 更新函数其实不是立即执行，而是将当前的 action 推入一个队列中
 
 在下一次执行函数组件时，执行 useState 时，对该队列进行执行
+
+ 时间线：
+
+  用户点击 → setState(c => c + 1)
+                ↓
+          action 入队 hook.queue
+                ↓
+          设置 wipRoot 和 nextUnitOfWork（"预约"一次重新渲染）
+                ↓
+          当前事件处理函数继续执行完（state 还是旧值！）
+                ↓
+          requestIdleCallback 触发 WorkLoop
+                ↓
+          performUnitOfWork 处理到函数组件 → 重新执行组件函数
+                ↓
+          useState 再次执行 → 从 oldHook.queue 取出所有 action 依次执行
+                ↓
+          得到新 state → 返回给组件 → 渲染新 UI
 ```
 
 ## 注意
