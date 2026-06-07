@@ -55,12 +55,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AI/openspec 使用指南.md",
+                "file": "AI/Trellis 使用指南.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "openspec 使用指南"
+              "title": "Trellis 使用指南"
             }
           },
           {
@@ -195,13 +195,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "AI/openspec 使用指南.md",
+                "file": "AI/Trellis 使用指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "openspec 使用指南 的大纲"
+              "title": "Trellis 使用指南 的大纲"
             }
           },
           {
@@ -238,8 +238,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 334.5,
-    "collapsed": true
+    "width": 334.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -255,6 +254,7 @@
   },
   "active": "7359af780a278443",
   "lastOpenFiles": [
+    "AI/openspec 使用指南.md",
     "AI/Trellis-Usage-Guide.md.tmp.13780.1780825698671",
     "AI/Trellis-Usage-Guide.md.tmp.13780.1780825656651",
     "AI/Trellis-Usage-Guide.md.tmp.13780.1780825637383",
@@ -265,9 +265,8 @@
     "AI/Trellis-Usage-Guide.md.tmp.13780.1780825566665",
     "AI/Trellis-Usage-Guide.md.tmp.13780.1780825545585",
     "AI/Trellis-Usage-Guide.md.tmp.13780.1780825505659",
-    "AI/Trellis-Usage-Guide.md",
     "AI/Trellis 使用指南.md",
-    "AI/openspec 使用指南.md",
+    "AI/Trellis 使用指南.md",
     "AI/Superpowers 使用指南.md",
     "AI/MCP.md",
     "AI/Skill.md",
@@ -285,7 +284,6 @@
     "回顾.md",
     "随笔.md",
     "笔记/React/commitWork.png",
-    "笔记/React/commitWork.excalidraw.crswap",
     "笔记/TypeScript/TypeScript完全指南.md",
     "笔记/Next.js/Next.js.md",
     "Environment.md",
