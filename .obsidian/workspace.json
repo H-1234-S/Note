@@ -55,12 +55,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "笔记/React/构建Mini React.md",
+                "file": "AI/openspec 使用指南.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "构建Mini React"
+              "title": "openspec 使用指南"
             }
           },
           {
@@ -135,8 +135,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 238.50469589233398,
-    "collapsed": true
+    "width": 238.50469589233398
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -195,13 +194,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "笔记/React/构建Mini React.md",
+                "file": "AI/openspec 使用指南.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "构建Mini React 的大纲"
+              "title": "openspec 使用指南 的大纲"
             }
           },
           {
@@ -254,6 +253,12 @@
   },
   "active": "7359af780a278443",
   "lastOpenFiles": [
+    "AI/Trellis 使用指南.md",
+    "AI/openspec 使用指南.md",
+    "AI/Superpowers 使用指南.md",
+    "AI/MCP.md",
+    "AI/Skill.md",
+    "笔记/React/构建Mini React.md",
     "八股/JavaScript面试八股整理.md",
     "八股/计算机网络面试八股整理.md",
     "八股/浏览器原理面试八股整理.md",
@@ -261,7 +266,6 @@
     "八股/浏览器篇_高频八股文.md",
     "八股/前端工程化篇_高频八股文.md",
     "八股/JavaScript篇_高频八股文.md",
-    "笔记/React/构建Mini React.md",
     "笔记/Next.js/Nextjs深度学习指南.md",
     "面试.md",
     "学习/思考.md",
@@ -270,8 +274,6 @@
     "笔记/React/commitWork.png",
     "笔记/React/commitWork.excalidraw.crswap",
     "笔记/React/commitWork.excalidraw",
-    "AI/Superpowers 使用指南.md",
-    "AI/openspec 使用指南.md",
     "笔记/TypeScript/TypeScript完全指南.md",
     "笔记/Next.js/Next.js.md",
     "Environment.md",
@@ -280,9 +282,6 @@
     "学习/目标.md",
     "项目/VoxClone/知识内容.md",
     "项目/VoxClone/知识点.md",
-    "项目/VoxClone/面试问答完整版.md",
-    "Project notes/项目链接.md",
-    "项目/Polaris/Logs.md",
     "AI",
     "项目/VoxClone/需求.canvas",
     "Front-end notes/React/React源码级原理深度解析.md.tmp.19680.1780198519142",
