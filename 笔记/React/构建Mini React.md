@@ -1527,6 +1527,7 @@ let wipFiber = null
 let hookIndex = null
 
 function updateFunctionComponent(fiber) {
+	// 当前值的引用，还是指向同一块地址
 	wipFiber = fiber
 	hookIndex = 0
 	
