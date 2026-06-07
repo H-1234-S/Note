@@ -1462,7 +1462,18 @@ function commitDeletion(fiber,domParent) {
 
 函数组件相当于一个逻辑容器，return 返回的内容才是需要挂载到页面上的内容
 
-因此处理一个函数式fiber节点需要拿到对应的children，对children进行reconcileChildren
+因此处理一个函数式fiber节点需要拿到对应的children，怎么拿到children？
+
+Babel 等编译工具如果遇到首字母大写的type，会将其作为一个变量，通常是函数/类
+
+这样后续运行function(props)即可拿到对应的返回值，后续操作与之前一致
+
+但是commit阶段也有问题
+
+还是因为函数组件没有对应的dom节点，挂载时需要向上遍历，找到具有dom节点的parent节点进行挂载
+
+如果删除的节点是函数式节点呢？还需要往下遍历，找到
+
 ```
 
 # Hooks
