@@ -107,8 +107,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 238.50469589233398,
-    "collapsed": true
+    "width": 238.50469589233398
   },
   "right": {
     "id": "c551b119cfd81030",
@@ -177,16 +176,6 @@
             }
           },
           {
-            "id": "c510cf42c2316199",
-            "type": "leaf",
-            "state": {
-              "type": "git-view",
-              "state": {},
-              "icon": "git-pull-request",
-              "title": "Source Control"
-            }
-          },
-          {
             "id": "4ff860398d0be861",
             "type": "leaf",
             "state": {
@@ -220,8 +209,7 @@
       "daily-notes:打开/创建今天的日记": false,
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
-      "bases:新建数据库": false,
-      "obsidian-git:Open Git source control": false
+      "bases:新建数据库": false
     }
   },
   "active": "0b1cf7736be60cda",
