@@ -718,6 +718,8 @@ function myNew(Constructor, ...args) {
 
 ``` js
 function myInstanceof(value, Constructor) {
+  // 如果为 null 或 (value 不是对象和 value 不是函数)
+  // 也就是value 是没有原型链的那几种数据类型
   if (value === null || (typeof value !== "object" && typeof value !== "function")) {
     return false;
   }
