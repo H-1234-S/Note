@@ -555,8 +555,28 @@ setCount(prev => prev + 1);
 
 ### 3.1 概念解释
 
-JavaScript 是基于原型的语言。每个对象都有一个内部原型 `[[Prototype]]`，可以通过 `Object.getPrototypeOf(obj)` 访问。对象读取属性时，如果自身没有，就沿原型链向上查找。
+**只有函数**（严格来说是构造函数）才拥有 `prototype` 属性。它指向一个对象，这个对象包含了所有实例共享的属性和方法。
 
+**所有对象**（包括函数）都有一个 `__proto__` 属性。它指向创建该对象的构造函数的 `prototype`。
+
+> 注意：在生产环境中建议使用 `Object.getPrototypeOf()` 获取，`__proto__` 主要是浏览器厂商实现的非标准属性，但它对理解概念非常有帮助。
+
+**原型链？**
+
+当访问一个对象的属性时，JavaScript 引擎会执行以下搜索算法：
+
+1. 先在**对象自身**找。找到了，返回。
+    
+2. 找不到，就去对象的 `__proto__`（即**构造函数的 prototype**）里找。
+    
+3. 如果还找不到，就去**原型的原型**里找（比如 `Object.prototype`）。
+    
+4. 一直找到 `null` 为止。
+    
+
+这种由 `__proto__` 一层层连接起来的链路，就叫**原型链**。
+
+---
 构造函数、原型、实例关系：
 
 ```javascript
@@ -669,6 +689,13 @@ Proxy 能拦截对象底层内部方法，例如 `[[Get]]`、`[[Set]]`、`[[HasP
 
 ### 3.6 手写代码：new / instanceof / Object.create
 
+手写 `new`  
+	1. 创建一个新对象
+	2. 新对象的 proto 指向函数的 prototype
+	3. 执行该函数，将 this 指向新对象
+	4. 如果构造函数返回的是对象，则直接返回该对象
+	5. 函数本质也是对象，如果构造函数返回函数，那就返回该函数
+
 ```javascript
 function myNew(Constructor, ...args) {
   if (typeof Constructor !== "function") {
@@ -679,11 +706,20 @@ function myNew(Constructor, ...args) {
   const result = Constructor.apply(obj, args);
 
   const isObject = result !== null && typeof result === "object";
+  // 判断一下是不是函数，因为规定是函数那么就返回函数
   const isFunction = typeof result === "function";
   return isObject || isFunction ? result : obj;
 }
+```
 
+手写 `instanceof`
+	1. 本质就是判断对象的 `proto` 是否出现在函数的 **原型链** 上
+	2. 处理 基本数据类型 和 null 情况
+
+``` js
 function myInstanceof(value, Constructor) {
+  // 如果为 null 或 (value 不是对象和 value 不是函数)
+  // 也就是value 是没有原型链的那几种数据类型
   if (value === null || (typeof value !== "object" && typeof value !== "function")) {
     return false;
   }
@@ -698,7 +734,12 @@ function myInstanceof(value, Constructor) {
 
   return false;
 }
+```
 
+手写 `Object.create`
+	1. 创建一个新对象，将新对象的 `proto` 指向 传入的对象
+
+``` js
 function myCreate(proto) {
   if (proto !== null && typeof proto !== "object") {
     throw new TypeError("Object prototype may only be an Object or null");
@@ -718,23 +759,23 @@ function myCreate(proto) {
 
 ---
 
-## 4. ES6+ 核心能力：Iterator、Generator、Symbol、Reflect、Proxy、Map/Set
+## 4. ES6+ 核心能力：Proxy、Map/Set、Symbol、Iterator、Generator、Reflect
 
 ### 4.1 概念解释
 
 ES6+ 引入了一批偏“语言基础设施”的能力：
 
-| 能力 | 解决什么问题 |
-|---|---|
-| `Symbol` | 创建唯一属性 key，定义语言内置协议 |
-| `Iterator` | 统一遍历协议 |
-| `Generator` | 可暂停、可恢复的函数 |
-| `Reflect` | 把对象底层操作函数化，和 Proxy trap 对齐 |
-| `Proxy` | 拦截对象基本操作 |
-| `Map` | 任意类型 key 的键值集合 |
-| `WeakMap` | 弱引用 key 的键值集合 |
-| `Set` | 唯一值集合 |
-| `WeakSet` | 弱引用对象集合 |
+| 能力          | 解决什么问题                      |
+| ----------- | --------------------------- |
+| `Symbol`    | 创建唯一属性 key，定义语言内置协议         |
+| `Iterator`  | 统一遍历协议                      |
+| `Generator` | 可暂停、可恢复的函数                  |
+| `Reflect`   | 把对象底层操作函数化，和 Proxy trap 对齐  |
+| `Proxy`     | 拦截对象基本操作                    |
+| `Map`       | 任意类型 key 的键值集合              |
+| `WeakMap`   | 弱引用 key 的键值集合               |
+| `Set`       | 唯一值集合，意思是值不会重复，可以用于**数组去重** |
+| `WeakSet`   | 弱引用对象集合                     |
 
 `Iterator` 是一种协议，只要对象实现了 `[Symbol.iterator]` 方法，并返回带有 `next()` 的迭代器，就可以被 `for...of`、展开运算符、数组解构消费。
 
@@ -749,6 +790,16 @@ ES6+ 引入了一批偏“语言基础设施”的能力：
 `Generator` 调用后不会立即执行函数体，而是返回一个迭代器对象。每次调用 `next()`，函数从上次暂停的 `yield` 位置继续执行。
 
 `Proxy` 拦截的是对象内部操作，例如读取属性、设置属性、判断属性是否存在、函数调用、构造调用等。`Reflect` 提供对应默认行为，便于在拦截后继续执行原语义。
+
+``` js
+const proxy = new Proxy(obj, {
+  get(target, key) {
+    return Reflect.get(target, key);
+  }
+});
+// Reflect.get(target, key) 等价于
+target[key]
+```
 
 WeakMap 为什么不会造成内存泄漏：
 
