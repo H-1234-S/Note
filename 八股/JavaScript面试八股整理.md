@@ -557,6 +557,10 @@ setCount(prev => prev + 1);
 
 JavaScript 是基于原型的语言。每个对象都有一个内部原型 `[[Prototype]]`，可以通过 `Object.getPrototypeOf(obj)` 访问。对象读取属性时，如果自身没有，就沿原型链向上查找。
 
+每一个函数都有一个 `prototype` 属性
+
+每一个对象都有一个 `__proto__` 属性
+
 构造函数、原型、实例关系：
 
 ```javascript
