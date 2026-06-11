@@ -736,6 +736,7 @@ function myInstanceof(value, Constructor) {
 }
 ```
 
+手写 `Object.create`
 
 ``` js
 function myCreate(proto) {
