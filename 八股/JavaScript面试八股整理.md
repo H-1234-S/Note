@@ -694,6 +694,7 @@ Proxy 能拦截对象底层内部方法，例如 `[[Get]]`、`[[Set]]`、`[[HasP
 	2. 新对象的 proto 指向函数的 prototype
 	3. 执行该函数，将 this 指向新对象
 	4. 如果构造函数返回的是对象，则直接返回该对象
+	5. 函数本质也是对象
 
 ```javascript
 function myNew(Constructor, ...args) {
