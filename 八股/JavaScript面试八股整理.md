@@ -759,7 +759,7 @@ function myCreate(proto) {
 
 ---
 
-## 4. ES6+ 核心能力：Proxy、Map/Set、Symbol、Iterator、Generator、Reflect
+## 4. ES6+ 核心能力：Proxy、Map/Set、Symbol、Reflect、Iterator、Generator
 
 ### 4.1 概念解释
 
@@ -2508,14 +2508,4 @@ function createSearchService() {
 | 模块化 | 文件作用域和依赖管理 | CJS、ESM、Tree Shaking |
 | Stream | 分块处理数据 | 背压、大文件、pipe |
 | AbortController | 取消异步任务 | signal、abort、fetch |
-
----
-
-## 14. 复习建议
-
-1. 第一轮：按“概念解释”和“高频面试题”背标准回答。
-2. 第二轮：重点画执行流程图，尤其是闭包、Promise、Event Loop、new、原型链。
-3. 第三轮：默写手写题，要求能解释每一行为什么这样写。
-4. 第四轮：结合项目讲场景，例如 React 闭包陷阱、请求取消、SSR 异步、Node Stream 背压、内存泄漏排查。
-5. 面试中尽量从“是什么”升级到“为什么”和“怎么运行”，这会明显拉开候选人层次。
 
