@@ -737,6 +737,7 @@ function myInstanceof(value, Constructor) {
 ```
 
 手写 `Object.create`
+	1. 创建一个新对象，将新对象的 `proto` 指向 传入的对象
 
 ``` js
 function myCreate(proto) {
