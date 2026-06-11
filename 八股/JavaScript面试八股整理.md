@@ -689,6 +689,12 @@ Proxy 能拦截对象底层内部方法，例如 `[[Get]]`、`[[Set]]`、`[[HasP
 
 ### 3.6 手写代码：new / instanceof / Object.create
 
+手写 `new`  
+	1. 创建一个新对象
+	2. 新对象的 proto 指向函数的 prototype
+	3. 执行该函数，将 this 指向新对象
+	4. 如果构造函数返回的是对象，则直接返回该对象
+
 ```javascript
 function myNew(Constructor, ...args) {
   if (typeof Constructor !== "function") {
@@ -702,7 +708,10 @@ function myNew(Constructor, ...args) {
   const isFunction = typeof result === "function";
   return isObject || isFunction ? result : obj;
 }
+```
 
+
+``` js
 function myInstanceof(value, Constructor) {
   if (value === null || (typeof value !== "object" && typeof value !== "function")) {
     return false;
@@ -718,7 +727,10 @@ function myInstanceof(value, Constructor) {
 
   return false;
 }
+```
 
+
+``` js
 function myCreate(proto) {
   if (proto !== null && typeof proto !== "object") {
     throw new TypeError("Object prototype may only be an Object or null");
