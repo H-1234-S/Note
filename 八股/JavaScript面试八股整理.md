@@ -759,23 +759,23 @@ function myCreate(proto) {
 
 ---
 
-## 4. ES6+ 核心能力：Iterator、Generator、Symbol、Reflect、Proxy、Map/Set
+## 4. ES6+ 核心能力：Proxy、Map/Set、Symbol、Iterator、Generator、Reflect
 
 ### 4.1 概念解释
 
 ES6+ 引入了一批偏“语言基础设施”的能力：
 
-| 能力 | 解决什么问题 |
-|---|---|
-| `Symbol` | 创建唯一属性 key，定义语言内置协议 |
-| `Iterator` | 统一遍历协议 |
-| `Generator` | 可暂停、可恢复的函数 |
-| `Reflect` | 把对象底层操作函数化，和 Proxy trap 对齐 |
-| `Proxy` | 拦截对象基本操作 |
-| `Map` | 任意类型 key 的键值集合 |
-| `WeakMap` | 弱引用 key 的键值集合 |
-| `Set` | 唯一值集合 |
-| `WeakSet` | 弱引用对象集合 |
+| 能力          | 解决什么问题                      |
+| ----------- | --------------------------- |
+| `Symbol`    | 创建唯一属性 key，定义语言内置协议         |
+| `Iterator`  | 统一遍历协议                      |
+| `Generator` | 可暂停、可恢复的函数                  |
+| `Reflect`   | 把对象底层操作函数化，和 Proxy trap 对齐  |
+| `Proxy`     | 拦截对象基本操作                    |
+| `Map`       | 任意类型 key 的键值集合              |
+| `WeakMap`   | 弱引用 key 的键值集合               |
+| `Set`       | 唯一值集合，意思是值不会重复，可以用于**数组去重** |
+| `WeakSet`   | 弱引用对象集合                     |
 
 `Iterator` 是一种协议，只要对象实现了 `[Symbol.iterator]` 方法，并返回带有 `next()` 的迭代器，就可以被 `for...of`、展开运算符、数组解构消费。
 
