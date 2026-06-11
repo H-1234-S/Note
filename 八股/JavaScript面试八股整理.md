@@ -791,6 +791,16 @@ ES6+ 引入了一批偏“语言基础设施”的能力：
 
 `Proxy` 拦截的是对象内部操作，例如读取属性、设置属性、判断属性是否存在、函数调用、构造调用等。`Reflect` 提供对应默认行为，便于在拦截后继续执行原语义。
 
+``` js
+const proxy = new Proxy(obj, {
+  get(target, key) {
+    return Reflect.get(target, key);
+  }
+});
+// Reflect.get(target, key) 等价于
+target[key]
+```
+
 WeakMap 为什么不会造成内存泄漏：
 
 > WeakMap 的 key 是弱引用。如果 key 对象除了 WeakMap 之外没有其他强引用，垃圾回收可以回收这个 key 以及对应 value。WeakMap 不提供遍历能力，因为如果可遍历，就会暴露 GC 的不确定性。
