@@ -706,11 +706,14 @@ function myNew(Constructor, ...args) {
   const result = Constructor.apply(obj, args);
 
   const isObject = result !== null && typeof result === "object";
+  // 判断一下是不是函数，因为规定是函数那么就返回函数
   const isFunction = typeof result === "function";
   return isObject || isFunction ? result : obj;
 }
 ```
 
+手写 `instanceof`
+	1. 
 
 ``` js
 function myInstanceof(value, Constructor) {
