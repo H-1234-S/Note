@@ -42,7 +42,7 @@ ParsedCommandLine {
 也就是编译哪些文件、不编译哪些文件、用什么规则编译
 ## 1.2 建立 SourceFile 列表
 
-> 根据 `include/exclude/files` 建立 `SourceFile` 列表，也就是拿到**具体文件名**
+> 根据 `include/exclude/files` 建立 `SourceFile` 列表，也就是拿到**具体文件名和文件内容**
 
 **获取规则：**
 	1. 如果存在 `files`，则只编译 `files` 中指出的文件，不扫描整个目录
@@ -127,3 +127,4 @@ SourceFile
 它只知道上面定义了一个name，下面调用了一个name，但是不知道它们是不是同一个name，同时也不知道调用的name是**变量**还是**函数**
 
 > 因此编译器需要有一个阶段来回答每个**名字**是什么含义
+
