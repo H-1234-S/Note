@@ -84,6 +84,10 @@ Inngest 接收并保存这条事件
   ↓
 你在函数里读取 event.data.accountId
 ```
+
+> inngest 代码在哪里执行？
+
+部署在 Vercel 上的 Inngest 代码，在通过事件触发时，是在 **Vercel 的 Serverless Functions（无服务器函数 / AWS Lambda）** 或 **Edge Functions** 上执行的
 # firecrawl scrape
 
 ## firecrawl
