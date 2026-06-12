@@ -100,4 +100,5 @@ program.getTypeChecker()
 program.emit()
 ```
 
-在 TypeScript 中，Program 要求被视为**不可变的**，它代表了某一刻时的代码状态，如果代码变动，ts 会创建新的 Program 对象
+> 在 TypeScript 中，Program 要求被视为**不可变的**，它代表了某一刻时的代码状态，如果代码变动，ts 会创建新的 Program 对象
+
