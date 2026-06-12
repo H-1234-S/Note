@@ -5,7 +5,7 @@
 
 ts 执行，也就是编译文件时，先去查找 `tsconfig.json `入口文件
 
-也就是要编译谁？不编译谁？要怎么编译？先读取配置
+先读取配置，也就是**得到**要编译谁？不编译谁？要怎么编译？
 
 ```
 tsc
@@ -20,3 +20,18 @@ tsc
 │
 └─ 得到 ParsedCommandLine
 ```
+
+此时内存中得到：
+
+``` js
+ParsedCommandLine {
+  options: {...},
+  include: ["src/**/*"],
+  exclude: ["tests"],
+  fileNames: []
+}
+```
+
+也就是编译哪些文件、不编译哪些文件、用什么规则编译
+# 1.2 建立 SourceFile 列表
+
