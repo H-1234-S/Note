@@ -68,3 +68,22 @@ SourceFile {
 }
 ```
 
+> 此时，`createSourceFile` 时候，`AST` 已经基本生成了，`SourceFile` 本身就是 `AST` 根节点
+
+``` js
+const name = "Tom";
+
+/* 对应的 AST
+SourceFile
+│
+└── VariableStatement
+      │
+      └── VariableDeclaration
+              │
+              ├── Identifier(name)
+              └── StringLiteral("Tom")
+*/
+```
+
+### 1.2.1 创建 Program 对象
+
