@@ -105,4 +105,25 @@ program.emit()
 
 该阶段就是让 **`TypeScript` 编译器**真正理解代码
 
-因为 AST 只是表示语法结构
+**例如：**
+``` js
+const name = "Tom";
+
+console.log(name);
+```
+**AST：**
+```
+SourceFile
+│
+├── VariableDeclaration
+│      └── Identifier(name)
+│
+└── CallExpression
+       └── Identifier(name)
+```
+
+因为 AST 只是语法的表示结构
+
+它只知道上面定义了一个name，下面调用了一个name，但是不知道它们是不是同一个name
+
+同时也不知道
