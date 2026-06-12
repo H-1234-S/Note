@@ -87,3 +87,17 @@ SourceFile
 
 ### 1.2.1 创建 Program 对象
 
+`Program` 是由 TypeScript `CompilerHost` 创建的一个**包含所有源文件（SourceFile）以及编译配置（CompilerOptions）的集合体**
+
+它不仅仅是一个文件列表，它还代表了一个**编译上下文（Compilation Context）**，后续所有操作都是基于 Program 来实现
+
+``` js
+// Binder：
+program.getSourceFiles()
+// Checker：
+program.getTypeChecker()
+// Emitter：
+program.emit()
+```
+
+在 TypeScript 中，Program 要求被视为**不可变的**，它代表了某一刻时的代码状态，如果代码变动，ts 会创建新的 Program 对象
