@@ -16,3 +16,6 @@ VariableDeclaration
     └── Literal(2)
 ```
 
+# 2. 为什么需要 AST
+
+
