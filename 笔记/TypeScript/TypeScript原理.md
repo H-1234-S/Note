@@ -126,5 +126,84 @@ SourceFile
 
 它只知道上面定义了一个name，下面调用了一个name，但是不知道它们是不是同一个name，同时也不知道调用的name是**变量**还是**函数**
 
-> 因此编译器需要有一个阶段来回答每个**名字**是什么含义
+> 因此编译器需要有一个阶段来回答每个**名字**是什么含义，将声明和调用关联
+
+Binder 做的是：
+```
+扫描代码里的名字
+	↓
+判断这些名字在哪里声明
+	↓
+把名字放到正确作用域
+	↓
+建立“名字 → 声明”的绑定关系
+```
+
+例如：
+``` js
+const name = "Tom";
+```
+
+Binder 会创建：
+``` js
+Symbol {
+    name: "name",
+    flags: Variable
+}
+```
+
+其实就是在当下作用域中为 name 声明了一个唯一标签，以后**可以通过作用域链**查找到的所有 name 都指向它
+
+然后通过作用域链查找变量
+
+例如：
+``` js
+console.log(name);
+
+/*
+Identifier(name)
+*/
+```
+
+查作用域：
+``` js
+scope["name"]
+// 找到
+Symbol(name)
+// 然后建立关联
+```
+
+## 1.4 Checker 阶段
+
+**例如：**
+``` js
+const age = 18;
+
+function add(a: number, b: number) {
+  return a + b;
+}
+
+add(age, 2);
+```
+
+**编译器内存中：**
+```
+Program
+│
+├── AST
+│
+├── Symbol(age)
+│
+├── Symbol(add)
+│
+├── Symbol(a)
+│
+└── Symbol(b)
+```
+
+当前**已经知道**了age是变量，add是函数，a、b是参数
+
+但**还不知道**age类型是什么，add返回什么，a、b参数是否合法
+
+> Checker 遍历AST，计算每个节点的Type，检查是否兼容，报错
 
