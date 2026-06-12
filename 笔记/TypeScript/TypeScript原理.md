@@ -105,3 +105,4 @@ program.emit()
 
 该阶段就是让 **`TypeScript` 编译器**真正理解代码
 
+因为 AST 只是表示语法结构
