@@ -4,11 +4,10 @@
 一次 `tsc` 检查大致经历：
 
 1. 读取 `tsconfig.json`。
-2. 根据 `include`、`exclude`、`files` 建立源文件列表。
-3. 解析源码，生成 AST。
-4. Binder 建立符号表：把变量、函数、类型、模块绑定成 symbol。
-5. Checker 做类型检查：推断、收窄、泛型实例化、兼容性判断。
-6. Transformer / Emitter 输出 JS、`.d.ts`、source map。
+2. 根据 `include`、`exclude`、`files` 建立源文件列表(过程中已经生成 AST)。
+3. Binder 建立符号表：把变量、函数、类型、模块绑定成 symbol。
+4. Checker 做类型检查：推断、收窄、泛型实例化、兼容性判断。
+5. Transformer / Emitter 输出 JS、`.d.ts`、source map。
 ## 1.1 读取 tsconfig.json 文件
 
 ts 执行，也就是编译文件时，先去查找 `tsconfig.json `入口文件
@@ -101,4 +100,8 @@ program.emit()
 ```
 
 > 在 TypeScript 中，Program 要求被视为**不可变的**，它代表了某一刻时的代码状态，如果代码变动，ts 会创建新的 Program 对象
+
+## 1.3 Binder 建立符号表
+
+该阶段就是让 **`TypeScript` 编译器**真正理解代码
 
