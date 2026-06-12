@@ -46,19 +46,19 @@ inngest是一个**事件驱动的后台任务/工作流编排平台**，只是**
 
 工作流程可以概括为：
 
-- inngest.send发送**事件**，发送后并不是立即执行代码
+- inngest.send 发送**事件**，发送后并不是立即执行代码
 
-- 而是进入inngest cloud，在inngest cloud里
+- 而是进入 inngest cloud，在 inngest cloud 里
 
 	- **首先**接收并且**存储事件**，找到哪些**函数监听**这个事件，为**每个 Function 创建 Run 实例**
 
-	- **然后**创建执行任务，向router handle发送请求，请求再下发，执行对应的**任务**，并且把run信息发送过去
+	- **然后**创建执行任务，向 router handle 发送请求，请求再下发，执行对应的**任务**，并且把 run 信息发送过去
 
-- 执行step，同时**inngest cloud跟踪**step状态，失败时重试，完成时记录
+- 执行 step，同时**inngest cloud跟踪** step 状态，失败时重试，完成时记录
 
-	- 到step时，首先检查此 step 是否执行过，如果没有执行过，那么执行callback，保存结果到inngest，返回结果
+	- 到 step 时，首先检查此 step 是否执行过，如果没有执行过，那么执行callback，保存结果到inngest，返回结果
 
-	- 如果某个步骤失败，inngest会记录，这也是**持久化执行**的原因
+	- 如果某个步骤失败，inngest 会记录，这也是**持久化执行**的原因
 
 ```
 1. inngest.send(event) 发送事件
@@ -93,7 +93,21 @@ Inngest 接收并保存这条事件
 
 也就是在 vercel 的 serverless 环境下执行的
 
-
+**流程：**
+```
+你的代码
+    ↓
+inngest.send()
+    ↓
+Inngest 云平台收到事件
+    ↓
+Inngest 通过 HTTP 调用
+https://your-app.vercel.app/api/inngest
+    ↓
+Vercel 启动一个 Function
+    ↓
+执行你的 myFunction
+```
 
 
 # firecrawl scrape
