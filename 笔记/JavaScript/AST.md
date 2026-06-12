@@ -5,8 +5,10 @@ AST 全称 Abstract Syntax Tree(抽象语法树)
 **例如：**
 ``` js
 const a = 1 + 2
+```
 
-/*
+**生成 AST ：**
+```
 VariableDeclaration
 ├── Identifier(a)
 └── BinaryExpression(+)
