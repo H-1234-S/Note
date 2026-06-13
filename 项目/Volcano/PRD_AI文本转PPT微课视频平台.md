@@ -8,7 +8,7 @@ Volcano AI 微课视频生成平台
 
 ### PRD版本
 
-v1.0.0
+v1.0.2
 
 ### 创建时间
 
@@ -17,6 +17,14 @@ v1.0.0
 ### 状态
 
 Draft
+
+### 变更记录
+
+| 版本 | 日期 | 变更说明 |
+| -- | -- | -- |
+| v1.0.0 | 2026-06-13 | 创建完整 PRD 初稿 |
+| v1.0.1 | 2026-06-13 | 完成产品评审并补充修订项 |
+| v1.0.2 | 2026-06-13 | 明确默认模型为 DeepSeek、用户并发生成数为 1、TTS 改为通用 Provider、第一版不做管理员后台 |
 
 ---
 
@@ -135,7 +143,7 @@ Draft
 - 选择目标用户、难度、视频比例、目标时长、语音。
 - 使用 LLM 生成结构化 Storyboard JSON。
 - 校验和修复 Storyboard JSON。
-- 每个 scene 单独调用 MiniMax TTS 生成音频。
+- 每个 scene 单独调用可插拔 TTS Provider 生成高质量音频，第一版不绑定固定 TTS 厂商。
 - 获取或计算每段音频 durationMs。
 - 根据音频时长生成 timeline。
 - 使用 Remotion Worker 渲染 MP4。
@@ -310,7 +318,7 @@ flowchart TD
 
 - 游客不可访问，跳转登录。
 - 用户仅可查看自己的项目。
-- 管理员可通过后台查看所有项目，【待确认】是否第一版需要管理员后台。建议 A：仅保留接口权限；建议 B：做最小后台页；建议 C：延后。
+- 第一版不做管理员后台页面；管理员能力仅保留为服务端权限判断、日志排查和后续后台扩展入口。
 
 #### 埋点需求
 
@@ -334,7 +342,7 @@ flowchart TD
 - 难度/年级：【待确认】选项列表。建议 A：小学/初中/高中/大学/通用；建议 B：简单/标准/进阶；建议 C：二者都保留。
 - 视频比例：16:9、9:16、1:1。
 - 目标时长：1 分钟、3 分钟、5 分钟。
-- 语音选择：MiniMax voiceId 列表。
+- 语音选择：来自当前启用 TTS Provider 的 voiceId 列表。
 - 生成按钮。
 
 #### 交互行为
@@ -355,7 +363,7 @@ flowchart TD
 
 - 游客不可提交。
 - 用户需满足每日额度。
-- 管理员不受额度限制，【待确认】。
+- 管理员不受普通用户额度限制，仅用于内部测试和故障排查。
 
 #### 埋点需求
 
@@ -497,7 +505,7 @@ flowchart TD
 - 输入文本必填。
 - 文本最小长度 50 字，最大长度【待确认】。建议 A：5000 字；建议 B：8000 字；建议 C：按套餐配置。
 - 目标时长仅影响 LLM 压缩和 scene 数量，不承诺最终视频精确等于目标时长。
-- 同一用户同时运行中的任务数限制【待确认】。建议 A：1 个；建议 B：3 个；建议 C：按套餐配置。
+- 同一用户同时运行中的生成任务数限制为 1 个，即同一时间只能生成一个视频。
 - 每日生成次数限制【待确认】。建议 A：免费用户 3 次；建议 B：内测用户 10 次；建议 C：后台配置。
 
 #### 用户操作流程
@@ -645,9 +653,10 @@ stateDiagram-v2
 #### 业务规则
 
 - 每个 scene 单独生成一个音频文件。
-- 使用 MiniMax TTS Provider。
-- 音频格式第一版使用 mp3。
-- 若相同 textHash + voiceId + speed 已存在音频，则复用 Asset。
+- 使用可插拔 TTS Provider，不绑定 MiniMax；任意能满足接口契约的 TTS 服务均可接入。
+- TTS Provider 必须支持高质量中文语音输出，并返回音频二进制或可下载音频地址。
+- 音频格式第一版优先使用 mp3；若 Provider 输出 wav/aac，系统需在入库前统一转码或记录 contentType。
+- 若相同 textHash + voiceProvider + voiceId + speed 已存在音频，则复用 Asset。
 - durationMs 必须存在；Provider 不返回时用音频分析工具计算。
 
 #### 用户操作流程
@@ -680,14 +689,14 @@ stateDiagram-v2
 
 - scene 文案为空。
 - 单段文案超过 TTS 服务限制。
-- TTS 语音不存在。
+- TTS 语音不存在或当前 Provider 不支持该 voiceId。
 - 音频上传成功但数据库写入失败。
 - 数据库写入成功但 scene 回填失败。
 
 #### 异常情况
 
-- MiniMax 超时：重试。
-- MiniMax 返回错误：根据错误码判断是否重试。
+- TTS Provider 超时：重试。
+- TTS Provider 返回错误：根据错误码判断是否重试。
 - 音频 duration 解析失败：任务 failed，提示音频分析失败。
 - R2 上传失败：重试上传。
 
@@ -698,6 +707,7 @@ stateDiagram-v2
 #### 安全要求
 
 - TTS 请求不得携带无关用户信息。
+- TTS Provider API Key 仅保存在服务端环境变量或密钥管理服务中。
 - 音频文件默认私有，通过签名 URL 访问。
 
 #### 埋点设计
@@ -956,7 +966,7 @@ erDiagram
 | audienceLevel | String? | 年级或难度 |
 | aspectRatio | String | 16:9 / 9:16 / 1:1 |
 | targetDurationSec | Int | 目标时长 |
-| voiceProvider | String | minimax |
+| voiceProvider | String | 当前 TTS Provider ID |
 | voiceId | String | 语音 ID |
 | currentStoryboardVersionId | String? | 当前分镜版本 |
 | finalVideoAssetId | String? | 最终视频资源 |
@@ -1094,7 +1104,7 @@ erDiagram
 | id | String | 主键 |
 | userId | String | 用户 ID，索引 |
 | projectId | String? | 项目 ID，索引 |
-| provider | String | llm / minimax / remotion / r2 |
+| provider | String | llm / tts / remotion / r2 |
 | metric | String | tokens / chars / render_ms / bytes |
 | quantity | Int | 数量 |
 | unit | String | token / char / ms / byte |
@@ -1130,7 +1140,7 @@ Mutation
     "audienceLevel": { "type": "string" },
     "aspectRatio": { "type": "string", "enum": ["16:9", "9:16", "1:1"] },
     "targetDurationSec": { "type": "number", "enum": [60, 180, 300] },
-    "voiceProvider": { "type": "string", "enum": ["minimax"] },
+    "voiceProvider": { "type": "string" },
     "voiceId": { "type": "string" },
     "requestId": { "type": "string" }
   }
@@ -1495,7 +1505,7 @@ POST
 
 ### 限流策略
 
-按 Worker 并发限制，默认每实例 1-2 个并发渲染。
+按 Worker 并发限制，默认每实例 1 个并发渲染。
 
 ---
 
@@ -1543,7 +1553,7 @@ POST
 | 功能 | 游客 | 用户 | 管理员 |
 | -- | -- | -- | --- |
 | 访问首页/登录页 | 允许 | 允许 | 允许 |
-| 查看 Dashboard | 禁止 | 仅自己 | 全部【待确认】 |
+| 查看 Dashboard | 禁止 | 仅自己 | 服务端允许全部，第一版无后台页面 |
 | 创建项目 | 禁止 | 允许，受额度限制 | 允许 |
 | 查看项目详情 | 禁止 | 仅自己 | 允许 |
 | 取消任务 | 禁止 | 仅自己 | 允许 |
@@ -1552,7 +1562,7 @@ POST
 | 下载字幕 | 禁止 | 仅自己 | 允许 |
 | 删除项目 | 禁止 | 仅自己 | 允许 |
 | 查看系统日志 | 禁止 | 禁止 | 允许 |
-| 配置 Provider | 禁止 | 禁止 | 允许【待确认】 |
+| 配置 Provider | 禁止 | 禁止 | 第一版不提供页面，通过环境变量配置 |
 
 ---
 
@@ -1574,7 +1584,7 @@ POST
 - 内部 Worker API 必须使用 internal token。
 - 用户输入内容需做基础内容安全检查。
 - Provider API Key 仅在服务端环境变量保存。
-- 禁止前端直接访问 MiniMax、LLM 和 R2 写权限。
+- 禁止前端直接访问 TTS Provider、LLM 和 R2 写权限。
 
 ### 可用性
 
@@ -1638,7 +1648,7 @@ POST
 ### 正常流程：创建并生成视频
 
 Given 用户已登录且额度充足  
-When 用户粘贴 1000 字 AI 回答并选择 3 分钟、16:9、MiniMax 语音后提交  
+When 用户粘贴 1000 字 AI 回答并选择 3 分钟、16:9、某个可用 TTS 语音后提交  
 Then 系统创建 Project，状态为 queued，并跳转到进度页
 
 Given Project 已进入生成流程  
@@ -1735,7 +1745,7 @@ Task：
 Story：系统可逐 scene 生成音频并上传 R2  
 Task：
 - 实现 TTS Provider 抽象。
-- 接入 MiniMax TTS。
+- 接入通用 TTS Provider，并至少完成一个具体 TTS 服务适配。
 - 实现音频 duration 解析。
 - 实现 Storage Provider。
 - 实现 Asset 表读写和签名 URL。
@@ -1809,7 +1819,7 @@ Task：
 - tRPC context 中注入 session userId。
 - 所有 projectId 查询必须带 userId 条件或管理员判断。
 - Worker API 只能由后端调用。
-- 管理员能力第一版可只保留后端能力，前台页面【待确认】。
+- 管理员能力第一版只保留后端权限判断和日志排查能力，不做前台后台页面。
 
 ### 可扩展性设计
 
@@ -1822,7 +1832,7 @@ Task：
 ### 风险点
 
 - 中文字体和 Remotion Worker 环境必须提前验证。
-- MiniMax TTS 是否返回时间戳【待确认】。若无，第一版使用句子级估算。
+- TTS Provider 是否返回时间戳取决于具体服务；若无，第一版使用句子级估算。
 - 国内大模型 JSON 稳定性需要压测。
 - 生成成本需要从第一天记录 UsageRecord。
 - R2 私有资源的签名 URL 有效期需覆盖渲染耗时。
@@ -1833,11 +1843,11 @@ Task：
 
 ## 需求缺失项
 
-- 未明确具体国内大模型供应商和模型名称。【待确认】建议先接 OpenAI-compatible Provider，再配置 DeepSeek/通义/豆包其中一家。
-- 未明确 MiniMax TTS 是否返回词级时间戳。【待确认】若不返回，第一版只能做句子级字幕。
+- 默认国内大模型已明确为 DeepSeek，并通过 OpenAI-compatible Provider 接入。
+- TTS 不绑定 MiniMax，需定义通用 Provider 接口；词级时间戳若具体服务不支持，第一版使用句子级字幕。
 - 未明确用户额度和套餐策略。【待确认】建议 MVP 采用每日生成次数限制。
 - 未明确是否支持公开分享。【待确认】建议第一版不做公开分享。
-- 未明确管理员后台是否开发。【待确认】建议第一版只做管理员权限能力，不做完整后台。
+- 管理员后台已明确第一版不做，仅保留服务端权限能力。
 
 ## 边界条件遗漏
 
@@ -1876,7 +1886,7 @@ Task：
 - Remotion Worker 需要 Docker 化部署，不能依赖 Vercel Serverless。
 - 中文字体、FFmpeg、Chromium 版本需要固定。
 - Inngest 与 Worker 的长任务超时边界需要验证。
-- MiniMax TTS 音频格式、采样率和 Remotion 输出采样率需统一。
+- TTS Provider 输出音频格式、采样率和 Remotion 输出采样率需统一。
 
 ---
 
@@ -1887,11 +1897,11 @@ Task：
 ## 修订 1：明确 MVP 技术默认选型
 
 - 国内大模型第一版接入 `OpenAICompatibleProvider`，具体 endpoint 通过环境变量配置。
-- 默认模型供应商【待确认】，建议优先 DeepSeek 或通义千问，原因是成本和中文能力较均衡。
-- TTS 第一版接入 MiniMax，若无词级时间戳，则使用句子级字幕估算。
+- 默认模型供应商为 DeepSeek，通过 OpenAI-compatible Provider 接入。
+- TTS 第一版采用通用 Provider 抽象，不绑定 MiniMax；若具体服务无词级时间戳，则使用句子级字幕估算。
 - 认证使用已有 better-auth，管理员角色读取方式【待确认】。
 - 第一版不做公开分享。
-- 第一版不做完整管理员后台，仅保留管理员权限判断和日志查询接口。
+- 第一版不做管理员后台，仅保留管理员权限判断和必要的日志排查能力。
 
 ## 修订 2：补充资源生命周期
 
@@ -2005,13 +2015,17 @@ QA 必须覆盖：
 
 ## 修订 10：v1.0.1 结论
 
-PRD v1.0.1 可进入评审，但仍有以下待确认项必须在开发启动前定案：
+PRD v1.0.1 可进入评审；以下事项已在 2026-06-13 补充确认：
 
-- 默认国内大模型供应商和模型名称。
+- 默认国内大模型：DeepSeek。
+- 同一用户并发生成视频数：1。
+- TTS：不绑定 MiniMax，采用通用高质量 TTS Provider 抽象。
+- 管理员后台：第一版不做。
+
+仍有以下待确认项建议在开发启动前定案：
+
 - 最大输入字数。
-- 免费额度和并发任务限制。
-- MiniMax TTS 是否提供时间戳。
+- 免费额度。
+- 首个具体 TTS 服务供应商及其是否提供时间戳。
 - 管理员角色来源。
 - R2 文件删除保留期。
-- 是否需要最小管理员后台。
-
