@@ -38,15 +38,18 @@
 3. **Tab 1：生成视频**
    - 屏幕正中文本框（Textarea）
    - 文本框右下角"生成"按钮
-   - 提交 → 调 `project.createAndGenerate` → 成功后跳转进度页（或历史记录 Tab）
+   - 提交 → 调 `project.createAndGenerate` → **成功后自动切换到"历史记录"Tab**（用户立即看到生成中的项目卡片，验证提交已生效）
    - 防重复提交（`isPending` 时按钮 disabled + spinner）
 
 4. **Tab 2：历史记录**
-   - 使用 Aceternity UI `FocusCards` 组件展示已完成/生成中的项目
+   - 使用 Aceternity UI `FocusCards` 组件展示所有有效项目（排除 `deleted` 状态）
    - 每张卡片 = 视频截图（当前阶段用占位图）+ hover 显示标题
+   - 已完成的卡片：显示彩色占位图 + 标题 overlay
+   - 生成中的卡片：显示彩色占位图 + 标题 overlay + 底部状态标签（"生成中…"）
+   - 失败的卡片：显示红色调占位图 + 底部重试按钮
    - 点击卡片 → 跳转视频播放页 `/projects/[id]/play`
-   - 数据源：`project.list` API，筛选 completed + 生成中状态
-   - 生成中项目的自动轮询（`refetchInterval: 10_000`）
+   - 数据源：`project.list` API，**不传 `status` 参数**（拉取全部，客户端过滤 `deleted`）
+   - 自动轮询（`refetchInterval: 10_000`）——追踪生成中→已完成的转变
    - 空状态："还没有生成视频，快去创建第一个吧" + CTA
 
 5. **Tab 3：订阅升级**
@@ -88,18 +91,20 @@
 |------|------|------|
 | `src/app/page.tsx` | **修改** | 替换脚手架 → 登陆态分流（Landing / MainApp） |
 | `src/components/landing/LandingHero.tsx` | **新建** | WavyBackground + 登录/注册按钮 |
-| `src/components/main-app/AppNavbar.tsx` | **新建** | 三 Tab 导航 + 用户中心 |
+| `src/components/main-app/AppNavbar.tsx` | **新建** | 三 Tab 导航 |
+| `src/components/main-app/UserMenu.tsx` | **新建** | 用户头像 + DropdownMenu（个人中心/退出登录） |
 | `src/components/main-app/GenerateTab.tsx` | **新建** | 文本输入 + 生成按钮 |
-| `src/components/main-app/HistoryTab.tsx` | **新建** | FocusCards + 空状态 + 加载骨架 |
+| `src/components/main-app/HistoryTab.tsx` | **新建** | FocusCards + 状态区分 + 空/错/骨架 |
+| `src/components/main-app/HistoryCardActions.tsx` | **新建** | 卡片 hover 操作层（播放/重试/删除） |
 | `src/components/main-app/SubscribeTab.tsx` | **新建** | 订阅页占位 |
 | `src/components/main-app/VideoCardSkeleton.tsx` | **新建** | FocusCards 加载骨架 |
 | `src/components/main-app/EmptyState.tsx` | **新建** | 通用空状态组件 |
 | `src/components/main-app/ErrorState.tsx` | **新建** | 通用错误状态组件 |
-| `src/app/(protected)/projects/[id]/play/page.tsx` | **新建** | 视频播放占位页 |
+| `src/app/(protected)/projects/[id]/play/page.tsx` | **新建** | 视频播放占位页（含项目信息 + 删除/重试入口） |
 | `src/server/routers/project.ts` | **修改** | 追加 `delete`、`retry` mutation |
 | `src/server/services/project.service.ts` | **修改** | 追加 `deleteProject`、`retryGeneration` |
 
-**预计新增文件：10 个，修改文件：3 个**
+**预计新增文件：11 个，修改文件：3 个**
 
 ---
 
@@ -120,6 +125,8 @@ ep2-02 (已完成)
 ```
 
 **前置 Change：`ep2-02-project-list-detail-api`**
+
+> **`project.list` API status 参数确认：** ep2-02 的 `status` 入参定义为 `z.enum(VALID_PROJECT_STATUSES).optional()`，支持单个枚举值（`"completed"`、`"failed"` 等）或不传（返回全部）。本 Change 中 HistoryTab **不传 `status`**，拉取用户全部项目后客户端过滤 `deleted`——与 API 契约完全一致，无需修改后端。
 
 **并行 Change：`ep2-05-cancel-retry-delete-api`**（接口契约见 Key Design Decisions #14）
 
@@ -350,7 +357,8 @@ export function GenerateTab() {
   const createMutation = trpc.project.createAndGenerate.useMutation({
     onSuccess: (data) => {
       setText(""); // 清空输入
-      // 跳转到历史记录 Tab 或进度页
+      toast.success("项目创建成功，正在生成中…");
+      onTabChange("history"); // 切换到历史记录 Tab，用户立即可见生成中的项目卡片
     },
     onError: (error) => {
       toast.error(error.message);
@@ -406,6 +414,8 @@ export function GenerateTab() {
 - `voiceProvider` / `voiceId`: 固定 `"minimax"` / `"male-qn-qingse"`
 - 配置面板（参数调节）→ `ep2-04` 或后续迭代
 
+**移动端适配注意：** `pb-12` 预留了按钮高度的底部空间，但输入长文本时最后可见行仍可能与按钮重叠（浏览器滚动到末尾后，最后一行在 `absolute` 按钮上方）。解决：TextBox 额外增加 `pr-20`（右侧留白），避免文字延伸到按钮正下方。实现时在 375px 设备上实测，确认按钮不遮挡文字。
+
 ### 6. Tab 2：历史记录
 
 ```
@@ -431,19 +441,26 @@ export function HistoryTab() {
   const { data, isLoading, isError, error, refetch } =
     trpc.project.list.useQuery(
       {
-        pageSize: 50,        // 历史记录一次性加载足够多
-        status: "completed", // 先只展示已完成的
+        pageSize: 50,       // 历史记录一次性加载足够多
+        // 不传 status：拉取用户全部项目，客户端过滤 deleted
       },
       {
-        // 【轮询策略】每 10 秒刷新，追踪生成中项目变为已完成
+        // 【轮询策略】每 10 秒刷新，追踪生成中→已完成的转变
         refetchInterval: 10_000,
-        // staleTime 继承全局 60s，轮询保证及时性
       }
     );
+
+  // 客户端过滤：排除 deleted 状态
+  const items = useMemo(
+    () => (data?.items ?? []).filter(item => item.status !== "deleted"),
+    [data]
+  );
 
   // ...
 }
 ```
+
+**轮询的价值：** 不传 `status` 过滤时，生成中的项目立即可见（用户提交后切到历史 Tab 能立刻看到卡片）。10 秒轮询持续拉取最新列表，当项目从 `queued` → `generating_storyboard` → … → `completed` 的每一次状态变化都会被捕捉，卡片的状态标签和颜色实时更新。
 
 **图片占位策略（renderStill 尚未实现）：**
 
@@ -475,8 +492,85 @@ function getPlaceholderSrc(index: number): string {
 ```
 
 > ⚠️ 当 `ep5-07` renderStill 实现后，将 `src` 替换为 `asset.getSignedUrl({ assetId: scene.imageAssetId })`。
+>
+> **`data:image/svg+xml` 兼容性验证：** SVG data URI 在所有现代浏览器中均可作为 `<img src>` 渲染，不存在跨域限制。FocusCards 内部的 `<img>` 标签直接加载 data URI，无需 CSP 额外配置。实现时在 Chrome/Firefox/Safari 各验证一次即可。
 
-**空状态：**
+#### 6.1 卡片状态区分
+
+不同 `status` 的卡片在视觉上需要区分，让用户一眼判断项目进度：
+
+| 状态组 | status 值 | 占位图颜色 | 卡片附加元素 |
+|--------|----------|-----------|------------|
+| 已完成 | `completed` | 彩色（按 index 循环） | 底部"已完成"绿色标签 |
+| 生成中 | `queued`, `generating_*`, `calculating_*`, `rendering` | 蓝紫色调（`#6366f1`） | 底部"生成中…"标签 + 脉冲动画 |
+| 分镜就绪 | `storyboard_ready` | 紫色调（`#8b5cf6`） | 底部"分镜就绪"标签 |
+| 失败 | `failed` | 红色调（`#f43f5e`） | 底部"生成失败"红色标签 + 重试按钮 |
+| 已取消 | `cancelled` | 灰色调（`#6b7280`） | 底部"已取消"灰色标签 |
+
+**实现方式：** 每个 FocusCard 外层包裹 `<div className="relative group">`，底部标签和操作按钮通过 `absolute bottom-0 inset-x-0` 定位在卡片下方。
+
+#### 6.2 卡片操作（HistoryCardActions）
+
+卡片上的操作用以消费 `project.delete` 和 `project.retry` mutation：
+
+```
+┌──────────────────┐
+│                  │
+│   [视频截图]     │  ← FocusCards 原生渲染
+│                  │
+│   项目标题       │  ← FocusCards hover overlay
+│                  │
+├──────────────────┤
+│ ▶ 播放  🗑 删除  │  ← HistoryCardActions（始终可见，卡片底部）
+│         🔄 重试  │  ← 仅 failed/cancelled 状态显示
+└──────────────────┘
+```
+
+**操作栏组件（`HistoryCardActions`）：**
+
+```typescript
+// src/components/main-app/HistoryCardActions.tsx
+interface Props {
+  projectId: string;
+  status: string;
+  onPlay: () => void;
+}
+
+export function HistoryCardActions({ projectId, status, onPlay }: Props) {
+  const deleteMutation = trpc.project.delete.useMutation({
+    onSuccess: () => toast.success("项目已删除"),
+    onError: (err) => toast.error(err.message),
+  });
+  const retryMutation = trpc.project.retry.useMutation({
+    onSuccess: () => toast.success("已重新开始生成"),
+    onError: (err) => toast.error(err.message),
+  });
+  const canRetry = status === "failed" || status === "cancelled";
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 text-xs">
+      <button onClick={onPlay}>▶ 播放</button>
+      {canRetry && (
+        <button onClick={() => retryMutation.mutate({ projectId })}>
+          🔄 重试
+        </button>
+      )}
+      <button
+        onClick={() => deleteMutation.mutate({ projectId })}
+        className="text-muted-foreground hover:text-destructive"
+      >
+        🗑 删除
+      </button>
+    </div>
+  );
+}
+```
+
+> **防重复点击：** mutation 进行中时按钮自动 disabled（TanStack Query 的 `isPending` 状态驱动）。
+
+**空状态修正：**
+
+空状态中 `data?.items.length` 需要改为过滤后的 `items.length`：
 
 ```typescript
 if (!isLoading && data?.items.length === 0) {
@@ -513,7 +607,7 @@ if (!isLoading && data?.items.length === 0) {
 └──────────────────────────────────────────┘
 ```
 
-**实现：** 纯静态 UI，三张定价卡片（使用 shadcn Card），一个"当前方案"高亮。不接入任何支付 SDK。
+**实现：** 纯静态 UI，三张定价卡片（使用 shadcn Card），免费版硬编码标记为"当前方案"。不接入任何支付 SDK，不从 session/subscription 表读取真实订阅状态——当前版本所有用户均视为免费用户。
 
 ### 8. 数据流总结
 
@@ -717,7 +811,9 @@ page.tsx
 **When** 点击"生成"按钮
 **Then** 按钮变为 loading 状态（spinner + disabled）
 **And** 调用 `project.createAndGenerate` API
-**And** 成功后 toast 提示 + 输入框清空
+**And** 成功后 toast 提示"项目创建成功，正在生成中…"
+**And** 输入框清空 + **自动切换到"历史记录"Tab**
+**And** 历史记录 Tab 中出现刚创建的项目卡片（状态为 queued，带"生成中…"标签）
 
 ### AC8: 生成视频—空文本
 **Given** "生成视频"Tab 中文本框为空
@@ -801,6 +897,10 @@ page.tsx
 | 13 | **移动端导航** | 3 Tab 不溢出（≈240px < 375px），无需横向滚动 | 若未来 >3 Tab → `overflow-x: auto` + `scrollbar-hide` |
 | 14 | **订阅页范围** | 纯 UI 占位，无支付逻辑 | 避免范围膨胀；支付/订阅体系需独立规划和 PRD |
 | 15 | **生成按钮位置** | 文本框右下角内部（`absolute bottom-3 right-3`） | 紧凑、直觉；符合用户描述的"文本框右下角" |
+| 16 | **"当前方案"标记** | 硬编码免费版为"当前方案"，不从 DB 读取 | v1 无订阅系统，所有用户均为免费用户；后续接入支付后改为动态读取 |
+| 17 | **移动端 Textarea** | `pr-20` 右侧留白，防止文字延伸到按钮下方 | 按钮在 `absolute right-3`，长文本末行需留白避免遮挡 |
+| 18 | **delete/retry UI 入口** | 每张历史卡片底部显示操作栏（HistoryCardActions），非 hover 隐藏 | 始终可见降低发现成本；mutation `isPending` 自然防重复点击 |
+| 19 | **删除确认** | 直接删除（无 AlertDialog 二次确认），失败 tost 提示 | 极简优先；卡片底部操作栏空间有限，二次弹窗增加步骤。若后续用户反馈误删，ep2-05 加 AlertDialog |
 
 ---
 
@@ -927,6 +1027,21 @@ npm run dev
 | 12 | 键盘无障碍（a11y） | ✅ **已解决** — 新增 Section 12 |
 | 13 | date-fns 中文输出验证 | ✅ **已解决** — 新增 Section 13（验证表 + 实施时验证步骤） |
 | 14 | ep2-05 接口契约 | ✅ **已解决** — 定义 mutation 签名为共享契约（见 Section 11 表格） |
+| — | — | — |
+
+### 第二轮审查（2026-06-13）
+
+| # | 问题 | 处理方式 |
+|---|------|---------|
+| 1 | HistoryTab 数据源矛盾（只查 completed，轮询无意义） | ✅ **已解决** — 不传 `status`，客户端过滤 `deleted`；生成中项目立即可见，轮询追踪状态变化 |
+| 2 | GenerateTab onSuccess 行为未定义 | ✅ **已解决** — 成功后 toast + 清空输入 + 自动切到"历史记录"Tab；更新 AC7 |
+| 3 | delete/retry mutation 无 UI 消费者 | ✅ **已解决** — 新增 `HistoryCardActions` 组件，每张卡片底部显示操作栏（播放/重试/删除）；新增 KDD #18-19 |
+| 4 | UserMenu 文件归属不明确 | ✅ **已解决** — 在 Files Likely Affected 中新增 `UserMenu.tsx` 独立文件 |
+| 5 | `project.list` API status 参数确认 | ✅ **已解决** — 在 Dependencies 节新增确认块：`z.enum(...).optional()`，不传=全部，与 API 一致 |
+| 6 | 生成中项目的 FocusCards 视觉区分 | ✅ **已解决** — 新增 Section 6.1 表格：蓝紫色占位图 + "生成中…"标签 + 脉冲动画 |
+| 7 | 移动端 Textarea 按钮重叠 | ✅ **已解决** — 移动端适配注意中要求 `pr-20` 右侧留白 + 375px 实测；新增 KDD #17 |
+| 8 | FocusCards `data:image/svg+xml` 兼容性 | ✅ **已解决** — 在图片占位策略末尾补充验证说明：SVG data URI 无跨域限制，Chrome/Firefox/Safari 各验证一次 |
+| 9 | "当前方案"硬编码逻辑 | ✅ **已解决** — SubscribeTab 实现描述中明确"硬编码，不从 DB 读取"；新增 KDD #16 |
 
 ---
 
