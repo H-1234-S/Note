@@ -67,7 +67,7 @@
 | `src/server/services/__tests__/project.service.test.ts` | **修改** | 追加 list/getById 业务逻辑 + 权限测试 |
 | `src/server/routers/__tests__/project.router.test.ts` | **修改** | 追加 list/getById 集成测试 |
 
-**预计新增文件：1 个，修改文件：5 个**
+**预计新增文件：2 个，修改文件：4 个**
 
 ---
 
@@ -98,7 +98,7 @@ ep2-01 (已完成)
 | vitest 已安装 | ✅ | ep2-01 Step 0 已完成 |
 | `src/lib/db/repositories/` 目录 | ❌ 不存在 | 本 Change 新建 |
 | `src/lib/db/client.ts` 导出 prisma | ✅ | `export { prisma }` |
-| existing ep2-01 tests pass | 待验证 | `npm test` 通过 |
+| existing ep2-01 tests pass | **待验证**（实现前必须先跑） | `npm test` — 确认 22 个测试全部通过；若有失败则先定位修复再继续 |
 
 ---
 
@@ -209,7 +209,6 @@ Request Body:
 Response 200:
 {
   "id": "cuid...",
-  "userId": "user_cuid...",
   "title": "深入理解Transformer架构",
   "sourceText": "Transformer是一种基于自注意力机制的...(完整原文)",
   "status": "storyboard_ready",
@@ -256,6 +255,10 @@ Response 200:
   }
 }
 ```
+
+**`userId` 字段说明：**
+- `userId` 不返回给前端。它仅在 `DETAIL_SELECT` 中被查询出来，用于 service 层做 `project.userId !== ctx.userId && !ctx.isAdmin` 权限校验
+- Router 层在返回响应前必须从 `ProjectDetailResult` 中剔除 `userId` 字段（见 Implementation Steps → Step 3）
 
 **`currentJob` 说明：**
 - 取 `generationJobs` 中 `createdAt` 最新的一条
@@ -489,15 +492,28 @@ export class ProjectAccessDeniedError extends Error {
 
 // === src/server/routers/project.ts（追加） ===
 
+/** Project 的有效状态值（与 prisma/schema.prisma 中的 status 注释保持同步） */
+const VALID_PROJECT_STATUSES = [
+  "queued", "generating_storyboard", "storyboard_ready",
+  "generating_audio", "calculating_timeline", "rendering",
+  "completed", "failed", "cancelled",
+] as const;
+
 // Zod input schema
 export const listProjectsInputSchema = z.object({
   cursor: z.string().optional(),
   pageSize: z.number().int().min(1).max(50).default(12),
-  status: z.string().max(50).optional(),
+  status: z.enum(VALID_PROJECT_STATUSES).optional(),
 });
 
 export const getProjectByIdInputSchema = z.object({
-  projectId: z.string().min(1, "projectId 不能为空"),
+  // CUID 格式校验：c + 24 位小写字母数字。保留 .min(1) 兜底非 CUID 主键
+  // 注意：projectId 不是 UUID，不能用 .uuid()
+  projectId: z
+    .string()
+    .min(1, "projectId 不能为空")
+    .max(50, "projectId 长度不能超过 50")
+    .regex(/^[a-zA-Z0-9_-]+$/, "projectId 格式无效"),
 });
 ```
 
@@ -513,16 +529,23 @@ export const getProjectByIdInputSchema = z.object({
 | `.default()` | ✅ | ✅ | |
 | `z.number().int()` | ✅ | ✅ | |
 | `z.object({})` | ✅ | ✅ | |
+| `.regex()` | ✅ | ✅ | v4 中第二个参数 `message` 仍然支持 |
+| `z.enum()` | ✅ | ✅ | 传入 `as const` 数组时自动推断字面量联合类型 |
 
-全部 API 在 v4 中无变化，与 ep2-01 一致。
+全部 API 在 v4 中无变化，与 ep2-01 一致。`z.enum()` 配合 `as const` 数组可在编译期捕获无效 status 值，比 `z.string().max(50)` 更优。
 
 ---
 
 ## Implementation Steps
 
+### Step 0: 基线验证（前置条件）
+
+- 运行 `npm test` 确认 ep2-01 的 22 个测试全部通过
+- 若有测试失败，先定位修复再继续
+
 ### Step 1: 创建 `project.repo.ts` + 类型定义
 
-- 创建 `src/lib/db/repositories/` 目录
+- 创建 `src/lib/db/repositories/` 目录（及 `__tests__/` 子目录）
 - 创建 `src/lib/db/repositories/project.repo.ts`
 - 定义所有输出类型接口（`ProjectListItem`, `ProjectListResult`, `ProjectDetailResult` 等）
 - 实现 `LIST_SELECT` 和 `DETAIL_SELECT` 常量（`satisfies Prisma.ProjectSelect`）
@@ -543,8 +566,12 @@ export const getProjectByIdInputSchema = z.object({
 ### Step 3: 追加 `project.router.ts`
 
 - 新增 `listProjectsInputSchema` 和 `getProjectByIdInputSchema`
+- 新增 `VALID_PROJECT_STATUSES` 常量（与 schema.prisma 中的 status 注释同步）
 - 新增 `list: protectedProcedure.input(listProjectsInputSchema).query(...)`
 - 新增 `getById: protectedProcedure.input(getProjectByIdInputSchema).query(...)`
+  - 调用 `getProjectById` 获取含 userId 的完整详情
+  - **剔除 `userId` 字段**：`const { userId, ...publicDetail } = detail;` — 确保前端不收到其他用户的 userId
+  - 返回 `publicDetail`
 - 错误映射：`ProjectNotFoundError` → `NOT_FOUND`，`ProjectAccessDeniedError` → `FORBIDDEN`
 
 ### Step 4: 编写测试
@@ -695,6 +722,9 @@ src/lib/db/repositories/__tests__/project.repo.test.ts
 | 8 | **userId 返回处理** | repo 层返回 userId，service 层校验后不传前端 | userId 仅用于权限判断，前端不需要 |
 | 9 | **repo 函数签名** | 接受 userId 参数而非 ctx，不导入 prisma 全局单例 | 与 `checkDailyQuota(tx, userId)` 风格一致；便于单元测试 mock |
 | 10 | **错误码格式** | 沿用 ep2-01 模式：`[CODE] message \| key=value` | 与 ep2-01 一致，ep7-01 统一升级 |
+| 11 | **repo 层 import 模式** | 顶层 `import { prisma } from "@/lib/db/client"`（非动态 import） | repo 是纯查询函数，不需要事务隔离；顶层 import 更简洁；测试用 `vi.mock("@/lib/db/client")` 拦截（与 ep2-01 测试 mock 模式一致） |
+| 12 | **projectId 校验** | `.min(1).max(50).regex(/^[a-zA-Z0-9_-]+$/)` 而非 `.uuid()` | projectId 是 CUID（`c` + 24 位小写字母），不是 UUID。`.uuid()` 会错误拒绝合法 projectId |
+| 13 | **status 筛选校验** | `z.enum(VALID_PROJECT_STATUSES)` 而非 `z.string().max(50)` | `z.enum()` 在编译期和运行期双重捕获无效状态值，前端能更早发现拼写错误。需与 schema.prisma 中的 status 注释保持同步 |
 
 ---
 
