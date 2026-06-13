@@ -705,5 +705,7 @@ Phase 3
 
 与openspec结合：
 ```
+生成完具体的change文档后
 
+可以使用/opsx:explore 命令gen
 ```
