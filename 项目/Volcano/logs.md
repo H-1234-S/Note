@@ -1,6 +1,12 @@
 # 1. 提示词
 
-## 1.1. Claude 拆分 PRD
+## 1.1 Codex 实现 PRD
+
+```
+
+```
+
+## 1.2 Claude 拆分 PRD
 
 ```
 # Role
