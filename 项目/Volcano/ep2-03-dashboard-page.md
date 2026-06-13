@@ -7,17 +7,17 @@
 | **Change ID** | `ep2-03-dashboard-page` |
 | **所属 Epic** | Epic 2: 项目管理与 Dashboard |
 | **优先级** | P0 |
-| **预估规模** | M（~800 LOC） |
+| **预估规模** | M（~750 LOC） |
 | **预估工期** | 2 天 |
 | **前置 Change** | `ep2-02-project-list-detail-api`（`project.list` / `project.getById` API 就绪） |
-| **并行 Change** | `ep2-05-cancel-retry-delete-api`（Dashboard 中的删除/重试按钮依赖其 mutation 端点；本 Change 包含轻量 stub，ep2-05 增强） |
+| **并行 Change** | `ep2-05-cancel-retry-delete-api`（本 Change 含轻量 delete/retry stub；ep2-05 增强为完整级联/resume 逻辑） |
 | **目标代码库** | `E:\A\Ai\convert documents to videos` |
 
 ---
 
 ## Goal
 
-实现 Dashboard 页面 `/dashboard`：项目列表展示、状态筛选、分页加载、空状态引导、删除确认、重试触发，为用户提供项目管理的主界面。
+实现**首页双模式**——未登录展示 Landing 首屏（Aceternity WavyBackground），登录后展示三 Tab 极简主页（生成视频 / 历史记录 / 订阅升级），并集成 Aceternity FocusCards 展示历史视频截图。
 
 ---
 
@@ -25,49 +25,59 @@
 
 ### ✅ 包含内容
 
-1. **Dashboard 页面**（`src/app/(protected)/dashboard/page.tsx`）
-   - 页面标题 + 创建项目入口按钮
-   - 状态筛选 Tab 栏（全部 / 生成中 / 已完成 / 失败）
-   - 项目卡片网格（响应式：1/2/3 列）
-   - "加载更多"分页按钮（cursor-based）
-   - 删除确认 Dialog（AlertDialog）
-   - 重试按钮（仅失败项目可见）
+1. **Landing 首屏**（未登录状态）
+   - Aceternity UI `WavyBackground` 全屏波浪背景
+   - 右上角登录 / 注册按钮
+   - 极简设计，无其他元素
 
-2. **项目卡片组件**（`ProjectCard`）
-   - 标题（单行截断）、状态 Badge、比例图标、目标时长
-   - 相对时间（"3 分钟前"）
-   - 当前 Job 状态（生成中 spinner / 已完成 / 失败）
-   - 操作区：查看详情链接、删除按钮、重试按钮（条件渲染）
+2. **Main App 导航栏**（登录后状态）
+   - 顶部居中三 Tab：`生成视频` / `历史记录` / `订阅升级`
+   - 顶部右侧用户中心按钮（头像 + 下拉菜单）
+   - 当前激活 Tab 高亮指示
 
-3. **状态筛选组件**（`ProjectFilters`）
-   - 横向 Tab 栏：全部 → `undefined`，生成中 → `generating_*` 状态组，已完成 → `completed`，失败 → `failed`
-   - 选中态指示 + 计数（可选）
-   - 与 TanStack Query 的 `status` 参数联动
+3. **Tab 1：生成视频**
+   - 屏幕正中文本框（Textarea）
+   - 文本框右下角"生成"按钮
+   - 提交 → 调 `project.createAndGenerate` → 成功后跳转进度页（或历史记录 Tab）
+   - 防重复提交（`isPending` 时按钮 disabled + spinner）
 
-4. **空状态组件**（`EmptyState`）
-   - 插图 + "还没有项目"文案 + "创建第一个项目" CTA 按钮
+4. **Tab 2：历史记录**
+   - 使用 Aceternity UI `FocusCards` 组件展示已完成/生成中的项目
+   - 每张卡片 = 视频截图（当前阶段用占位图）+ hover 显示标题
+   - 点击卡片 → 跳转视频播放页 `/projects/[id]/play`
+   - 数据源：`project.list` API，筛选 completed + 生成中状态
+   - 生成中项目的自动轮询（`refetchInterval: 10_000`）
+   - 空状态："还没有生成视频，快去创建第一个吧" + CTA
 
-5. **加载骨架屏**（`ProjectCardSkeleton`）
-   - 3 张卡片占位，pulse 动画
+5. **Tab 3：订阅升级**
+   - 简单占位页面（标题 + 几个定价卡片，纯 UI）
+   - 无实际支付逻辑
 
-6. **轻量 mutation 端点**（Dashboard 自包含可用）
-   - `project.delete` mutation：权限校验 → 软删除（标记 `status='deleted'`）→ 乐观更新列表
-   - `generation.retry` mutation：权限校验 → 创建新 GenerationJob → 发送 Inngest 事件 → 刷新列表
-   - 注：ep2-05 将增强为完整的级联删除 / resume 重试 / 取消检查点
+6. **首页路由分流**
+   - `src/app/page.tsx`：根据 `useSession()` 状态分流
+   - `isPending` → 全屏 Loading（防止闪屏）
+   - 未登录 → Landing 首屏
+   - 已登录 → Main App（三 Tab）
 
-7. **首页路由逻辑更新**
-   - `src/app/page.tsx`：已登录用户自动重定向到 `/dashboard`，未登录用户展示 Landing 首屏
-   - Landing 首屏内容（标题、描述、CTA 按钮）作为占位实现，完整 Landing 页在 `ep6-04` 统一
+7. **轻量 mutation 端点**
+   - `project.delete` mutation：权限校验 + 软删除
+   - `generation.retry` mutation：权限校验 + 重建 Job + 发送 Inngest 事件
+   - 注：ep2-05 增强为完整级联删除 / resume 重试 / 取消检查点
+
+8. **视频播放占位页**
+   - `src/app/(protected)/projects/[id]/play/page.tsx`：极简 stub
+   - 显示项目标题 + "视频播放功能即将推出"
 
 ### ❌ 不包含内容
 
-- ❌ 创建项目页面（`ep2-04-create-project-page`）
+- ❌ 完整 Landing 页（Footer、Feature 区、动画）→ `ep6-04`
+- ❌ 实际视频播放器（`ep6-03`）
+- ❌ 创建项目独立页面（已融入"生成视频"Tab）→ `ep2-04` 精简或取消
+- ❌ 视频截图真实图片（依赖 `ep5-07` renderStill）
 - ❌ 项目详情页（`ep2-04` 或独立 Change）
-- ❌ 完整的级联删除 / resume 重试 / 取消 API（`ep2-05`）
-- ❌ 缩略图实际图片（依赖 `ep5-07` renderStill）
-- ❌ 项目编辑功能（Out of Scope）
-- ❌ 全文搜索 / 排序切换
-- ❌ 完整的 Landing 首页设计（`ep6-04`）
+- ❌ 完整级联删除 / resume 重试 / 取消 API（`ep2-05`）
+- ❌ 实际支付 / 订阅逻辑
+- ❌ 全文搜索
 - ❌ 全局导航栏重构（`ep6-04`）
 
 ---
@@ -76,18 +86,20 @@
 
 | 文件 | 操作 | 说明 |
 |------|------|------|
-| `src/app/(protected)/dashboard/page.tsx` | **新建** | Dashboard 主页面（Client Component） |
-| `src/components/project/ProjectCard.tsx` | **新建** | 项目卡片组件 |
-| `src/components/project/ProjectCardSkeleton.tsx` | **新建** | 卡片骨架屏 |
-| `src/components/project/ProjectFilters.tsx` | **新建** | 状态筛选 Tab 栏 |
-| `src/components/project/EmptyState.tsx` | **新建** | 空状态引导组件 |
-| `src/components/project/DeleteProjectDialog.tsx` | **新建** | 删除确认对话框 |
-| `src/components/project/index.ts` | **新建** | 组件 barrel export |
-| `src/app/page.tsx` | **修改** | 登录后重定向 `/dashboard`，未登录展示 Landing 占位 |
-| `src/server/routers/project.ts` | **修改** | 追加 `delete`、`retry` mutation（轻量实现） |
-| `src/server/services/project.service.ts` | **修改** | 追加 `deleteProject`、`retryGeneration`（轻量实现） |
+| `src/app/page.tsx` | **修改** | 替换脚手架 → 登陆态分流（Landing / MainApp） |
+| `src/components/landing/LandingHero.tsx` | **新建** | WavyBackground + 登录/注册按钮 |
+| `src/components/main-app/AppNavbar.tsx` | **新建** | 三 Tab 导航 + 用户中心 |
+| `src/components/main-app/GenerateTab.tsx` | **新建** | 文本输入 + 生成按钮 |
+| `src/components/main-app/HistoryTab.tsx` | **新建** | FocusCards + 空状态 + 加载骨架 |
+| `src/components/main-app/SubscribeTab.tsx` | **新建** | 订阅页占位 |
+| `src/components/main-app/VideoCardSkeleton.tsx` | **新建** | FocusCards 加载骨架 |
+| `src/components/main-app/EmptyState.tsx` | **新建** | 通用空状态组件 |
+| `src/components/main-app/ErrorState.tsx` | **新建** | 通用错误状态组件 |
+| `src/app/(protected)/projects/[id]/play/page.tsx` | **新建** | 视频播放占位页 |
+| `src/server/routers/project.ts` | **修改** | 追加 `delete`、`retry` mutation |
+| `src/server/services/project.service.ts` | **修改** | 追加 `deleteProject`、`retryGeneration` |
 
-**预计新增文件：7 个，修改文件：3 个**
+**预计新增文件：10 个，修改文件：3 个**
 
 ---
 
@@ -97,39 +109,36 @@
 ep2-02 (已完成)
 ├── project.list API（cursor 分页 + status 筛选）
 ├── project.getById API（详情查询）
-├── tRPC client 已就绪（trpc.project.list.useQuery / useInfiniteQuery）
+├── project.createAndGenerate API（ep2-01，创建项目）
+├── tRPC client 已就绪（trpc.*.useQuery / useMutation）
 ├── QueryProvider 已注册（root layout）
-├── (protected) layout 已存在（含 AuthStatus guard）
-├── 56 个 shadcn/ui 组件可用（Card, Badge, Button, AlertDialog, Skeleton 等）
-└── better-auth session（useSession, session.user.id）
+├── (protected) layout 已存在
+├── WavyBackground 组件（src/components/ui/wavy-background.tsx）✅
+├── FocusCards 组件（src/components/ui/focus-cards.tsx）✅
+├── simplex-noise 已安装 ✅
+└── better-auth session（useSession）✅
 ```
 
-**前置 Change：`ep2-02-project-list-detail-api`**（`project.list` 端点已就绪）
+**前置 Change：`ep2-02-project-list-detail-api`**
 
-**并行 Change：`ep2-05-cancel-retry-delete-api`**（本 Change 含轻量 delete/retry stub，ep2-05 增强为完整逻辑；若 ep2-05 先完成，本 Change 可直接调用其完整端点）
+**并行 Change：`ep2-05-cancel-retry-delete-api`**（接口契约见 Key Design Decisions #14）
 
 ---
 
-## Pre-flight Checklist（实现前确认）
-
-在开始写前端代码之前，必须确认以下基线依赖就绪：
+## Pre-flight Checklist
 
 | 检查项 | 状态 | 验证方式 |
 |--------|------|---------|
-| `project.list` API 可正常调用 | ⬜ 待验证 | tRPC panel 或 curl 调用返回分页数据 |
-| `project.getById` API 可正常调用 | ⬜ 待验证 | tRPC panel 或 curl 调用返回项目详情 |
-| `QueryProvider` 已包裹根布局 | ✅ | `src/app/layout.tsx` 第 34-36 行 |
-| `trpc` client 已导出 | ✅ | `src/lib/trpc/client.ts` 第 7 行 |
-| `(protected)` 路由组已存在 | ✅ | `src/app/(protected)/layout.tsx` |
-| `useSession()` 可用 | ✅ | `src/lib/auth-client` 导出 |
-| shadcn/ui Card 组件可用 | ✅ | `src/components/ui/card.tsx` |
-| shadcn/ui Badge 组件可用 | ✅ | `src/components/ui/badge.tsx` |
-| shadcn/ui AlertDialog 组件可用 | ✅ | `src/components/ui/alert-dialog.tsx` |
-| shadcn/ui Skeleton 组件可用 | ✅ | `src/components/ui/skeleton.tsx` |
-| `date-fns` 已安装 | ✅ | `package.json` 第 36 行 `"date-fns": "^4.4.0"` |
-| `lucide-react` 已安装 | ✅ | `package.json` 第 40 行（图标库） |
-| `ep2-01` 测试仍然通过 | ⬜ 待验证 | `npm test` — 确认无回归 |
-| `ep2-02` 测试已通过 | ⬜ 待验证 | `npm test` — 确认 ep2-02 测试通过 |
+| `project.list` API 正常 | ⬜ 待验证 | tRPC panel 调用返回分页数据 |
+| `project.createAndGenerate` API 正常 | ⬜ 待验证 | tRPC panel |
+| `WavyBackground` 组件可用 | ✅ | `src/components/ui/wavy-background.tsx` |
+| `FocusCards` 组件可用 | ✅ | `src/components/ui/focus-cards.tsx` |
+| `simplex-noise` 依赖已安装 | ✅ | `package.json` `"simplex-noise": "^4.0.3"` |
+| `QueryProvider` 已包裹根布局 | ✅ | `src/app/layout.tsx` |
+| `useSession()` 可用 | ✅ | `src/lib/auth-client` |
+| `lucide-react` 已安装 | ✅ | `package.json` |
+| shadcn Skeleton 组件 | ⬜ 待确认 | `src/components/ui/skeleton.tsx` — 不存在则 `npx shadcn@latest add skeleton` |
+| ep2-01 + ep2-02 测试通过 | ⬜ 待验证 | `npm test` |
 
 ---
 
@@ -137,513 +146,528 @@ ep2-02 (已完成)
 
 ### 0. 整体设计原则
 
-本 Change 是第一个前端页面 Change，建立了 **Dashboard 前端组件体系**。核心原则：
-
-- **Client Component 为主**：Dashboard 页面需要交互（筛选、分页、删除确认），使用 `"use client"` + TanStack Query
-- **使用 `useInfiniteQuery`**：匹配后端的 cursor-based 分页语义，天然支持"加载更多"
-- **乐观更新**：删除操作使用乐观更新（先移出列表再确认服务端），提升体感速度
-- **条件渲染**：重试按钮仅对 `status === 'failed'` 的项目可见
-- **复合状态**：一个筛选条件变化 → 重置分页 + 重新请求首页
-- **首屏路由**：`/` 路由根据登录状态分流：已登录 → `/dashboard`，未登录 → Landing 首屏
+- **极简至上**：Landing 只放背景 + 按钮，主页只放文本框 + 导航，无冗余装饰
+- **单页路由**：`/` 根据登录态条件渲染，不产生 301/302 重定向闪烁
+- **认证态优先**：`isPending` 阶段阻塞渲染，避免 Landing → MainApp 闪屏
+- **Aceternity UI 原生使用**：`WavyBackground` 和 `FocusCards` 直接用，不封装
+- **Tab 状态**：客户端 `useState`，不写入 URL（v1 不需要 bookmark 特定 Tab）
 
 ### 1. 路由设计
 
 ```
 src/app/
-├── page.tsx                          # "/" → 登录态检测 → 重定向或 Landing
-├── layout.tsx                        # Root layout（已有 SessionProvider + QueryProvider）
-├── (auth)/                           # 认证页面（已有）
+├── page.tsx                         # "/" → 全部逻辑在此
+├── layout.tsx                       # Root layout（已有 QueryProvider + SessionProvider）
+├── (auth)/                          # 认证页面（已有，不变）
 │   ├── login/page.tsx
 │   ├── signup/page.tsx
 │   └── ...
-└── (protected)/                      # 需登录
-    ├── layout.tsx                    # 已有（navbar + AuthStatus）
-    ├── profile/page.tsx              # 已有
-    └── dashboard/
-        └── page.tsx                  # 🆕 Dashboard 主页面
+└── (protected)/
+    ├── layout.tsx                   # 已有
+    ├── profile/page.tsx             # 已有
+    └── projects/
+        └── [id]/
+            └── play/
+                └── page.tsx         # 🆕 视频播放占位
 ```
 
-**首页分流逻辑（`src/app/page.tsx` 修改）：**
+**`/` 路由是唯一入口**：不单独创建 `/dashboard` 路由。登录后的主页就是 `/` 的已登录态渲染。
+
+### 2. 首页分流逻辑（含闪屏防护）
 
 ```typescript
+// src/app/page.tsx
 "use client";
 
 import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { LandingHero } from "@/components/landing/LandingHero";
+import { MainApp } from "@/components/main-app/MainApp";
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const { data: session, isPending } = useSession();
-  const router = useRouter();
 
-  useEffect(() => {
-    if (session && !isPending) {
-      router.replace("/dashboard");
-    }
-  }, [session, isPending, router]);
+  // 【闪屏防护】isPending 期间全屏 loading，不渲染任何内容
+  // 避免以下两种闪屏：
+  //   1. session 缓存恢复时：Landing 闪现 → MainApp
+  //   2. session 过期时：MainApp 闪现 → Landing
+  if (isPending) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-black">
+        <Loader2 className="h-8 w-8 animate-spin text-white/60" />
+      </div>
+    );
+  }
 
-  // isPending → 全屏 loading spinner
-  // 未登录 → Landing 首屏（标题 + 描述 + 登录/注册 CTA）
+  if (session) {
+    return <MainApp />;
+  }
+
+  return <LandingHero />;
 }
 ```
 
-### 2. 数据流
+### 3. Landing 首屏
 
 ```
-Dashboard (Client Component)
-│
-├─ trpc.project.list.useInfiniteQuery({ pageSize: 12, status })
-│   ├─ data.pages[].items → ProjectCard[]
-│   ├─ data.pages[].nextCursor → hasNextPage
-│   └─ fetchNextPage() → "加载更多"按钮
-│
-├─ trpc.project.delete.useMutation()
-│   ├─ onMutate → 乐观移除卡片
-│   ├─ onSuccess → toast.success("项目已删除")
-│   └─ onError → 恢复卡片 + toast.error
-│
-├─ trpc.generation.retry.useMutation()
-│   ├─ onSuccess → toast.success("已重新开始生成") + 刷新列表
-│   └─ onError → toast.error
-│
-└─ useState<StatusFilter>("all") → 筛选 Tab 状态
-    └─ 变化时 → 重置 useInfiniteQuery（新 status 参数）
+┌──────────────────────────────────────────┐
+│                               [登录] [注册]│  ← 右上角按钮
+│                                          │
+│                                          │
+│          ~ ~ ~ 波浪动画背景 ~ ~ ~         │
+│          (WavyBackground canvas)         │
+│                                          │
+│                                          │
+│                                          │
+│                                          │
+└──────────────────────────────────────────┘
 ```
 
-### 3. 状态筛选映射
-
-| Tab | 标签文案 | API `status` 参数 | 说明 |
-|-----|---------|------------------|------|
-| 全部 | `"全部"` | `undefined`（不传） | 查询所有项目 |
-| 生成中 | `"生成中"` | 客户端过滤 | `status` 为 `queued` / `generating_storyboard` / `generating_audio` / `calculating_timeline` / `rendering` 的项目 |
-| 已完成 | `"已完成"` | `"completed"` | 仅 completed |
-| 失败 | `"失败"` | `"failed"` | 仅 failed |
-
-**筛选策略选择：**
-
-| 策略 | 优点 | 缺点 | 采用 |
-|------|------|------|------|
-| 全部传 `status` 给 API | 精确，与后端一致 | "生成中"是 5 个状态的组合，单次 API 只能传一个 status | ❌ |
-| 全部拉取所有数据，客户端过滤 | 切换 Tab 无请求 | 数据量大时浪费 | ❌ |
-| **混合**：全部/已完成/失败 → API `status` 过滤；生成中 → 拉全部 + 客户端过滤 | 平衡请求和灵活性 | "生成中" Tab 需拉全量数据 | ✅ |
-
-**"生成中"筛选的客户端过滤函数：**
+**实现要点：**
 
 ```typescript
-const IN_PROGRESS_STATUSES = [
-  "queued",
-  "generating_storyboard",
-  "generating_audio",
-  "calculating_timeline",
-  "rendering",
-] as const;
+// src/components/landing/LandingHero.tsx
+import Link from "next/link";
+import { WavyBackground } from "@/components/ui/wavy-background";
+import { Button } from "@/components/ui/button";
 
-const isInProgress = (status: string) =>
-  IN_PROGRESS_STATUSES.includes(status as typeof IN_PROGRESS_STATUSES[number]);
+export function LandingHero() {
+  return (
+    <WavyBackground
+      backgroundFill="black"
+      blur={10}
+      speed="fast"
+    >
+      {/* 右上角按钮区 */}
+      <div className="fixed top-4 right-4 z-20 flex items-center gap-3">
+        <Link href="/login">
+          <Button variant="outline" size="sm">登录</Button>
+        </Link>
+        <Link href="/signup">
+          <Button size="sm">注册</Button>
+        </Link>
+      </div>
+    </WavyBackground>
+  );
+}
 ```
 
-> **设计理由：** "生成中"涵盖 5 种 backend 状态，API 的 `status` 参数只能传单个值。如果后续需要更精确的后端筛选，可以在 `ep2-05` 或 `ep7-01` 中扩展 API 支持 `status: string[]` 或 `statusGroup` 参数。当前混合策略简单实用，Dashboard 初期项目数量少，全量数据客户端过滤无性能问题。
+**极简原则：**
+- 不放大标题（标题由 app metadata 的 `<title>` 承担）
+- 不放副标题 / 描述 / CTA
+- 不放"了解更多"按钮（避免 `#features` 锚点指向不存在区块的问题）
+- 仅波浪背景 + 登录/注册按钮
+- 用户通过浏览器标签页标题识别站点
 
-### 4. 分页交互
-
-```
-┌───────────────────────────────────────┐
-│  [项目卡片 1]  [项目卡片 2]  [项目卡片 3] │
-│  [项目卡片 4]  [项目卡片 5]  [项目卡片 6] │
-│  ...                                  │
-│  [项目卡片 n]                          │
-│                                       │
-│         [ 加载更多 ▼ ]                 │
-│         显示 12 / 42 个项目            │
-└───────────────────────────────────────┘
-```
-
-- 使用 `useInfiniteQuery` + `fetchNextPage`
-- 每页 12 个项目
-- `hasNextPage` 根据 `lastPage.nextCursor !== null` 判断
-- "加载更多"按钮触发 `fetchNextPage()`
-- `isFetchingNextPage` 时按钮显示 spinner
-- `hasNextPage === false` 时按钮消失，显示"已显示全部 N 个项目"
-
-### 5. 项目卡片设计
-
-#### 5.1 布局
+### 4. Main App 导航栏
 
 ```
-┌──────────────────────┐
-│  ┌─────────────────┐ │
-│  │  比例图标 16:9  │ │  ← aspectRatio icon
-│  └─────────────────┘ │
-│                       │
-│  深入理解Transformer  │  ← title（单行截断，font-semibold）
-│  架构                 │
-│                       │
-│  [completed] [16:9]  │  ← status Badge + 比例标签
-│                       │
-│  目标时长: 2 分钟     │  ← targetDurationSec 格式化
-│                       │
-│  3 分钟前             │  ← relative time（text-muted-foreground）
-│                       │
-│  ───────────────────  │
-│                       │
-│  [查看] [重试] [删除] │  ← 操作按钮区
-└──────────────────────┘
+┌──────────────────────────────────────────────────┐
+│                                                  │
+│     [生成视频]   [历史记录]   [订阅升级]    [👤]  │
+│                                                  │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│              (当前 Tab 内容区)                    │
+│                                                  │
+└──────────────────────────────────────────────────┘
 ```
 
-#### 5.2 状态 Badge 配色（使用 shadcn Badge variant）
-
-| Status | Badge variant | 显示文案 | 附加 |
-|--------|--------------|---------|------|
-| `queued` | `secondary` | 排队中 | — |
-| `generating_storyboard` | `secondary` | 生成分镜中 | spinner 动画 |
-| `storyboard_ready` | `default` | 分镜就绪 | — |
-| `generating_audio` | `secondary` | 生成语音中 | spinner 动画 |
-| `calculating_timeline` | `secondary` | 计算时间轴 | spinner 动画 |
-| `rendering` | `secondary` | 渲染中 | spinner 动画 |
-| `completed` | `success`（自定义绿色） | 已完成 | ✓ 图标 |
-| `failed` | `destructive` | 失败 | ✗ 图标 |
-| `cancelled` | `outline` | 已取消 | — |
-
-> **自定义 Badge variant：** shadcn Badge 默认有 `default / secondary / destructive / outline`。`success` variant 需要扩展 Badge 组件的 `badgeVariants`。或者使用 `default` + 绿色文字/边框的组合样式。
-
-**简化方案：** 为避免修改全局 Badge 组件影响其他页面，在 `ProjectCard` 内部使用自定义 className 控制 Badge 颜色，不新增 variant。
-
-```
-status === "completed" → "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-status === "failed"    → "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-status === "cancelled" → "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-其他                   → shadcn Badge variant="secondary"（默认灰）
-```
-
-#### 5.3 相对时间格式化
-
-使用 `date-fns` 的 `formatDistanceToNow`：
+**布局方案：**
 
 ```typescript
-import { formatDistanceToNow } from "date-fns";
-import { zhCN } from "date-fns/locale";
+// src/components/main-app/AppNavbar.tsx
+export function AppNavbar({ activeTab, onTabChange, ... }: Props) {
+  return (
+    <nav className="fixed top-0 inset-x-0 z-50 h-14 border-b bg-background/80 backdrop-blur">
+      <div className="flex h-full items-center justify-between px-4 max-w-5xl mx-auto">
+        {/* 左侧占位 — 保持三个 Tab 居中 */}
+        <div className="w-20" />
 
-formatDistanceToNow(new Date(project.createdAt), {
-  addSuffix: true,
-  locale: zhCN,
-});
-// → "约 3 分钟前" / "1 天前" / "5 天前"
+        {/* 居中导航 */}
+        <div className="flex items-center gap-1">
+          {TABS.map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => onTabChange(tab.key)}
+              className={cn(
+                "px-4 py-1.5 text-sm rounded-md transition-colors",
+                activeTab === tab.key
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* 右侧用户中心 */}
+        <div className="w-20 flex justify-end">
+          <UserMenu />
+        </div>
+      </div>
+    </nav>
+  );
+}
 ```
 
-#### 5.4 操作按钮逻辑
+**移动端处理（三 Tab）：**
 
-| 按钮 | 可见条件 | 行为 |
-|------|---------|------|
-| 查看 | 始终可见 | `<Link href={/projects/${projectId}/progress}>` |
-| 重试 | `status === 'failed'` 或 `status === 'cancelled'` | 点击 → `retryGeneration({ projectId })` |
-| 删除 | 始终可见 | 点击 → 打开 `DeleteProjectDialog` |
+3 个 Tab 在 375px 手机上不会溢出（每个约 70-80px，总计 ≈240px + 左右占位）。如果未来多于 3 个 Tab，使用 `overflow-x: auto` 横向滚动。当前版本无需处理。
 
-### 6. 删除确认 Dialog
+**`UserMenu` 组件**（内联在 AppNavbar 或独立文件）：
+- 使用 shadcn `DropdownMenu`
+- 触发按钮：`Avatar`（头像 fallback 取 `session.user.name?.[0]`）
+- 菜单项：个人中心（→ `/profile`）、退出登录
 
-```
-┌─────────────────────────────────┐
-│  确认删除                        │
-│                                 │
-│  确定要删除项目"深入理解          │
-│  Transformer架构"吗？            │
-│                                 │
-│  此操作不可撤销，项目相关的       │
-│  所有数据将被永久删除。           │
-│                                 │
-│  [取消]              [确认删除]  │
-│       (outline)    (destructive) │
-└─────────────────────────────────┘
-```
-
-- 使用 shadcn `AlertDialog` 组件
-- 描述文本包含项目标题
-- 确认按钮为 `variant="destructive"`
-- 确认后调用 `deleteProject` mutation
-- 乐观更新：`onMutate` 时从当前页数据中移除该卡片
-- 失败回滚：`onError` 时恢复数据 + toast 错误提示
-
-### 7. 空状态
+### 5. Tab 1：生成视频
 
 ```
-┌───────────────────────────────────┐
-│                                   │
-│          [插图/图标]               │
-│                                   │
-│        还没有项目                  │
-│    创建你的第一个AI微课视频吧       │
-│                                   │
-│    [✦ 创建项目]  ← CTA 按钮        │
-│                                   │
-└───────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│                                          │
+│                                          │
+│         ┌──────────────────────┐         │
+│         │                      │         │
+│         │  粘贴文本或链接...    │         │
+│         │                      │         │
+│         │                      │         │
+│         │              [生成 ✦]│         │
+│         └──────────────────────┘         │
+│                                          │
+│                                          │
+└──────────────────────────────────────────┘
 ```
 
-- 图标：使用 `lucide-react` 的 `FileVideo` 或 `Clapperboard` 图标
-- CTA 按钮：`<Link href="/create">`，使用 `Button` + 主色
+**实现要点：**
 
-### 8. 加载骨架屏
+```typescript
+// src/components/main-app/GenerateTab.tsx
+export function GenerateTab() {
+  const [text, setText] = useState("");
+  const utils = trpc.useUtils();
+  
+  const createMutation = trpc.project.createAndGenerate.useMutation({
+    onSuccess: (data) => {
+      setText(""); // 清空输入
+      // 跳转到历史记录 Tab 或进度页
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  // 【防重复提交】mutation 进行中时按钮 disabled
+  const isPending = createMutation.isPending;
+
+  const handleSubmit = () => {
+    if (!text.trim() || isPending) return;
+    createMutation.mutate({
+      title: text.slice(0, 50),
+      sourceText: text,
+      aspectRatio: "16:9",
+      targetDurationSec: 120,
+      audienceRole: "student",
+      audienceLevel: "intermediate",
+      voiceProvider: "minimax",
+      voiceId: "male-qn-qingse",
+    });
+  };
+
+  return (
+    <div className="flex-1 flex items-center justify-center px-4">
+      <div className="relative w-full max-w-2xl">
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="粘贴文本或链接..."
+          className="min-h-[200px] resize-none pr-16 pb-12"
+          disabled={isPending}
+        />
+        <Button
+          size="sm"
+          onClick={handleSubmit}
+          disabled={isPending || !text.trim()}
+          className="absolute bottom-3 right-3"
+        >
+          {isPending && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+          生成
+        </Button>
+      </div>
+    </div>
+  );
+}
+```
+
+**配置项简化（v1 硬编码）：**
+- `aspectRatio`: 固定 `"16:9"`
+- `targetDurationSec`: 固定 `120`
+- `audienceRole` / `audienceLevel`: 固定 `"student"` / `"intermediate"`
+- `voiceProvider` / `voiceId`: 固定 `"minimax"` / `"male-qn-qingse"`
+- 配置面板（参数调节）→ `ep2-04` 或后续迭代
+
+### 6. Tab 2：历史记录
 
 ```
-┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
-│  ┌────────────────┐  │  │  ┌────────────────┐  │  │  ┌────────────────┐  │
-│  │  ████████████  │  │  │  │  ████████████  │  │  │  │  ████████████  │  │
-│  └────────────────┘  │  │  └────────────────┘  │  │  └────────────────┘  │
-│                       │  │                       │  │                       │
-│  ██████████████████   │  │  ██████████████████   │  │  ██████████████████   │
-│                       │  │                       │  │                       │
-│  [██████] [████]     │  │  [██████] [████]     │  │  [██████] [████]     │
-│                       │  │                       │  │                       │
-│  ██████████           │  │  ██████████           │  │  ██████████           │
-│                       │  │                       │  │                       │
-│  ████████████         │  │  ████████████         │  │  ████████████         │
-│                       │  │                       │  │                       │
-│  ───────────────────  │  │  ───────────────────  │  │  ───────────────────  │
-│                       │  │                       │  │                       │
-│  [████] [████] [████] │  │  [████] [████] [████] │  │  [████] [████] [████] │
-└──────────────────────┘  └──────────────────────┘  └──────────────────────┘
+┌──────────────────────────────────────────┐
+│                                          │
+│   ┌─────────┐ ┌─────────┐ ┌─────────┐   │
+│   │ 截图 1   │ │ 截图 2   │ │ 截图 3   │   │
+│   │         │ │         │ │         │   │
+│   │ 项目A   │ │ 项目B   │ │ 项目C   │   │
+│   └─────────┘ └─────────┘ └─────────┘   │
+│                                          │
+│   (hover 时其他卡片 blur，当前卡片       │
+│    显示标题 overlay)                     │
+│                                          │
+└──────────────────────────────────────────┘
 ```
 
-- 3 张骨架卡片（`ProjectCardSkeleton`），与真实卡片等宽等结构
-- 使用 shadcn `Skeleton` 组件 + `animate-pulse`
-- 响应式：1/2/3 列与真实卡片一致
+**数据获取：**
 
-### 9. 错误状态
+```typescript
+// src/components/main-app/HistoryTab.tsx
+export function HistoryTab() {
+  const { data, isLoading, isError, error, refetch } =
+    trpc.project.list.useQuery(
+      {
+        pageSize: 50,        // 历史记录一次性加载足够多
+        status: "completed", // 先只展示已完成的
+      },
+      {
+        // 【轮询策略】每 10 秒刷新，追踪生成中项目变为已完成
+        refetchInterval: 10_000,
+        // staleTime 继承全局 60s，轮询保证及时性
+      }
+    );
+
+  // ...
+}
+```
+
+**图片占位策略（renderStill 尚未实现）：**
+
+在 `ep5-07` renderStill 就绪之前，视频截图使用纯色渐变占位：
+
+```typescript
+function getPlaceholderSrc(title: string): string {
+  // 根据标题 hash 生成稳定的渐变色
+  // 实际实现：返回 data-uri SVG gradient 或用 CSS background
+  // 方案：使用 canvas 生成 → toDataURL，或直接用 CSS linear-gradient inline style
+}
+```
+
+**简化方案**：直接给 FocusCards 的 `src` 传入一个纯色 SVG data URI：
+
+```typescript
+const PLACEHOLDER_COLORS = ["#6366f1", "#8b5cf6", "#d946ef", "#f43f5e", "#14b8a6"];
+
+function getPlaceholderSrc(index: number): string {
+  const color = PLACEHOLDER_COLORS[index % PLACEHOLDER_COLORS.length];
+  // 200×300 纯色 SVG，适配不同屏幕
+  return `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+      <rect fill="${color}" width="400" height="300"/>
+      <text x="200" y="150" text-anchor="middle" fill="white" font-size="24" font-family="sans-serif">🎬</text>
+    </svg>`
+  )}`;
+}
+```
+
+> ⚠️ 当 `ep5-07` renderStill 实现后，将 `src` 替换为 `asset.getSignedUrl({ assetId: scene.imageAssetId })`。
+
+**空状态：**
+
+```typescript
+if (!isLoading && data?.items.length === 0) {
+  return (
+    <EmptyState
+      icon={<Clapperboard className="h-16 w-16 text-muted-foreground/30" />}
+      title="还没有生成视频"
+      description="快去创建第一个AI微课视频吧"
+      actionLabel="开始生成"
+      onAction={() => onTabChange("generate")}  // 切到生成 Tab
+    />
+  );
+}
+```
+
+### 7. Tab 3：订阅升级
 
 ```
-┌───────────────────────────────────┐
-│                                   │
-│          [AlertCircle 图标]        │
-│                                   │
-│       加载项目列表失败              │
-│    请检查网络连接后重试             │
-│                                   │
-│    [重新加载]  ← 重试按钮           │
-│                                   │
-└───────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│                                          │
+│           选择适合你的方案                │
+│                                          │
+│   ┌──────────┐ ┌──────────┐ ┌──────────┐│
+│   │  免费版   │ │  专业版   │ │  企业版   ││
+│   │          │ │          │ │          ││
+│   │ ¥0/月   │ │ ¥29/月  │ │ ¥99/月  ││
+│   │ 1次/天  │ │ 10次/天 │ │ 无限    ││
+│   │          │ │          │ │          ││
+│   │ [当前]   │ │ [升级]   │ │ [联系]   ││
+│   └──────────┘ └──────────┘ └──────────┘│
+│                                          │
+│          (纯展示，无支付逻辑)             │
+│                                          │
+└──────────────────────────────────────────┘
 ```
 
-- 当 `useInfiniteQuery` 的 `isError` 为 true 时显示
-- 使用 `error.message` 作为错误详情（若为网络错误则显示通用文案）
-- "重新加载"按钮调用 `refetch()`
+**实现：** 纯静态 UI，三张定价卡片（使用 shadcn Card），一个"当前方案"高亮。不接入任何支付 SDK。
+
+### 8. 数据流总结
+
+```
+page.tsx
+├─ useSession()
+│   ├─ isPending → Loader2
+│   ├─ !session → LandingHero
+│   │   └─ WavyBackground (canvas animation)
+│   │       └─ 登录/注册 Link
+│   └─ session → MainApp
+│       ├─ AppNavbar (useState tab)
+│       ├─ Tab "generate" → GenerateTab
+│       │   └─ trpc.project.createAndGenerate.useMutation()
+│       ├─ Tab "history" → HistoryTab
+│       │   ├─ trpc.project.list.useQuery({ status: "completed" })
+│       │   ├─ refetchInterval: 10_000 (追踪生成中→已完成)
+│       │   ├─ FocusCards (cards = items → {title, src})
+│       │   ├─ isLoading → VideoCardSkeleton
+│       │   ├─ isError → ErrorState
+│       │   └─ empty → EmptyState
+│       └─ Tab "subscribe" → SubscribeTab
+│           └─ 静态定价卡片
+```
+
+### 9. 加载 / 空 / 错误状态矩阵
+
+| 状态 | Landing 首屏 | 生成 Tab | 历史 Tab | 订阅 Tab |
+|------|-------------|---------|---------|---------|
+| 首次加载 | —（canvas 渲染即展示） | —（无数据请求） | 3 张 FocusCards 骨架占位 | —（纯静态） |
+| 请求中（切换后） | — | — | 保留旧数据 + 顶部 spinner（不闪白） | — |
+| mutation 中 | — | 按钮 disabled + spinner | — | — |
+| 空数据 | — | — | EmptyState | — |
+| 错误 | — | toast 提示 | ErrorState + 重试按钮 | — |
+
+**关键区分——"首次加载"与"切换后加载"：**
+- **首次进入历史 Tab**：`isLoading=true`，显示骨架屏
+- **从其他 Tab 切回历史 Tab**（数据可能已过期）：TanStack Query 自动使用缓存先展示旧数据 + 顶部 spinner 指示 fetching
+- **避免闪白**：不使用 `isLoading` 清空数据再渲染，而是"stale-while-revalidate"模式
 
 ### 10. 响应式布局
 
-| 断点 | 列数 | 卡片间距 |
-|------|------|---------|
-| `< 640px` (mobile) | 1 列 | `gap-4` |
-| `640px–1024px` (tablet) | 2 列 | `gap-6` |
-| `> 1024px` (desktop) | 3 列 | `gap-6` |
+| 断点 | Landing | 导航栏 | 生成 Tab 文本框 | FocusCards |
+|------|---------|--------|----------------|-----------|
+| `< 640px` | 全屏波浪 + 右上按钮 | 三 Tab + 用户图标 | `max-w-full` | 1 列 |
+| `640-1024px` | 同上 | 同上 | `max-w-xl` | 2 列 |
+| `> 1024px` | 同上 | 同上 | `max-w-2xl` | 3 列 |
 
-使用 Tailwind grid：`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6`
+**移动端导航栏验证：**
+- 3 个 Tab（生成视频/历史记录/订阅升级）≈ 240px + 用户图标 40px = 280px < 375px
+- 不需要横向滚动
+- 若后续添加第 4 个 Tab → 使用 `overflow-x: auto` + `flex-shrink-0` + `scrollbar-hide`
 
-### 11. 首页路由（Landing vs Dashboard）
+### 11. 轻量 delete / retry mutation
 
-用户要求：**未登录 → 首屏展示，登录后 → Dashboard**。
+> **ep2-05 接口契约**：本 Change 与 ep2-05 共享相同的 mutation 签名。ep2-05 保证向后兼容——输入/输出类型不变，仅增强内部逻辑（级联删除、resume 重试、取消检查点）。
 
-```
-/page.tsx 渲染逻辑：
+**`project.delete`：**
 
-┌─ useSession() ─┐
-│                 │
-│  isPending?     │──Yes──▶ 全屏 Loading Spinner
-│                 │
-│  session exists?│──Yes──▶ router.replace("/dashboard")
-│                 │
-│  (unauthenticated)     ▶ Landing 首屏
-└─────────────────┘
-```
+| 项目 | 说明 |
+|------|------|
+| tRPC 路径 | `project.delete` |
+| Input | `{ projectId: string }` |
+| Output | `{ success: true }` |
+| 权限 | owner 或 admin |
+| 本 Change 逻辑 | 权限校验 → `update Project.status = "deleted"` |
+| ep2-05 增强 | 级联标记 Asset deleted → 删除 R2 文件 → 物理删除 |
 
-**Landing 首屏内容（ep2-03 中的占位版本）：**
+**`project.retry`：**
 
-- 标题：`Volcano AI 微课视频`
-- 副标题：`将文本一键转化为专业微课视频`
-- 两个 CTA 按钮：`开始使用`（→ `/login`）、`了解更多`（→ `#features`）
-- 背景：渐变色 + 装饰元素
-- ⚠️ 完整 Landing 页设计（动画、Feature 区、Footer）在 `ep6-04-global-layout-nav` 中实现
+| 项目 | 说明 |
+|------|------|
+| tRPC 路径 | `project.retry` |
+| Input | `{ projectId: string }` |
+| Output | `{ jobId: string }` |
+| 权限 | owner 或 admin |
+| 本 Change 逻辑 | 权限校验 → `update status="queued"` → 创建 GenerationJob → 发送 Inngest 事件 |
+| ep2-05 增强 | resume 模式（跳过已完成步骤）→ 取消检查点集成 → 并发限制 |
 
-### 12. 轻量 delete / retry mutation（本 Change 实现）
+### 12. 键盘无障碍（a11y）
 
-#### 12.1 `project.delete`
+| 元素 | 实现方式 |
+|------|---------|
+| 导航 Tab | `<button>` + `onClick`，天然支持 Tab/Enter |
+| Tab 切换 | 不实现箭头键切换（3 个 Tab，Tab 键直达即可） |
+| 生成按钮 | `<Button disabled>`，防重复 |
+| FocusCards | 每个卡片是 `<div>`，不可 Tab 聚焦（点击由 Link 包裹层处理） |
+| 视频截图可点击 | 卡片外层包裹 `<Link>` → Tab 键可达 + Enter 跳转 |
+| AlertDialog | shadcn 默认按 WAI-ARIA 实现（焦点锁定、Escape 关闭） |
 
-```
-tRPC: project.delete
-Input: { projectId: string }
+### 13. date-fns 中文 locale 验证
 
-逻辑（轻量版）：
-1. protectedProcedure（需登录）
-2. 查询 Project → 权限校验（userId === ctx.userId || ctx.isAdmin）
-3. 更新 Project.status = "deleted"（软删除，不级联清理）
-4. 返回 { success: true }
+`date-fns@4.4.0` + `zhCN` locale 的 `formatDistanceToNow` 输出验证：
 
-注：ep2-05 增强为：
-  - 级联标记所有关联 Asset 为 deleted
-  - 删除 R2 文件
-  - 物理删除或归档 DB 记录
-```
+| 时间差 | 预期输出 | 实际需验证 |
+|--------|---------|-----------|
+| < 30 秒 | "不到 1 分钟前" | `formatDistanceToNow` 默认输出 "less than a minute ago" → zhCN 后待确认 |
+| 5 分钟前 | "5 分钟前" | ✅ 大概率正确 |
+| 1 小时前 | "约 1 小时前" | 待验证 |
+| 昨天 | "1 天前" | 待验证 |
+| 7 天前 | "7 天前" | 待验证 |
 
-#### 12.2 `generation.retry`
-
-```
-tRPC: generation.retry
-Input: { projectId: string }
-
-逻辑（轻量版）：
-1. protectedProcedure（需登录）
-2. 查询 Project → 权限校验
-3. 更新 Project.status = "queued"
-4. 创建新的 GenerationJob（jobType="storyboard", status="pending"）
-5. 发送 Inngest 事件 "video/generate.requested"
-6. 返回 { jobId: string }
-
-注：ep2-05 增强为：
-  - resume 模式（检查已有 Storyboard/Audio → 跳过已完成步骤）
-  - 取消检查点集成
-  - 并发限制校验
-```
-
-### 13. 组件目录结构
-
-```
-src/components/project/
-├── index.ts                    # barrel export
-├── ProjectCard.tsx             # 项目卡片
-├── ProjectCardSkeleton.tsx     # 卡片骨架屏
-├── ProjectFilters.tsx          # 状态筛选 Tab
-├── EmptyState.tsx              # 空状态
-└── DeleteProjectDialog.tsx     # 删除确认对话框
-```
-
-每个组件独立文件，通过 `index.ts` 统一导出。
+**实现时验证步骤：**
+1. 在 HistoryTab 中打印 `formatDistanceToNow(subDays(new Date(), 1), { addSuffix: true, locale: zhCN })` 到 console
+2. 如果输出不自然（如"大约 1 分钟前"太冗长），使用自定义格式化函数替换
+3. 本 Change 中历史记录 Tab 使用相对时间显示项目创建时间
 
 ---
 
 ## Implementation Steps
 
-### Step 0: 基线验证（前置条件）
+### Step 0: 基线验证
 
-- 运行 `npm test` 确认 ep2-01 + ep2-02 所有测试通过
-- 启动 `npm run dev`，在 tRPC panel 验证 `project.list` 可正常调用
-- 确认 `src/app/(protected)/layout.tsx` 的 AuthStatus 能正确拦截未登录用户
+- `npm test` — 确认 ep2-01 + ep2-02 测试全部通过
+- `npm run dev` — 确认 WavyBackground 和 FocusCards 组件无 import 报错
+- 若 `skeleton.tsx` 不存在 → `npx shadcn@latest add skeleton`
+- 确认 `useSession()` 在 `page.tsx` 中可正常调用
 
-### Step 1: 实现轻量 delete / retry mutation 端点
+### Step 1: 轻量 mutation 端点 + 首页路由
 
-- 在 `src/server/services/project.service.ts` 追加：
-  - `deleteProject(projectId, userId, isAdmin)`：权限校验 + 软删除
-  - `retryGeneration(projectId, userId, isAdmin)`：重建 Job + 发送 Inngest 事件
-  - 新增 `ProjectDeleteDeniedError`（权限校验失败）
-- 在 `src/server/routers/project.ts` 追加：
-  - `delete: protectedProcedure.input(z.object({ projectId: z.string().min(1) })).mutation(...)`
-  - `retry: protectedProcedure.input(z.object({ projectId: z.string().min(1) })).mutation(...)`
-  - 错误映射
-- 编写 router 集成测试（delete/retry 各 3 个用例）
-- 运行 `npm test` 确认通过
+- 在 `project.service.ts` 追加 `deleteProject`、`retryGeneration`（轻量版）
+- 在 `project.ts` router 追加 `delete`、`retry` mutation + Zod schema
+- 编写 router 集成测试（delete + retry 各 3 个用例）
+- 修改 `src/app/page.tsx`：`isPending` → Loader / `session` → MainApp / `!session` → LandingHero
+- `npm test` 确认通过
 
-### Step 2: 实现组件
+### Step 2: Landing 首屏 + MainApp 骨架
 
-按顺序实现以下组件（每个组件完成后写对应单元/集成测试）：
+- 创建 `LandingHero.tsx`：WavyBackground + 登录/注册按钮
+- 创建 `AppNavbar.tsx`：三 Tab + UserMenu
+- 创建 `MainApp.tsx`（或内联在 page.tsx）：组合 AppNavbar + 条件渲染各 Tab
+- 验证：未登录 → Landing，登录 → 三 Tab 可切换（内容区先空）
 
-1. **`ProjectCardSkeleton.tsx`**
-   - 使用 shadcn Skeleton 组件
-   - 宽度与真实卡片一致
-   - 响应式（跟随父 grid 自适应）
+### Step 3: 三个 Tab 内容
 
-2. **`EmptyState.tsx`**
-   - Props: `title`, `description`, `actionLabel`, `actionHref`
-   - 使用 `lucide-react` 图标
+- 创建 `GenerateTab.tsx`：Textarea + 提交按钮 + 防重复
+- 创建 `HistoryTab.tsx`：`project.list.useQuery` + FocusCards + 空状态 + 骨架 + 轮询
+- 创建 `SubscribeTab.tsx`：三张定价卡片
+- 创建 `EmptyState.tsx`、`ErrorState.tsx`、`VideoCardSkeleton.tsx`
 
-3. **`ProjectCard.tsx`**
-   - Props: `project: ProjectListItem`
-   - 集成 status badge、相对时间、操作按钮
-   - 使用 `date-fns/formatDistanceToNow` + `zhCN` locale
-   - 重试按钮条件渲染
-   - 集成 `DeleteProjectDialog`
+### Step 4: 视频播放占位页
 
-4. **`DeleteProjectDialog.tsx`**
-   - 使用 shadcn `AlertDialog`
-   - Props: `projectTitle`, `projectId`, `open`, `onOpenChange`
-   - 内部调用 `trpc.project.delete.useMutation()`
-   - onSuccess → toast + onOpenChange(false)
-
-5. **`ProjectFilters.tsx`**
-   - Props: `value: StatusFilter`, `onChange: (v: StatusFilter) => void`
-   - 4 个 Tab、横向排列
-
-### Step 3: 实现 Dashboard 页面
-
-- 创建 `src/app/(protected)/dashboard/page.tsx`
-- **状态管理：**
-  ```typescript
-  type StatusFilter = "all" | "in_progress" | "completed" | "failed";
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  ```
-- **数据获取：**
-  ```typescript
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = trpc.project.list.useInfiniteQuery(
-    {
-      pageSize: 12,
-      status: statusFilter === "in_progress"
-        ? undefined  // 拉全部 + 客户端过滤
-        : statusFilter === "all"
-        ? undefined
-        : statusFilter, // "completed" | "failed" 直接传给 API
-    },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-    }
-  );
-  ```
-- **客户端过滤（仅"生成中" Tab）：**
-  ```typescript
-  const allItems = useMemo(
-    () => data?.pages.flatMap((page) => page.items) ?? [],
-    [data]
-  );
-
-  const filteredItems = useMemo(() => {
-    if (statusFilter !== "in_progress") return allItems;
-    return allItems.filter((item) => IN_PROGRESS_STATUSES.includes(item.status));
-  }, [allItems, statusFilter]);
-  ```
-- **渲染逻辑：**
-  ```
-  isLoading        → <ProjectCardSkeleton /> × 3
-  isError          → <ErrorState message={error.message} onRetry={refetch} />
-  filteredItems=[] → <EmptyState />
-  正常              → grid + <ProjectCard /> + "加载更多"按钮
-  ```
-- **筛选切换时重置查询：** 使用 `useEffect` 或 TanStack Query 的 `queryKey` 包含 `statusFilter`
-
-### Step 4: 修改首页路由
-
-- 修改 `src/app/page.tsx`：
-  - `useSession()` 获取登录态
-  - `isPending` → 全屏 Loading Spinner
-  - `session` 存在 → `router.replace("/dashboard")`
-  - 未登录 → 展示 Landing 首屏（占位版）
-- Landing 首屏内容：
-  - 大标题 + 副标题 + 两个 CTA 按钮
-  - 居中布局、渐变背景
+- 创建 `src/app/(protected)/projects/[id]/play/page.tsx`
+- 显示项目标题 + "即将推出"提示
+- 使用 `project.getById.useQuery({ projectId })` 获取标题
 
 ### Step 5: 集成验证
 
 - `npm run dev` 启动
-- 未登录访问 `/` → 看到 Landing 首屏
-- 登录后自动跳转 `/dashboard`
-- 创建 3 个测试项目（通过 tRPC panel 调用 `project.createAndGenerate`）
-- Dashboard 显示 3 张卡片
-- 切换筛选 Tab：全部(3) → 已完成 → 失败
-- 点击"加载更多"（若项目数 > 12）
-- 点击删除 → AlertDialog → 确认 → 卡片消失 + toast
-- 点击重试 → toast + 状态更新
-- 删除所有项目 → 看到空状态
+- 未登录 → Landing 波浪背景 + 右上登录/注册
+- 登录 → MainApp（默认"生成视频"Tab）
+- 输入文本 → 点生成 → loading → 项目创建成功
+- 切到"历史记录"Tab → 看到刚创建的项目（若已完成）/ 空状态（若未完成）
+- 切换到"订阅"Tab → 三张定价卡
 - `npm run lint` 无新增错误
 - `npm test` 全部通过
 
@@ -651,121 +675,110 @@ src/components/project/
 
 ## Acceptance Criteria
 
-### AC1: 页面访问与鉴权
-**Given** 用户已登录
-**When** 访问 `/dashboard`
-**Then** 显示 Dashboard 页面，标题为"我的项目"
-
-### AC2: 未登录重定向
+### AC1: Landing 首屏
 **Given** 用户未登录
-**When** 访问 `/`（首页）
-**Then** 显示 Landing 首屏（标题 + CTA 按钮）
-**And** 不显示 Dashboard
+**When** 访问 `/`
+**Then** 全屏 WavyBackground 波浪动画背景
+**And** 右上角显示"登录"和"注册"两个按钮
+**And** 无标题、副标题、CTA 等其他元素
 
-### AC3: 登录后自动跳转
+### AC2: 闪屏防护
+**Given** 用户有有效 session 缓存
+**When** 访问 `/`（session 正在恢复中，`isPending=true`）
+**Then** 全屏 Loading spinner
+**And** 不闪现 Landing 再切换到 MainApp
+
+### AC3: 登录后主页
 **Given** 用户已登录
-**When** 访问 `/`（首页）
-**Then** 自动重定向到 `/dashboard`
+**When** 访问 `/`
+**Then** 显示 MainApp（三 Tab 导航栏 + 内容区）
+**And** 默认激活"生成视频"Tab
 
-### AC4: 项目列表—正常展示
-**Given** 用户有 3 个项目（含 completed、failed、queued 各 1 个）
-**When** 进入 Dashboard，筛选=全部
-**Then** 显示 3 张项目卡片，按 `createdAt` 降序排列
-**And** 每张卡片显示：标题、状态 Badge、比例、时长、相对时间、操作按钮
+### AC4: 导航栏
+**Given** 用户已登录
+**When** 查看 MainApp
+**Then** 顶部居中显示三个 Tab：`生成视频` / `历史记录` / `订阅升级`
+**And** 顶部右侧显示用户头像按钮
+**And** 当前激活 Tab 有高亮样式
 
-### AC5: 状态筛选—全部
-**Given** 用户有 3 个项目
-**When** 选择筛选 Tab "全部"
-**Then** 显示 3 张卡片
+### AC5: Tab 切换
+**Given** 用户在"生成视频"Tab
+**When** 点击"历史记录"Tab
+**Then** 内容区切换到历史记录
+**And** "历史记录"Tab 高亮，"生成视频"Tab 恢复默认
 
-### AC6: 状态筛选—已完成
-**Given** 用户有 3 个项目（1 completed, 1 failed, 1 queued）
-**When** 选择筛选 Tab "已完成"
-**Then** 仅显示 1 张卡片（status=completed）
+### AC6: 用户中心菜单
+**Given** 用户已登录
+**When** 点击右上角用户头像
+**Then** 弹出下拉菜单，含"个人中心"和"退出登录"
 
-### AC7: 状态筛选—生成中
-**Given** 用户有 queued 和 generating_storyboard 项目
-**When** 选择筛选 Tab "生成中"
-**Then** 显示所有生成中状态的项目（queued/generating_storyboard/generating_audio/calculating_timeline/rendering）
+### AC7: 生成视频—提交
+**Given** 用户在"生成视频"Tab，输入了文本（≥1 字符）
+**When** 点击"生成"按钮
+**Then** 按钮变为 loading 状态（spinner + disabled）
+**And** 调用 `project.createAndGenerate` API
+**And** 成功后 toast 提示 + 输入框清空
 
-### AC8: 状态筛选—失败
-**Given** 用户有 1 个 failed 项目
-**When** 选择筛选 Tab "失败"
-**Then** 仅显示 1 张卡片，且重试按钮可见
+### AC8: 生成视频—空文本
+**Given** "生成视频"Tab 中文本框为空
+**When** 查看"生成"按钮
+**Then** 按钮 disabled
 
-### AC9: 状态 Badge 正确
-**Given** 项目 status=completed
-**When** 查看项目卡片
-**Then** 状态 Badge 显示"已完成"，颜色为绿色
+### AC9: 生成视频—防重复
+**Given** 生成请求正在进行中
+**When** 用户尝试再次点击"生成"
+**Then** 按钮保持 disabled，不发送第二个请求
 
-### AC10: 相对时间
-**Given** 项目 5 分钟前创建
-**When** 查看项目卡片
-**Then** 显示"5 分钟前"（使用中文 locale）
+### AC10: 历史记录—展示
+**Given** 用户有 3 个已完成项目
+**When** 切换到"历史记录"Tab
+**Then** 使用 FocusCards 组件展示 3 张卡片
+**And** 每张卡片显示彩色占位图
+**And** hover 卡片时显示项目标题 overlay
 
-### AC11: 分页—加载更多
-**Given** 用户有 25 个项目
-**When** 进入 Dashboard（pageSize=12）
-**Then** 显示前 12 张卡片 + "加载更多"按钮
-**When** 点击"加载更多"
-**Then** 追加显示第 13-24 张卡片
-**When** 再次点击
-**Then** 追加显示第 25 张卡片，"加载更多"按钮消失
-**And** 显示"已显示全部 25 个项目"
+### AC11: 历史记录—点击跳转
+**Given** 用户在历史记录 Tab，有已完成项目
+**When** 点击某张卡片
+**Then** 跳转到 `/projects/[id]/play` 视频播放页
 
-### AC12: 删除—确认流程
-**Given** 用户有项目 X
-**When** 点击项目 X 的删除按钮
-**Then** 弹出确认对话框（含项目标题 + 不可撤销提示）
-**When** 点击"确认删除"
-**Then** 对话框关闭，卡片从列表消失，toast 显示"项目已删除"
+### AC12: 历史记录—空状态
+**Given** 用户没有任何已完成项目
+**When** 切换到"历史记录"Tab
+**Then** 显示空状态：图标 + "还没有生成视频" + "开始生成"按钮
+**When** 点击"开始生成"
+**Then** 切换到"生成视频"Tab
 
-### AC13: 删除—取消
-**Given** 删除确认对话框已打开
-**When** 点击"取消"
-**Then** 对话框关闭，卡片仍在列表中
+### AC13: 历史记录—加载骨架
+**Given** 用户首次进入历史记录 Tab，数据加载中
+**When** 查看页面
+**Then** 显示 3 张骨架卡片（pulse 动画）
 
-### AC14: 重试—失败项目
-**Given** 项目 status=failed
-**When** 点击重试按钮
-**Then** toast 显示"已重新开始生成"
-**And** 项目 status 变为 queued（刷新后）
+### AC14: 历史记录—错误状态
+**Given** API 请求失败
+**When** 查看历史记录 Tab
+**Then** 显示"加载失败"提示 + "重新加载"按钮
 
-### AC15: 重试按钮—非失败项目
-**Given** 项目 status=completed
-**When** 查看项目卡片
-**Then** 重试按钮不可见
+### AC15: 历史记录—自动轮询
+**Given** 用户有一个 `queued` 状态的项目
+**When** 在历史记录 Tab 等待 10 秒
+**Then** 自动重新请求（`refetchInterval: 10_000`）
+**And** 若项目变为 `completed`，卡片自动出现
 
-### AC16: 空状态
-**Given** 用户没有任何项目
-**When** 进入 Dashboard
-**Then** 显示空状态：图标 + "还没有项目" + "创建第一个项目"按钮
-**And** 点击按钮跳转到 `/create`
+### AC16: 订阅页
+**Given** 用户切换到"订阅升级"Tab
+**Then** 显示三张定价卡片（免费版 / 专业版 / 企业版）
+**And** 免费版标记"当前方案"
+**And** 按钮均为静态展示（无实际支付交互）
 
-### AC17: 加载状态
-**Given** 网络较慢，数据正在加载
-**When** 进入 Dashboard
-**Then** 显示 3 张骨架屏卡片（pulse 动画）
+### AC17: 视频播放占位
+**Given** 用户点击历史记录中的卡片
+**When** 跳转到 `/projects/[id]/play`
+**Then** 显示项目标题 + "视频播放功能即将推出"
 
-### AC18: 错误状态
-**Given** API 请求失败（网络错误 / 500）
-**When** 进入 Dashboard
-**Then** 显示错误提示"加载项目列表失败" + "重新加载"按钮
-**When** 点击"重新加载"
-**Then** 重新发起请求
-
-### AC19: 数据隔离
-**Given** 用户 A 有 2 个项目，用户 B 有 1 个项目
-**When** 用户 A 进入 Dashboard
-**Then** 仅显示用户 A 的 2 个项目（由 API 层保证）
-
-### AC20: 响应式布局
-**Given** 浏览器窗口宽度 375px（手机）
-**When** 查看 Dashboard
-**Then** 项目卡片单列排列
-**Given** 浏览器窗口宽度 1200px（桌面）
-**When** 查看 Dashboard
-**Then** 项目卡片 3 列排列
+### AC18: 数据隔离
+**Given** 用户 A 有 2 个项目
+**When** 用户 B 登录后查看历史记录
+**Then** 不显示用户 A 的项目
 
 ---
 
@@ -773,18 +786,21 @@ src/components/project/
 
 | # | 决策点 | 决策 | 理由 |
 |---|--------|------|------|
-| 1 | **分页模式** | "加载更多"按钮（非无限滚动） | 比无限滚动更可控；用户可感知总量；`useInfiniteQuery` API 直接支持 |
-| 2 | **筛选策略** | 混合（部分服务端 + 部分客户端） | "生成中"涵盖 5 种后端状态，API 的单值 `status` 无法直接表达；Dashboard 初期数据量少，客户端过滤可行 |
-| 3 | **状态 Badge 样式** | 组件内自定义 className（不扩展全局 Badge variant） | 避免全局变更影响其他页面；状态颜色是 Dashboard 专有 |
-| 4 | **删除实现** | 轻量软删除（本 Change）+ 完整级联（ep2-05） | Dashboard 可独立交付；ep2-05 增强后无需修改前端 |
-| 5 | **重试实现** | 轻量 retry（本 Change）+ resume 模式（ep2-05） | 同上 |
-| 6 | **首页路由** | `page.tsx` 内联登录态检测 + 条件渲染（不使用 middleware） | 符合现有代码风格（page.tsx 已是 client component）；middleware 方案在 ep6-04 统一评估 |
-| 7 | **乐观更新** | 删除使用乐观更新 | 删除操作体感明显（卡片消失），提升 UX；QueryClient 的 `setQueryData` 天然支持 |
-| 8 | **组件拆分** | 每个组件独立文件（ProjectCard / ProjectFilters / EmptyState / Skeleton / DeleteDialog） | 单一职责，便于独立测试和后续复用 |
-| 9 | **时间格式化** | `date-fns` + `zhCN` locale | 项目已安装 `date-fns@4.4.0`，`formatDistanceToNow` 自动处理"x 分钟前"、"昨天"、"3 天前"等 |
-| 10 | **筛选切换时** | 重置到第一页（不使用缓存） | 筛选条件变化后，旧的 cursor 可能指向不存在的页；重置保证数据一致性 |
-| 11 | **Landing 页范围** | 仅占位实现（标题 + CTA），完整设计在 ep6-04 | 避免 ep2-03 范围膨胀；Landing 与全局导航栏一同交付更合理 |
-| 12 | **delete/retry mutation** | 注册在 `project` router（`project.delete` / `project.retry`）而非独立 router | 与 `createAndGenerate` 共用同一 router；`_app.ts` 无需修改 |
+| 1 | **路由结构** | `/` 单路由 + 条件渲染（非 `/dashboard` 子路由） | 避免 302 重定向闪烁；用户感知"一个首页，两种面貌" |
+| 2 | **闪屏防护** | `isPending` 阶段渲染 Loader，不渲染任何内容 | 防止 session 缓存恢复时 Landing→MainApp 闪屏，以及 session 过期时 MainApp→Landing 闪屏 |
+| 3 | **Landing 内容** | 仅 WavyBackground + 登录/注册按钮 | 极简；后续 ep6-04 可在此基础上扩展标题/Feature 区/Footer |
+| 4 | **导航栏布局** | 居中三 Tab + 右侧用户中心（flex + 左侧占位） | 纯 CSS 居中比 `position: absolute` 更健壮 |
+| 5 | **Tab 状态** | `useState`，不写入 URL search params | v1 不需要 bookmark 特定 Tab；后续若需要可改 `useSearchParams` |
+| 6 | **生成 Tab 配置** | v1 全部硬编码（16:9 / 120s / minimax），无配置面板 | 极简优先；配置面板在 `ep2-04` 或后续迭代中作为可选功能添加 |
+| 7 | **历史记录数据源** | `project.list({ status: "completed", pageSize: 50 })` | 一次性加载足够多；后续若有大量历史项目可加分页 |
+| 8 | **轮询策略** | `refetchInterval: 10_000`（全局），不管 Tab 是否激活 | 10 秒间隔对服务器压力小（每个用户约 0.1 QPS）；TanStack Query 在 Tab 不可见时也会轮询（简单方案） |
+| 9 | **视频截图占位** | 纯色 SVG data URI（按 index 选不同颜色） | 无外部依赖，渲染即展示；renderStill 就绪后替换为 `asset.getSignedUrl` |
+| 10 | **FocusCards 使用** | 直接传 `cards={items.map(toFocusCard)}`，不封装 | 保持 Aceternity UI 原始 API，便于后续升级 |
+| 11 | **"了解更多"去掉** | Landing 无此按钮 | 避免 `#features` 锚点指向不存在区块；若需要，ep6-04 统一添加 |
+| 12 | **delete/retry 契约** | 两 Change 共享相同 mutation 签名；ep2-05 保证向后兼容 | 一方先合并不影响另一方；合并后自动获得增强逻辑 |
+| 13 | **移动端导航** | 3 Tab 不溢出（≈240px < 375px），无需横向滚动 | 若未来 >3 Tab → `overflow-x: auto` + `scrollbar-hide` |
+| 14 | **订阅页范围** | 纯 UI 占位，无支付逻辑 | 避免范围膨胀；支付/订阅体系需独立规划和 PRD |
+| 15 | **生成按钮位置** | 文本框右下角内部（`absolute bottom-3 right-3`） | 紧凑、直觉；符合用户描述的"文本框右下角" |
 
 ---
 
@@ -793,90 +809,78 @@ src/components/project/
 | 集成点 | 文件 | 状态 | 使用方式 |
 |--------|------|------|---------|
 | Root Layout | `src/app/layout.tsx` | ✅ | QueryProvider + SessionProvider 已包裹 |
-| Protected Layout | `src/app/(protected)/layout.tsx` | ✅ | Dashboard 直接放入 `(protected)` 路由组 |
-| tRPC Client | `src/lib/trpc/client.ts` | ✅ | `trpc.project.list.useInfiniteQuery()` 等 |
-| Query Client | `src/lib/query-client.ts` | ✅ | staleTime=60s，refetchOnWindowFocus=false |
-| Auth Session | `useSession()` | ✅ | 首页路由分流 |
-| shadcn Card | `src/components/ui/card.tsx` | ✅ | `Card`, `CardHeader`, `CardContent`, `CardFooter` |
-| shadcn Badge | `src/components/ui/badge.tsx` | ✅ | 状态 Badge |
-| shadcn AlertDialog | `src/components/ui/alert-dialog.tsx` | ✅ | 删除确认 |
-| shadcn Button | `src/components/ui/button.tsx` | ✅ | CTA / 操作按钮 |
-| shadcn Skeleton | `src/components/ui/skeleton.tsx` | ✅ | 骨架屏 |
-| Sonner Toast | `sonner` (root layout 已有 Toaster) | ✅ | `toast.success()` / `toast.error()` |
+| tRPC Client | `src/lib/trpc/client.ts` | ✅ | `trpc.project.*.useQuery/useMutation` |
+| WavyBackground | `src/components/ui/wavy-background.tsx` | ✅ | 直接 import，props: `backgroundFill`, `blur`, `speed` |
+| FocusCards | `src/components/ui/focus-cards.tsx` | ✅ | 直接 import，props: `cards: {title, src}[]` |
+| Auth Session | `useSession()` from `@/lib/auth-client` | ✅ | 首页路由分流 |
+| shadcn Button | `src/components/ui/button.tsx` | ✅ | 登录/注册/生成按钮 |
+| shadcn Textarea | `src/components/ui/textarea.tsx` | ✅ | 生成 Tab 输入框 |
+| shadcn Avatar | `src/components/ui/avatar.tsx` | ✅ | 用户头像 |
+| shadcn DropdownMenu | `src/components/ui/dropdown-menu.tsx` | ✅ | 用户菜单 |
+| shadcn Card | `src/components/ui/card.tsx` | ✅ | 订阅定价卡片 |
+| shadcn Skeleton | `src/components/ui/skeleton.tsx` | ⬜ 待确认 | 加载骨架 |
+| Sonner Toast | `sonner`（root layout 已有 Toaster） | ✅ | `toast.success/error` |
 | project Router | `src/server/routers/project.ts` | ✅ 追加 | 新增 `delete`、`retry` mutation |
-| project Service | `src/server/services/project.service.ts` | ✅ 追加 | 新增 `deleteProject`、`retryGeneration` |
-| Inngest Client | `src/inngest/client.ts` | ✅ | retry 时发送事件 |
 
 **不需要修改的文件：**
-- `_app.ts`：projectRouter 已注册，新 mutation 自动可用
+- `_app.ts`：projectRouter 已注册
 - `layout.tsx`（root）：已有 QueryProvider + SessionProvider
-- `prisma/schema.prisma`：Schema 无需变更
-- `src/lib/trpc/client.ts`：tRPC client 无需变更
+- `(protected)/layout.tsx`：MainApp 自带导航栏，不依赖该 layout（页面是 `/` 而非 `/(protected)/`）
 
 ---
 
 ## Test Strategy
 
-### A. tRPC Mutation 集成测试（createCaller）
+### A. tRPC Mutation 集成测试
 
 ```
 src/server/routers/__tests__/project.router.test.ts（追加）
 ├── project.delete
-│   ├── owner 可删除自己的项目（返回 success）
-│   ├── 非 owner 返回 FORBIDDEN
-│   └── 不存在的 projectId 返回 NOT_FOUND
+│   ├── owner 删除 → 200 + success
+│   ├── 非 owner → FORBIDDEN
+│   └── 不存在 ID → NOT_FOUND
 └── project.retry
-    ├── owner 可重试自己的项目（返回 jobId）
-    ├── 非 owner 返回 FORBIDDEN
-    └── 不存在的 projectId 返回 NOT_FOUND
+    ├── owner 重试 → 200 + jobId
+    ├── 非 owner → FORBIDDEN
+    └── 不存在 ID → NOT_FOUND
 ```
 
-### B. 前端组件测试（vitest + @testing-library/react）
+### B. 前端组件测试
 
 ```
-src/components/project/__tests__/
-├── ProjectCard.test.tsx
-│   ├── 渲染标题、状态 Badge、时长、相对时间
-│   ├── completed 项目不显示重试按钮
-│   ├── failed 项目显示重试按钮
-│   └── 删除按钮点击打开 Dialog
-├── ProjectFilters.test.tsx
-│   ├── 4 个 Tab 全部渲染
+src/components/__tests__/
+├── LandingHero.test.tsx
+│   └── 渲染登录/注册 Link（含 href）
+├── AppNavbar.test.tsx
+│   ├── 三 Tab 全部渲染
 │   ├── 点击 Tab 触发 onChange
-│   └── 当前选中 Tab 有 active 样式
+│   └── 用户菜单可打开
+├── GenerateTab.test.tsx
+│   ├── 空文本时按钮 disabled
+│   ├── 输入后按钮 enabled
+│   └── 提交后按钮 loading + disabled
+├── HistoryTab.test.tsx
+│   ├── 正常渲染 FocusCards
+│   ├── 空列表 → EmptyState
+│   └── 加载中 → 骨架
 ├── EmptyState.test.tsx
-│   └── 渲染图标、文案、CTA 按钮（含 href）
-└── DeleteProjectDialog.test.tsx
-    ├── 渲染项目标题在描述中
-    ├── 取消按钮关闭对话框
-    └── 确认按钮触发 mutation
+│   └── 渲染图标 + 文案 + 按钮
+└── ErrorState.test.tsx
+    └── 渲染错误信息 + 重试按钮
 ```
 
 ### C. 手动集成验证
 
 ```bash
-# 1. 启动开发环境
 npm run dev
 
-# 2. 访问 http://localhost:3000
-#    - 未登录 → 看到 Landing
-#    - 登录 → 自动跳转 /dashboard
-
-# 3. 创建测试项目（通过 tRPC panel 或 curl）
-curl -X POST http://localhost:3000/api/trpc/project.createAndGenerate \
-  -H "Content-Type: application/json" \
-  -H "Cookie: <session-cookie>" \
-  -d '{"title":"测试项目","sourceText":"测试内容","aspectRatio":"16:9","targetDurationSec":120}'
-
-# 4. 刷新 /dashboard 验证卡片出现
-
-# 5. 验证筛选 Tab 切换正常
-
-# 6. 验证删除流程（对话框 → 确认 → 卡片消失）
-
-# 7. 验证空状态（删除所有项目后）
-
-# 8. 换另一个浏览器/用户登录，确认数据隔离
+# 1. 未登录 → 验证 Landing 波浪背景
+# 2. 登录 → 验证 MainApp 三 Tab
+# 3. 生成视频 Tab → 输入文本 → 提交
+# 4. 历史记录 Tab → 看到刚创建的项目（或等待完成）
+# 5. 订阅 Tab → 三张定价卡
+# 6. 手机模拟器 (375px) → 验证响应式
+# 7. 快速登录/登出 → 验证无闪屏
 ```
 
 ---
@@ -886,10 +890,9 @@ curl -X POST http://localhost:3000/api/trpc/project.createAndGenerate \
 | 范围 | 回滚操作 |
 |------|---------|
 | 代码 | `git revert <commit-hash>` |
-| 数据库 | 无需回滚（无 Schema 变更；仅新增了 soft delete 标记，数据仍在） |
-| 路由 | `/dashboard` 页面移除，`/` 恢复为脚手架 |
+| 数据库 | 无需回滚（无 Schema 变更） |
 
-**影响面：** 仅新增了前端页面和轻量 API。下游依赖（ep2-04、ep2-05）尚未开发，回滚无影响。
+**影响面：** 仅 `/` 路由和轻量 API。下游尚未开发。
 
 ---
 
@@ -897,53 +900,77 @@ curl -X POST http://localhost:3000/api/trpc/project.createAndGenerate \
 
 | 风险 | 级别 | 缓解措施 |
 |------|------|---------|
-| `useInfiniteQuery` 的 `getNextPageParam` 在筛选条件变化时未正确重置 | 中 | 将 `statusFilter` 放入 `queryKey`；TanStack Query v5 自动在 key 变化时重置缓存 |
-| "生成中"筛选需要拉全量数据，项目多时性能下降 | 低 | Dashboard 初期每个用户项目数 ≤ 100；若后续超过 100 则在 ep7-01 扩展 API 支持 `statusGroup` 参数 |
-| 乐观删除失败回滚时卡片位置变化 | 低 | 在 `onError` 中 invalidate `project.list` 查询，强制重新拉取最新数据 |
-| shadcn Skeleton 组件可能不存在 | 低 | 检查 `src/components/ui/skeleton.tsx`；若不存在则用 `npx shadcn@latest add skeleton` 添加 |
-| `date-fns` `zhCN` locale 的 `formatDistanceToNow` 中文输出格式不自然 | 低 | 先使用自带 locale；若不满意可自定义 `formatDistanceToNow` 的 `addSuffix` 行为 |
-| Landing 首页与 ep6-04 的设计重复/冲突 | 低 | ep2-03 仅实现占位版（标题 + CTA），ep6-04 整体重写；明确标注代码注释 `// TODO: ep6-04 替换为完整 Landing 页` |
+| `WavyBackground` 在 Safari 上 canvas 模糊 | 低 | 组件已内置 Safari 检测 + `filter: blur()` 回退；实现后在 Safari 实测 |
+| `FocusCards` 使用 `<img>` 而非 Next.js `<Image>` | 低 | Aceternity 原生写法；图片为 data URI 或 R2 URL，不需要 Next.js 优化；若需优化则外层包裹 `<Image>` |
+| `refetchInterval: 10_000` 对服务器压力 | 低 | 每个活跃用户 0.1 QPS；100 并发用户 = 10 QPS，完全可接受 |
+| **闪屏**：session 缓存恢复时间不可控 | 低 | `isPending` 阻塞渲染避免闪屏；`isPending` 通常在 better-auth 中少于 500ms |
+| **防重复**：仅靠按钮 disabled 不够（键盘 Enter 快速触发） | 低 | `useMutation.isPending` + 按钮 `disabled` + Textarea `disabled` 三重保护 |
+| **FocusCards 空 src 时 `<img>` 显示破损图标** | 低 | 始终传入占位 data URI，保证 `src` 非空 |
+
+---
+
+## 审查反馈处理清单（来源：ep2-03 初稿审查）
+
+| # | 问题 | 处理方式 |
+|---|------|---------|
+| 1 | 移动端筛选 Tab 溢出 | ✅ **已解决** — 新设计仅 3 个 Tab，不溢出；若未来 >3 Tab → `overflow-x: auto` |
+| 2 | "生成中"项目自动刷新策略 | ✅ **已解决** — `refetchInterval: 10_000`，全 Tab 统一轮询（见 KDD #8） |
+| 3 | ErrorState 组件缺失 | ✅ **已解决** — 加入组件目录 + Test Strategy |
+| 4 | 筛选 Tab 计数悬而未决 | ✅ **已解决** — v1 不做计数；3 个 Tab 是固定标签，不需要动态 count |
+| 5 | Dashboard 首次加载闪屏 | ✅ **已解决** — `isPending` 全屏 Loader 阻塞渲染（见 Section 2） |
+| 6 | 乐观删除并发保护 | ✅ **保留** — delete mutation 在本 Change 中不涉及乐观更新（历史 Tab 无删除按钮）；若后续需乐观删除则加 `useRef` 防抖 |
+| 7 | "查看"按钮 404 | ✅ **已解决** — FocusCards 点击 → `/projects/[id]/play` 占位页（非 404） |
+| 8 | `#features` 锚点 | ✅ **已解决** — 移除"了解更多"按钮 |
+| 9 | 缩略图视觉 | ✅ **已解决** — 纯色 SVG data URI 占位（见 Section 6） |
+| 10 | 加载状态切换时机 | ✅ **已解决** — 明确区分"首次加载"和"切换后加载"（见 Section 9 表格） |
+| 11 | 空/错状态测试缺失 | ✅ **已解决** — 补充 `EmptyState.test.tsx` + `ErrorState.test.tsx` |
+| 12 | 键盘无障碍（a11y） | ✅ **已解决** — 新增 Section 12 |
+| 13 | date-fns 中文输出验证 | ✅ **已解决** — 新增 Section 13（验证表 + 实施时验证步骤） |
+| 14 | ep2-05 接口契约 | ✅ **已解决** — 定义 mutation 签名为共享契约（见 Section 11 表格） |
 
 ---
 
 ## Commit Strategy
 
-建议拆分为 3 个 commit：
-
 ```
 Commit 1: feat(ep2-03): add lightweight project.delete and generation.retry mutations
-  - Add deleteProject and retryGeneration to project.service.ts
-  - Add delete and retry endpoints to project router
+  - Add deleteProject/retryGeneration to project.service
+  - Add delete/retry endpoints to project router
   - Add router integration tests
+  - Define mutation contract for ep2-05 compatibility
 
-Commit 2: feat(ep2-03): add Dashboard page with project list and filters
-  - Create ProjectCard, ProjectCardSkeleton, ProjectFilters, EmptyState, DeleteProjectDialog
-  - Create Dashboard page with useInfiniteQuery + status filter
+Commit 2: feat(ep2-03): add landing page with WavyBackground and main app shell
+  - Replace page.tsx with auth-gated Landing/MainApp router
+  - Add LandingHero (WavyBackground + auth buttons)
+  - Add AppNavbar (3-tab nav + user menu)
+  - Add flash prevention with isPending gate
+
+Commit 3: feat(ep2-03): add Generate, History, Subscribe tabs with FocusCards
+  - Add GenerateTab (textarea + submit + anti-double-click)
+  - Add HistoryTab (FocusCards + polling + skeleton + empty/error states)
+  - Add SubscribeTab (pricing cards placeholder)
+  - Add /projects/[id]/play stub page
   - Add component tests
-
-Commit 3: feat(ep2-03): add landing page stub and home route redirect
-  - Modify src/app/page.tsx: redirect authenticated users to /dashboard
-  - Add landing hero placeholder for unauthenticated visitors
 ```
 
 ---
 
 ## PR Checklist
 
-- [ ] `npm test` 全部测试通过（含 ep2-01 + ep2-02 已有测试）
+- [ ] `npm test` 全部通过（含 ep2-01 + ep2-02）
 - [ ] `npm run lint` 无新增错误
 - [ ] `npm run dev` 启动成功
-- [ ] 未登录访问 `/` → Landing 首屏
-- [ ] 登录后自动跳转 `/dashboard`
-- [ ] Dashboard 显示用户的项目列表
-- [ ] 筛选 Tab 切换正常（全部/生成中/已完成/失败）
-- [ ] 项目卡片显示：标题、状态 Badge（正确颜色）、时长、相对时间
-- [ ] "加载更多"按钮正常分页
-- [ ] 删除确认对话框正常 → 确认后卡片消失
-- [ ] 重试按钮仅对失败/取消项目可见 → 点击后状态更新
-- [ ] 空状态引导组件正常（无项目时）
-- [ ] Loading 骨架屏正常（加载中）
-- [ ] 错误状态 + 重新加载按钮正常
-- [ ] 响应式布局：手机 1 列 / 平板 2 列 / 桌面 3 列
+- [ ] 未登录 → Landing 波浪背景 + 登录/注册按钮
+- [ ] `isPending` 期间 → Loader（无闪屏）
+- [ ] 登录后 → MainApp（默认"生成视频"Tab）
+- [ ] 三 Tab 切换正常（生成视频/历史记录/订阅升级）
+- [ ] 用户中心下拉菜单正常
+- [ ] 生成 Tab：空文本按钮 disabled，输入后 enabled，提交后 loading
+- [ ] 历史 Tab：已完成项目以 FocusCards 展示，点击跳转播放页
+- [ ] 历史 Tab：生成中项目在 10 秒轮询后状态更新
+- [ ] 历史 Tab：空项目 → 空状态引导
+- [ ] 历史 Tab：加载中 → 骨架屏
+- [ ] 订阅 Tab：三张定价卡正常展示
+- [ ] `/projects/[id]/play` 占位页正常
+- [ ] 移动端 (375px) 响应式正常
 - [ ] 用户 A 看不到用户 B 的项目
-- [ ] ep2-01 + ep2-02 功能不受影响
