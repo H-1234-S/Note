@@ -36,24 +36,24 @@
 
 3. **`project.createAndGenerate` tRPC mutation**（`protectedProcedure`）
    - Zod 输入校验（sourceText 长度、aspectRatio 枚举、voice 参数等）
-   - 调用 `quota.service.checkDailyQuota()` 检查用户每日额度
-   - 并发限制检查（同一用户同时只能有 1 个 active 生成任务）
-   - `requestId` 幂等检查（基于 `GenerationJob.requestId` 唯一索引）
-   - 调用 `project.service.createProject()` 在带锁事务中创建 Project + GenerationJob
+   - 调用 `project.service.createProject()` — 所有业务判断（额度 + 并发 + 幂等）均在事务内完成
+   - Router 层不包含任何业务判断，仅做错误类型映射（`QuotaExceededError` → `TRPCError` 等）
    - 发送 Inngest 事件 `video/generate.requested`（事务外，失败有补偿策略）
    - 返回 `{ projectId, jobId }`
 
 4. **`project.service.ts` 业务层**
-   - `createProject(input, userId)`：在单个 Prisma 交互式事务中创建 Project + GenerationJob
-   - 事务内使用 PostgreSQL advisory lock（`pg_advisory_xact_lock`）防 TOCTOU 竞态
+   - `createProject(input, userId, isAdmin)`：在单个 Prisma 交互式事务中完成全部逻辑
+   - 事务流程：advisory lock → 额度检查 → 并发检查 → 创建 Project → 创建 GenerationJob
+   - 事务内调用 `quota.service.checkDailyQuota(tx, userId)` 检查额度（接收事务客户端）
+   - PostgreSQL advisory lock（`pg_advisory_xact_lock`）串行化同用户请求，消除 TOCTOU 竞态
    - 生成默认 project title（取 sourceText 前 50 字符）
-   - Project 初始状态：`queued`（Schema 默认值同步修改）
+   - Project 初始状态：`queued`（Schema 默认值）
    - GenerationJob 初始状态：`pending`，jobType: `storyboard`
+   - 自定义错误类：`QuotaExceededError` / `ConcurrentLimitError` / `DuplicateRequestError`
 
 5. **`quota.service.ts` 额度服务（初版）**
-   - `checkDailyQuota(userId)`：查询用户当日 GenerationJob 数
+   - `checkDailyQuota(tx, userId)`：接收事务客户端，在锁内查询当日 GenerationJob 数
    - 默认每日免费额度：1 次/用户（常量 `DAILY_FREE_QUOTA = 1`，可配置）
-   - Admin 用户跳过额度检查
    - 返回 `QuotaCheckResult`（含 allowed/used/limit/resetsAt）
 
 6. **Inngest 事件发送**
@@ -117,7 +117,7 @@ Epic 1 (基线)
 ├── Inngest Client: inngest 实例已创建（src/inngest/client.ts）
 ├── Inngest Route Handler: /api/inngest/route.ts ✅ 已存在
 ├── Prisma: prisma client 已配置（src/lib/prisma.ts）
-└── Package Manager: pnpm（通过 pnpm-workspace 或默认）
+└── Package Manager: npm
 ```
 
 **前置 Change：无**（Epic 1 已完成且 tRPC + Inngest route handler 均已就绪）
@@ -277,18 +277,22 @@ tRPC 内置 `code` 枚举值有限（`BAD_REQUEST` / `UNAUTHORIZED` / `FORBIDDEN
 
 ### 3. TOCTOU 竞态防护：PostgreSQL Advisory Lock
 
-**问题**：并发检查和额度检查如果放在事务外部，两个并发请求可能同时通过检查。
+**问题**：并发检查和额度检查如果放在事务外部，存在 TOCTOU 竞态窗口：
+1. 两个并发请求同时通过事务外的额度检查（都读到 count=0）
+2. 第一个请求获取 advisory lock 进入事务，创建 Project+Job → DB 中 count 变为 1
+3. 第二个请求随后获取锁进入事务，此时 `activeCount` 检查发现已有活跃项目，返回 `CONCURRENT_LIMIT`
+4. **本该报 QUOTA_EXCEEDED 的请求，收到了 CONCURRENT_LIMIT 的错误消息**
 
-**方案**：使用 PostgreSQL 会话级 advisory lock（`pg_advisory_xact_lock`），锁 key = hash(userId)。
-事务提交时自动释放锁（`_xact` 后缀保证）。
+**方案**：将所有检查（额度 + 并发）统一移入 advisory lock 保护的事务内。锁外不做任何状态判断。
 
 ```typescript
 // project.service.ts
-import { prisma } from "@/lib/db";
+import prisma from "@/lib/prisma";
 
 async function createProject(
   input: CreateProjectInput,
-  userId: string
+  userId: string,
+  isAdmin: boolean
 ): Promise<CreateProjectResult> {
   return prisma.$transaction(async (tx) => {
     // Step 1: 获取用户级 advisory lock（防 TOCTOU）
@@ -298,7 +302,27 @@ async function createProject(
       `SELECT pg_advisory_xact_lock(${lockId})`
     );
 
-    // Step 2: 在锁内重新检查并发限制
+    // Step 2: 锁内检查每日额度（仅非 admin 用户）
+    if (!isAdmin) {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+
+      const todayCount = await tx.generationJob.count({
+        where: {
+          userId,
+          jobType: "storyboard",
+          createdAt: { gte: todayStart, lte: todayEnd },
+          status: { not: "cancelled" },
+        },
+      });
+      if (todayCount >= DAILY_FREE_QUOTA) {
+        throw new QuotaExceededError(todayCount, DAILY_FREE_QUOTA, todayEnd);
+      }
+    }
+
+    // Step 3: 锁内检查并发限制
     const activeStatuses = [
       "queued", "generating_storyboard", "storyboard_ready",
       "generating_audio", "calculating_timeline", "rendering"
@@ -307,10 +331,10 @@ async function createProject(
       where: { userId, status: { in: activeStatuses } },
     });
     if (activeCount > 0) {
-      throw new ConcurrentLimitError();
+      throw new ConcurrentLimitError(userId);
     }
 
-    // Step 3: 创建 Project + GenerationJob（幂等检查由 @unique 约束保证）
+    // Step 4: 创建 Project + GenerationJob（幂等检查由 @unique 约束保证）
     // ...创建逻辑（见下方）
 
     return { project, job };
@@ -380,16 +404,76 @@ try {
 
 ```typescript
 // project.service.ts
-async function createProject(
+import prisma from "@/lib/prisma";
+import { Prisma } from "@/generated/prisma/client";
+import { checkDailyQuota } from "./quota.service";
+
+// ---- 自定义错误类 ----
+
+export class QuotaExceededError extends Error {
+  constructor(
+    public readonly used: number,
+    public readonly limit: number,
+    public readonly resetsAt: Date
+  ) {
+    super(`Daily quota exceeded: ${used}/${limit}`);
+    this.name = "QuotaExceededError";
+  }
+}
+
+export class ConcurrentLimitError extends Error {
+  constructor(public readonly userId: string) {
+    super(`Concurrent limit reached for user ${userId}`);
+    this.name = "ConcurrentLimitError";
+  }
+}
+
+export class DuplicateRequestError extends Error {
+  constructor(public readonly projectId: string) {
+    super(`Duplicate request for project ${projectId}`);
+    this.name = "DuplicateRequestError";
+  }
+}
+
+// ---- 辅助函数 ----
+
+/** 判断 Prisma 唯一约束冲突错误（P2002） */
+function isUniqueConstraintError(error: unknown): boolean {
+  return error instanceof Prisma.PrismaClientKnownRequestError
+    && error.code === "P2002";
+}
+
+/** 将 userId 转为 pg_advisory_lock 可用的 bigint */
+function hashUserId(userId: string): number {
+  let hash = 0;
+  for (let i = 0; i < Math.min(userId.length, 12); i++) {
+    hash = ((hash << 5) - hash + userId.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+// ---- 核心函数 ----
+
+export async function createProject(
   input: CreateProjectInput,
-  userId: string
+  userId: string,
+  isAdmin: boolean
 ): Promise<CreateProjectResult> {
   return prisma.$transaction(async (tx) => {
-    // 1. Advisory lock (防 TOCTOU)
+    // 1. Advisory lock (防 TOCTOU，串行化同一用户的并发请求)
     const lockId = hashUserId(userId);
     await tx.$queryRawUnsafe(`SELECT pg_advisory_xact_lock(${lockId})`);
 
-    // 2. 锁内并发检查
+    // 2. 锁内额度检查（非 admin）
+    //    调用 quota.service 的事务内版本，传入 tx 保证隔离性
+    if (!isAdmin) {
+      const quota = await checkDailyQuota(tx, userId);
+      if (!quota.allowed) {
+        throw new QuotaExceededError(quota.used, quota.limit, quota.resetsAt);
+      }
+    }
+
+    // 3. 锁内并发检查
     const activeStatuses = [
       "queued", "generating_storyboard", "storyboard_ready",
       "generating_audio", "calculating_timeline", "rendering"
@@ -401,7 +485,9 @@ async function createProject(
       throw new ConcurrentLimitError(userId);
     }
 
-    // 3. 创建 Project (status 用 Schema default "queued"，不显式传)
+    // 4. 创建 Project
+    //    status 依赖 Schema default "queued"，不显式传值
+    //    注意：Prisma create 返回的对象已经包含数据库填充的默认值
     const project = await tx.project.create({
       data: {
         userId,
@@ -417,7 +503,10 @@ async function createProject(
       },
     });
 
-    // 4. 创建 GenerationJob（requestId @unique 保证幂等）
+    // 5. 创建 GenerationJob
+    //    requestId @unique 提供数据库级幂等保证
+    //    如果唯一约束冲突（P2002）→ 整个事务自动回滚 → 上一步的 Project 也被撤销
+    //    然后我们 catch 冲突、查询已存在的 job、返回已有 projectId
     let job;
     try {
       job = await tx.generationJob.create({
@@ -427,7 +516,7 @@ async function createProject(
           jobType: "storyboard",
           status: "pending",
           aiProvider: "deepseek",
-          requestId: input.requestId,
+          requestId: input.requestId,   // ← 幂等键
           inputParams: JSON.stringify({
             sourceText: input.sourceText,
             audienceRole: input.audienceRole,
@@ -439,13 +528,14 @@ async function createProject(
       });
     } catch (error) {
       if (isUniqueConstraintError(error)) {
-        // 幂等冲突：找到已有的 job
+        // 唯一约束冲突 → Prisma 交互式事务自动回滚
+        // 上面的 Project.create 已被撤销，不会泄漏
         const existing = await tx.generationJob.findUnique({
           where: { requestId: input.requestId },
         });
         throw new DuplicateRequestError(existing!.projectId);
       }
-      throw error; // 其他错误向上传播
+      throw error; // 其他错误也触发自动回滚
     }
 
     return { project, job };
@@ -453,10 +543,23 @@ async function createProject(
 }
 ```
 
-### 6. 额度检查伪代码
+> **事务回滚语义说明**：Prisma 交互式事务（`$transaction(async (tx) => {...})`）中，
+> 回调函数内任何未捕获的异常都会导致整个事务自动回滚。
+> 上述代码中，`QuotaExceededError`、`ConcurrentLimitError`、`DuplicateRequestError` 以及其他
+> 未预期错误都会触发回滚——Project 和 GenerationJob 不会部分写入。`DuplicateRequestError`
+> 路径虽然 catch 了 P2002，但紧接着 `throw new DuplicateRequestError(...)` 仍然导致回滚，
+> 所以在该路径中先查询已有 job（查询在事务内执行，但由于回滚会撤销所有写操作，查询结果不受
+> 当前事务中未提交写入的影响），再抛出错误。调用方收到 `DuplicateRequestError` 后通过
+> `error.projectId` 获取已存在的 projectId。
+
+### 6. 额度检查（事务内版本）
+
+> **架构变更**：额度检查从 router 层移入 `createProject()` 事务内（advisory lock 之后）。
+> 以下 `checkDailyQuota()` 接收 Prisma 事务客户端 `tx` 作为参数，在锁内执行查询。
 
 ```typescript
 // quota.service.ts
+import type { PrismaClient } from "@/generated/prisma/client";
 
 /** 每日免费额度上限（可后续从配置/DB 读取） */
 export const DAILY_FREE_QUOTA = 1;
@@ -468,20 +571,27 @@ export interface QuotaCheckResult {
   resetsAt: Date;
 }
 
-export async function checkDailyQuota(userId: string): Promise<QuotaCheckResult> {
+/**
+ * 检查用户当日额度。必须在 advisory lock 保护的事务内调用。
+ * @param tx - Prisma 事务客户端（保证隔离性）
+ * @param userId - 用户 ID
+ */
+export async function checkDailyQuota(
+  tx: PrismaClient,
+  userId: string
+): Promise<QuotaCheckResult> {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
 
-  // 查询今日已提交的生成任务数（storyboard 类型 = 每个项目的主入口 job）
-  const todayCount = await prisma.generationJob.count({
+  const todayCount = await tx.generationJob.count({
     where: {
       userId,
       jobType: "storyboard",
       createdAt: { gte: todayStart, lte: todayEnd },
-      status: { not: "cancelled" },  // 已取消的不计入
+      status: { not: "cancelled" },
     },
   });
 
@@ -500,17 +610,34 @@ export async function checkDailyQuota(userId: string): Promise<QuotaCheckResult>
 > - **ep7-02 升级**：基于 UsageRecord 重构内部实现。`checkDailyQuota()` 签名不变（API 契约稳定）。
 > - **语义差异**：GenerationJob 计数反映"提交次数"，UsageRecord 反映"实际消费次数"。
 >   对第一版免费用户而言二者等价（每次提交都会进入生成流水线）。
+>
+> **调用方式**（在 `createProject()` 事务内）：
+> ```typescript
+> // project.service.ts - createProject() 事务内
+> if (!isAdmin) {
+>   const quota = await checkDailyQuota(tx, userId);
+>   if (!quota.allowed) {
+>     throw new QuotaExceededError(quota.used, quota.limit, quota.resetsAt);
+>   }
+> }
+> ```
 
 ### 7. tRPC Router（完整实现）
+
+**设计原则**：Router 层不包含任何业务判断（额度、并发）。所有检查逻辑统一放在
+`project.service.createProject()` 的事务内，由 advisory lock 保护，彻底消除 TOCTOU 窗口。
 
 ```typescript
 // src/server/routers/project.ts
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../trpc";
-import { checkDailyQuota } from "@/server/services/quota.service";
-import { createProject, DuplicateRequestError, ConcurrentLimitError }
-  from "@/server/services/project.service";
+import {
+  createProject,
+  QuotaExceededError,
+  DuplicateRequestError,
+  ConcurrentLimitError,
+} from "@/server/services/project.service";
 import { sendGenerateRequested } from "@/inngest/client";
 
 export const createProjectInputSchema = z.object({
@@ -534,26 +661,20 @@ export const projectRouter = router({
   createAndGenerate: protectedProcedure
     .input(createProjectInputSchema)
     .mutation(async ({ ctx, input }) => {
-      // ---- Phase 1: 事务前检查（轻量，无需锁） ----
-
-      // Admin 跳过额度检查
-      if (!ctx.isAdmin) {
-        const quota = await checkDailyQuota(ctx.userId);
-        if (!quota.allowed) {
-          throw new TRPCError({
-            code: "TOO_MANY_REQUESTS",
-            message: `[QUOTA_EXCEEDED] 今日免费额度已用完，请明天再试`
-              + ` | resetsAt: ${quota.resetsAt.toISOString()}`,
-          });
-        }
-      }
-
-      // ---- Phase 2: 事务内（advisory lock + 创建） ----
+      // ---- Phase 1: 事务内（advisory lock → 额度检查 → 并发检查 → 创建） ----
+      // 所有业务判断统一在事务内完成，消除 TOCTOU 竞态窗口
 
       let result;
       try {
-        result = await createProject(input, ctx.userId);
+        result = await createProject(input, ctx.userId, ctx.isAdmin);
       } catch (error) {
+        if (error instanceof QuotaExceededError) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: `[QUOTA_EXCEEDED] 今日免费额度已用完（${error.used}/${error.limit}），请明天再试`
+              + ` | resetsAt: ${error.resetsAt.toISOString()}`,
+          });
+        }
         if (error instanceof DuplicateRequestError) {
           throw new TRPCError({
             code: "CONFLICT",
@@ -567,6 +688,7 @@ export const projectRouter = router({
             message: "[CONCURRENT_LIMIT] 您有一个生成任务正在进行中，请等待完成",
           });
         }
+        // 未预期的错误
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "生成请求失败，请重试",
@@ -574,7 +696,7 @@ export const projectRouter = router({
         });
       }
 
-      // ---- Phase 3: 事务外（Inngest 发送，失败有补偿策略） ----
+      // ---- Phase 2: 事务外（Inngest 发送，失败有补偿策略） ----
 
       try {
         await sendGenerateRequested({
@@ -687,18 +809,22 @@ export async function sendGenerateRequested(
 
 | 任务 | 说明 | 验证 |
 |------|------|------|
-| 0.1 安装 vitest | `pnpm add -D vitest @vitest/coverage-v8` | `npx vitest --version` |
+| 0.1 安装 vitest | `npm install -D vitest @vitest/coverage-v8` | `npx vitest --version` |
 | 0.2 创建 `vitest.config.ts` | 配置 tsconfig 路径别名映射 | `npx vitest run` 不报配置错误 |
-| 0.3 添加 test scripts | `"test": "vitest run"`, `"test:watch": "vitest"` | `pnpm test` 可执行（无测试时通过） |
+| 0.3 添加 test scripts | `"test": "vitest run"`, `"test:watch": "vitest"` | `npm test` 可执行（无测试时通过） |
 | 0.4 创建目录结构 | `mkdir -p src/server/services/__tests__`<br>`mkdir -p src/server/routers/__tests__` | 目录存在 |
 | 0.5 Prisma Schema 修改 | 见 Step 0.5 详细说明 | `npx prisma migrate dev` 成功 |
-| 0.6 验证基础链路 | `pnpm dev` 启动，确认 Auth + tRPC + Inngest route 正常 | 登录页可访问 |
+| 0.6 验证基础链路 | `npm run dev` 启动，确认 Auth + tRPC + Inngest route 正常 | 登录页可访问 |
 
 **`vitest.config.ts` 模板：**
 
 ```typescript
 import { defineConfig } from "vitest/config";
-import path from "path";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
   test: {
@@ -707,14 +833,23 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": resolve(__dirname, "./src"),
     },
   },
 });
 ```
 
-> **注意**：如果项目使用 `tsconfig.json` 的 `paths`，vitest 需要对应的 alias 配置。
-> `@/` → `./src` 别名必须在 vitest.config.ts 中显式声明。
+> **ESM 兼容性说明**：Next.js 16 默认使用 ESM 模块系统。`__dirname` 在 ESM 下不可用，
+> 必须通过 `import.meta.url` 推导。如果项目 `tsconfig.json` 的 `moduleResolution` 不是
+> `bundler` 或 `nodenext`，可能需要在 Step 0 测试验证。
+>
+> **Step 0.2 验证项补充**：
+> ```bash
+> # 验证 vitest 能正确解析 @/ 别名
+> echo 'import { defineConfig } from "vitest/config"; export default defineConfig({});' > /tmp/test-vitest.ts
+> npx vitest run --config vitest.config.ts 2>&1 | head -5
+> # 不应出现 "Cannot find module" 错误
+> ```
 
 ### Step 0.5: Prisma Schema 修改 + Migration
 
@@ -749,16 +884,22 @@ npx prisma migrate dev --name add_request_id_and_fix_status_default
 ### Step 1: quota.service.ts + 单元测试
 
 - 创建 `src/server/services/quota.service.ts`
-- 实现 `checkDailyQuota(userId)` + `DAILY_FREE_QUOTA` 常量
-- 实现 admin 豁免（quota service 不判断 admin，由 router 层在调用前判断。或者接受 `isAdmin` 参数）
+- 实现 `checkDailyQuota(tx: PrismaClient, userId: string)` — **接收事务客户端 `tx` 参数**，在调用方事务内执行查询
+- 导出 `DAILY_FREE_QUOTA` 常量和 `QuotaCheckResult` 接口
+- 不在此文件中判断 admin（admin 豁免由 project.service 在调用前决定是否调此函数）
 - 编写 `src/server/services/__tests__/quota.service.test.ts`
+
+**注意**：`checkDailyQuota` 的状态判断（额度超限 → 抛错）由 project.service 负责。
+quota.service 只做纯查询，返回原始数据。
 
 ### Step 2: project.service.ts + 单元测试
 
 - 创建 `src/server/services/project.service.ts`
-- 实现 `createProject(input, userId)`（含 advisory lock + 并发检查 + 幂等 @unique）
-- 实现 `DuplicateRequestError` / `ConcurrentLimitError` 自定义错误类
-- 实现 `hashUserId()` 辅助函数
+- 实现 `createProject(input, userId, isAdmin)`：
+  - 事务内 advisory lock → 调用 `checkDailyQuota(tx, userId)`（非 admin）→ 并发检查 → 创建 Project + GenerationJob
+- 实现自定义错误类：`QuotaExceededError`、`ConcurrentLimitError`、`DuplicateRequestError`
+- 实现辅助函数：`hashUserId()`、`isUniqueConstraintError()`
+- 在 `DuplicateRequestError` 路径中：catch P2002 → 查询已有 job → 抛出（事务自动回滚 Project）
 - 编写 `src/server/services/__tests__/project.service.test.ts`
 
 ### Step 3: Inngest 事件辅助
@@ -799,7 +940,7 @@ import { createCaller } from "@/server/trpc";  // 需要导出 createCaller
 
 ### Step 6: 集成验证
 
-- `pnpm dev` + `pnpm inngest` 启动
+- `npm run dev` + `npm run inngest` 启动
 - 用 tRPC panel 或 curl 测试完整链路
 - 验证：DB 中 Project(status=queued) + GenerationJob(status=pending)
 - 验证：Inngest Dev UI 中可见 `video/generate.requested` 事件
@@ -877,8 +1018,8 @@ import { createCaller } from "@/server/trpc";  // 需要导出 createCaller
 |---|--------|------|------|
 | 1 | **Project 初始状态** | `queued`（修改 Schema default） | `draft` 表示编辑中，`queued` 准确描述已提交等待 Inngest 消费 |
 | 2 | **幂等键存储** | `GenerationJob.requestId` + `@unique` | 数据库级强保证，无竞态；放在 GenerationJob 因语义更匹配（每个操作一个 requestId） |
-| 3 | **TOCTOU 防护** | PostgreSQL `pg_advisory_xact_lock(userId)` | 事务内串行化同用户请求，事务提交自动释放；比 `FOR UPDATE` 更适合"阻止新行插入"场景 |
-| 4 | **额度检查数据源** | `GenerationJob` 计数（当前），后续迁至 `UsageRecord` | UsageRecord 写入未实现（ep7-02），GenerationJob 即时可用；API 契约不变 |
+| 3 | **TOCTOU 防护** | 所有检查（额度 + 并发）统一移入 advisory lock 保护的事务内 | 消除事务外检查的竞态窗口；避免"本当报 QUOTA_EXCEEDED 的请求收到 CONCURRENT_LIMIT"的错误消息问题 |
+| 4 | **额度检查数据源** | `GenerationJob` 计数（事务内查询），后续迁至 `UsageRecord` | UsageRecord 写入未实现（ep7-02），GenerationJob 在锁内查询即时可用；API 契约不变 |
 | 5 | **Inngest 发送失败** | 不阻塞 API 响应 + console.error 日志 | 事务已提交无法回滚；Project 保持 queued 等待 ep7-03 sweep 补偿 |
 | 6 | **错误码格式** | 嵌入 TRPCError message（`[CODE] message`） | 先简化实现；完整错误码体系在 ep7-01 统一标准化，届时重构为 `AppError` 类 |
 | 7 | **并发限制上限** | 1 个 active/用户 | PRD v1.0.2 明确要求 |
@@ -908,11 +1049,12 @@ import { createCaller } from "@/server/trpc";  // 需要导出 createCaller
 
 ```
 src/server/services/__tests__/quota.service.test.ts
-├── returns allowed=true, used=0 when no jobs today
+├── returns allowed=true, used=0 when no jobs today (pass tx mock)
 ├── returns allowed=false, used=1 when at daily limit
 ├── ignores cancelled jobs in count
 ├── returns correct resetsAt (end of today)
 └── correctly counts across midnight boundary
+└── does NOT import global prisma (uses tx parameter exclusively)
 
 src/server/services/__tests__/project.service.test.ts
 ├── creates project with status=queued (from Schema default)
@@ -920,8 +1062,11 @@ src/server/services/__tests__/project.service.test.ts
 ├── sets requestId on generationJob correctly
 ├── uses transaction (atomic: both or neither created)
 ├── truncates title >50 chars with "..."
+├── throws QuotaExceededError when non-admin at daily limit
+├── admin bypasses quota check (success even at limit)
 ├── throws ConcurrentLimitError when active project exists
 ├── throws DuplicateRequestError on requestId unique violation
+│   └── verifies Project is rolled back (not leaked) on duplicate
 └── handles optional fields (null/undefined → omitted)
 ```
 
@@ -931,9 +1076,10 @@ src/server/services/__tests__/project.service.test.ts
 src/server/routers/__tests__/project.router.test.ts
 ├── returns projectId + jobId on valid input
 ├── throws BAD_REQUEST on empty sourceText (Zod validation)
-├── throws TOO_MANY_REQUESTS on quota exceeded
-├── throws CONFLICT on duplicate requestId
-├── admin bypasses quota check (success)
+├── throws TOO_MANY_REQUESTS on quota exceeded ([QUOTA_EXCEEDED] in message)
+├── throws TOO_MANY_REQUESTS on concurrent limit ([CONCURRENT_LIMIT])
+├── throws CONFLICT on duplicate requestId ([DUPLICATE_REQUEST])
+├── admin bypasses quota check (success at limit)
 └── sends Inngest event with correct payload
 ```
 
@@ -941,8 +1087,8 @@ src/server/routers/__tests__/project.router.test.ts
 
 ```bash
 # 启动开发环境
-pnpm dev          # Next.js dev server
-pnpm inngest      # Inngest dev server
+npm run dev      # Next.js dev server
+npm run inngest  # Inngest dev server
 
 # curl 测试（需要先获取 session cookie）
 # 1. 登录获取 cookie
@@ -990,7 +1136,7 @@ curl -X POST http://localhost:3000/api/trpc/project.createAndGenerate \
 
 ```
 Commit 1: chore(ep2-01): add vitest and test infrastructure
-  - pnpm add -D vitest @vitest/coverage-v8
+  - npm install -D vitest @vitest/coverage-v8
   - Create vitest.config.ts
   - Add test scripts to package.json
   - Create src/server/services/ and __tests__/ directories
@@ -1001,7 +1147,7 @@ Commit 2: feat(ep2-01): add requestId to GenerationJob + fix Project status defa
   - Generate Prisma migration
 
 Commit 3: feat(ep2-01): implement quota.service and project.service
-  - Add quota.service.ts with checkDailyQuota()
+  - Add quota.service.ts with checkDailyQuota(tx, userId)
   - Add project.service.ts with createProject() + advisory lock
   - Add unit tests for both services
 
@@ -1017,9 +1163,9 @@ Commit 4: feat(ep2-01): implement project.createAndGenerate tRPC mutation
 ## PR Checklist
 
 - [ ] `npx prisma migrate dev` 成功，无 pending migration
-- [ ] `pnpm test` 全部测试通过（含单元测试 + 集成测试）
-- [ ] `pnpm lint` 无新增错误
-- [ ] `pnpm dev` 启动成功，Auth 系统正常工作
+- [ ] `npm test` 全部测试通过（含单元测试 + 集成测试）
+- [ ] `npm run lint` 无新增错误
+- [ ] `npm run dev` 启动成功，Auth 系统正常工作
 - [ ] `project.createAndGenerate` 在 tRPC panel 中可见且可调用
 - [ ] 传入空 sourceText → 400 BAD_REQUEST
 - [ ] 额度用完 → 429 QUOTA_EXCEEDED
