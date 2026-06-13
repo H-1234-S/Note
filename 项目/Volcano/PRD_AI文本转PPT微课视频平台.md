@@ -8,7 +8,7 @@ Volcano AI 微课视频生成平台
 
 ### PRD版本
 
-v1.0.4
+v1.0.5
 
 ### 创建时间
 
@@ -27,6 +27,7 @@ Draft
 | v1.0.2 | 2026-06-13 | 明确默认模型为 DeepSeek、用户并发生成数为 1、TTS 改为通用 Provider、第一版不做管理员后台 |
 | v1.0.3 | 2026-06-13 | 补充免费输入字数 3000-5000、MiniMax TTS 时间戳能力、管理员来源说明 |
 | v1.0.4 | 2026-06-13 | 明确管理员来源采用环境变量邮箱白名单 |
+| v1.0.5 | 2026-06-13 | 明确免费额度每日刷新、首个正式 TTS 为 MiniMax、R2 删除后不保留 |
 
 ---
 
@@ -159,7 +160,7 @@ Draft
 - 使用 Zustand 管理局部 UI 状态。
 - 项目列表、创建页、生成进度页、分镜预览页、视频结果页。
 - 句子级字幕。
-- 基础用量记录和每日生成次数限制。
+- 基础用量记录和每日免费额度限制，免费额度每日刷新一次。
 - 失败原因展示、重试、取消。
 
 ### Out of Scope
@@ -513,7 +514,7 @@ flowchart TD
 - 文本最小长度 50 字。免费用户单次最大输入字数为 3000-5000 字，MVP 默认按 5000 字封顶；若后续接入套餐，可按套餐配置更高上限。
 - 目标时长仅影响 LLM 压缩和 scene 数量，不承诺最终视频精确等于目标时长。
 - 同一用户同时运行中的生成任务数限制为 1 个，即同一时间只能生成一个视频。
-- 每日生成次数限制【待确认】。建议 A：免费用户每日 1 个完整免费视频；建议 B：免费用户每日 3 次生成；建议 C：内测用户每日 10 次。
+- 免费额度每日刷新一次。每日免费完整视频生成次数【待确认】；建议 MVP 默认免费用户每日 1 个完整免费视频，内测用户可通过配置提高。
 
 #### 用户操作流程
 
@@ -660,9 +661,11 @@ stateDiagram-v2
 #### 业务规则
 
 - 每个 scene 单独生成一个音频文件。
-- 使用可插拔 TTS Provider，不绑定 MiniMax；任意能满足接口契约的 TTS 服务均可接入。
+- 使用可插拔 TTS Provider，首个正式默认 Provider 为 MiniMax TTS；架构上仍允许后续接入任意满足接口契约的 TTS 服务。
 - TTS Provider 必须支持高质量中文语音输出，并返回音频二进制或可下载音频地址。
-- MiniMax 可作为首个 TTS Provider 候选：同步 HTTP T2A 在开启 `subtitle_enable` 后支持 `sentence`、`word`、`word_streaming` 字幕类型，其中 `word_streaming` 需 `stream=true`；异步长文本 TTS 支持句级字幕时间戳。
+- MiniMax 为首个正式 TTS Provider：同步 HTTP T2A 在开启 `subtitle_enable` 后支持 `sentence`、`word`、`word_streaming` 字幕类型，其中 `word_streaming` 需 `stream=true`；异步长文本 TTS 支持句级字幕时间戳。
+- MiniMax 同步 HTTP T2A 单次 text 需小于 10,000 字；官方建议超过 3,000 字使用 streaming output。
+- MiniMax 异步 T2A 支持更长文本，text 最大 50,000 字，文件输入最大 1,000,000 字；异步任务完成后需及时下载文件，避免下载 URL 过期。
 - 音频格式第一版优先使用 mp3；若 Provider 输出 wav/aac，系统需在入库前统一转码或记录 contentType。
 - 若相同 textHash + voiceProvider + voiceId + speed 已存在音频，则复用 Asset。
 - durationMs 必须存在；Provider 不返回时用音频分析工具计算。
@@ -944,7 +947,7 @@ stateDiagram-v2
 #### 业务规则
 
 - LLM 第一版默认 Provider 为 `deepseek`，通过 OpenAI-compatible API 适配。
-- TTS 第一版必须通过 `TtsProvider` 接口接入具体服务，不允许在业务流程中写死厂商名称。
+- TTS 第一版默认 Provider 为 `minimax`，但必须通过 `TtsProvider` 接口接入，不允许在业务流程中写死厂商 SDK。
 - TTS Provider 必须返回音频二进制或可下载地址，且系统最终必须获得 `durationMs`。
 - Storage 第一版 Provider 为 `cloudflare-r2`。
 - Render 第一版 Provider 为 `remotion-worker`。
@@ -979,6 +982,7 @@ export interface LlmProvider {
 export interface TtsProvider {
   id: string;
   type: "tts";
+  vendor: "minimax" | string;
 
   listVoices(input: {
     language: "zh-CN" | "en-US";
@@ -1077,6 +1081,8 @@ stateDiagram-v2
 - TTS Provider 不支持中文。
 - TTS Provider 返回音频 URL 但下载失败。
 - TTS Provider 返回格式不在支持列表中。
+- MiniMax 同步 T2A 文本超过接口限制。
+- MiniMax 异步 T2A 下载 URL 过期。
 - DeepSeek 返回内容不符合 Storyboard Schema。
 
 #### 异常情况
@@ -1874,7 +1880,7 @@ POST
 ### 灾备方案
 
 - 数据库每日备份。
-- R2 文件保留策略【待确认】。建议 A：用户删除后软删 7 天；建议 B：立即删除；建议 C：按套餐保留。
+- R2 文件删除后不保留。用户删除项目或资源时，系统在权限校验通过后删除数据库引用并物理删除 R2 对象；若 R2 删除失败，记录待清理任务并重试。
 - Inngest 任务可通过 Job 状态恢复。
 - 渲染临时文件可定期清理。
 
@@ -2098,8 +2104,8 @@ Task：
 ## 需求缺失项
 
 - 默认国内大模型已明确为 DeepSeek，并通过 OpenAI-compatible Provider 接入。
-- TTS 不绑定 MiniMax，需定义通用 Provider 接口；MiniMax 可作为首个候选 Provider，词级时间戳优先使用同步 HTTP T2A 能力。若具体服务不支持词级时间戳，第一版降级为句子级字幕。
-- 未明确用户额度和套餐策略。【待确认】建议 MVP 采用每日生成次数限制。
+- TTS 业务流程不绑定 MiniMax SDK，但首个正式默认 Provider 为 MiniMax。词级时间戳优先使用同步 HTTP T2A 能力；异步长文本场景使用句级字幕。
+- 免费额度刷新周期已明确为每日刷新；每日免费完整视频生成次数仍需最终定案，建议 MVP 默认为每日 1 个。
 - 未明确是否支持公开分享。【待确认】建议第一版不做公开分享。
 - 管理员后台已明确第一版不做，仅保留服务端权限能力。
 
@@ -2152,7 +2158,7 @@ Task：
 
 - 国内大模型第一版接入 `OpenAICompatibleProvider`，具体 endpoint 通过环境变量配置。
 - 默认模型供应商为 DeepSeek，通过 OpenAI-compatible Provider 接入。
-- TTS 第一版采用通用 Provider 抽象，不绑定 MiniMax；MiniMax 可作为首个候选适配器。若具体服务无词级时间戳，则使用句子级字幕估算。
+- TTS 第一版采用通用 Provider 抽象，首个正式默认适配器为 MiniMax。若未来具体服务无词级时间戳，则使用句子级字幕估算。
 - 认证使用已有 better-auth，管理员角色通过环境变量 `ADMIN_EMAILS` 邮箱白名单判断。
 - 第一版不做公开分享。
 - 第一版不做管理员后台，仅保留管理员权限判断和必要的日志排查能力。
@@ -2171,8 +2177,8 @@ Asset 新增字段：
 - 上传成功且数据库写入成功：`active`。
 - 上传成功但流程失败且未被引用：`orphaned`。
 - 渲染临时文件：`temporary`。
-- 用户删除项目：Asset 标记 `deleted`，R2 文件延迟删除【待确认】建议 7 天。
-- 定时任务每日清理 `temporary` 和超过保留期的 `orphaned` 文件。
+- 用户删除项目：Asset 标记 `deleted`，R2 文件立即物理删除，不做保留；删除失败则进入待清理重试队列。
+- 定时任务每日清理 `temporary` 和 `orphaned` 文件；R2 对象一经删除不做保留。
 
 ## 修订 3：补充软取消机制
 
@@ -2267,20 +2273,20 @@ QA 必须覆盖：
 - 用户 A 无法访问用户 B 项目和资源。
 - 签名 URL 过期后重新获取。
 
-## 修订 10：v1.0.1 结论
+## 修订 10：v1.0.5 结论
 
-PRD v1.0.4 可进入评审；以下事项已在 2026-06-13 补充确认：
+PRD v1.0.5 可进入评审；以下事项已在 2026-06-13 补充确认：
 
 - 默认国内大模型：DeepSeek。
 - 同一用户并发生成视频数：1。
-- TTS：不绑定 MiniMax，采用通用高质量 TTS Provider 抽象。
-- MiniMax TTS 能力：同步 HTTP T2A 可提供句级/词级/流式词级时间戳，异步长文本 TTS 可提供句级时间戳。
+- TTS：采用通用高质量 TTS Provider 抽象，首个正式默认 Provider 为 MiniMax TTS。
+- MiniMax TTS 能力：同步 HTTP T2A 可提供句级/词级/流式词级时间戳；同步 text 小于 10,000 字，超过 3,000 字建议流式；异步长文本 TTS 可提供句级时间戳。
 - 免费用户单次输入字数：3000-5000，MVP 默认 5000 字封顶。
+- 免费额度刷新：每日刷新一次。
 - 管理员后台：第一版不做。
 - 管理员来源：通过环境变量 `ADMIN_EMAILS` 维护邮箱白名单。
+- R2 删除策略：删除后不保留，物理删除对象。
 
 仍有以下待确认项建议在开发启动前定案：
 
-- 每日或每周期免费完整视频生成次数。
-- 首个正式默认 TTS 服务供应商；MiniMax 目前可作为候选适配器。
-- R2 文件删除保留期。
+- 每日免费完整视频生成次数。
