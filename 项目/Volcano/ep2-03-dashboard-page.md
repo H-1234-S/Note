@@ -573,7 +573,7 @@ export function HistoryCardActions({ projectId, status, onPlay }: Props) {
 空状态中 `data?.items.length` 需要改为过滤后的 `items.length`：
 
 ```typescript
-if (!isLoading && data?.items.length === 0) {
+if (!isLoading && items.length === 0) {
   return (
     <EmptyState
       icon={<Clapperboard className="h-16 w-16 text-muted-foreground/30" />}
@@ -623,7 +623,7 @@ page.tsx
 │       ├─ Tab "generate" → GenerateTab
 │       │   └─ trpc.project.createAndGenerate.useMutation()
 │       ├─ Tab "history" → HistoryTab
-│       │   ├─ trpc.project.list.useQuery({ status: "completed" })
+│       │   ├─ trpc.project.list.useQuery({ pageSize: 50 })  // 不传 status，客户端过滤 deleted
 │       │   ├─ refetchInterval: 10_000 (追踪生成中→已完成)
 │       │   ├─ FocusCards (cards = items → {title, src})
 │       │   ├─ isLoading → VideoCardSkeleton
@@ -838,7 +838,7 @@ page.tsx
 **Then** 跳转到 `/projects/[id]/play` 视频播放页
 
 ### AC12: 历史记录—空状态
-**Given** 用户没有任何已完成项目
+**Given** 用户没有任何有效项目（所有项目均为 deleted 或无项目）
 **When** 切换到"历史记录"Tab
 **Then** 显示空状态：图标 + "还没有生成视频" + "开始生成"按钮
 **When** 点击"开始生成"
@@ -888,7 +888,7 @@ page.tsx
 | 4 | **导航栏布局** | 居中三 Tab + 右侧用户中心（flex + 左侧占位） | 纯 CSS 居中比 `position: absolute` 更健壮 |
 | 5 | **Tab 状态** | `useState`，不写入 URL search params | v1 不需要 bookmark 特定 Tab；后续若需要可改 `useSearchParams` |
 | 6 | **生成 Tab 配置** | v1 全部硬编码（16:9 / 120s / minimax），无配置面板 | 极简优先；配置面板在 `ep2-04` 或后续迭代中作为可选功能添加 |
-| 7 | **历史记录数据源** | `project.list({ status: "completed", pageSize: 50 })` | 一次性加载足够多；后续若有大量历史项目可加分页 |
+| 7 | **历史记录数据源** | `project.list({ pageSize: 50 })`（不传 status，客户端过滤 deleted） | 一次性加载所有非 deleted 项目（含生成中/失败等）；轮询追踪正在生成的项目；后续若有大量历史项目可加分页 |
 | 8 | **轮询策略** | `refetchInterval: 10_000`（全局），不管 Tab 是否激活 | 10 秒间隔对服务器压力小（每个用户约 0.1 QPS）；TanStack Query 在 Tab 不可见时也会轮询（简单方案） |
 | 9 | **视频截图占位** | 纯色 SVG data URI（按 index 选不同颜色） | 无外部依赖，渲染即展示；renderStill 就绪后替换为 `asset.getSignedUrl` |
 | 10 | **FocusCards 使用** | 直接传 `cards={items.map(toFocusCard)}`，不封装 | 保持 Aceternity UI 原始 API，便于后续升级 |
