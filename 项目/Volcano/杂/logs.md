@@ -710,4 +710,8 @@ Phase 3
 可以使用 /opsx:explore 命令根据项目 review change 文档
 
 根据错误和问题再让 ai 单独对 change 文档进行修改、补丁
+
+总之还是花费很多的时间先对其需求
+
+之后进行编码
 ```
