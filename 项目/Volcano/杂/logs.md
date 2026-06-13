@@ -700,12 +700,14 @@ Phase 3
 
 先让 ai 生成一份重点规划实践大纲
 
-之后根据大纲进行单独的change实现
+之后根据大纲进行单独的 change 实现
 ```
 
 与openspec结合：
 ```
-生成完具体的change文档后
+生成完具体的 change 文档后
 
-可以使用/opsx:explore 命令gen
+可以使用 /opsx:explore 命令根据项目 review change 文档
+
+根据错误和问题再让 ai 单独对 change 文档进行修改、补丁
 ```
