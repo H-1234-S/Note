@@ -8,7 +8,7 @@ Volcano AI 微课视频生成平台
 
 ### PRD版本
 
-v1.0.2
+v1.0.3
 
 ### 创建时间
 
@@ -25,6 +25,7 @@ Draft
 | v1.0.0 | 2026-06-13 | 创建完整 PRD 初稿 |
 | v1.0.1 | 2026-06-13 | 完成产品评审并补充修订项 |
 | v1.0.2 | 2026-06-13 | 明确默认模型为 DeepSeek、用户并发生成数为 1、TTS 改为通用 Provider、第一版不做管理员后台 |
+| v1.0.3 | 2026-06-13 | 补充免费输入字数 3000-5000、MiniMax TTS 时间戳能力、管理员来源说明 |
 
 ---
 
@@ -508,10 +509,10 @@ flowchart TD
 #### 业务规则
 
 - 输入文本必填。
-- 文本最小长度 50 字，最大长度【待确认】。建议 A：5000 字；建议 B：8000 字；建议 C：按套餐配置。
+- 文本最小长度 50 字。免费用户单次最大输入字数为 3000-5000 字，MVP 默认按 5000 字封顶；若后续接入套餐，可按套餐配置更高上限。
 - 目标时长仅影响 LLM 压缩和 scene 数量，不承诺最终视频精确等于目标时长。
 - 同一用户同时运行中的生成任务数限制为 1 个，即同一时间只能生成一个视频。
-- 每日生成次数限制【待确认】。建议 A：免费用户 3 次；建议 B：内测用户 10 次；建议 C：后台配置。
+- 每日生成次数限制【待确认】。建议 A：免费用户每日 1 个完整免费视频；建议 B：免费用户每日 3 次生成；建议 C：内测用户每日 10 次。
 
 #### 用户操作流程
 
@@ -660,6 +661,7 @@ stateDiagram-v2
 - 每个 scene 单独生成一个音频文件。
 - 使用可插拔 TTS Provider，不绑定 MiniMax；任意能满足接口契约的 TTS 服务均可接入。
 - TTS Provider 必须支持高质量中文语音输出，并返回音频二进制或可下载音频地址。
+- MiniMax 可作为首个 TTS Provider 候选：同步 HTTP T2A 在开启 `subtitle_enable` 后支持 `sentence`、`word`、`word_streaming` 字幕类型，其中 `word_streaming` 需 `stream=true`；异步长文本 TTS 支持句级字幕时间戳。
 - 音频格式第一版优先使用 mp3；若 Provider 输出 wav/aac，系统需在入库前统一转码或记录 contentType。
 - 若相同 textHash + voiceProvider + voiceId + speed 已存在音频，则复用 Asset。
 - durationMs 必须存在；Provider 不返回时用音频分析工具计算。
@@ -1311,7 +1313,7 @@ Mutation
   "type": "object",
   "required": ["sourceText", "audienceRole", "aspectRatio", "targetDurationSec", "voiceProvider", "voiceId"],
   "properties": {
-    "sourceText": { "type": "string", "minLength": 50, "maxLength": 8000 },
+    "sourceText": { "type": "string", "minLength": 50, "maxLength": 5000 },
     "audienceRole": { "type": "string", "enum": ["student", "teacher"] },
     "audienceLevel": { "type": "string" },
     "aspectRatio": { "type": "string", "enum": ["16:9", "9:16", "1:1"] },
@@ -2083,7 +2085,7 @@ Task：
 ### 风险点
 
 - 中文字体和 Remotion Worker 环境必须提前验证。
-- TTS Provider 是否返回时间戳取决于具体服务；若无，第一版使用句子级估算。
+- TTS Provider 是否返回时间戳取决于具体服务；MiniMax 同步 HTTP T2A 可支持句级和词级时间戳，异步长文本 TTS 可支持句级时间戳。若具体服务无时间戳，第一版使用句子级估算。
 - 国内大模型 JSON 稳定性需要压测。
 - 生成成本需要从第一天记录 UsageRecord。
 - R2 私有资源的签名 URL 有效期需覆盖渲染耗时。
@@ -2095,7 +2097,7 @@ Task：
 ## 需求缺失项
 
 - 默认国内大模型已明确为 DeepSeek，并通过 OpenAI-compatible Provider 接入。
-- TTS 不绑定 MiniMax，需定义通用 Provider 接口；词级时间戳若具体服务不支持，第一版使用句子级字幕。
+- TTS 不绑定 MiniMax，需定义通用 Provider 接口；MiniMax 可作为首个候选 Provider，词级时间戳优先使用同步 HTTP T2A 能力。若具体服务不支持词级时间戳，第一版降级为句子级字幕。
 - 未明确用户额度和套餐策略。【待确认】建议 MVP 采用每日生成次数限制。
 - 未明确是否支持公开分享。【待确认】建议第一版不做公开分享。
 - 管理员后台已明确第一版不做，仅保留服务端权限能力。
@@ -2109,7 +2111,7 @@ Task：
 
 ## 权限问题
 
-- better-auth 角色来源未定义。【待确认】管理员 role 是写入 user metadata 还是独立 UserRole 表。
+- better-auth 管理员来源未定义。【待确认】管理员来源指系统如何判断一个登录用户是否为管理员：方案 A 是在 better-auth user metadata 中写入 role；方案 B 是建立独立 UserRole 表；方案 C 是通过环境变量维护管理员邮箱白名单。
 - 分享链接权限未确定，若做公开分享，需要独立 ShareToken 表。
 - Asset 访问必须避免仅通过 assetId 判断，要反查 project.userId。
 
@@ -2149,7 +2151,7 @@ Task：
 
 - 国内大模型第一版接入 `OpenAICompatibleProvider`，具体 endpoint 通过环境变量配置。
 - 默认模型供应商为 DeepSeek，通过 OpenAI-compatible Provider 接入。
-- TTS 第一版采用通用 Provider 抽象，不绑定 MiniMax；若具体服务无词级时间戳，则使用句子级字幕估算。
+- TTS 第一版采用通用 Provider 抽象，不绑定 MiniMax；MiniMax 可作为首个候选适配器。若具体服务无词级时间戳，则使用句子级字幕估算。
 - 认证使用已有 better-auth，管理员角色读取方式【待确认】。
 - 第一版不做公开分享。
 - 第一版不做管理员后台，仅保留管理员权限判断和必要的日志排查能力。
@@ -2266,17 +2268,18 @@ QA 必须覆盖：
 
 ## 修订 10：v1.0.1 结论
 
-PRD v1.0.2 可进入评审；以下事项已在 2026-06-13 补充确认：
+PRD v1.0.3 可进入评审；以下事项已在 2026-06-13 补充确认：
 
 - 默认国内大模型：DeepSeek。
 - 同一用户并发生成视频数：1。
 - TTS：不绑定 MiniMax，采用通用高质量 TTS Provider 抽象。
+- MiniMax TTS 能力：同步 HTTP T2A 可提供句级/词级/流式词级时间戳，异步长文本 TTS 可提供句级时间戳。
+- 免费用户单次输入字数：3000-5000，MVP 默认 5000 字封顶。
 - 管理员后台：第一版不做。
 
 仍有以下待确认项建议在开发启动前定案：
 
-- 最大输入字数。
-- 免费额度。
-- 首个具体 TTS 服务供应商及其是否提供时间戳。
-- 管理员角色来源。
+- 每日或每周期免费完整视频生成次数。
+- 首个正式默认 TTS 服务供应商；MiniMax 目前可作为候选适配器。
+- 管理员来源方案。
 - R2 文件删除保留期。
