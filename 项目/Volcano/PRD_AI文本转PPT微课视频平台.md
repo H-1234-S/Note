@@ -8,7 +8,7 @@ Volcano AI 微课视频生成平台
 
 ### PRD版本
 
-v1.0.5
+v1.0.6
 
 ### 创建时间
 
@@ -28,6 +28,7 @@ Draft
 | v1.0.3 | 2026-06-13 | 补充免费输入字数 3000-5000、MiniMax TTS 时间戳能力、管理员来源说明 |
 | v1.0.4 | 2026-06-13 | 明确管理员来源采用环境变量邮箱白名单 |
 | v1.0.5 | 2026-06-13 | 明确免费额度每日刷新、首个正式 TTS 为 MiniMax、R2 删除后不保留 |
+| v1.0.6 | 2026-06-13 | 明确 Remotion 作为项目内视频模板与动效引擎集成，渲染执行由 Worker 承载 |
 
 ---
 
@@ -84,7 +85,7 @@ Draft
 - 使用 Prisma + PostgreSQL 管理业务数据。
 - 使用 Inngest 编排长任务和失败重试。
 - 使用 Cloudflare R2 存储音频、字幕、分镜 JSON、缩略图和视频。
-- 使用 Remotion Worker 渲染 PPT 风格微课视频。
+- 在项目内集成 Remotion，作为 PPT 微课视频模板、视觉效果和动效实现引擎；渲染执行由独立 Worker 进程/服务承载。
 - 默认大模型使用 DeepSeek，并通过 OpenAI-compatible LLM Provider 接入。
 - TTS 使用通用 Provider 抽象，第一版不绑定固定厂商，允许接入任意满足质量和接口契约的 TTS 服务。
 - 抽象 LLM Provider、TTS Provider、Storage Provider 和 Render Provider。
@@ -151,7 +152,7 @@ Draft
 - 每个 scene 单独调用可插拔 TTS Provider 生成高质量音频，第一版不绑定固定 TTS 厂商。
 - 获取或计算每段音频 durationMs。
 - 根据音频时长生成 timeline。
-- 使用 Remotion Worker 渲染 MP4。
+- 使用项目内 Remotion 模板与动效代码渲染 MP4，渲染执行在独立 Worker 中完成。
 - 上传音频、字幕、分镜 JSON、缩略图、MP4 到 Cloudflare R2。
 - 使用 Inngest 编排任务、重试和阶段状态。
 - 默认使用 DeepSeek 生成 Storyboard。
@@ -204,7 +205,8 @@ Volcano AI 微课视频生成平台
 │   ├── TTS 音频生成
 │   ├── 字幕生成
 │   ├── 时间轴计算
-│   ├── Remotion 渲染
+│   ├── Remotion 模板与动效
+│   ├── Remotion 渲染执行
 │   └── 结果归档
 ├── 资源管理
 │   ├── R2 上传
@@ -257,7 +259,7 @@ flowchart TD
   S4 --> R2A["上传音频到 R2"]
   R2A --> S5["写入 Asset 与音频 durationMs"]
   S5 --> S6["计算 timeline"]
-  S6 --> S7["调用 Remotion Worker"]
+  S6 --> S7["调用内置 Remotion 渲染 Worker"]
   S7 --> R2V["上传 MP4 与缩略图到 R2"]
   R2V --> S8["更新 RenderJob / Project completed"]
   S8 --> UI["前端展示视频结果"]
@@ -801,15 +803,18 @@ stateDiagram-v2
 
 #### 功能目标
 
-将最终 Storyboard 渲染为 MP4，并生成缩略图。
+基于项目内 Remotion 模板和动效代码，将最终 Storyboard 渲染为 MP4，并生成缩略图。Remotion 不作为单纯外接黑盒服务，而是产品视频效果、页面动效、字幕表现和教学可视化模板的核心实现层。
 
 #### 业务规则
 
-- 渲染使用独立 Remotion Worker。
-- Worker 只消费已校验 Storyboard。
+- Remotion 模板、Composition、场景组件和动效代码必须集成在项目仓库内，建议采用 monorepo package 管理。
+- 渲染执行使用独立 Remotion Worker 进程/服务，避免阻塞 Next.js Web/API。
+- Worker 只消费已校验 Storyboard 和项目内受控模板。
 - 渲染输出为 mp4，codec 为 h264。
 - 第一版支持 16:9、9:16、1:1。
 - 渲染失败可重试，已生成视频不重复渲染。
+- 视频效果和动效必须基于 Storyboard JSON 驱动，不允许 LLM 直接生成任意可执行 React 代码。
+- 第一版内置 6-8 个 PPT 微课模板，包含入场、强调、步骤揭示、字幕同步和转场动效。
 
 #### 用户操作流程
 
@@ -818,13 +823,14 @@ stateDiagram-v2
 #### 系统处理逻辑
 
 1. Inngest 调用 Render Provider。
-2. Render Provider 将 Storyboard 和签名资源 URL 传给 Worker。
-3. Worker 拉取音频资源。
-4. Remotion 渲染视频。
-5. 生成缩略图。
-6. 上传 MP4 和缩略图到 R2。
-7. 写入 Asset 和 RenderJob。
-8. Project 状态更新 completed。
+2. Render Provider 读取项目内 Remotion Composition 和模板注册表。
+3. Render Provider 将 Storyboard 和签名资源 URL 传给 Worker。
+4. Worker 拉取音频资源。
+5. Worker 使用项目内 Remotion 代码渲染视频。
+6. 生成缩略图。
+7. 上传 MP4 和缩略图到 R2。
+8. 写入 Asset 和 RenderJob。
+9. Project 状态更新 completed。
 
 #### 状态流转图
 
@@ -845,6 +851,8 @@ stateDiagram-v2
 - Worker 磁盘空间不足。
 - 视频总时长超限。
 - R2 上传大文件失败。
+- Storyboard 引用了不存在的 Remotion 模板。
+- Remotion Composition 版本与 Storyboard schemaVersion 不兼容。
 
 #### 异常情况
 
@@ -861,6 +869,7 @@ stateDiagram-v2
 
 - Worker 不暴露公开渲染接口，需内部 token。
 - Storyboard 中不允许外部任意资源 URL。
+- LLM 不得直接生成 Remotion/React/JSX 代码；只能生成受 Schema 限制的视觉意图和模板参数。
 
 #### 埋点设计
 
@@ -1256,6 +1265,7 @@ erDiagram
 | storyboardVersionId | String | 分镜版本，索引 |
 | status | JobStatus | 状态 |
 | renderConfigHash | String | 渲染配置 hash |
+| remotionTemplateVersion | String | Remotion 模板代码版本 |
 | outputAssetId | String? | MP4 Asset |
 | thumbnailAssetId | String? | 缩略图 Asset |
 | workerId | String? | Worker 标识 |
@@ -1894,12 +1904,14 @@ POST
 | 技术风险 | TTS 音频时长不准确 | 音画不同步 | 逐 scene TTS、服务端解析 duration、timeline validation |
 | 技术风险 | Remotion Worker 部署复杂 | 渲染失败率高 | Docker 化、预装中文字体、限制并发 |
 | 技术风险 | R2 签名 URL 过期 | 渲染拉取资源失败 | Worker 渲染前生成足够长有效期 URL 或服务端代理 |
+| 技术风险 | Remotion 模板代码与 Worker 部署版本不一致 | 渲染结果不可复现 | 使用 monorepo 统一版本，RenderJob 记录 remotionTemplateVersion |
 | 业务风险 | 生成效果不符合老师预期 | 留存低 | 固定高质量模板、分镜预览、后续支持编辑 |
 | 业务风险 | 成本不可控 | 毛利为负 | 额度、并发限制、UsageRecord |
 | 数据风险 | 中间状态不一致 | 任务无法恢复 | 幂等键、JobEvent、阶段性落库 |
 | 运营风险 | 失败原因不透明 | 用户投诉 | 错误码映射用户友好提示 |
 | 法律合规风险 | 用户输入侵权或敏感内容 | 合规风险 | 内容审核、用户协议、举报和删除机制 |
 | 法律合规风险 | TTS 语音授权不清 | 商业使用风险 | 选择可商用 voice，记录 provider 与 voiceId |
+| 法律合规风险 | Remotion 存在特殊 license，部分公司场景可能需要商业许可 | 商业化受阻 | 开发前确认 Remotion license 适用范围，必要时购买或申请对应许可 |
 
 ---
 
@@ -2017,8 +2029,10 @@ Task：
 Story：系统可根据音频时长渲染 MP4  
 Task：
 - 实现 timeline calculator。
-- 搭建 Remotion Worker。
-- 实现 6-8 个 PPT 微课模板。
+- 在项目内集成 Remotion package。
+- 搭建 Remotion Worker 执行环境。
+- 实现 6-8 个 PPT 微课模板和动效预设。
+- 实现 Remotion 模板注册表，将 Storyboard scene type 映射到 Composition 组件。
 - 实现字幕组件。
 - 实现视频上传和缩略图生成。
 
@@ -2051,6 +2065,30 @@ Task：
 ---
 
 ## 18. 技术实现建议
+
+### 代码组织建议
+
+建议采用 monorepo 结构，将 Remotion 作为项目内核心 package 集成：
+
+```text
+apps
+├── web                 # Next.js App Router、tRPC、页面 UI
+└── render-worker       # Remotion 渲染执行进程/服务
+packages
+├── storyboard          # Storyboard 类型、Zod Schema、timeline calculator
+├── remotion-video      # Remotion Composition、模板组件、动效预设、字幕组件
+├── providers           # LLM / TTS / Storage / Render Provider 抽象与适配器
+├── db                  # Prisma schema 和数据库访问
+└── shared              # 通用类型、错误码、埋点常量
+```
+
+边界规则：
+
+- `packages/remotion-video` 负责视频画面、动效、字幕和模板注册表。
+- `apps/render-worker` 负责加载 `packages/remotion-video` 并执行渲染。
+- `apps/web` 可复用 Remotion 模板做静态分镜预览，但不在 Web 请求中执行最终视频渲染。
+- `packages/storyboard` 是 LLM、TTS、Remotion 和前端预览之间的协议层。
+- LLM 只输出 Storyboard JSON，不输出 Remotion/React/JSX 代码。
 
 ### 数据库设计建议
 
@@ -2085,13 +2123,16 @@ Task：
 
 - Provider 抽象支持替换 LLM、TTS、Storage、Render。
 - Storyboard schemaVersion 支持后续升级。
-- Render Provider 第一版 Remotion，后续可接 HyperFrames。
+- Render Provider 第一版为项目内 Remotion 集成，后续可接 HyperFrames 或其他渲染器。
 - Scene type 先限制，后续增量扩展。
 - StoryboardVersion 支持未来编辑器和版本回滚。
+- Remotion 模板需通过模板注册表扩展，新增模板不得破坏已有 StoryboardVersion 的渲染兼容性。
 
 ### 风险点
 
 - 中文字体和 Remotion Worker 环境必须提前验证。
+- Remotion license 需要在商业化前确认是否需要公司许可。
+- Remotion 模板代码应随应用版本发布，RenderJob 需记录模板版本以便问题追溯。
 - TTS Provider 是否返回时间戳取决于具体服务；MiniMax 同步 HTTP T2A 可支持句级和词级时间戳，异步长文本 TTS 可支持句级时间戳。若具体服务无时间戳，第一版使用句子级估算。
 - 国内大模型 JSON 稳定性需要压测。
 - 生成成本需要从第一天记录 UsageRecord。
@@ -2273,9 +2314,9 @@ QA 必须覆盖：
 - 用户 A 无法访问用户 B 项目和资源。
 - 签名 URL 过期后重新获取。
 
-## 修订 10：v1.0.5 结论
+## 修订 10：v1.0.6 结论
 
-PRD v1.0.5 可进入评审；以下事项已在 2026-06-13 补充确认：
+PRD v1.0.6 可进入评审；以下事项已在 2026-06-13 补充确认：
 
 - 默认国内大模型：DeepSeek。
 - 同一用户并发生成视频数：1。
@@ -2286,6 +2327,7 @@ PRD v1.0.5 可进入评审；以下事项已在 2026-06-13 补充确认：
 - 管理员后台：第一版不做。
 - 管理员来源：通过环境变量 `ADMIN_EMAILS` 维护邮箱白名单。
 - R2 删除策略：删除后不保留，物理删除对象。
+- Remotion 集成方式：作为项目内视频模板与动效引擎集成，渲染执行由独立 Worker 进程/服务承载。
 
 仍有以下待确认项建议在开发启动前定案：
 
