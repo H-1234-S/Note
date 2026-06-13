@@ -82,6 +82,8 @@ Draft
 - 使用 Inngest 编排长任务和失败重试。
 - 使用 Cloudflare R2 存储音频、字幕、分镜 JSON、缩略图和视频。
 - 使用 Remotion Worker 渲染 PPT 风格微课视频。
+- 默认大模型使用 DeepSeek，并通过 OpenAI-compatible LLM Provider 接入。
+- TTS 使用通用 Provider 抽象，第一版不绑定固定厂商，允许接入任意满足质量和接口契约的 TTS 服务。
 - 抽象 LLM Provider、TTS Provider、Storage Provider 和 Render Provider。
 - 从第一天建立 Storyboard JSON、Job 状态机、Asset 存储模型。
 
@@ -149,6 +151,8 @@ Draft
 - 使用 Remotion Worker 渲染 MP4。
 - 上传音频、字幕、分镜 JSON、缩略图、MP4 到 Cloudflare R2。
 - 使用 Inngest 编排任务、重试和阶段状态。
+- 默认使用 DeepSeek 生成 Storyboard。
+- 同一用户同一时间只允许 1 个视频生成任务处于运行态。
 - 使用 tRPC + TanStack Query 查询和变更数据。
 - 使用 Zustand 管理局部 UI 状态。
 - 项目列表、创建页、生成进度页、分镜预览页、视频结果页。
@@ -170,6 +174,7 @@ Draft
 - 多语言视频生成。
 - 逐字级字幕高亮。
 - PPTX 导出。
+- 管理员后台页面。
 
 ---
 
@@ -927,6 +932,177 @@ stateDiagram-v2
 
 - 记录 userId、assetId、projectId、assetType、expiresInSec。
 
+### 功能名称：Provider 抽象管理
+
+#### 功能目标
+
+将 LLM、TTS、Storage、Render 能力封装为稳定接口，业务流程只依赖接口契约，不直接依赖具体厂商 SDK。
+
+#### 业务规则
+
+- LLM 第一版默认 Provider 为 `deepseek`，通过 OpenAI-compatible API 适配。
+- TTS 第一版必须通过 `TtsProvider` 接口接入具体服务，不允许在业务流程中写死厂商名称。
+- TTS Provider 必须返回音频二进制或可下载地址，且系统最终必须获得 `durationMs`。
+- Storage 第一版 Provider 为 `cloudflare-r2`。
+- Render 第一版 Provider 为 `remotion-worker`。
+- Provider 配置第一版通过服务端环境变量完成，不提供管理员配置后台。
+- Provider 调用失败需统一映射为平台错误码。
+
+#### 接口契约
+
+```ts
+export interface LlmProvider {
+  id: "deepseek" | string;
+  type: "llm";
+
+  generateStoryboard(input: {
+    rawText: string;
+    audienceRole: "student" | "teacher";
+    audienceLevel?: string;
+    aspectRatio: "16:9" | "9:16" | "1:1";
+    targetDurationSec: 60 | 180 | 300;
+    language: "zh-CN";
+  }): Promise<Storyboard>;
+
+  repairStoryboardJson(input: {
+    invalidOutput: string;
+    schemaErrors: Array<{
+      path: string;
+      message: string;
+    }>;
+  }): Promise<Storyboard>;
+}
+
+export interface TtsProvider {
+  id: string;
+  type: "tts";
+
+  listVoices(input: {
+    language: "zh-CN" | "en-US";
+  }): Promise<Array<{
+    voiceId: string;
+    name: string;
+    language: string;
+    gender?: "male" | "female" | "neutral";
+    style?: string;
+    sampleUrl?: string;
+  }>>;
+
+  synthesize(input: {
+    text: string;
+    voiceId: string;
+    speed?: number;
+    format: "mp3" | "wav";
+  }): Promise<{
+    audioBuffer?: Buffer;
+    audioUrl?: string;
+    contentType: string;
+    durationMs?: number;
+    captions?: CaptionSegment[];
+    providerRequestId?: string;
+  }>;
+}
+
+export interface StorageProvider {
+  id: "cloudflare-r2" | string;
+  type: "storage";
+
+  upload(input: {
+    key: string;
+    body: Buffer | ReadableStream;
+    contentType: string;
+    metadata?: Record<string, string>;
+  }): Promise<{
+    key: string;
+    sizeBytes?: number;
+    checksum?: string;
+  }>;
+
+  getSignedUrl(input: {
+    key: string;
+    expiresInSec: number;
+    purpose: "preview" | "download" | "render";
+  }): Promise<string>;
+}
+
+export interface RenderProvider {
+  id: "remotion-worker" | string;
+  type: "render";
+
+  render(input: {
+    renderJobId: string;
+    storyboard: Storyboard;
+    outputKey: string;
+  }): Promise<{
+    videoAssetKey: string;
+    thumbnailAssetKey?: string;
+    durationMs: number;
+    sizeBytes: number;
+  }>;
+}
+```
+
+#### 用户操作流程
+
+用户无直接操作。用户仅在创建页选择可用语音，前端展示由服务端返回的 voice list。
+
+#### 系统处理逻辑
+
+1. 服务启动时读取 Provider 环境变量。
+2. 后端注册可用 Provider。
+3. 创建页通过 API 获取当前可用 TTS voices。
+4. 生成任务按项目记录的 providerId 调用对应 Provider。
+5. Provider 返回结果后统一转换为平台内部数据结构。
+6. 调用失败时记录 providerId、requestId、latencyMs 和标准错误码。
+
+#### 状态流转图
+
+```mermaid
+stateDiagram-v2
+  [*] --> configured
+  configured --> available: health check passed
+  configured --> unavailable: health check failed
+  available --> degraded: error rate threshold exceeded
+  degraded --> available: recovered
+  unavailable --> available: config fixed
+```
+
+#### 边界条件
+
+- Provider 环境变量缺失。
+- Provider health check 失败。
+- TTS Provider 不支持中文。
+- TTS Provider 返回音频 URL 但下载失败。
+- TTS Provider 返回格式不在支持列表中。
+- DeepSeek 返回内容不符合 Storyboard Schema。
+
+#### 异常情况
+
+- Provider 不可用：阻止创建任务或在任务阶段 failed。
+- Provider 限流：标记 retrying，并按 Inngest 策略重试。
+- Provider 返回未知错误：映射为 `PROVIDER_UNKNOWN_ERROR`。
+
+#### 权限要求
+
+- 普通用户不可查看或修改 Provider 配置。
+- 管理员第一版无配置页面，仅可通过服务端日志排查。
+
+#### 安全要求
+
+- Provider API Key 不得返回前端。
+- Provider 请求日志不得记录完整密钥、敏感 Header 或用户隐私数据。
+
+#### 埋点设计
+
+- `provider_call_start`
+- `provider_call_success`
+- `provider_call_failed`
+- `provider_health_changed`
+
+#### 日志设计
+
+- 记录 providerId、providerType、operation、latencyMs、status、standardErrorCode、providerRequestId。
+
 ---
 
 ## 10. 数据模型设计
@@ -1133,7 +1309,7 @@ Mutation
 ```json
 {
   "type": "object",
-  "required": ["sourceText", "audienceRole", "aspectRatio", "targetDurationSec", "voiceId"],
+  "required": ["sourceText", "audienceRole", "aspectRatio", "targetDurationSec", "voiceProvider", "voiceId"],
   "properties": {
     "sourceText": { "type": "string", "minLength": 50, "maxLength": 8000 },
     "audienceRole": { "type": "string", "enum": ["student", "teacher"] },
@@ -1449,6 +1625,81 @@ Query
 ### 限流策略
 
 每用户每分钟 120 次。
+
+### 接口名称：获取可用 TTS 语音列表
+
+### Method
+
+Query
+
+### Path
+
+`provider.listTtsVoices`
+
+### Request
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "providerId": { "type": "string" },
+    "language": { "type": "string", "enum": ["zh-CN", "en-US"] }
+  }
+}
+```
+
+### Response
+
+```json
+{
+  "type": "object",
+  "required": ["providers"],
+  "properties": {
+    "providers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["providerId", "voices"],
+        "properties": {
+          "providerId": { "type": "string" },
+          "displayName": { "type": "string" },
+          "voices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["voiceId", "name", "language"],
+              "properties": {
+                "voiceId": { "type": "string" },
+                "name": { "type": "string" },
+                "language": { "type": "string" },
+                "gender": { "type": "string" },
+                "style": { "type": "string" },
+                "sampleUrl": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### 错误码
+
+| Code | 说明 |
+| ---- | -- |
+| UNAUTHORIZED | 未登录 |
+| PROVIDER_UNAVAILABLE | Provider 不可用 |
+| VOICE_LIST_FAILED | 获取语音列表失败 |
+
+### 权限要求
+
+登录用户。
+
+### 限流策略
+
+每用户每分钟 60 次；结果可缓存 1 小时。
 
 ### 接口名称：Remotion Worker 渲染
 
@@ -2015,7 +2266,7 @@ QA 必须覆盖：
 
 ## 修订 10：v1.0.1 结论
 
-PRD v1.0.1 可进入评审；以下事项已在 2026-06-13 补充确认：
+PRD v1.0.2 可进入评审；以下事项已在 2026-06-13 补充确认：
 
 - 默认国内大模型：DeepSeek。
 - 同一用户并发生成视频数：1。
