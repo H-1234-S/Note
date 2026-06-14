@@ -2457,6 +2457,149 @@ Then
     
 - 单独上线可回滚
 ```
+
+## 1.5 结构化摘要
+
+### 1.5.1 PRD Summary
+
+```
+# Role
+
+你是一位高级产品经理。
+
+请将下面完整 PRD 压缩为 AI Coding Agent 可消费的需求摘要。
+
+要求：
+
+- 保留全部需求事实
+    
+- 删除背景描述
+    
+- 删除营销内容
+    
+- 删除重复内容
+    
+- 删除讨论过程
+    
+
+只保留：
+
+1. 核心目标
+    
+2. 用户价值
+    
+3. 功能范围
+    
+4. 用户流程
+    
+5. 状态机
+    
+6. 权限模型
+    
+7. 验收标准
+    
+8. 边界条件
+    
+
+输出格式：
+
+# Project Summary
+
+## Goals
+
+## In Scope
+
+## Out Scope
+
+## User Flows
+
+## State Machines
+
+## Permission Model
+
+## Acceptance Criteria
+
+## Edge Cases
+
+长度控制：
+
+原文 10~20%
+```
+
+### 1.5.2 TDD Summary
+
+```
+# Role
+
+你是一位 Staff Engineer。
+
+请将完整 TDD 压缩成 AI Agent 技术摘要。
+
+要求：
+
+删除：
+
+- 设计讨论
+    
+- 备选方案
+    
+- 历史决策
+    
+
+保留：
+
+1. 系统架构
+    
+2. 核心模块
+    
+3. 数据模型
+    
+4. API Contract
+    
+5. 状态流转
+    
+6. 权限模型
+    
+7. 缓存策略
+    
+8. 依赖关系
+    
+9. 风险点
+    
+
+输出格式：
+
+# Technical Summary
+
+## Architecture
+
+## Modules
+
+## Domain Models
+
+## APIs
+
+## State Machines
+
+## Permissions
+
+## Cache Strategy
+
+## Dependencies
+
+## Risks
+
+长度控制：
+
+原文 10~20%
+```
+
+### 1.5.3 Implementation Plan
+
+```
+
+```
+
 # 2. AI Coding
 
 ## 2.1 目前流程
