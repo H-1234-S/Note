@@ -100,3 +100,52 @@
    - Render Provider（Remotion Worker）
 
 3. **Remotion 集成方式**：
+   - Monorepo 包结构（apps/web, apps/render-worker, packages/remotion-video）
+   - Worker 独立进程执行渲染
+   - 模板注册表管理 scene type → template 映射
+   - LLM 只输出 Storyboard JSON，不输出 Remotion/React 代码
+
+4. **安全边界**（重要，第 12 章必须包含）：
+   - LLM 不得输出可执行代码
+   - Worker 仅内网访问，需 Internal Token
+   - R2 私有存储，签名 URL 访问
+   - 音频 URL 仅允许本平台 R2
+
+5. **部署架构**（第 14 章重点）：
+   - Next.js Web 部署在 Vercel 或自建服务器
+   - Remotion Worker 独立 Docker 容器
+   - PostgreSQL + Redis
+   - Cloudflare R2
+   - Inngest Cloud 或 Self-hosted
+
+---
+
+## 📝 第 11-15 章生成指令
+
+请阅读本接力文档，然后生成第 11-15 章的技术设计文档。
+
+### 步骤 1：创建新文件
+
+```bash
+# 创建第 11-15 章文件
+E:\A\Ai\convert documents to videos\TDD_第11-15章.md
+```
+
+### 步骤 2：生成内容
+
+按照第 11-15 章的结构要求生成内容，详细程度 50%。
+
+### 步骤 3：追加到主文件
+
+生成完成后，将内容追加到主 TDD 文件：
+
+```bash
+cat 'E:\A\Ai\convert documents to videos\TDD_第11-15章.md' >> 'E:\A\Note\项目\Volcano\Changes\TDD_AI文本转PPT微课视频平台.md'
+```
+
+---
+
+**接力文档生成时间**：2026-06-14
+
+**状态**：等待下一个 Claude 接力
+
