@@ -1,3 +1,5 @@
+# 1. RAG 概念
+
 RAG（Retrieval-Augmented Generation，检索增强生成）相当于给 LLM 配置了一个外置搜索引擎
 
 因为 LLM 只能根据训练数据回答问题，但训练数据是有截至日期的，用户提问的问题如果在知识截至日期之后出现，那么 LLM 就没有办法准确、高质量的回答问题
@@ -22,3 +24,6 @@ RAG（Retrieval-Augmented Generation，检索增强生成）相当于给 LLM 配
 
 最后大模型根据prompt进行高质量的回答，也就是生成
 ```
+
+# 2. RAG 搭建
+
