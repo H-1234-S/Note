@@ -1,4 +1,4 @@
-# Technical Design Document - Volcano AI 微课视频生成平台
+## Technical Design Document - Volcano AI 微课视频生成平台
 
 ## 1. 文档信息
 
