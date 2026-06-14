@@ -2594,12 +2594,6 @@ Then
 原文 10~20%
 ```
 
-### 1.5.3 Implementation Plan
-
-```
-
-```
-
 # 2. AI Coding
 
 ## 2.1 目前流程
