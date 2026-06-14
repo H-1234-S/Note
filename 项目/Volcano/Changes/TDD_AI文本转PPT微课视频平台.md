@@ -979,7 +979,7 @@ if (existingAudio) {
 ### 7.1 tRPC Router 结构
 
 ```typescript
-// apps/web/server/api/root.ts
+// src/server/api/root.ts
 import { projectRouter } from "./routers/project";
 import { generationRouter } from "./routers/generation";
 import { assetRouter } from "./routers/asset";
@@ -1553,7 +1553,7 @@ useQuery({
 **管理员判断逻辑实现**：
 
 ```typescript
-// apps/web/server/api/utils/auth.ts
+// src/server/api/utils/auth.ts
 
 const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) ?? [];
 
@@ -1606,7 +1606,7 @@ export function requireAdmin(session: Session | null) {
 **实现示例**：
 
 ```typescript
-// apps/web/server/api/routers/project.ts
+// src/server/api/routers/project.ts
 
 export const projectRouter = createTRPCRouter({
   list: protectedProcedure
@@ -1674,7 +1674,7 @@ export const projectRouter = createTRPCRouter({
 **额度查询实现**：
 
 ```typescript
-// apps/web/server/services/quota.service.ts
+// src/server/services/quota.service.ts
 
 export async function checkQuota(userId: string, email: string): Promise<{
   canGenerate: boolean;
@@ -1772,7 +1772,7 @@ export async function checkConcurrentLimit(userId: string, email: string): Promi
 **实现示例**：
 
 ```typescript
-// apps/web/server/services/audit.service.ts
+// src/server/services/audit.service.ts
 
 export async function logAudit({
   userId,
@@ -1882,7 +1882,7 @@ export async function requireProjectOwnership(
 **实现示例**：
 
 ```typescript
-// apps/web/app/hooks/useProject.ts
+// src/app/hooks/useProject.ts
 
 export function useProject(projectId: string) {
   return useQuery({
@@ -1943,7 +1943,7 @@ export function useProject(projectId: string) {
 **实现示例**:
 
 ```typescript
-// apps/web/server/services/provider.service.ts
+// src/server/services/provider.service.ts
 
 export async function getTtsVoices(providerId: string) {
   const cacheKey = `tts:voices:${providerId}`;
@@ -2006,7 +2006,7 @@ export async function getTtsVoices(providerId: string) {
 **复用逻辑**：
 
 ```typescript
-// apps/web/server/services/tts.service.ts
+// src/server/services/tts.service.ts
 
 export async function generateOrReuseAudio({
   text,
@@ -2147,7 +2147,7 @@ export async function getBundleUrl(remotionRoot: string): Promise<string> {
 服务启动时预加载当前启用的 TTS Provider 的语音列表到 Redis：
 
 ```typescript
-// apps/web/server/init/cache-warmup.ts
+// src/server/init/cache-warmup.ts
 
 export async function warmupTtsVoicesCache() {
   const enabledProviders = getEnabledTtsProviders();
@@ -2220,7 +2220,7 @@ await recordCacheMetric({
 **API 层幂等（创建项目）**：
 
 ```typescript
-// apps/web/server/api/routers/project.router.ts
+// src/server/api/routers/project.router.ts
 export const createProject = protectedProcedure
   .input(CreateProjectInput)
   .mutation(async ({ ctx, input }) => {
@@ -2242,7 +2242,7 @@ export const createProject = protectedProcedure
 **Inngest Step 幂等（生成 Storyboard）**：
 
 ```typescript
-// apps/web/server/inngest/functions/generate-storyboard.ts
+// src/server/inngest/functions/generate-storyboard.ts
 export const generateStoryboard = inngest.createFunction(
   { id: 'generate-storyboard' },
   { event: 'project/storyboard.generate' },
@@ -2274,7 +2274,7 @@ export const generateStoryboard = inngest.createFunction(
 **TTS 音频生成幂等（复用已有音频）**：
 
 ```typescript
-// apps/web/server/inngest/functions/generate-audio.ts
+// src/server/inngest/functions/generate-audio.ts
 const generateAudioForScene = async (sceneId: string) => {
   const scene = await db.scene.findUnique({ where: { id: sceneId } });
   
@@ -2338,7 +2338,7 @@ const generateAudioForScene = async (sceneId: string) => {
 **TTS 批量生成补偿**：
 
 ```typescript
-// apps/web/server/inngest/functions/generate-audio.ts
+// src/server/inngest/functions/generate-audio.ts
 export const generateAudioBatch = inngest.createFunction(
   { id: 'generate-audio-batch', retries: 3 },
   { event: 'project/audio.generate' },
@@ -2371,7 +2371,7 @@ export const generateAudioBatch = inngest.createFunction(
 **渲染失败降级策略**：
 
 ```typescript
-// apps/web/server/inngest/functions/trigger-render.ts
+// src/server/inngest/functions/trigger-render.ts
 export const triggerRender = inngest.createFunction(
   { id: 'trigger-render', retries: 2 },
   { event: 'project/render.trigger' },
@@ -2416,7 +2416,7 @@ export const triggerRender = inngest.createFunction(
 **场景**：项目创建后必须触发 Inngest 事件，即使 Inngest API 暂时不可用。
 
 ```typescript
-// apps/web/server/api/routers/project.router.ts
+// src/server/api/routers/project.router.ts
 export const createProject = protectedProcedure
   .input(CreateProjectInput)
   .mutation(async ({ ctx, input }) => {
@@ -2443,7 +2443,7 @@ export const createProject = protectedProcedure
 **Outbox 轮询器**：
 
 ```typescript
-// apps/web/server/init/outbox-publisher.ts
+// src/server/init/outbox-publisher.ts
 setInterval(async () => {
   const pendingEvents = await db.outboxEvent.findMany({
     where: { status: 'Pending' },
@@ -2489,7 +2489,7 @@ setInterval(async () => {
 **tRPC 认证中间件**：
 
 ```typescript
-// apps/web/server/api/trpc.ts
+// src/server/api/trpc.ts
 export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
   if (!ctx.session?.user) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
@@ -2523,7 +2523,7 @@ export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
 **资源鉴权中间件**：
 
 ```typescript
-// apps/web/server/api/routers/project.router.ts
+// src/server/api/routers/project.router.ts
 export const getProject = protectedProcedure
   .input(z.object({ id: z.string() }))
   .query(async ({ ctx, input }) => {
@@ -2559,7 +2559,7 @@ export const getProject = protectedProcedure
 **实现示例（tRPC 限流中间件）**：
 
 ```typescript
-// apps/web/server/api/middleware/rate-limit.ts
+// src/server/api/middleware/rate-limit.ts
 import { RateLimiterRedis } from 'rate-limiter-flexible';
 
 const rateLimiter = new RateLimiterRedis({
@@ -2596,7 +2596,7 @@ export const rateLimitedProcedure = protectedProcedure.use(rateLimitMiddleware);
 **配置**：
 
 ```typescript
-// apps/web/lib/auth.ts
+// src/lib/auth.ts
 export const auth = betterAuth({
   csrf: {
     enabled: true,
@@ -2619,7 +2619,7 @@ export const auth = betterAuth({
 **CSP 配置**：
 
 ```typescript
-// apps/web/next.config.js
+// next.config.js
 module.exports = {
   async headers() {
     return [
@@ -2696,7 +2696,7 @@ const projects = await db.$queryRaw(
 **API Key 加密示例**：
 
 ```typescript
-// apps/web/lib/crypto.ts
+// src/lib/crypto.ts
 import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
@@ -2765,7 +2765,7 @@ model AuditLog {
 **审计日志记录中间件**：
 
 ```typescript
-// apps/web/server/api/middleware/audit-log.ts
+// src/server/api/middleware/audit-log.ts
 export const auditLogMiddleware = async ({ ctx, next, path, type }) => {
   const result = await next();
   
@@ -2832,7 +2832,7 @@ export const auditLogMiddleware = async ({ ctx, next, path, type }) => {
 #### 13.1.3 日志实现
 
 ```typescript
-// apps/web/lib/logger.ts
+// src/lib/logger.ts
 import pino from 'pino';
 
 export const logger = pino({
@@ -2877,7 +2877,7 @@ logger.info({
 **实现方式**：使用 `prom-client` 暴露 `/metrics` 端点。
 
 ```typescript
-// apps/web/lib/metrics.ts
+// src/lib/metrics.ts
 import { Counter, Histogram, Gauge, register } from 'prom-client';
 
 export const apiRequestsTotal = new Counter({
@@ -2900,7 +2900,7 @@ export const projectStatus = new Gauge({
 });
 
 // 暴露指标端点
-// apps/web/app/api/metrics/route.ts
+// src/app/api/metrics/route.ts
 export async function GET() {
   return new Response(await register.metrics(), {
     headers: { 'Content-Type': register.contentType },
@@ -2927,7 +2927,7 @@ export async function GET() {
 **实现方式**：使用 OpenTelemetry。
 
 ```typescript
-// apps/web/lib/tracing.ts
+// src/lib/tracing.ts
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
@@ -3180,7 +3180,7 @@ jobs:
 **实现方式**：使用 Vercel Edge Config 或自建配置中心。
 
 ```typescript
-// apps/web/lib/feature-flags.ts
+// src/lib/feature-flags.ts
 import { get } from '@vercel/edge-config';
 
 export async function isFeatureEnabled(featureName: string, userId?: string): Promise<boolean> {
