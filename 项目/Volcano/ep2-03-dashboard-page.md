@@ -169,27 +169,38 @@
 
 ### 新建文件
 
+#### 主应用组件
+
 | 文件路径 | 说明 |
 |---------|------|
 | `src/components/landing/LandingHero.tsx` | Landing 首屏组件（WavyBackground + Auth 按钮 + ThemeToggler） |
 | `src/components/main-app/MainApp.tsx` | 主应用容器（Tab 切换逻辑） |
-| `src/components/main-app/AppNavbar.tsx` | 三 Tab 导航栏 + 滑块动画 |
+| `src/components/main-app/AppNavbar.tsx` | 三 Tab 导航栏（使用 SegmentedControl） |
 | `src/components/main-app/UserMenu.tsx` | 用户头像下拉菜单 |
-| `src/components/main-app/GenerateTab.tsx` | 生成视频 Tab |
-| `src/components/main-app/HistoryTab.tsx` | 历史记录 Tab（列表布局） |
-| `src/components/main-app/HistoryCardActions.tsx` | 历史项操作栏 |
-| `src/components/main-app/SubscribeTab.tsx` | 订阅升级 Tab |
+| `src/components/main-app/GenerateTab.tsx` | 生成视频 Tab（OpenAI 风格输入） |
+| `src/components/main-app/HistoryTab.tsx` | 历史记录 Tab（极简列表布局） |
+| `src/components/main-app/HistoryCardActions.tsx` | 历史项操作栏（播放/删除/重试） |
+| `src/components/main-app/SubscribeTab.tsx` | 订阅升级 Tab（占位） |
 | `src/components/main-app/VideoCardSkeleton.tsx` | 加载骨架 |
 | `src/components/main-app/EmptyState.tsx` | 空状态组件 |
 | `src/components/main-app/ErrorState.tsx` | 错误状态组件 |
+
+#### 新增 UI 组件
+
+| 文件路径 | 说明 |
+|---------|------|
+| `src/components/ui/segmented-control.tsx` | 分段控制器（iOS/macOS 风格 Tab 切换，内置 Framer Motion 滑块动画） |
+| `src/components/ui/icon-button.tsx` | 图标按钮（三态：disabled/ready/pending，带图标切换动画） |
+| `src/components/ui/auto-resize-textarea.tsx` | 自动调整高度的文本框（单行起始，最多 6 行） |
+| `src/components/ui/fade-mask.tsx` | 渐变遮罩（防止文字与按钮重叠） |
 
 ### 修改文件
 
 | 文件路径 | 修改内容 |
 |---------|---------|
-| `src/app/page.tsx` | 根据登录态分流（Landing / MainApp） |
-| `src/app/layout.tsx` | 切换到 `geist` 本地字体，加载完整字重系列 |
-| `src/components/ui/wavy-background.tsx` | 添加主题响应逻辑（isDark 监听 + 动态颜色） |
+| `src/app/page.tsx` | 根据登录态分流（Landing / MainApp），添加 session 加载态防闪屏 |
+| `src/app/layout.tsx` | 切换到 `geist` 本地字体，加载完整字重系列（100-900） |
+| `src/components/ui/wavy-background.tsx` | 添加主题响应逻辑（MutationObserver 监听 `.dark` class + 动态颜色） |
 | `src/components/ui/animated-theme-toggler.tsx` | 无修改（已有组件直接使用） |
 | `src/app/globals.css` | 保持黑白色系不变 |
 
@@ -307,10 +318,10 @@
 
 ## Technical Highlights
 
-### 1. 主题切换实现
+### 1. 主题切换实现（WavyBackground）
 
 ```typescript
-// WavyBackground 监听 dark class
+// WavyBackground 使用 MutationObserver 监听 dark class
 const [isDark, setIsDark] = useState(false);
 
 useEffect(() => {
@@ -340,23 +351,103 @@ const getBackgroundFill = () => {
 };
 ```
 
-### 2. Tab 滑块动画
+### 2. SegmentedControl 组件（Tab 滑块动画）
+
+使用 iOS/macOS 风格的分段控制器，内置 Framer Motion 共享布局动画：
 
 ```typescript
-{activeTab === tab.key && (
+// SegmentedControl.tsx
+{isSelected && mounted && (
   <motion.div
-    layoutId="activeTab"
-    className="absolute bottom-0 left-0 right-0 h-px bg-foreground"
+    layoutId="indicator"
+    className="absolute inset-0 rounded-full bg-background shadow-sm"
+    style={{ zIndex: -1 }}
     transition={{
       type: "spring",
       stiffness: 380,
       damping: 30,
+      duration: 0.3,
     }}
   />
 )}
 ```
 
-### 3. 本地字体加载
+**关键特性**：
+- `layoutId="indicator"` 实现共享元素动画
+- Spring 物理效果（stiffness: 380, damping: 30）
+- 150-300ms 流畅过渡
+- 背景圆角胶囊外观 + 白色滑块
+
+### 3. OpenAI 风格输入系统
+
+#### 3.1 AutoResizeTextarea（自动高度调整）
+
+```typescript
+<AutoResizeTextarea
+  placeholder="描述你想生成的视频内容..."
+  value={text}
+  onChange={(e) => setText(e.target.value)}
+  disabled={isPending}
+  minHeight={56}      // 单行起始高度
+  maxLines={6}        // 最多 6 行
+  paddingRight="pr-14"  // 为按钮留出空间
+  paddingBottom="pb-14" // 最后一行专属按钮
+  className="w-full"
+/>
+```
+
+#### 3.2 FadeMask（渐变遮罩）
+
+```typescript
+// FadeMask.tsx - 防止文字与按钮重叠
+<div
+  className={cn(
+    "absolute bottom-0 right-0",
+    "h-20 w-full", // ~80px 高度覆盖按钮区域
+    "bg-gradient-to-b from-transparent via-background/60 to-background",
+    "pointer-events-none",
+    "z-10",
+  )}
+  aria-hidden="true"
+/>
+```
+
+**渐变层次**：
+- 顶部：`transparent`（完全透明）
+- 中间：`background/60`（60% 不透明度）
+- 底部：`background`（完全不透明）
+
+#### 3.3 IconButton（三态图标按钮）
+
+```typescript
+// IconButton.tsx - 三种状态的图标切换
+export type IconButtonState = "disabled" | "ready" | "pending";
+
+<button
+  className={cn(
+    "inline-flex items-center justify-center rounded-full",
+    "h-10 w-10", // 40px 圆形触控目标
+    state === "disabled" && "bg-muted text-muted-foreground",
+    state === "ready" && "bg-primary text-primary-foreground hover:scale-105",
+    state === "pending" && "bg-primary opacity-80",
+  )}
+>
+  <AnimatePresence mode="wait">
+    {state === "pending" ? (
+      <Loader2 className="h-5 w-5 animate-spin" />
+    ) : (
+      <Send className="h-5 w-5" />
+    )}
+  </AnimatePresence>
+</button>
+```
+
+**状态对应**：
+- `disabled`：输入为空 → 灰色 muted Send 图标
+- `ready`：有文字输入 → 黑色 primary Send 图标 + hover 放大
+- `pending`：提交中 → 黑色 Loader2 旋转动画
+
+### 4. 本地字体加载（Geist 全字重）
 
 ```typescript
 const geistSans = localFont({
@@ -373,6 +464,73 @@ const geistSans = localFont({
   variable: "--font-geist-sans",
 });
 ```
+
+### 5. 历史记录列表（极简布局）
+
+```typescript
+// HistoryTab.tsx - 列表布局替代网格
+<div className="space-y-1">
+  {cards.map((card, index) => (
+    <Link href={`/projects/${filteredItems[index].id}/play`}>
+      <div className="flex items-center justify-between py-6 border-b border-border 
+                      transition-colors hover:bg-muted/30">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-normal text-foreground truncate">
+            {card.title}
+          </h3>
+          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+            <span>{card._label}</span>  {/* 状态标签 */}
+            <span>{duration} 分钟</span>
+            <span>{formatDate(createdAt)}</span>
+          </div>
+        </div>
+        
+        {/* 操作按钮：hover 显示 */}
+        <div className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
+          <HistoryCardActions project={filteredItems[index]} />
+        </div>
+      </div>
+    </Link>
+  ))}
+</div>
+```
+
+**状态颜色映射**：
+```typescript
+const STATUS_OVERRIDE_COLORS: Record<string, string> = {
+  // 生成中：灰色
+  queued: "#737373",
+  generating_storyboard: "#737373",
+  // 失败/取消：深灰/浅灰
+  failed: "#404040",
+  cancelled: "#a3a3a3",
+  // 已完成：黑色
+  completed: "#171717",
+};
+```
+
+### 6. 自动轮询与数据流转
+
+```typescript
+// HistoryTab.tsx - 10 秒自动轮询
+const { data, isLoading, isError, refetch } = trpc.project.list.useQuery(
+  { pageSize: 50 },
+  { refetchInterval: 10_000 },  // 每 10 秒自动刷新
+);
+
+// 客户端过滤已删除项目
+const filteredItems = useMemo(
+  () => (data?.items ?? []).filter((item) => item.status !== "deleted"),
+  [data],
+);
+```
+
+**数据流转路径**：
+1. 用户在 GenerateTab 提交文本
+2. 调用 `project.createAndGenerate` mutation
+3. 成功后自动切换到 HistoryTab（`onTabChange("history")`）
+4. HistoryTab 自动轮询，立即显示"生成中…"项目
+5. 10 秒后刷新，追踪状态变化（generating → completed）
 
 ---
 
