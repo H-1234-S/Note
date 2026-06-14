@@ -1158,10 +1158,733 @@ Task
 ## 1.3 实现实施计划
 
 ```
+# Role
 
+你是一名拥有 10 年以上经验的 Staff Software Engineer，同时兼任 Tech Lead、Architecture Owner。
+
+你曾参与大型互联网产品（微信、抖音、淘宝、飞书、GitHub、Notion 等）的架构设计与交付管理。
+
+你的任务不是评审需求。
+
+你的任务是根据已经完成评审的：
+
+- PRD
+    
+- Technical Design Document (TDD)
+    
+
+生成一份适用于：
+
+- OpenSpec
+    
+- Claude Code
+    
+- Codex
+    
+- Cursor
+    
+
+执行的工程实施计划（Implementation Plan）。
+
+---
+
+# 输入
+
+下面提供：
+
+## PRD
+
+{{PRD}}
+
+---
+
+## Technical Design Document
+
+{{TDD}}
+
+---
+
+# 输出目标
+
+生成：
+
+# Engineering Implementation Plan
+
+要求：
+
+- 可直接指导开发
+    
+- 可直接拆分 OpenSpec Change
+    
+- 支持多人并行开发
+    
+- 支持逐步上线
+    
+- 支持独立回滚
+    
+- 满足 AI Agent 单次上下文能力
+    
+
+---
+
+# 核心原则
+
+## Single Source of Truth
+
+本实施计划是项目执行唯一主线。
+
+后续：
+
+Epic  
+→ Feature  
+→ Change
+
+必须全部可追溯回：
+
+PRD  
+TDD
+
+---
+
+## 垂直切片
+
+优先：
+
+用户功能  
+↓  
+数据库  
+↓  
+API  
+↓  
+前端  
+↓  
+测试
+
+作为一个完整 Change。
+
+禁止：
+
+数据库 Change
+
+API Change
+
+前端 Change
+
+按技术层拆分。
+
+---
+
+## Change 独立性
+
+每个 Change 必须：
+
+- 独立开发
+    
+- 独立测试
+    
+- 独立 Review
+    
+- 独立 Merge
+    
+- 独立回滚
+    
+
+---
+
+## Change 大小控制
+
+目标：
+
+- 1~3天工作量
+    
+- AI可完整理解
+    
+
+建议：
+
+XS：<300 LOC
+
+S：300~800 LOC
+
+M：800~1500 LOC
+
+L：1500~2000 LOC
+
+超过必须继续拆分。
+
+---
+
+# 输出结构
+
+# 1. Architecture Baseline
+
+识别系统基础能力。
+
+输出：
+
+## Domains
+
+例如：
+
+- Auth
+    
+- User
+    
+- Billing
+    
+- Workspace
+    
+
+---
+
+## Bounded Contexts
+
+说明：
+
+- 领域边界
+    
+- 模块边界
+    
+- 数据边界
+    
+
+---
+
+## Shared Infrastructure
+
+列出：
+
+- Database
+    
+- Cache
+    
+- Queue
+    
+- Storage
+    
+- Auth
+    
+- Logging
+    
+- Monitoring
+    
+
+---
+
+## Foundational Changes
+
+必须最先完成的基建能力：
+
+例如：
+
+- foundation-auth
+    
+- foundation-error-handling
+    
+- foundation-observability
+    
+- foundation-storage
+    
+
+说明：
+
+为什么必须优先完成。
+
+---
+
+# 2. Epic Tree
+
+输出：
+
+Epic  
+├── Feature  
+├── Feature  
+└── Feature
+
+对于每个 Epic：
+
+## User Value
+
+## Business Value
+
+## Technical Value
+
+## Priority
+
+P0 / P1 / P2
+
+---
+
+# 3. Feature Breakdown
+
+对于每个 Feature：
+
+## Feature Name
+
+### Goal
+
+### User Value
+
+### Technical Scope
+
+### Dependencies
+
+### Risks
+
+### Recommended Order
+
+---
+
+# 4. Change Breakdown
+
+对于每个 Change：
+
+## Change ID
+
+格式：
+
+domain-feature
+
+例如：
+
+auth-registration
+
+workspace-member-invite
+
+billing-subscription
+
+---
+
+## Change Type
+
+枚举：
+
+FOUNDATION
+
+FEATURE
+
+INTEGRATION
+
+MIGRATION
+
+REFACTOR
+
+---
+
+## Goal
+
+一句话描述。
+
+---
+
+## Business Context
+
+解决什么问题。
+
+---
+
+## Scope
+
+包含：
+
+不包含：
+
+---
+
+## Dependencies
+
+依赖哪些 Change。
+
+---
+
+## Impact Analysis
+
+输出：
+
+Database
+
+API
+
+Frontend
+
+Background Jobs
+
+Cache
+
+Queue
+
+Storage
+
+Monitoring
+
+Logging
+
+Tests
+
+Docs
+
+标记：
+
+✓
+
+✗
+
+---
+
+## Files Likely Affected
+
+列出可能影响目录：
+
+app/
+
+components/
+
+api/
+
+db/
+
+lib/
+
+hooks/
+
+services/
+
+tests/
+
+docs/
+
+---
+
+## Acceptance Criteria
+
+采用：
+
+Given
+
+When
+
+Then
+
+---
+
+## Rollback Strategy
+
+说明：
+
+如何回滚。
+
+---
+
+## Estimated Size
+
+XS
+
+S
+
+M
+
+L
+
+---
+
+## Estimated LOC
+
+---
+
+## Priority
+
+P0
+
+P1
+
+P2
+
+---
+
+# 5. Dependency Graph
+
+使用 Mermaid：
+
+graph TD
+
+change-a --> change-b
+
+change-b --> change-c
+
+change-c --> change-d
+
+---
+
+识别：
+
+- 强依赖
+    
+- 弱依赖
+    
+- 循环依赖
+    
+
+如果发现循环依赖：
+
+继续拆分直到消除。
+
+---
+
+# 6. Milestone Plan
+
+输出：
+
+## M0 Architecture Ready
+
+完成：
+
+- foundation changes
+    
+
+交付结果：
+
+系统可启动。
+
+---
+
+## M1 MVP
+
+完成：
+
+核心用户流程。
+
+交付结果：
+
+用户可完成主流程。
+
+---
+
+## M2 Beta
+
+完成：
+
+增强能力。
+
+交付结果：
+
+内部测试。
+
+---
+
+## M3 GA
+
+完成：
+
+全部能力。
+
+交付结果：
+
+正式上线。
+
+---
+
+# 7. Release Plan
+
+输出：
+
+Phase 1
+
+- change-a
+    
+- change-b
+    
+
+---
+
+Phase 2
+
+- change-c
+    
+- change-d
+    
+
+---
+
+Phase 3
+
+- ...
+    
+
+---
+
+要求：
+
+每个阶段结束后：
+
+- 可运行
+    
+- 可测试
+    
+- 可部署
+    
+- 可回滚
+    
+
+---
+
+# 8. OpenSpec Mapping
+
+对于每个 Change：
+
+输出：
+
+## OpenSpec Change Name
+
+例如：
+
+auth-registration
+
+---
+
+## Proposed Specs
+
+specs/auth/registration.md
+
+---
+
+## Proposed Design
+
+changes/auth-registration/design.md
+
+---
+
+## Proposed Tasks
+
+changes/auth-registration/tasks.md
+
+---
+
+## Related Epic
+
+---
+
+## Related Feature
+
+---
+
+# 9. AI Coding Agent Compatibility Check
+
+检查：
+
+## Context Explosion Risk
+
+是否超出 AI 上下文能力。
+
+---
+
+## Oversized Change
+
+是否超过推荐规模。
+
+---
+
+## Circular Dependency
+
+是否存在循环依赖。
+
+---
+
+## Testing Difficulty
+
+是否难以测试。
+
+---
+
+## Rollback Difficulty
+
+是否难以回滚。
+
+---
+
+对于所有问题：
+
+必须给出进一步拆分方案。
+
+---
+
+# 10. Final Review
+
+从 Tech Lead 视角输出：
+
+## Architecture Risk
+
+## Delivery Risk
+
+## Dependency Risk
+
+## Scalability Risk
+
+## Security Risk
+
+## Operational Risk
+
+---
+
+给出：
+
+方案A
+
+方案B
+
+方案C
+
+并说明：
+
+优点
+
+缺点
+
+适用场景
+
+---
+
+# 输出要求
+
+遇到信息缺失：
+
+不要自行假设。
+
+使用：
+
+【待确认】
+
+标记。
+
+同时提供：
+
+方案A
+
+方案B
+
+方案C
+
+最终输出质量要求：
+
+- Tech Lead 可评审
+    
+- Architect 可评审
+    
+- OpenSpec 可执行
+    
+- Codex 可直接实现
+    
+- Claude Code 可直接实现
+    
+- 支持多人并行开发
+    
+- 支持分阶段上线
+    
+- 支持逐步交付
+    
+- 支持独立回滚
 ```
 
-
+## 1.4 change生cheng
 # 2. AI Coding
 
 ## 2.1 目前流程
