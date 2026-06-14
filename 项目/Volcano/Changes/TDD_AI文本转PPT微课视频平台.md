@@ -2187,3 +2187,1147 @@ await recordCacheMetric({
 ```
 
 ---
+## 11. 一致性设计
+
+### 11.1 数据一致性等级
+
+| 场景 | 一致性等级 | 说明 | 实现方案 |
+|------|-----------|------|---------|
+| **用户创建项目** | 强一致 | 项目创建必须立即可见，用户跳转详情页时必须能查询到 | 同步写入 PostgreSQL，事务保证 |
+| **Inngest 任务状态更新** | 最终一致 | Job 状态变更通过事件传播，允许短暂延迟 | 事件驱动 + 重试机制 |
+| **TTS 音频生成与记录** | 强一致 | Audio 记录与 R2 上传必须原子化，避免文件泄漏 | 先上传 R2 获得 URL，再写入数据库，失败时清理 R2 |
+| **视频渲染完成与项目状态** | 最终一致 | 视频渲染完成后项目状态最终更新为 Completed | Inngest 任务完成回调，重试保证最终到达 |
+| **用户删除项目与 R2 资源** | 最终一致 | 数据库标记删除后，R2 异步清理 | 软删除 + 定时任务清理 R2 |
+| **缓存与数据库** | 最终一致 | Redis 缓存过期后从数据库重新加载 | Cache Aside 模式 + TTL |
+
+---
+
+### 11.2 幂等设计
+
+**核心原则**：所有 Inngest Step Function 和关键 API 必须支持幂等，避免重试导致重复计费或数据不一致。
+
+#### 11.2.1 幂等场景列表
+
+| 场景 | 幂等键 | 幂等策略 | 说明 |
+|------|--------|---------|------|
+| **创建项目 API** | `userId + projectName + timestamp` | 短期去重窗口（10s） | 防止用户双击提交重复创建 |
+| **生成 Storyboard** | `projectId + step='storyboard'` | 查询是否已有 storyboardId，有则跳过 | 避免重复调用 LLM |
+| **生成单个 Scene 音频** | `sceneId + ttsProvider + voiceId` | 查询 Audio 表是否已存在，有则复用 | 避免重复调用 TTS API |
+| **触发 Remotion 渲染** | `projectId + renderRequestId` | Worker 接口幂等，重复请求返回已有任务 ID | 避免重复渲染 |
+
+#### 11.2.2 幂等实现示例
+
+**API 层幂等（创建项目）**：
+
+```typescript
+// apps/web/server/api/routers/project.router.ts
+export const createProject = protectedProcedure
+  .input(CreateProjectInput)
+  .mutation(async ({ ctx, input }) => {
+    const idempotencyKey = `create_project:${ctx.userId}:${input.title}:${Date.now()}`;
+    const cached = await redis.get(idempotencyKey);
+    if (cached) {
+      return JSON.parse(cached);  // 返回已创建的项目
+    }
+    
+    const project = await ctx.db.project.create({
+      data: { userId: ctx.userId, title: input.title, ... }
+    });
+    
+    await redis.setex(idempotencyKey, 10, JSON.stringify(project));
+    return project;
+  });
+```
+
+**Inngest Step 幂等（生成 Storyboard）**：
+
+```typescript
+// apps/web/server/inngest/functions/generate-storyboard.ts
+export const generateStoryboard = inngest.createFunction(
+  { id: 'generate-storyboard' },
+  { event: 'project/storyboard.generate' },
+  async ({ event, step }) => {
+    const { projectId } = event.data;
+    
+    // 幂等检查：已有 Storyboard 则跳过
+    const existing = await step.run('check-existing', async () => {
+      return db.storyboard.findUnique({ where: { projectId } });
+    });
+    
+    if (existing) {
+      return { storyboardId: existing.id, skipped: true };
+    }
+    
+    // 调用 LLM
+    const storyboard = await step.run('call-llm', async () => {
+      return llmProvider.generateStoryboard(projectId);
+    });
+    
+    // 持久化
+    return await step.run('save-storyboard', async () => {
+      return db.storyboard.create({ data: { projectId, ...storyboard } });
+    });
+  }
+);
+```
+
+**TTS 音频生成幂等（复用已有音频）**：
+
+```typescript
+// apps/web/server/inngest/functions/generate-audio.ts
+const generateAudioForScene = async (sceneId: string) => {
+  const scene = await db.scene.findUnique({ where: { id: sceneId } });
+  
+  // 幂等：查询是否已有相同 text + voice 的音频
+  const existingAudio = await db.audio.findFirst({
+    where: {
+      textHash: hashText(scene.narrationText),
+      ttsProvider: 'minimax',
+      voiceId: scene.voiceId,
+    },
+  });
+  
+  if (existingAudio) {
+    // 复用音频：创建关联记录
+    await db.sceneAudio.create({
+      data: { sceneId, audioId: existingAudio.id },
+    });
+    return existingAudio;
+  }
+  
+  // 调用 TTS
+  const audioBuffer = await ttsProvider.synthesize(scene.narrationText, scene.voiceId);
+  const r2Url = await uploadToR2(audioBuffer);
+  
+  // 持久化音频记录
+  const audio = await db.audio.create({
+    data: {
+      textHash: hashText(scene.narrationText),
+      ttsProvider: 'minimax',
+      voiceId: scene.voiceId,
+      r2Url,
+      duration: parseDuration(audioBuffer),
+    },
+  });
+  
+  await db.sceneAudio.create({
+    data: { sceneId, audioId: audio.id },
+  });
+  
+  return audio;
+};
+```
+
+---
+
+### 11.3 补偿机制
+
+**核心原则**：长任务链路中任何步骤失败，必须能够从失败点恢复，无需从头重做全部步骤。
+
+#### 11.3.1 补偿场景列表
+
+| 场景 | 失败点 | 补偿策略 | 说明 |
+|------|--------|---------|------|
+| **Storyboard 生成失败** | LLM 返回格式错误 | 重试 3 次，失败后标记 Job 为 Failed | 不影响已上传的用户文本 |
+| **部分 Scene 音频生成失败** | 单个 TTS 调用超时 | 仅重试失败的 Scene，已成功的音频保留 | 避免重复调用 TTS |
+| **Timeline 计算错误** | duration 解析异常 | 回退到默认 duration，记录警告日志 | 允许视频生成继续 |
+| **Remotion 渲染失败** | Worker OOM | 重试 2 次，失败后降级为"分镜预览可用" | 用户仍可查看分镜和音频 |
+
+#### 11.3.2 补偿实现示例
+
+**TTS 批量生成补偿**：
+
+```typescript
+// apps/web/server/inngest/functions/generate-audio.ts
+export const generateAudioBatch = inngest.createFunction(
+  { id: 'generate-audio-batch', retries: 3 },
+  { event: 'project/audio.generate' },
+  async ({ event, step }) => {
+    const { projectId } = event.data;
+    const scenes = await db.scene.findMany({ where: { storyboard: { projectId } } });
+    
+    // 并行生成音频，失败的单独重试
+    const results = await Promise.allSettled(
+      scenes.map(scene => step.run(`audio-${scene.id}`, () => generateAudioForScene(scene.id)))
+    );
+    
+    const failed = results.filter(r => r.status === 'rejected');
+    if (failed.length > 0) {
+      // 记录失败的 Scene ID
+      await db.job.update({
+        where: { projectId },
+        data: { 
+          status: 'PartialFailed',
+          errorMessage: `${failed.length} scenes failed to generate audio`,
+        },
+      });
+    }
+    
+    return { total: scenes.length, failed: failed.length };
+  }
+);
+```
+
+**渲染失败降级策略**：
+
+```typescript
+// apps/web/server/inngest/functions/trigger-render.ts
+export const triggerRender = inngest.createFunction(
+  { id: 'trigger-render', retries: 2 },
+  { event: 'project/render.trigger' },
+  async ({ event, step }) => {
+    const { projectId } = event.data;
+    
+    try {
+      const videoUrl = await step.run('call-worker', async () => {
+        return renderWorkerClient.renderVideo(projectId);
+      });
+      
+      await db.project.update({
+        where: { id: projectId },
+        data: { status: 'Completed', videoUrl },
+      });
+      
+      return { videoUrl };
+    } catch (error) {
+      // 降级：标记为"分镜可用"
+      await db.project.update({
+        where: { id: projectId },
+        data: { 
+          status: 'RenderFailed',
+          errorMessage: 'Video rendering failed, storyboard preview available',
+        },
+      });
+      
+      throw error;  // 触发 Inngest 重试
+    }
+  }
+);
+```
+
+---
+
+### 11.4 分布式事务方案
+
+**核心决策**：本项目不引入 TCC 或 Saga 框架，采用 **Outbox Pattern** 保证关键操作的事件可靠发布。
+
+#### 11.4.1 Outbox Pattern 实现
+
+**场景**：项目创建后必须触发 Inngest 事件，即使 Inngest API 暂时不可用。
+
+```typescript
+// apps/web/server/api/routers/project.router.ts
+export const createProject = protectedProcedure
+  .input(CreateProjectInput)
+  .mutation(async ({ ctx, input }) => {
+    return await ctx.db.$transaction(async (tx) => {
+      // 1. 创建项目
+      const project = await tx.project.create({
+        data: { userId: ctx.userId, title: input.title, ... }
+      });
+      
+      // 2. 写入 Outbox 表
+      await tx.outboxEvent.create({
+        data: {
+          eventType: 'project/created',
+          payload: { projectId: project.id },
+          status: 'Pending',
+        },
+      });
+      
+      return project;
+    });
+  });
+```
+
+**Outbox 轮询器**：
+
+```typescript
+// apps/web/server/init/outbox-publisher.ts
+setInterval(async () => {
+  const pendingEvents = await db.outboxEvent.findMany({
+    where: { status: 'Pending' },
+    take: 10,
+  });
+  
+  for (const event of pendingEvents) {
+    try {
+      await inngest.send({
+        name: event.eventType,
+        data: event.payload,
+      });
+      
+      await db.outboxEvent.update({
+        where: { id: event.id },
+        data: { status: 'Sent', sentAt: new Date() },
+      });
+    } catch (error) {
+      console.error(`Failed to send outbox event ${event.id}:`, error);
+    }
+  }
+}, 5000);  // 每 5 秒轮询一次
+```
+
+---
+
+## 12. 安全设计
+
+### 12.1 Authentication（认证）
+
+**方案**：使用 `better-auth` 提供的 Session 机制。
+
+**实现要点**：
+
+| 项 | 说明 |
+|----|------|
+| **Session 存储** | PostgreSQL `Session` 表 |
+| **Session 过期时间** | 7 天（可配置） |
+| **Cookie 配置** | `httpOnly: true`, `secure: true` (生产环境), `sameSite: 'lax'` |
+| **登录方式** | 邮箱 + 密码（第一版） |
+| **密码强度** | 最小 8 字符，必须包含字母和数字 |
+
+**tRPC 认证中间件**：
+
+```typescript
+// apps/web/server/api/trpc.ts
+export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      session: ctx.session,
+      userId: ctx.session.user.id,
+    },
+  });
+});
+```
+
+---
+
+### 12.2 Authorization（鉴权）
+
+**方案**：基于 RBAC + 资源所有权校验。
+
+**鉴权规则**：
+
+| 操作 | 角色要求 | 资源校验 |
+|------|---------|---------|
+| **创建项目** | User | 检查剩余额度 |
+| **查看项目详情** | User | `project.userId === currentUserId` |
+| **删除项目** | User | `project.userId === currentUserId` |
+| **查看用户列表** | Admin | 无 |
+| **调整用户额度** | Admin | 无 |
+
+**资源鉴权中间件**：
+
+```typescript
+// apps/web/server/api/routers/project.router.ts
+export const getProject = protectedProcedure
+  .input(z.object({ id: z.string() }))
+  .query(async ({ ctx, input }) => {
+    const project = await ctx.db.project.findUnique({
+      where: { id: input.id },
+    });
+    
+    if (!project) {
+      throw new TRPCError({ code: 'NOT_FOUND' });
+    }
+    
+    // 资源所有权校验
+    if (project.userId !== ctx.userId && !ctx.session.user.isAdmin) {
+      throw new TRPCError({ code: 'FORBIDDEN' });
+    }
+    
+    return project;
+  });
+```
+
+### 12.3 Rate Limit（限流）
+
+**策略**：多层限流保护关键接口。
+
+| 接口 | 限流维度 | 限流规则 | 实现方式 |
+|------|---------|---------|---------|
+| **创建项目 API** | userId | 10 次/分钟 | Redis + Sliding Window |
+| **查询项目列表** | userId | 100 次/分钟 | Redis + Sliding Window |
+| **Remotion Worker 渲染接口** | IP | 5 次/分钟 | Worker 内存计数器 |
+| **TTS 批量调用** | projectId | 1 次（并发限制） | Inngest 任务队列 |
+| **全局 API** | IP | 1000 次/小时 | Nginx rate_limit |
+
+**实现示例（tRPC 限流中间件）**：
+
+```typescript
+// apps/web/server/api/middleware/rate-limit.ts
+import { RateLimiterRedis } from 'rate-limiter-flexible';
+
+const rateLimiter = new RateLimiterRedis({
+  storeClient: redisClient,
+  points: 10,  // 10 次
+  duration: 60,  // 1 分钟
+});
+
+export const rateLimitMiddleware = async ({ ctx, next }) => {
+  if (!ctx.userId) return next();
+  
+  try {
+    await rateLimiter.consume(ctx.userId);
+    return next();
+  } catch (error) {
+    throw new TRPCError({ 
+      code: 'TOO_MANY_REQUESTS',
+      message: 'Rate limit exceeded. Please try again later.',
+    });
+  }
+};
+
+export const rateLimitedProcedure = protectedProcedure.use(rateLimitMiddleware);
+```
+
+---
+
+### 12.4 CSRF/XSS/SQL Injection 防护
+
+#### 12.4.1 CSRF 防护
+
+**方案**：使用 `better-auth` 内置的 CSRF Token。
+
+**配置**：
+
+```typescript
+// apps/web/lib/auth.ts
+export const auth = betterAuth({
+  csrf: {
+    enabled: true,
+    cookieName: 'volcano-csrf-token',
+  },
+});
+```
+
+#### 12.4.2 XSS 防护
+
+**措施**：
+
+| 层面 | 防护措施 |
+|------|---------|
+| **框架层** | Next.js 默认 escape 用户输入 |
+| **Content-Security-Policy** | 禁止 inline script，限制资源来源 |
+| **用户输入** | 前端使用 DOMPurify 清洗 HTML |
+| **API 响应** | `Content-Type: application/json`，避免 MIME sniffing |
+
+**CSP 配置**：
+
+```typescript
+// apps/web/next.config.js
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",  // Next.js 需要
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: https:",
+              "media-src 'self' https://r2.cloudflare.com",
+              "font-src 'self' data:",
+              "connect-src 'self' https://api.inngest.com",
+            ].join('; '),
+          },
+        ],
+      },
+    ];
+  },
+};
+```
+
+#### 12.4.3 SQL Injection 防护
+
+**方案**：Prisma ORM 默认防护。
+
+**规则**：
+
+- **禁止拼接 SQL**：所有数据库查询必须通过 Prisma Client
+- **参数化查询**：Prisma 自动使用 prepared statement
+- **Raw Query 限制**：如需使用 `db.$executeRaw`，必须使用 Prisma 的 `Prisma.sql` 标签
+
+**反例（禁止）**：
+
+```typescript
+// ❌ 禁止
+const projects = await db.$queryRawUnsafe(
+  `SELECT * FROM Project WHERE userId = '${userId}'`
+);
+```
+
+**正例**：
+
+```typescript
+// ✅ 正确
+const projects = await db.project.findMany({
+  where: { userId },
+});
+
+// ✅ Raw Query 正确用法
+import { Prisma } from '@prisma/client';
+const projects = await db.$queryRaw(
+  Prisma.sql`SELECT * FROM Project WHERE userId = ${userId}`
+);
+```
+
+---
+
+### 12.5 敏感数据加密
+
+**加密范围**：
+
+| 数据类型 | 加密方式 | 密钥管理 |
+|---------|---------|---------|
+| **用户密码** | bcrypt hash（better-auth 自动） | N/A |
+| **Provider API Key** | AES-256-GCM | 环境变量 `ENCRYPTION_KEY` |
+| **R2 签名 URL** | Cloudflare 签名算法 | R2 Access Key Secret |
+| **用户邮箱** | 明文（需要查询） | N/A |
+| **审计日志中的 IP** | 单向 hash（SHA-256 + salt） | 环境变量 `AUDIT_SALT` |
+
+**API Key 加密示例**：
+
+```typescript
+// apps/web/lib/crypto.ts
+import crypto from 'crypto';
+
+const ALGORITHM = 'aes-256-gcm';
+const KEY = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex');
+
+export function encryptApiKey(apiKey: string): string {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(ALGORITHM, KEY, iv);
+  
+  let encrypted = cipher.update(apiKey, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  
+  const authTag = cipher.getAuthTag();
+  
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
+}
+
+export function decryptApiKey(encrypted: string): string {
+  const [ivHex, authTagHex, encryptedData] = encrypted.split(':');
+  
+  const iv = Buffer.from(ivHex, 'hex');
+  const authTag = Buffer.from(authTagHex, 'hex');
+  const decipher = crypto.createDecipheriv(ALGORITHM, KEY, iv);
+  
+  decipher.setAuthTag(authTag);
+  
+  let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  
+  return decrypted;
+}
+```
+
+### 12.6 审计日志
+
+**记录范围**：
+
+| 操作类型 | 记录字段 | 保留时长 |
+|---------|---------|---------|
+| **用户登录** | userId, IP, userAgent, timestamp | 90 天 |
+| **用户注册** | userId, email, IP, timestamp | 永久 |
+| **创建项目** | userId, projectId, title, timestamp | 永久 |
+| **删除项目** | userId, projectId, title, timestamp | 永久 |
+| **管理员操作** | adminId, action, targetUserId, changes, timestamp | 永久 |
+| **API 调用失败（5xx）** | userId, endpoint, statusCode, error, timestamp | 30 天 |
+
+**审计日志表设计**：
+
+```prisma
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?  // nullable：未登录操作
+  action      String   // 操作类型：user.login, project.create, admin.adjustQuota
+  resource    String?  // 资源类型：Project, User
+  resourceId  String?  // 资源 ID
+  ipHash      String   // IP 单向 hash
+  userAgent   String?
+  metadata    Json?    // 额外信息（如修改前后的值）
+  createdAt   DateTime @default(now())
+  
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}
+```
+
+**审计日志记录中间件**：
+
+```typescript
+// apps/web/server/api/middleware/audit-log.ts
+export const auditLogMiddleware = async ({ ctx, next, path, type }) => {
+  const result = await next();
+  
+  // 仅记录关键操作
+  const criticalActions = ['createProject', 'deleteProject', 'adjustUserQuota'];
+  if (criticalActions.some(action => path.includes(action))) {
+    await ctx.db.auditLog.create({
+      data: {
+        userId: ctx.userId,
+        action: `${type}.${path}`,
+        ipHash: hashIp(ctx.req.ip),
+        userAgent: ctx.req.headers['user-agent'],
+        metadata: { input: ctx.input, output: result },
+      },
+    });
+  }
+  
+  return result;
+};
+```
+
+---
+
+## 13. 可观测性设计
+
+### 13.1 Logging（日志）
+
+#### 13.1.1 日志格式
+
+**统一 JSON 格式**：
+
+```json
+{
+  "timestamp": "2026-06-14T12:34:56.789Z",
+  "level": "info",
+  "service": "volcano-web",
+  "traceId": "abc123",
+  "spanId": "def456",
+  "userId": "user_xyz",
+  "action": "project.create",
+  "message": "Project created successfully",
+  "metadata": {
+    "projectId": "proj_123",
+    "title": "AI 概率论讲解"
+  },
+  "duration": 234
+}
+```
+
+#### 13.1.2 关键日志点
+
+| 日志点 | Level | 说明 |
+|--------|-------|------|
+| **用户创建项目** | info | 记录 userId, projectId, title |
+| **Inngest 任务开始** | info | 记录 jobId, projectId, step |
+| **Inngest 任务失败** | error | 记录 jobId, projectId, step, error, stack |
+| **LLM API 调用** | info | 记录 provider, model, inputTokens, outputTokens, latency |
+| **TTS API 调用** | info | 记录 provider, voiceId, textLength, audioUrl, latency |
+| **Remotion 渲染开始** | info | 记录 projectId, renderRequestId |
+| **Remotion 渲染完成** | info | 记录 projectId, videoUrl, duration, fileSize |
+| **R2 上传失败** | error | 记录 key, error |
+| **数据库查询慢查询（>500ms）** | warn | 记录 query, duration |
+
+#### 13.1.3 日志实现
+
+```typescript
+// apps/web/lib/logger.ts
+import pino from 'pino';
+
+export const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  formatters: {
+    level: (label) => ({ level: label }),
+  },
+  timestamp: pino.stdTimeFunctions.isoTime,
+  base: {
+    service: 'volcano-web',
+    env: process.env.NODE_ENV,
+  },
+});
+
+// 使用示例
+logger.info({
+  action: 'project.create',
+  userId: 'user_123',
+  projectId: 'proj_456',
+  message: 'Project created successfully',
+});
+```
+
+---
+
+### 13.2 Metrics（指标）
+
+**指标类型**：
+
+| 指标名 | 类型 | 说明 |
+|--------|------|------|
+| `volcano_api_requests_total` | Counter | API 请求总数（按 endpoint, statusCode 分组） |
+| `volcano_api_duration_seconds` | Histogram | API 响应时间（P50/P95/P99） |
+| `volcano_project_created_total` | Counter | 项目创建总数 |
+| `volcano_project_status` | Gauge | 各状态项目数量（Processing/Completed/Failed） |
+| `volcano_inngest_job_duration_seconds` | Histogram | Inngest 任务执行时长 |
+| `volcano_llm_tokens_total` | Counter | LLM Token 消耗（按 provider, type 分组） |
+| `volcano_tts_audio_duration_seconds` | Counter | TTS 音频总时长 |
+| `volcano_render_success_rate` | Gauge | 渲染成功率 |
+| `volcano_cache_hit_rate` | Gauge | 缓存命中率（按 cacheType 分组） |
+
+**实现方式**：使用 `prom-client` 暴露 `/metrics` 端点。
+
+```typescript
+// apps/web/lib/metrics.ts
+import { Counter, Histogram, Gauge, register } from 'prom-client';
+
+export const apiRequestsTotal = new Counter({
+  name: 'volcano_api_requests_total',
+  help: 'Total API requests',
+  labelNames: ['endpoint', 'statusCode'],
+});
+
+export const apiDuration = new Histogram({
+  name: 'volcano_api_duration_seconds',
+  help: 'API response time in seconds',
+  labelNames: ['endpoint'],
+  buckets: [0.1, 0.5, 1, 2, 5],
+});
+
+export const projectStatus = new Gauge({
+  name: 'volcano_project_status',
+  help: 'Number of projects by status',
+  labelNames: ['status'],
+});
+
+// 暴露指标端点
+// apps/web/app/api/metrics/route.ts
+export async function GET() {
+  return new Response(await register.metrics(), {
+    headers: { 'Content-Type': register.contentType },
+  });
+}
+```
+
+### 13.3 Tracing（分布式追踪）
+
+**追踪结构**：
+
+| 字段 | 说明 |
+|------|------|
+| **traceId** | 全局唯一追踪 ID，贯穿整个请求链路 |
+| **spanId** | 当前操作的唯一 ID |
+| **parentSpanId** | 父操作 ID |
+| **serviceName** | 服务名称（volcano-web, render-worker） |
+| **operationName** | 操作名称（createProject, generateStoryboard） |
+| **startTime** | 开始时间（微秒） |
+| **duration** | 执行时长（微秒） |
+| **tags** | 标签（userId, projectId, provider） |
+| **logs** | 日志事件（error, warning） |
+
+**实现方式**：使用 OpenTelemetry。
+
+```typescript
+// apps/web/lib/tracing.ts
+import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
+
+const provider = new NodeTracerProvider();
+const exporter = new JaegerExporter({
+  endpoint: process.env.JAEGER_ENDPOINT || 'http://localhost:14268/api/traces',
+});
+
+provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
+provider.register();
+
+export const tracer = provider.getTracer('volcano-web');
+
+// 使用示例
+const span = tracer.startSpan('project.create');
+span.setAttributes({
+  'user.id': userId,
+  'project.id': projectId,
+});
+
+try {
+  // ... 业务逻辑
+  span.setStatus({ code: SpanStatusCode.OK });
+} catch (error) {
+  span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+  span.recordException(error);
+} finally {
+  span.end();
+}
+```
+
+**关键追踪点**：
+
+- 用户创建项目 → Inngest 任务触发 → LLM 调用 → TTS 调用 → Remotion 渲染
+- 每个 Inngest Step 自动创建 span
+- 外部 API 调用（LLM、TTS、R2）创建 span
+
+---
+
+### 13.4 Alert（告警规则）
+
+**告警规则表**：
+
+| 告警名称 | 触发条件 | 级别 | 通知渠道 | 说明 |
+|---------|---------|------|---------|------|
+| **API 错误率过高** | 5xx 错误率 > 5%（5 分钟窗口） | P1 | Email + Slack | 服务异常 |
+| **API 响应时间过慢** | P95 > 2s（5 分钟窗口） | P2 | Slack | 性能问题 |
+| **项目生成失败率过高** | 失败率 > 20%（1 小时窗口） | P1 | Email + Slack | 核心功能异常 |
+| **Inngest 任务堆积** | Pending 任务 > 100 | P2 | Slack | 队列堵塞 |
+| **PostgreSQL 连接池耗尽** | 活跃连接 > 90% | P1 | Email + Slack | 数据库压力 |
+| **Redis 内存使用过高** | 内存使用 > 80% | P2 | Slack | 缓存压力 |
+| **R2 上传失败率** | 失败率 > 10%（5 分钟窗口） | P2 | Slack | 存储异常 |
+| **Remotion Worker 不可用** | 健康检查失败 | P1 | Email + Slack | 渲染服务宕机 |
+
+**告警实现（Prometheus AlertManager）**：
+
+```yaml
+# prometheus-alerts.yml
+groups:
+  - name: volcano_alerts
+    interval: 30s
+    rules:
+      - alert: HighAPIErrorRate
+        expr: sum(rate(volcano_api_requests_total{statusCode=~"5.."}[5m])) / sum(rate(volcano_api_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API error rate is above 5%"
+          description: "Current error rate: {{ $value | humanizePercentage }}"
+      
+      - alert: SlowAPIResponse
+        expr: histogram_quantile(0.95, volcano_api_duration_seconds) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API P95 latency is above 2s"
+          description: "Current P95: {{ $value }}s"
+      
+      - alert: HighProjectFailureRate
+        expr: sum(increase(volcano_project_status{status="Failed"}[1h])) / sum(increase(volcano_project_created_total[1h])) > 0.2
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Project generation failure rate is above 20%"
+```
+
+---
+
+## 14. 部署架构
+
+### 14.1 环境划分
+
+| 环境 | 用途 | 域名 | 数据库 | R2 Bucket | Inngest |
+|------|------|------|--------|-----------|---------|
+| **Local** | 本地开发 | localhost:3000 | PostgreSQL (Docker) | Local Mock | Inngest Dev Server |
+| **Dev** | 开发联调 | dev.volcano.ai | PostgreSQL (Staging) | volcano-dev | Inngest Cloud (Dev) |
+| **Staging** | 预发布测试 | staging.volcano.ai | PostgreSQL (Staging) | volcano-staging | Inngest Cloud (Staging) |
+| **Production** | 生产环境 | volcano.ai | PostgreSQL (Production) | volcano-prod | Inngest Cloud (Prod) |
+
+**环境变量管理**：
+
+- **Local**：`.env.local`（不提交 Git）
+- **Dev/Staging**：Vercel 环境变量（Web UI）
+- **Production**：Vercel 环境变量 + Secrets Manager
+
+---
+
+### 14.2 技术栈部署
+
+| 组件 | 部署方式 | 实例数 | 资源配置 | 说明 |
+|------|---------|--------|---------|------|
+| **Next.js Web** | Vercel Serverless | Auto-scale | N/A | 自动扩缩容 |
+| **PostgreSQL** | 自建或 Neon | 1 主 + 1 从 | 4C 16G | 主从复制 |
+| **Redis** | Upstash 或自建 | 1 | 2G 内存 | 缓存 + 限流 |
+| **Cloudflare R2** | Cloudflare | N/A | 按量计费 | 对象存储 |
+| **Inngest** | Inngest Cloud | N/A | 按量计费 | 任务编排 |
+| **Remotion Worker** | Docker on EC2 | 2 | 8C 32G | 渲染服务 |
+
+**Remotion Worker 部署架构**：
+
+```mermaid
+graph LR
+    A[Next.js Web on Vercel] -->|HTTPS + Internal Token| B[ALB]
+    B --> C[Worker Instance 1]
+    B --> D[Worker Instance 2]
+    C --> E[Chromium]
+    D --> F[Chromium]
+    C --> G[R2]
+    D --> G
+```
+
+---
+
+### 14.3 CI/CD 流程
+
+```mermaid
+flowchart TD
+    A[Git Push to main] --> B[GitHub Actions Trigger]
+    B --> C[Run Tests]
+    C --> D{Tests Pass?}
+    D -->|No| E[Notify Slack + Stop]
+    D -->|Yes| F[Build Next.js]
+    F --> G[Build Remotion Worker Docker Image]
+    G --> H[Push to Docker Registry]
+    H --> I[Deploy to Vercel]
+    I --> J[Deploy Worker to EC2]
+    J --> K[Run Smoke Tests]
+    K --> L{Smoke Pass?}
+    L -->|No| M[Rollback + Alert]
+    L -->|Yes| N[Deployment Success]
+```
+
+**CI/CD 工具链**：
+
+| 阶段 | 工具 | 说明 |
+|------|------|------|
+| **CI** | GitHub Actions | 跑测试 + 构建 |
+| **Build** | Vercel CLI / Docker | Next.js + Worker |
+| **Registry** | Docker Hub 或 ECR | Worker 镜像存储 |
+| **CD** | Vercel + AWS SSM | 自动部署 + 远程执行 |
+| **Smoke Test** | Playwright | 端到端测试 |
+
+**GitHub Actions 示例**：
+
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run test
+  
+  deploy-web:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: vercel/action@v1
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+  
+  deploy-worker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/build-push-action@v4
+        with:
+          context: ./apps/render-worker
+          push: true
+          tags: volcano/render-worker:latest
+      - name: Deploy to EC2
+        run: |
+          ssh ec2-user@${{ secrets.WORKER_HOST }} \
+            "docker pull volcano/render-worker:latest && docker restart volcano-worker"
+```
+
+### 14.4 回滚方案
+
+#### 14.4.1 回滚策略
+
+| 组件 | 回滚方式 | RTO | 说明 |
+|------|---------|-----|------|
+| **Next.js Web** | Vercel 一键回滚 | < 2 分钟 | Vercel Dashboard 或 CLI |
+| **Remotion Worker** | Docker 版本切换 | < 5 分钟 | `docker tag` + `docker restart` |
+| **数据库 Schema** | Prisma 回滚迁移 | < 10 分钟 | `npx prisma migrate rollback` |
+| **Feature Flag** | 配置中心实时关闭 | < 1 分钟 | 不需要重新部署 |
+
+#### 14.4.2 数据库回滚
+
+**原则**：Schema 迁移必须支持向前向后兼容。
+
+**禁止操作**：
+
+- ❌ 直接删除列（先标记废弃，等新版本部署后再删除）
+- ❌ 修改列类型（先新增列，迁移数据，再删除旧列）
+
+**安全迁移流程**：
+
+1. **Step 1**：新增列（nullable）
+2. **Step 2**：部署代码，同时写入新旧两列
+3. **Step 3**：数据迁移脚本，填充新列
+4. **Step 4**：部署代码，只读新列
+5. **Step 5**：删除旧列
+
+#### 14.4.3 Feature Flag
+
+**使用场景**：
+
+- 新功能灰度发布
+- 高风险功能紧急关闭
+- A/B 测试
+
+**实现方式**：使用 Vercel Edge Config 或自建配置中心。
+
+```typescript
+// apps/web/lib/feature-flags.ts
+import { get } from '@vercel/edge-config';
+
+export async function isFeatureEnabled(featureName: string, userId?: string): Promise<boolean> {
+  const flags = await get<Record<string, boolean>>('feature-flags');
+  return flags?.[featureName] ?? false;
+}
+
+// 使用示例
+if (await isFeatureEnabled('remotion-render-v2', ctx.userId)) {
+  // 使用新渲染逻辑
+} else {
+  // 使用旧渲染逻辑
+}
+```
+
+---
+
+## 15. 非功能需求（NFR）
+
+### 15.1 性能指标
+
+| 指标 | 目标值 | 测量方式 | 说明 |
+|------|--------|---------|------|
+| **创建项目接口 P95** | ≤ 800ms | Datadog / New Relic | 不等待生成完成 |
+| **项目详情查询 P95** | ≤ 500ms | Datadog / New Relic | 包含关联数据 |
+| **项目列表查询 P95** | ≤ 800ms | Datadog / New Relic | 分页查询 20 条 |
+| **3 分钟视频生成 P75** | ≤ 8 分钟 | 端到端监控 | LLM + TTS + 渲染 |
+| **首屏加载时间（LCP）** | ≤ 2.5s | Lighthouse / WebPageTest | Core Web Vitals |
+| **交互响应时间（FID）** | ≤ 100ms | Lighthouse | Core Web Vitals |
+| **视觉稳定性（CLS）** | ≤ 0.1 | Lighthouse | Core Web Vitals |
+| **Remotion 渲染 1 分钟视频** | ≤ 3 分钟 | Worker 日志 | 8C 32G 配置 |
+| **TTS 单句合成** | ≤ 2s | Provider API 响应时间 | 含网络延迟 |
+
+**性能优化策略**：
+
+1. **前端**：
+   - 使用 Next.js App Router SSR/SSG
+   - 图片使用 WebP + Next/Image
+   - 代码分割（动态 import）
+   - TanStack Query 缓存
+
+2. **后端**：
+   - 数据库查询优化（索引 + 分页）
+   - Redis 缓存热点数据
+   - tRPC 批量查询（dataloader）
+   - Inngest 异步处理长任务
+
+3. **渲染**：
+   - Remotion Worker Bundle 缓存
+   - Chromium 复用（不每次启动）
+   - 并行渲染多个 Scene（如适用）
+
+---
+
+### 15.2 可用性指标
+
+| 指标 | 目标值 | 测量方式 | 说明 |
+|------|--------|---------|------|
+| **系统可用性（SLA）** | ≥ 99.9% | Uptime 监控 | 月度停机时间 ≤ 43 分钟 |
+| **首次生成成功率** | ≥ 85% | 业务日志统计 | 排除用户输入错误 |
+| **生成任务可恢复率** | ≥ 95% | Inngest 重试统计 | 重试后无需从头重做 |
+| **失败原因展示覆盖率** | ≥ 95% | 用户反馈 + 日志 | 用户可理解的错误提示 |
+| **数据库主从切换 RTO** | ≤ 60s | 手动演练 | 自动 Failover |
+| **灾难恢复 RPO** | ≤ 1 小时 | 数据库备份频率 | 每小时全量备份 |
+
+**高可用策略**：
+
+1. **数据库**：
+   - PostgreSQL 主从复制
+   - 自动 Failover（pgpool-II 或 Patroni）
+   - 每小时增量备份，每日全量备份
+
+2. **Remotion Worker**：
+   - 至少 2 个实例
+   - ALB 健康检查 + 自动摘除
+   - 失败任务自动重试（Inngest）
+
+3. **Cloudflare R2**：
+   - 多 AZ 冗余（Cloudflare 自动保证）
+   - 删除后不保留（PRD 要求）
+
+4. **Inngest**：
+   - Inngest Cloud 自带高可用
+   - 任务持久化，服务重启不丢失
+
+---
+
+### 15.3 可扩展性
+
+**水平扩展能力**：
+
+| 组件 | 扩展方式 | 瓶颈 | 解决方案 |
+|------|---------|------|---------|
+| **Next.js Web** | Vercel Auto-scale | 无 | 自动扩缩容 |
+| **PostgreSQL** | 读写分离 + 分库分表 | 单表数据量 > 1000 万 | 按 userId 分库（如需要） |
+| **Redis** | Redis Cluster | 单实例内存 | 分片 |
+| **Remotion Worker** | 增加实例 | 并发渲染数 | ALB + Auto Scaling Group |
+| **Cloudflare R2** | 无需扩展 | 无 | 按量计费 |
+
+**Provider 扩展性**：
+
+- **LLM Provider**：支持切换 DeepSeek / OpenAI / Claude
+- **TTS Provider**：支持切换 MiniMax / Azure / ElevenLabs
+- **Storage Provider**：支持切换 R2 / S3 / OSS
+- **Render Provider**：支持切换 Remotion / HyperFrames（未来）
+
+**Schema 扩展性**：
+
+- **Storyboard Schema 版本化**：`version: 1.0`，渲染时兼容旧版本
+- **Scene Type 扩展**：通过 Template Registry 注册新类型
+- **Animation Preset 扩展**：新增动效不破坏已有视频
+
+---
+
+### 15.4 可维护性
+
+**代码质量要求**：
+
+| 指标 | 目标值 | 工具 |
+|------|--------|------|
+| **单元测试覆盖率** | ≥ 70% | Jest |
+| **集成测试覆盖率** | ≥ 50% | Vitest + Playwright |
+| **ESLint 错误数** | 0 | ESLint |
+| **TypeScript 类型覆盖率** | 100% | tsc --noEmit |
+| **关键 API 文档覆盖率** | 100% | TSDoc + Docusaurus |
+
+**代码规范**：
+
+- **Linting**：ESLint + Prettier
+- **Commit**：Conventional Commits（feat/fix/docs/refactor）
+- **PR Review**：至少 1 人 Approve
+- **自动化测试**：CI 跑通才能合并
+
+**监控与告警**：
+
+- **错误追踪**：Sentry
+- **性能监控**：Datadog / New Relic
+- **日志聚合**：Datadog Logs / Elasticsearch
+- **告警渠道**：Slack + Email
+
+**文档维护**：
+
+| 文档类型 | 更新频率 | 责任人 |
+|---------|---------|--------|
+| **API 文档** | 每次接口变更 | Backend |
+| **部署文档** | 每次架构调整 | DevOps |
+| **Storyboard Schema 文档** | 每次 Schema 变更 | Tech Lead |
+| **Remotion 模板开发指南** | 每次新增模板 | Frontend |
+
+---
