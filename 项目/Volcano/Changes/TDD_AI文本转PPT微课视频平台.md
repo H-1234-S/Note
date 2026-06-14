@@ -3881,7 +3881,7 @@ gantt
     Epic 6: Remotion 渲染  :a6, after a4, 29d
     section 前端与测试
     Epic 7: 前端界面       :a7, after a6, 20.5d
-    Epic 8: 测试与优化     :a8, after a7, 26d
+```
 ## 19. 架构评审（Architecture Review）
 
 ### 19.1 当前设计缺陷
