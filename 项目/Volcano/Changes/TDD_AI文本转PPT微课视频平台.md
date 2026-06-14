@@ -55,11 +55,13 @@ Draft
 | 创建项目接口 P95 | ≤ 800ms | 不等待生成完成，仅创建 Project 和触发事件 |
 | 项目详情查询 P95 | ≤ 500ms | 包含 Project、Job、Storyboard、Assets |
 | 项目列表查询 P95 | ≤ 800ms | 分页查询，默认 20 条 |
-| 3 分钟视频生成 P75 | ≤ 8 分钟 | 端到端耗时，包含 LLM、TTS、渲染、上传 |
+| 3 分钟视频生成 P75 | ≤ 10 分钟 | 端到端耗时，包含 LLM、TTS、渲染、上传 |
+| 3 分钟视频生成 P95 | ≤ 15 分钟 | 端到端耗时，包含 LLM、TTS、渲染、上传 |
 | TTS 音频与画面时长错位投诉率 | ≤ 2% | 通过服务端解析音频 duration 保证 |
 | 首次生成成功率 | ≥ 85% | 排除用户输入错误 |
 | 生成任务可恢复率 | ≥ 95% | 重试后无需从头重做全部步骤 |
 | 失败原因展示覆盖率 | ≥ 95% | 用户可理解的错误提示 |
+| Inngest 事件投递成功率 | ≥ 99.9% | 通过 Outbox + 定时修复双保险保证 |
 
 ### 可扩展性目标
 
@@ -549,6 +551,7 @@ enum ProjectStatus {
   completed          // 已完成
   failed             // 失败
   cancelled          // 已取消
+  deleted            // 已软删除（用户删除项目后标记，定时任务清理关联资源）
 }
 ```
 
@@ -558,8 +561,12 @@ draft → queued → generating_storyboard → storyboard_ready
   → generating_audio → calculating_timeline → rendering → completed
                                                         ↓
                                                      failed
-                                                        ↓
-                                                    cancelled
+                                                   ↓       ↓
+                                              cancelled   deleted
+                                                  
+completed → deleted   (用户删除已完成项目)
+failed → deleted      (用户删除失败项目)
+cancelled → deleted   (用户删除已取消项目)
 ```
 
 #### 6.2.3 StoryboardVersion 表
@@ -608,31 +615,32 @@ draft → queued → generating_storyboard → storyboard_ready
 | id | String(CUID) | No | - | 主键 |
 | projectId | String | No | - | 外键，关联 Project.id |
 | storyboardVersionId | String | No | - | 外键，关联 StoryboardVersion.id |
-| sceneKey | String | No | - | 场景唯一标识，如 `scene_001` |
 | order | Int | No | - | 场景顺序，从 0 开始 |
-| type | String | No | - | 场景类型，见枚举 SceneType |
+| sceneType | Enum(SceneType) | Yes | null | 场景类型，见枚举 SceneType |
 | title | String | Yes | null | 场景标题 |
-| voiceoverText | Text | No | - | 旁白文本 |
-| visualJson | Json | No | - | 可视化结构（SceneVisual） |
-| animationJson | Json | Yes | null | 动画配置 |
+| narrationText | Text | No | - | 旁白文本 |
+| visualDescription | Text | Yes | null | 可视化描述 |
+| visualJson | Json | Yes | null | 可视化结构（SceneVisual），供 Remotion 模板消费 |
+| animationPreset | String | Yes | null | 动画预设 |
+| emotionalTone | String | Yes | null | 情感基调 |
 | audioAssetId | String | Yes | null | 音频 Asset ID |
-| durationMs | Int | Yes | null | 音频时长（毫秒） |
-| startFrame | Int | Yes | null | 起始帧（全局时间轴） |
-| durationFrames | Int | Yes | null | 持续帧数 |
+| durationSec | Float | Yes | null | 音频时长（秒） |
+| startTimeSec | Float | Yes | null | 起始时间（全局时间轴，秒） |
 | captionsJson | Json | Yes | null | 字幕数组（CaptionSegment[]） |
+| imageAssetId | String | Yes | null | 图片 Asset ID（预留） |
 | createdAt | DateTime | No | now() | 创建时间 |
 
 **索引设计**：
 - 主键：`id`
-- 唯一约束：`storyboardVersionId_sceneKey_unique (storyboardVersionId, sceneKey)`
 - 唯一约束：`storyboardVersionId_order_unique (storyboardVersionId, order)`
-- 复合索引：`projectId_order_idx (projectId, order ASC)`
-- 外键索引：`audioAssetId`
+- 复合索引：`storyboardVersionId_order_idx (storyboardVersionId, order ASC)`
+- 外键索引：`audioAssetId`, `imageAssetId`
 
 **外键**：
 - `projectId` → Project(id) ON DELETE CASCADE
 - `storyboardVersionId` → StoryboardVersion(id) ON DELETE CASCADE
 - `audioAssetId` → Asset(id) ON DELETE SET NULL
+- `imageAssetId` → Asset(id) ON DELETE SET NULL
 
 **枚举类型：SceneType**
 
@@ -659,32 +667,44 @@ enum SceneType {
 |------|------|----------|--------|------|
 | id | String(CUID) | No | - | 主键 |
 | userId | String | No | - | 所属用户 |
-| projectId | String | Yes | null | 所属项目（可为空，支持复用） |
+| projectId | String | Yes | null | 首次创建所属项目（可为空，支持跨项目复用） |
 | type | Enum(AssetType) | No | - | 资源类型 |
 | provider | String | No | `r2` | 存储提供商 |
 | bucket | String | No | - | R2 bucket 名称 |
-| key | String | No | - | R2 key（路径） |
-| url | String | Yes | null | 可选公开 URL（不建议存签名 URL） |
+| assetKey | String | No | - | R2 key（路径），唯一 |
 | contentType | String | No | - | MIME 类型 |
-| sizeBytes | Int | Yes | null | 文件大小（字节） |
-| durationMs | Int | Yes | null | 音视频时长（毫秒） |
+| sizeBytes | BigInt | Yes | null | 文件大小（字节） |
+| durationSec | Float | Yes | null | 音视频时长（秒） |
 | width | Int | Yes | null | 图片/视频宽度 |
 | height | Int | Yes | null | 图片/视频高度 |
-| checksum | String | Yes | null | 内容校验和（SHA256） |
+| checksum | String | No | - | 内容校验和（SHA256），用于音频复用 |
+| referenceCount | Int | No | 1 | 引用计数（被几个项目引用，0 时可安全删除） |
+| lifecycleStatus | Enum(LifecycleStatus) | No | `active` | 生命周期：active / temporary / orphaned / deleted |
 | metadata | Json | Yes | null | 扩展字段（如 TTS providerRequestId） |
-| orphan | Boolean | No | false | 是否孤儿文件（项目已删除但保留） |
 | createdAt | DateTime | No | now() | 创建时间 |
+| updatedAt | DateTime | No | now() | 更新时间 |
 
 **索引设计**：
 - 主键：`id`
-- 唯一约束：`key_unique (key)` - R2 key 唯一
-- 复合索引：`userId_type_idx (userId, type)`
-- 复合索引：`projectId_type_idx (projectId, type)`
+- 唯一约束：`assetKey_unique (assetKey)` - R2 key 唯一
+- 复合索引：`userId_createdAt_idx (userId, createdAt DESC)`
 - 单字段索引：`checksum_idx (checksum)` - 用于音频复用查询
+- 单字段索引：`lifecycleStatus_idx (lifecycleStatus)` - 用于孤儿文件清理
 
 **外键**：
 - `userId` → User(id) ON DELETE CASCADE
 - `projectId` → Project(id) ON DELETE SET NULL
+
+**枚举类型：LifecycleStatus**
+
+```typescript
+enum LifecycleStatus {
+  active       // 正常使用中
+  temporary    // 临时文件（渲染中间产物）
+  orphaned     // 所有引用项目已删除，等待定时清理
+  deleted      // 已标记删除（R2 文件已清理或待清理）
+}
+```
 
 **枚举类型：AssetType**
 
@@ -703,7 +723,8 @@ enum AssetType {
 **音频复用逻辑**：
 - 通过 `checksum` 字段查询是否存在相同内容的音频
 - checksum 生成规则：`SHA256(textHash + voiceProvider + voiceId + speed)`
-- 复用时更新 `projectId` 关联到新项目
+- 复用时 `referenceCount++`，不修改 `projectId`
+- 项目删除时 `referenceCount--`，当 `referenceCount = 0` 且 `lifecycleStatus = 'orphaned'` 时清理 R2
 
 
 #### 6.2.6 GenerationJob 表
@@ -717,23 +738,30 @@ enum AssetType {
 | id | String(CUID) | No | - | 主键 |
 | projectId | String | No | - | 外键，关联 Project.id |
 | userId | String | No | - | 用户 ID，索引 |
+| jobType | String | No | `storyboard` | 任务类型：storyboard / audio / image |
 | status | Enum(JobStatus) | No | `pending` | 任务状态 |
-| currentStep | String | Yes | null | 当前步骤：storyboard/audio/timeline |
+| requestId | String | Yes | null | 幂等键（UUID），由前端生成，@unique |
+| currentStep | String | Yes | null | 当前步骤：storyboard / audio / timeline / render |
+| completedSteps | Json | Yes | null | 已完成步骤记录：`{storyboard:true, audio:["sceneId1"], timeline:false}` |
 | inngestRunId | String | Yes | null | Inngest run ID |
-| idempotencyKey | String | No | - | 幂等键，唯一 |
+| aiProvider | String | No | `internal` | AI Provider ID |
+| aiModel | String | Yes | null | AI 模型名称 |
+| inputParams | Json | No | - | 输入参数快照 |
+| outputAssetId | String | Yes | null | 输出资源 Asset ID |
 | attempt | Int | No | 0 | 尝试次数 |
 | errorCode | String | Yes | null | 错误码 |
 | errorMessage | String | Yes | null | 错误信息（用户可读） |
 | startedAt | DateTime | Yes | null | 开始时间 |
-| finishedAt | DateTime | Yes | null | 完成时间 |
+| completedAt | DateTime | Yes | null | 完成时间 |
 | createdAt | DateTime | No | now() | 创建时间 |
 | updatedAt | DateTime | No | now() | 更新时间 |
 
 **索引设计**：
 - 主键：`id`
-- 唯一约束：`idempotencyKey_unique (idempotencyKey)`
+- 唯一约束：`requestId_unique (requestId)`
 - 复合索引：`projectId_status_idx (projectId, status)`
 - 复合索引：`userId_createdAt_idx (userId, createdAt DESC)`
+- 复合索引：`status_createdAt_idx (status, createdAt)` — 用于 stalled job 检测
 
 **外键**：
 - `projectId` → Project(id) ON DELETE CASCADE
@@ -741,8 +769,12 @@ enum AssetType {
 
 **幂等键生成规则**：
 ```typescript
-// 基于项目 ID + 创建时间戳 + 随机字符串
-const idempotencyKey = `gen_${projectId}_${Date.now()}_${randomString(8)}`;
+// requestId 由前端使用 crypto.randomUUID() 生成
+// 前端每次提交生成一个唯一 UUID，后端通过 @unique 约束保证幂等
+const requestId = crypto.randomUUID(); // 例: "550e8400-e29b-41d4-a716-446655440000"
+
+// 重复提交时，后端捕获 Prisma P2002 错误，
+// 查询已有 Job 并返回 DuplicateRequestError
 ```
 
 #### 6.2.7 RenderJob 表
@@ -856,23 +888,23 @@ enum JobStatus {
 |------|------|----------|--------|------|
 | id | String(CUID) | No | - | 主键 |
 | userId | String | No | - | 用户 ID，索引 |
-| projectId | String | Yes | null | 项目 ID |
-| resourceType | String | No | - | 资源类型：llm/tts/render/storage |
-| provider | String | No | - | Provider ID |
-| operation | String | No | - | 操作：generate/synthesize/render/upload |
-| inputTokens | Int | Yes | null | LLM 输入 token 数 |
-| outputTokens | Int | Yes | null | LLM 输出 token 数 |
-| durationMs | Int | Yes | null | TTS/Render 时长（毫秒） |
-| sizeBytes | Int | Yes | null | 存储文件大小 |
-| cost | Decimal | Yes | null | 成本（预留字段） |
+| projectId | String | Yes | null | 关联项目 ID |
+| resourceType | String | No | - | 资源类型：ai_tokens / render_minutes / storage_gb |
+| provider | String | Yes | null | Provider ID |
+| quotaType | String | Yes | null | 额度类型：daily_generation_count / monthly_token_limit |
+| quotaConsumed | Int | Yes | null | 本次消耗的额度数量（如生成 1 个视频 = 1） |
+| quantity | Float | No | - | 资源用量（tokens、秒、字节） |
+| unitCost | Float | Yes | null | 单价（预留） |
+| totalCost | Float | Yes | null | 总成本（预留） |
 | metadata | Json | Yes | null | 扩展信息 |
-| createdAt | DateTime | No | now() | 创建时间 |
+| recordedAt | DateTime | No | now() | 记录时间 |
 
 **索引设计**：
 - 主键：`id`
-- 复合索引：`userId_createdAt_idx (userId, createdAt DESC)`
-- 复合索引：`userId_resourceType_idx (userId, resourceType)`
+- 复合索引：`userId_recordedAt_idx (userId, recordedAt DESC)`
+- 复合索引：`userId_quotaType_recordedAt_idx (userId, quotaType, recordedAt DESC)` — 用于额度查询
 - 单字段索引：`projectId_idx (projectId)`
+- 单字段索引：`resourceType_idx (resourceType)`
 
 **外键**：
 - `userId` → User(id) ON DELETE CASCADE
@@ -880,12 +912,16 @@ enum JobStatus {
 
 **用量统计示例**：
 ```typescript
-// 统计用户今日 LLM token 消耗
-SELECT SUM(inputTokens + outputTokens) as totalTokens
-FROM UsageRecord
-WHERE userId = ? 
-  AND resourceType = 'llm'
-  AND createdAt >= ?  -- 今日 00:00:00
+// 统计用户今日生成次数（基于 quotaType）
+const todayCount = await prisma.usageRecord.aggregate({
+  where: {
+    userId,
+    quotaType: 'daily_generation_count',
+    recordedAt: { gte: todayStart }
+  },
+  _sum: { quotaConsumed: true }
+});
+const remaining = DAILY_LIMIT - (todayCount._sum.quotaConsumed || 0);
 ```
 
 #### 6.2.10 AuditLog 表
@@ -1051,13 +1087,17 @@ export type AppRouter = typeof appRouter;
 
 **Path**: `trpc.project.list.useQuery`
 
+**说明**：使用 cursor-based 分页，避免 offset 分页在数据变动时的重复/遗漏问题。
+
 **Request Schema**:
 
 ```typescript
 {
-  status: z.enum(['all', 'generating', 'completed', 'failed']).optional(),
-  page: z.number().int().min(1).default(1),
-  pageSize: z.number().int().min(1).max(50).default(20),
+  cursor: z.string().optional(),       // 上一页最后一条的 id，首页不传
+  pageSize: z.number().int().min(1).max(50).default(12),
+  status: z.enum(['queued','generating_storyboard','storyboard_ready',
+    'generating_audio','calculating_timeline','rendering',
+    'completed','failed','cancelled']).optional(),
 }
 ```
 
@@ -1070,25 +1110,23 @@ export type AppRouter = typeof appRouter;
     title: string;
     status: ProjectStatus;
     aspectRatio: string;
-    targetDurationSec: number;
+    targetDurationSec: number | null;
     thumbnailUrl: string | null;
     errorMessage: string | null;
     createdAt: Date;
     updatedAt: Date;
   }>;
-  total: number;
-  page: number;
-  pageSize: number;
+  nextCursor: string | null;  // 下一页游标，null 表示最后一页
 }
 ```
 
-**错误码**：UNAUTHORIZED（未登录）、INVALID_PAGE（页码无效）
+**错误码**：UNAUTHORIZED（未登录）
 
 **限流策略**：50 次/分钟
 
 **超时策略**：3 秒
 
-**权限要求**：必须登录，仅返回当前用户的项目（管理员可查看所有项目）
+**权限要求**：必须登录，仅返回当前用户的项目
 
 #### 7.2.3 project.getById - 项目详情
 
@@ -1363,9 +1401,11 @@ stateDiagram-v2
     calculating_timeline --> cancelled: 用户取消
     rendering --> cancelled: 用户取消
     
-    completed --> [*]
-    failed --> [*]
-    cancelled --> [*]
+    completed --> deleted: 用户删除
+    failed --> deleted: 用户删除
+    cancelled --> deleted: 用户删除
+    
+    deleted --> [*]
 ```
 
 ### 8.2 ProjectStatus 状态详细说明
@@ -1382,6 +1422,7 @@ stateDiagram-v2
 | **completed** | 已完成 | 视频上传成功 | 终态 | - | - |
 | **failed** | 失败 | 任一步骤不可恢复失败 | 用户点击重试 | - | 允许重试 |
 | **cancelled** | 已取消 | 用户主动取消 | 终态 | - | - |
+| **deleted** | 已软删除 | 用户点击删除（completed/failed/cancelled 终态项目） | 定时任务清理关联 R2 资源后物理删除 | - | Asset referenceCount--，orphan 文件定时清理 |
 
 ### 8.3 JobStatus 状态流转
 
@@ -2206,33 +2247,42 @@ await recordCacheMetric({
 
 | 场景 | 幂等键 | 幂等策略 | 说明 |
 |------|--------|---------|------|
-| **创建项目 API** | `userId + projectName + timestamp` | 短期去重窗口（10s） | 防止用户双击提交重复创建 |
-| **生成 Storyboard** | `projectId + step='storyboard'` | 查询是否已有 storyboardId，有则跳过 | 避免重复调用 LLM |
-| **生成单个 Scene 音频** | `sceneId + ttsProvider + voiceId` | 查询 Audio 表是否已存在，有则复用 | 避免重复调用 TTS API |
+| **创建项目 API** | `requestId`（UUID，前端生成） | `GenerationJob.requestId` @unique 约束 + P2002 捕获 | 防止用户双击提交重复创建 |
+| **生成 Storyboard** | `projectId + step='storyboard'` | 查询是否已有 storyboardVersionId，有则跳过 | 避免重复调用 LLM |
+| **生成单个 Scene 音频** | `SHA256(text + voiceProvider + voiceId + speed)` | 查询 Asset.checksum 是否已存在，有则复用 | 避免重复调用 TTS API |
 | **触发 Remotion 渲染** | `projectId + renderRequestId` | Worker 接口幂等，重复请求返回已有任务 ID | 避免重复渲染 |
 
 #### 11.2.2 幂等实现示例
 
-**API 层幂等（创建项目）**：
+**API 层幂等（创建项目）—— 基于 requestId + advisory lock**：
 
 ```typescript
-// src/server/api/routers/project.router.ts
-export const createProject = protectedProcedure
-  .input(CreateProjectInput)
-  .mutation(async ({ ctx, input }) => {
-    const idempotencyKey = `create_project:${ctx.userId}:${input.title}:${Date.now()}`;
-    const cached = await redis.get(idempotencyKey);
-    if (cached) {
-      return JSON.parse(cached);  // 返回已创建的项目
-    }
-    
-    const project = await ctx.db.project.create({
-      data: { userId: ctx.userId, title: input.title, ... }
-    });
-    
-    await redis.setex(idempotencyKey, 10, JSON.stringify(project));
-    return project;
+// 事务内流程：
+// 1. pg_advisory_xact_lock(userId) — 序列化同一用户的并发请求
+// 2. 检查 GenerationJob.requestId 是否已存在 — 幂等保护
+// 3. 额度检查 + 并发检查
+// 4. 创建 Project + GenerationJob
+// 5. 事务提交 → lock 自动释放
+
+// 事务外捕获 P2002 唯一约束冲突（极端并发场景的最后防线）
+try {
+  return await prisma.$transaction(async (tx) => {
+    // advisory lock
+    await tx.$executeRawUnsafe(
+      `SELECT pg_advisory_xact_lock($1::bigint)`,
+      hashUserId(userId),
+    );
+    // 幂等检查...
   });
+} catch (error) {
+  if (isUniqueConstraintError(error) && getConstraintField(error) === 'requestId') {
+    const existingJob = await prisma.generationJob.findUnique({
+      where: { requestId: input.requestId },
+    });
+    throw new DuplicateRequestError('重复请求', existingJob.projectId, existingJob.id);
+  }
+  throw error;
+}
 ```
 
 **Inngest Step 幂等（生成 Storyboard）**：
@@ -2464,6 +2514,71 @@ setInterval(async () => {
 }, 5000);  // 每 5 秒轮询一次
 ```
 
+#### 11.4.3 Stalled 任务恢复机制
+
+**场景**：Inngest 事件发送成功但因网络/服务异常导致 Project 长时间卡在 `queued` 状态。
+这是 Outbox Pattern 的兜底方案，确保在 Outbox 也失败的情况下任务最终能被恢复。
+
+**检测逻辑**：
+
+```typescript
+// src/server/jobs/stalled-project-recovery.ts
+
+// 每 30 秒扫描一次
+setInterval(async () => {
+  const stalledThreshold = new Date(Date.now() - 60_000); // 卡住超过 1 分钟
+
+  const stalledProjects = await db.project.findMany({
+    where: {
+      status: 'queued',
+      createdAt: { lt: stalledThreshold },
+      generationJobs: {
+        none: {
+          status: { in: ['running', 'retrying'] }
+        }
+      }
+    },
+    include: {
+      generationJobs: {
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+      },
+    },
+  });
+
+  for (const project of stalledProjects) {
+    const lastJob = project.generationJobs[0];
+    if (!lastJob) continue;
+
+    try {
+      // 重新发送 Inngest 事件
+      await inngest.send({
+        name: 'video/generate.requested',
+        data: {
+          projectId: project.id,
+          userId: project.userId,
+          jobId: lastJob.id,
+        },
+      });
+
+      // 更新 Job 状态避免重复检测
+      await db.generationJob.update({
+        where: { id: lastJob.id },
+        data: { updatedAt: new Date() },
+      });
+
+      console.log(`[StalledRecovery] 重新发送事件: projectId=${project.id}`);
+    } catch (error) {
+      console.error(`[StalledRecovery] 恢复失败: projectId=${project.id}`, error);
+    }
+  }
+}, 30_000);
+```
+
+**监控指标**：
+- `volcano_stalled_projects_total` — 累计检测到的 stalled 项目数
+- 告警阈值：5 分钟内 stalled 项目 > 10 → P2 告警
+
 ---
 
 ## 12. 安全设计
@@ -2552,17 +2667,30 @@ export const getProject = protectedProcedure
 | **TTS 批量调用** | projectId | 1 次（并发限制） | Inngest 任务队列 |
 | **全局 API** | IP | 1000 次/小时 | Nginx rate_limit |
 
-**实现示例（tRPC 限流中间件）**：
+**实现示例（tRPC 限流中间件，支持 Redis 降级）**：
 
 ```typescript
 // src/server/api/middleware/rate-limit.ts
-import { RateLimiterRedis } from 'rate-limiter-flexible';
+import { RateLimiterRedis, RateLimiterMemory } from 'rate-limiter-flexible';
 
-const rateLimiter = new RateLimiterRedis({
-  storeClient: redisClient,
-  points: 10,  // 10 次
-  duration: 60,  // 1 分钟
-});
+// Redis 不可用时降级为内存限流（单实例场景，多实例不一致但可兜底）
+const getRateLimiter = () => {
+  if (redisClient) {
+    return new RateLimiterRedis({
+      storeClient: redisClient,
+      points: 10,
+      duration: 60,
+    });
+  }
+  // 降级：内存限流（MVP 阶段可接受，多实例部署时切换 Redis）
+  console.warn('[RateLimit] Redis 不可用，降级为内存限流（仅单实例有效）');
+  return new RateLimiterMemory({
+    points: 10,
+    duration: 60,
+  });
+};
+
+const rateLimiter = getRateLimiter();
 
 export const rateLimitMiddleware = async ({ ctx, next }) => {
   if (!ctx.userId) return next();
@@ -2573,7 +2701,7 @@ export const rateLimitMiddleware = async ({ ctx, next }) => {
   } catch (error) {
     throw new TRPCError({ 
       code: 'TOO_MANY_REQUESTS',
-      message: 'Rate limit exceeded. Please try again later.',
+      message: '请求过于频繁，请稍后再试。',
     });
   }
 };
@@ -3842,18 +3970,20 @@ graph LR
 
 **总工作量估算**：
 
-| Epic | 工作量 | 依赖关系 |
-|------|--------|---------|
-| Epic 1: 基础设施 | 9d | 无 |
-| Epic 2: 用户认证 | 7.5d | Epic 1 |
-| Epic 3: 项目管理 | 8d | Epic 2 |
-| Epic 4: AI 分镜生成 | 11.5d | Epic 1 |
-| Epic 5: TTS 音频 | 10.5d | Epic 4 |
-| Epic 6: Remotion 渲染 | 29d | Epic 4 |
-| Epic 7: 前端界面 | 20.5d | Epic 2, 3, 4, 5, 6 |
-| Epic 8: 测试与优化 | 26d | Epic 1-7 |
+| Epic | 原估算 | 实际/调整 | 备注 |
+|------|--------|----------|------|
+| Epic 1: 基础设施 | 9d | ✅ 已完成 | Next.js + tRPC + Prisma + Inngest 已搭建 |
+| Epic 2: 用户认证 | 7.5d | ✅ 90% | better-auth + 登录/注册页已完成，剩余 1d（密码重置等） |
+| Epic 3: 项目管理 | 8d | 2d 剩余 | CRUD + advisory lock 已完成，剩余 status 流转 + Inngest 集成 |
+| Epic 4: AI 分镜生成 | 11.5d | 15d | LLM Prompt 工程需要 5-10 轮迭代调优（+30% 缓冲） |
+| Epic 5: TTS 音频 | 10.5d | 12d | 时间戳解析 + audio duration 校验复杂（+15% 缓冲） |
+| Epic 6: Remotion 渲染 | 29d | 20-35d | 实际工时取决于模板复杂度和 Chromium 调试（范围 ±25%） |
+| Epic 7: 前端界面 | 20.5d | 12d | Landing/Auth/App shell 已有，剩余 Progress/Result 页 |
+| Epic 8: 测试与优化 | 26d | 20d | 已有 30+ 单元测试，持续补充 |
 
-**关键路径**：Epic 1 → Epic 4 → Epic 5 → Epic 6 → Epic 7 → Epic 8
+**关键路径**：Epic 4 → Epic 5 → Epic 6 → Epic 7 → Epic 8
+
+**实际剩余工作量**：约 **70-90d**（含缓冲）
 
 **团队配置**：
 
@@ -3862,7 +3992,7 @@ graph LR
 - DevOps: 1 人（兼职）
 - QA: 1 人（后期加入）
 
-**预计总工期**：**10-12 周**
+**预计剩余工期**：**8-10 周**（从当前进度算起）
 
 ```mermaid
 gantt
