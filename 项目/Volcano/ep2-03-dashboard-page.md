@@ -237,6 +237,250 @@
 
 ---
 
+## 组件架构与数据流
+
+### 组件层次结构
+
+```
+src/app/page.tsx (路由分流)
+├── isPending → <Loader />
+├── !session → <LandingHero />
+│   ├── <WavyBackground />           # Canvas 波浪动画
+│   ├── <AnimatedThemeToggler />     # 主题切换器
+│   ├── <TypingAnimation />          # 打字动画标题
+│   └── <Button /> × 2               # 登录/注册按钮
+└── session → <MainApp />
+    ├── <AppNavbar />
+    │   ├── <SegmentedControl />     # Tab 切换（滑块动画）
+    │   ├── <AnimatedThemeToggler /> # 主题切换器
+    │   └── <UserMenu />             # 用户下拉菜单
+    └── <TabContent />
+        ├── <GenerateTab />
+        │   ├── <AutoResizeTextarea /> # 自动高度文本框
+        │   ├── <FadeMask />           # 渐变遮罩
+        │   └── <IconButton />         # 三态图标按钮
+        ├── <HistoryTab />
+        │   ├── <VideoCardSkeleton />  # 加载骨架
+        │   ├── <EmptyState />         # 空状态
+        │   ├── <ErrorState />         # 错误状态
+        │   └── ProjectList
+        │       └── <HistoryCardActions /> # 操作按钮
+        └── <SubscribeTab />           # 订阅占位页
+```
+
+### 数据流转图
+
+#### 1. 用户提交视频生成请求
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ GenerateTab                                                 │
+│                                                             │
+│  用户输入文本 → onChange(setText)                            │
+│  ↓                                                          │
+│  点击 IconButton → handleSubmit()                           │
+│  ↓                                                          │
+│  createMutation.mutate({                                    │
+│    sourceText: text,                                        │
+│    requestId: crypto.randomUUID(),                          │
+│    ...DEFAULT_CONFIG,                                       │
+│  })                                                         │
+│  ↓                                                          │
+│  [tRPC] → project.createAndGenerate                         │
+│  ↓                                                          │
+│  onSuccess:                                                 │
+│    - setText("")           # 清空输入                        │
+│    - toast.success()       # 显示成功提示                    │
+│    - onTabChange("history") # 自动切换到历史 Tab             │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│ HistoryTab                                                  │
+│                                                             │
+│  自动轮询（10 秒）→ trpc.project.list.useQuery()             │
+│  ↓                                                          │
+│  过滤 deleted 状态 → useMemo()                               │
+│  ↓                                                          │
+│  渲染项目列表：                                               │
+│    - 标题 + 状态标签                                          │
+│    - 时长 + 创建日期                                          │
+│    - hover 显示操作按钮                                       │
+│  ↓                                                          │
+│  用户看到"生成中…"项目                                        │
+│  ↓                                                          │
+│  [10 秒后] 自动刷新 → 状态变为"已完成"                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 2. 主题切换流程
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ AnimatedThemeToggler                                        │
+│                                                             │
+│  点击图标 → setTheme("dark" | "light")                       │
+│  ↓                                                          │
+│  next-themes 更新 <html class="dark">                        │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│ WavyBackground (MutationObserver)                           │
+│                                                             │
+│  监听 <html> 的 class 属性变化                               │
+│  ↓                                                          │
+│  checkTheme() → setIsDark(true/false)                       │
+│  ↓                                                          │
+│  useEffect 重新计算颜色：                                     │
+│    - getWaveColors()       # 波浪颜色                        │
+│    - getBackgroundFill()   # 背景色                          │
+│  ↓                                                          │
+│  Canvas 重绘（16-32ms）                                      │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 全局 CSS (Tailwind dark: 变体)                              │
+│                                                             │
+│  - 文字颜色：text-foreground                                 │
+│  - 按钮背景：bg-primary                                      │
+│  - 边框颜色：border-border                                   │
+│  - 所有元素同步响应主题                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 3. Tab 切换动画流程
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ AppNavbar                                                   │
+│                                                             │
+│  点击 Tab → onChange(newTab)                                 │
+│  ↓                                                          │
+│  MainApp: setActiveTab(newTab)                              │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│ SegmentedControl (Framer Motion)                            │
+│                                                             │
+│  检测 isSelected 变化                                        │
+│  ↓                                                          │
+│  <motion.div layoutId="indicator" />                        │
+│  ↓                                                          │
+│  共享元素动画：                                               │
+│    - 旧位置 → 新位置                                          │
+│    - Spring 物理效果                                         │
+│    - 150-300ms 流畅过渡                                      │
+│  ↓                                                          │
+│  白色滑块移动到新 Tab 下方                                    │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│ MainApp (条件渲染)                                           │
+│                                                             │
+│  {activeTab === "generate" && <GenerateTab />}              │
+│  {activeTab === "history" && <HistoryTab />}                │
+│  {activeTab === "subscribe" && <SubscribeTab />}            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 状态管理策略
+
+#### 客户端状态（React useState）
+
+| 状态 | 存储位置 | 作用域 | 持久化 |
+|------|---------|--------|--------|
+| `activeTab` | MainApp | 单个页面会话 | ❌ 刷新重置 |
+| `text` | GenerateTab | 组件生命周期 | ❌ 切换 Tab 清空 |
+| `isDark` | WavyBackground | 组件内部 | ❌ 依赖 next-themes |
+
+#### 服务端状态（tRPC Query）
+
+| 查询 | 数据 | 缓存策略 | 轮询 |
+|------|------|---------|------|
+| `project.list` | 项目列表 | React Query 缓存 | ✅ 10 秒 |
+| `useSession` | 用户会话 | better-auth 缓存 | ❌ 仅初始化 |
+
+#### 全局状态（next-themes）
+
+| 状态 | 存储位置 | 持久化 | 同步机制 |
+|------|---------|--------|---------|
+| `theme` | localStorage | ✅ 跨会话 | `<html class="dark">` |
+
+### 关键设计模式
+
+#### 1. 条件渲染分流（Routing by Render）
+
+```typescript
+// src/app/page.tsx
+export default function Home() {
+  const { data: session, isPending } = useSession();
+  
+  if (isPending) return <Loader />;
+  if (!session) return <LandingHero />;
+  return <MainApp />;
+}
+```
+
+**优势**：
+- 避免 302 重定向
+- 无闪屏（isPending 防护）
+- 用户感知为"一个页面，两种状态"
+
+#### 2. 状态提升（Lifting State Up）
+
+```typescript
+// MainApp.tsx
+const [activeTab, setActiveTab] = useState<Tab>("generate");
+
+// 传递到子组件
+<AppNavbar activeTab={activeTab} onTabChange={setActiveTab} />
+<GenerateTab onTabChange={setActiveTab} /> // 提交成功后切换 Tab
+```
+
+**优势**：
+- 单一数据源
+- 跨组件通信简单
+- 便于调试
+
+#### 3. 复合组件（Compound Components）
+
+```typescript
+// OpenAI 风格输入 = 三个组件组合
+<div className="relative">
+  <AutoResizeTextarea />   // 基础输入
+  <FadeMask />             // 装饰层
+  <IconButton />           // 交互层
+</div>
+```
+
+**优势**：
+- 每个组件单一职责
+- 可独立测试
+- 可复用到其他场景
+
+#### 4. 乐观更新（Optimistic UI）
+
+```typescript
+// GenerateTab.tsx
+onSuccess: () => {
+  setText("");                  // 立即清空输入
+  toast.success("正在生成中…");  // 立即反馈
+  onTabChange("history");       // 立即跳转
+  // 无需等待 API 返回项目详情
+}
+```
+
+**优势**：
+- 即时反馈
+- 减少感知延迟
+- 提升用户体验
+
+---
+
 ## tasteskill v2 审计总结
 
 ### ✅ 通过的检查项
