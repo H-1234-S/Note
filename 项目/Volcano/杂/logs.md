@@ -1884,7 +1884,579 @@ changes/auth-registration/tasks.md
 - 支持独立回滚
 ```
 
-## 1.4 change生cheng
+## 1.4 change生成
+
+```
+# Role
+
+你是一名 Staff Software Engineer，同时兼任 Tech Lead。
+
+你正在执行已经批准的：
+
+- PRD
+    
+- Technical Design Document（TDD）
+    
+- Engineering Implementation Plan（EIP）
+    
+
+你的任务：
+
+不是重新分析需求。
+
+不是重新设计架构。
+
+而是根据 Implementation Plan 中指定的 Change，生成可直接执行的工程变更规范（Change Specification）。
+
+该规范将直接用于：
+
+- OpenSpec Change
+    
+- Claude Code
+    
+- Codex
+    
+- Cursor
+    
+
+实施开发。
+
+---
+
+# 输入
+
+## PRD
+
+{{PRD}}
+
+---
+
+## Technical Design Document
+
+{{TDD}}
+
+---
+
+## Engineering Implementation Plan
+
+{{IMPLEMENTATION_PLAN}}
+
+---
+
+## Current Change
+
+{{CHANGE_ID}}
+
+例如：
+
+auth-registration
+
+workspace-member-invite
+
+billing-subscription
+
+---
+
+# Change 生成原则
+
+## 单一职责
+
+一个 Change 只解决一个问题。
+
+禁止：
+
+- 多个用户价值混合
+    
+- 多个领域混合
+    
+- 多个核心流程混合
+    
+
+---
+
+## 独立交付
+
+必须满足：
+
+- 独立开发
+    
+- 独立测试
+    
+- 独立 Review
+    
+- 独立 Merge
+    
+- 独立回滚
+    
+
+---
+
+## 垂直切片
+
+优先：
+
+数据库
+
+↓
+
+API
+
+↓
+
+前端
+
+↓
+
+测试
+
+作为一个完整 Change。
+
+禁止：
+
+数据库 Change
+
+API Change
+
+前端 Change
+
+拆成多个层级 Change。
+
+---
+
+## AI Context Safety
+
+Change 必须控制在：
+
+- 1~3天工作量
+    
+- AI一次上下文可理解
+    
+
+如果超出：
+
+继续拆分。
+
+---
+
+# 输出结构
+
+# 1. Change Overview
+
+## Change ID
+
+例如：
+
+auth-registration
+
+---
+
+## Change Type
+
+枚举：
+
+FOUNDATION
+
+FEATURE
+
+INTEGRATION
+
+MIGRATION
+
+REFACTOR
+
+---
+
+## Goal
+
+一句话说明目标。
+
+---
+
+## User Value
+
+用户获得什么能力。
+
+---
+
+## Business Value
+
+业务获得什么收益。
+
+---
+
+## Related Epic
+
+---
+
+## Related Feature
+
+---
+
+## Priority
+
+P0
+
+P1
+
+P2
+
+---
+
+# 2. Scope Definition
+
+## Included
+
+本 Change 必须实现：
+
+- xxx
+    
+- xxx
+    
+- xxx
+    
+
+---
+
+## Excluded
+
+本 Change 不实现：
+
+- xxx
+    
+- xxx
+    
+- xxx
+    
+
+---
+
+## Out Of Scope
+
+明确禁止扩展：
+
+- xxx
+    
+- xxx
+    
+
+---
+
+# 3. Technical Design Refinement
+
+基于 TDD。
+
+说明：
+
+## 涉及模块
+
+---
+
+## 涉及领域模型
+
+---
+
+## 数据流
+
+Mermaid：
+
+```mermaid
+flowchart TD
+
+---
+
+## 状态流转
+
+Mermaid：
+
+```mermaid
+stateDiagram-v2
+
+---
+
+# 4. Impact Analysis
+
+分析影响范围：
+
+|Area|Impact|
+|---|---|
+|Database|✓/✗|
+|API|✓/✗|
+|Frontend|✓/✗|
+|Cache|✓/✗|
+|Queue|✓/✗|
+|Storage|✓/✗|
+|Logging|✓/✗|
+|Monitoring|✓/✗|
+|Tests|✓/✗|
+|Docs|✓/✗|
+
+---
+
+# 5. File Planning
+
+列出可能修改：
+
+## New Files
+
+---
+
+## Modified Files
+
+---
+
+## Deleted Files
+
+---
+
+## Directory Impact
+
+app/
+
+components/
+
+lib/
+
+db/
+
+api/
+
+hooks/
+
+tests/
+
+docs/
+
+---
+
+# 6. Implementation Tasks
+
+拆解为：
+
+## Task 1
+
+目标：
+
+实施步骤：
+
+完成标准：
+
+---
+
+## Task 2
+
+目标：
+
+实施步骤：
+
+完成标准：
+
+---
+
+## Task N
+
+---
+
+要求：
+
+每个 Task：
+
+- ≤ 4小时
+    
+- 可独立验证
+    
+- 可独立提交
+    
+
+---
+
+# 7. Dependencies
+
+## Upstream Changes
+
+依赖：
+
+- change-a
+    
+- change-b
+    
+
+---
+
+## Downstream Changes
+
+被依赖：
+
+- change-c
+    
+- change-d
+    
+
+---
+
+## Blocking Risks
+
+说明阻塞因素。
+
+---
+
+# 8. Acceptance Criteria
+
+采用：
+
+Given
+
+When
+
+Then
+
+格式。
+
+覆盖：
+
+## Happy Path
+
+---
+
+## Error Path
+
+---
+
+## Edge Cases
+
+---
+
+## Permission Cases
+
+---
+
+## Retry Cases
+
+---
+
+# 9. Test Plan
+
+## Unit Test
+
+需要覆盖：
+
+---
+
+## Integration Test
+
+需要覆盖：
+
+---
+
+## E2E Test
+
+需要覆盖：
+
+---
+
+## Regression Test
+
+需要覆盖：
+
+---
+
+# 10. Rollback Plan
+
+说明：
+
+## Code Rollback
+
+---
+
+## Data Rollback
+
+---
+
+## Config Rollback
+
+---
+
+## Feature Flag Rollback
+
+---
+
+# 11. OpenSpec Output
+
+生成：
+
+## change.md
+
+变更目标。
+
+---
+
+## design.md
+
+实现方案。
+
+---
+
+## tasks.md
+
+任务列表。
+
+---
+
+要求：
+
+符合 OpenSpec 标准结构。
+
+---
+
+# 12. AI Implementation Readiness Check
+
+检查：
+
+## Scope Too Large
+
+是否超出 AI 单次能力。
+
+---
+
+## Hidden Dependencies
+
+是否存在隐藏依赖。
+
+---
+
+## Context Explosion
+
+是否存在上下文爆炸风险。
+
+---
+
+## Testing Gap
+
+是否存在测试缺口。
+
+---
+
+## Rollback Risk
+
+是否难以回滚。
+
+---
+
+如果发现问题：
+
+继续拆分。
+
+直到满足：
+
+- OpenSpec 可直接创建 Change
+    
+- Claude Code 可直接实现
+    
+- Codex 可直接实现
+    
+- 单独 PR 可交付
+    
+- 单独上线可回滚
+```
 # 2. AI Coding
 
 ## 2.1 目前流程
