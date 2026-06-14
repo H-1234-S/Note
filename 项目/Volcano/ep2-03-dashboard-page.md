@@ -212,18 +212,28 @@
 |---|--------|------|------|
 | 1 | **路由结构** | `/` 单路由 + 条件渲染（非 `/dashboard` 子路由） | 避免 302 重定向闪烁；用户感知"一个首页，两种面貌" |
 | 2 | **闪屏防护** | `isPending` 阶段渲染 Loader，不渲染任何内容 | 防止 session 缓存恢复时 Landing→MainApp 闪屏，以及 session 过期时 MainApp→Landing 闪屏 |
-| 3 | **Landing 内容** | WavyBackground + 登录/注册按钮 + 主题切换器 | 极简；响应式主题切换 |
-| 4 | **导航栏布局** | 居中三 Tab + 右侧用户中心（flex + 左侧占位） | 纯 CSS 居中比 `position: absolute` 更健壮 |
+| 3 | **Landing 内容** | WavyBackground + 登录/注册按钮 + 主题切换器 | 极简；响应式主题切换；去除所有营销内容 |
+| 4 | **导航栏布局** | 居中 SegmentedControl + 右侧用户中心（flex + 左侧占位 div） | 纯 CSS 居中比 `position: absolute` 更健壮；避免 z-index 冲突 |
 | 5 | **Tab 状态** | `useState`，不写入 URL search params | v1 不需要 bookmark 特定 Tab；后续若需要可改 `useSearchParams` |
-| 6 | **历史记录布局** | ✅ **已改为极简列表**（非 FocusCards 网格） | 更符合黑白极简设计语言，减少视觉噪音 |
-| 7 | **Tab 切换动画** | ✅ **Framer Motion layoutId 滑块动画** | Spring 物理动效，提升交互流畅度 |
-| 8 | **主题切换联动** | ✅ **WavyBackground 响应 `.dark` class** | 首屏背景和波浪颜色同步切换主题 |
-| 9 | **字体系统** | ✅ **geist npm 包本地字体（100-900 全字重）** | 更专业的字重控制，标题使用 Bold (700) |
-| 10 | **波浪强度** | ✅ **不透明度 0.4 + 线宽 80px** | 更明显的波浪条纹，增强视觉层次 |
-| 11 | **颜色响应式** | ✅ **所有文字/按钮/图标均支持亮暗模式** | 亮模式黑色元素，暗模式白色元素 |
-| 12 | **视觉层次** | ✅ **背景 → 波浪 → 文字三层** | drop-shadow + 不同不透明度形成深度感 |
-| 13 | **移动端导航** | 3 Tab 不溢出（≈240px < 375px），无需横向滚动 | 若未来 >3 Tab → `overflow-x: auto` + `scrollbar-hide` |
-| 14 | **订阅页范围** | 纯 UI 占位，无支付逻辑 | 避免范围膨胀；支付/订阅体系需独立规划和 PRD |
+| 6 | **历史记录布局** | ✅ **极简列表**（非 FocusCards 网格） | 更符合黑白极简设计语言；减少视觉噪音；hover 显示操作按钮 |
+| 7 | **Tab 切换组件** | ✅ **SegmentedControl**（非传统 Tab 按钮） | iOS/macOS 风格；内置 Spring 动画；胶囊背景 + 滑块；触控友好 |
+| 8 | **主题切换联动** | ✅ **WavyBackground 响应 `.dark` class** | MutationObserver 监听 `<html>` 的 `class` 属性；Canvas 手动重绘 |
+| 9 | **字体系统** | ✅ **geist npm 包本地字体（100-900 全字重）** | 更专业的字重控制；标题 Bold (700)；副标题 Light (300) |
+| 10 | **波浪强度** | ✅ **不透明度 0.4 + 线宽 80px + 模糊 8px** | 更明显的波浪条纹；柔和过渡；三层视觉层次（背景→波浪→文字） |
+| 11 | **颜色响应式** | ✅ **所有文字/按钮/图标均支持亮暗模式** | 亮模式黑色元素，暗模式白色元素；确保对比度 >4.5:1 |
+| 12 | **视觉层次** | ✅ **背景 → 波浪 → 文字三层** | drop-shadow + 不同不透明度 + 模糊形成深度感 |
+| 13 | **输入框样式** | ✅ **OpenAI 风格**（单行起始 + 浮动图标按钮） | 现代 AI 应用标准；AutoResizeTextarea + FadeMask + IconButton 三件套 |
+| 14 | **按钮位置** | ✅ **绝对定位 `bottom-3 right-3`** | 固定在右下角；不随文字内容移动；最后一行专属按钮 |
+| 15 | **渐变遮罩** | ✅ **80px 高 `from-transparent to-background`** | 防止文字与按钮视觉重叠；平滑淡出效果；pointer-events-none |
+| 16 | **按钮状态** | ✅ **三态：disabled/ready/pending** | disabled: 灰色 Send；ready: 黑色 Send + hover 放大；pending: 旋转 Loader2 |
+| 17 | **图标切换** | ✅ **Framer Motion AnimatePresence** | Send ↔ Loader2 切换动画（150ms 淡入淡出 + 缩放） |
+| 18 | **自动跳转** | ✅ **提交成功 → 切换到历史 Tab** | 即时反馈；用户立即看到"生成中…"项目；验证提交已生效 |
+| 19 | **自动轮询** | ✅ **10 秒间隔 `refetchInterval`** | 追踪生成状态变化（generating → completed）；后台静默刷新 |
+| 20 | **状态颜色** | ✅ **生成中灰色、失败深灰、完成黑色** | 符合黑白色系；通过明度区分状态；保持 achromatic 设计 |
+| 21 | **移动端导航** | ✅ **3 Tab 不溢出（≈240px < 375px）** | 无需横向滚动；若未来 >3 Tab → `overflow-x: auto` + `scrollbar-hide` |
+| 22 | **订阅页范围** | ❌ **纯 UI 占位，无支付逻辑** | 避免范围膨胀；支付/订阅体系需独立规划和 PRD；v1 仅展示定价卡片 |
+| 23 | **视频播放页** | ❌ **极简 stub，无真实播放器** | 依赖 `ep6-03` 实现完整播放器；v1 仅显示标题 + 占位文案 |
+| 24 | **项目过滤** | ✅ **客户端过滤 `deleted` 状态** | API 返回全部项目（不传 `status` 参数）；前端 `useMemo` 过滤；保持 API 简单 |
 
 ---
 
