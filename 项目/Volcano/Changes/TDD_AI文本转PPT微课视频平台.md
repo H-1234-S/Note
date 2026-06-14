@@ -3329,10 +3329,6 @@ if (await isFeatureEnabled('remotion-render-v2', ctx.userId)) {
 | **Remotion 模板开发指南** | 每次新增模板 | Frontend |
 
 ---
-# TDD 第 16-20 章 - Volcano AI 微课视频生成平台
-
----
-
 ## 16. 风险评估
 
 ### 16.1 技术风险
@@ -4437,5 +4433,3 @@ R2_BUCKET_NAME=volcano-prod
 6. 补充运维手册（故障排查、监控面板配置）
 
 ---
-
-**接力说明**：本文档已完成第 16-20 章的生成，可追加到主 TDD 文件 `E:\A\Note\项目\Volcano\Changes\TDD_AI文本转PPT微课视频平台.md` 的末尾。至此，TDD 全部 20 章完成，总计约 5000+ 行，达到 Tech Lead、Architect、Backend、Frontend、QA、DevOps 可评审和可实施的质量标准。
