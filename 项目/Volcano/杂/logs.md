@@ -391,7 +391,10 @@ Epic
 最终放到E:\A\Note\项目\Volcano这个目录下
 ```
 
-## 1.2 Claude 拆分 PRD
+
+## 1.2 
+
+## 1.3 Claude 拆分 PRD
 
 其实还是要先理解一下项目，根据 PRD 生成一份拆分大纲
 
