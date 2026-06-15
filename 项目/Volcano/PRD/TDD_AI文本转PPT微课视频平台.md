@@ -6,7 +6,7 @@ Volcano AI 微课视频生成平台
 
 ### 技术文档版本
 
-v1.0.0
+v1.1.0
 
 ### 作者
 
@@ -16,15 +16,20 @@ Tech Lead & System Architect
 
 2026-06-14
 
+### 最后更新
+
+2026-06-15
+
 ### 状态
 
-Draft
+Review
 
 ### 变更记录
 
 | 版本 | 日期 | 变更说明 |
 |------|------|----------|
 | v1.0.0 | 2026-06-14 | 创建 TDD 初稿，基于 PRD v1.0.6 |
+| v1.1.0 | 2026-06-15 | 根据架构评审优化（详见技术评审报告_TDD优化清单_2026-06-15.md）：<br>1. 修复 Inngest 事件可靠性设计缺陷（增加重试计数、死信队列、指数退避）<br>2. 明确 advisory lock 的 hashUserId 实现算法（CRC32 + 操作级锁粒度）<br>3. 修正音频复用 checksum 计算规则（移除 speed 参数，MiniMax 不支持）<br>4. 补充 Remotion Worker 第一版部署方案（单实例 + 内存队列）<br>5. 完善性能目标验证说明和压测计划<br>6. 新增第 20.7 章 架构决策记录（ADR） |
 
 ---
 
@@ -50,18 +55,35 @@ Draft
 
 ### 性能目标
 
-| 指标 | 目标值 | 说明 |
-|------|--------|------|
-| 创建项目接口 P95 | ≤ 800ms | 不等待生成完成，仅创建 Project 和触发事件 |
-| 项目详情查询 P95 | ≤ 500ms | 包含 Project、Job、Storyboard、Assets |
-| 项目列表查询 P95 | ≤ 800ms | 分页查询，默认 20 条 |
-| 3 分钟视频生成 P75 | ≤ 10 分钟 | 端到端耗时，包含 LLM、TTS、渲染、上传 |
-| 3 分钟视频生成 P95 | ≤ 15 分钟 | 端到端耗时，包含 LLM、TTS、渲染、上传 |
-| TTS 音频与画面时长错位投诉率 | ≤ 2% | 通过服务端解析音频 duration 保证 |
-| 首次生成成功率 | ≥ 85% | 排除用户输入错误 |
-| 生成任务可恢复率 | ≥ 95% | 重试后无需从头重做全部步骤 |
-| 失败原因展示覆盖率 | ≥ 95% | 用户可理解的错误提示 |
-| Inngest 事件投递成功率 | ≥ 99.9% | 通过 Outbox + 定时修复双保险保证 |
+| 指标 | 目标值 | 说明 | 验证状态 |
+|------|--------|------|---------|
+| 创建项目接口 P95 | ≤ 800ms | 不等待生成完成，仅创建 Project 和触发事件 | ✅ 可达成 |
+| 项目详情查询 P95 | ≤ 500ms | 包含 Project、Job、Storyboard、Assets | ✅ 可达成 |
+| 项目列表查询 P95 | ≤ 800ms | 分页查询，默认 20 条 | ✅ 可达成 |
+| 3 分钟视频生成 P75 | ≤ 10 分钟 | 端到端耗时，包含 LLM、TTS、渲染、上传 | 【待压测验证】 |
+| 3 分钟视频生成 P95 | ≤ 15 分钟 | 端到端耗时，包含 LLM、TTS、渲染、上传 | 【待压测验证】 |
+| TTS 音频与画面时长错位投诉率 | ≤ 2% | 通过服务端解析音频 duration 保证 | ✅ 设计保证 |
+| 首次生成成功率 | ≥ 85% | 排除用户输入错误 | 【待压测验证】 |
+| 生成任务可恢复率 | ≥ 95% | 重试后无需从头重做全部步骤 | ✅ 设计保证 |
+| 失败原因展示覆盖率 | ≥ 95% | 用户可理解的错误提示 | ✅ 设计保证 |
+| Inngest 事件投递成功率 | ≥ 99.9% | 通过 Outbox + 死信队列 + Stalled Job Recovery 三层保障 | ✅ 设计保证 |
+
+**性能目标预估（基于典型 3 分钟视频，10 个 Scene）**：
+
+假设 3 分钟视频包含 10 个 Scene：
+- **LLM 生成 Storyboard**: 30s - 60s（P95）【待 DeepSeek API 实测】
+- **TTS 批量生成**（10 scenes，并发 5）: 2 × (10/5) × 5s = 20s - 40s 【待 MiniMax API 实测】
+- **Timeline 计算**: 1s
+- **Remotion 渲染**: 180s / 30fps = 5400 frames，预估 5-8 分钟（P95）【待实际渲染压测】
+- **R2 上传**: 30s - 60s（50MB 视频）
+- **总计**: 6.5 - 11 分钟（P95）
+
+**结论**: 目标 15 分钟（P95）理论可达成，但需要在以下环节验证：
+1. DeepSeek API 响应时间稳定性
+2. MiniMax TTS 批量并发调用性能
+3. Remotion Worker 在目标硬件配置（8C 32G）下的实际渲染速度
+
+**验证计划**: 在 Epic 4-6 实现后进行端到端压测，记录实际耗时分布。详见第 20.8 章性能压测计划。
 
 ### 可扩展性目标
 
@@ -722,9 +744,22 @@ enum AssetType {
 
 **音频复用逻辑**：
 - 通过 `checksum` 字段查询是否存在相同内容的音频
-- checksum 生成规则：`SHA256(textHash + voiceProvider + voiceId + speed)`
+- checksum 生成规则：`SHA256(normalizedText + voiceProvider + voiceId)`
+  - **注意**：不包含 speed 参数，因为 MiniMax TTS API 不支持调速
+  - `normalizedText` 需要经过文本归一化处理（详见第 8.3.4 章）
 - 复用时 `referenceCount++`，不修改 `projectId`
 - 项目删除时 `referenceCount--`，当 `referenceCount = 0` 且 `lifecycleStatus = 'orphaned'` 时清理 R2
+
+**metadata 字段示例（音频类型）**：
+```json
+{
+  "voiceProvider": "minimax",
+  "voiceId": "female-yoyo",
+  "providerRequestId": "req_abc123",
+  "textLength": 150,
+  "normalizedText": "你好!世界."
+}
+```
 
 
 #### 6.2.6 GenerationJob 表
@@ -2037,41 +2072,120 @@ export async function getTtsVoices(providerId: string) {
 
 **策略**：
 - 通过 Asset.checksum 字段索引查询
-- checksum = SHA256(textHash + voiceProvider + voiceId + speed)
-- 查询时过滤 `orphan = false` 和 `type = 'audio'`
+- checksum = SHA256(normalizedText + voiceProvider + voiceId)
+- **不包含 speed 参数**（MiniMax TTS API 不支持调速）
+- 查询时过滤 `lifecycleStatus = 'active'` 和 `type = 'audio'`
+
+**文本归一化规则**：
+```typescript
+// src/server/utils/audio-checksum.ts
+import crypto from 'crypto';
+
+/**
+ * 文本归一化
+ * 确保语义相同的文本生成相同的 checksum
+ */
+function normalizeText(text: string): string {
+  return text
+    .trim()                          // 去除首尾空格
+    .replace(/\s+/g, ' ')            // 多个空格合并为一个
+    .replace(/[!！]/g, '!')          // 中英文标点归一化
+    .replace(/[?？]/g, '?')
+    .replace(/[,，]/g, ',')
+    .replace(/[。.]/g, '.')
+    .replace(/[;；]/g, ';')
+    .replace(/[:|：]/g, ':')
+    .toLowerCase();                  // 转小写（中文不受影响）
+}
+
+/**
+ * 计算音频 checksum
+ * 用于音频复用：相同文本+语音生成的音频可复用
+ * 
+ * 规则：SHA256(normalizedText + voiceProvider + voiceId)
+ * 
+ * 注意：不包含 speed 参数，因为 MiniMax TTS API 不支持调速
+ */
+export function calculateAudioChecksum(params: {
+  text: string;
+  voiceProvider: string;
+  voiceId: string;
+}): string {
+  // 1. 文本归一化
+  const normalizedText = normalizeText(params.text);
+  
+  // 2. 组合参数（使用 | 分隔符避免碰撞）
+  const combined = `${normalizedText}|${params.voiceProvider}|${params.voiceId}`;
+  
+  // 3. SHA256 计算
+  const checksum = crypto
+    .createHash('sha256')
+    .update(combined, 'utf8')
+    .digest('hex');
+  
+  return checksum;
+}
+```
 
 **复用逻辑**：
 
 ```typescript
 // src/server/services/tts.service.ts
+import { calculateAudioChecksum } from '@/server/utils/audio-checksum';
+import { logger } from '@/lib/logger';
 
 export async function generateOrReuseAudio({
   text,
   voiceProvider,
   voiceId,
-  speed = 1.0,
+  userId,
+  projectId,
 }: {
   text: string;
   voiceProvider: string;
   voiceId: string;
-  speed?: number;
+  userId: string;
+  projectId: string;
 }) {
   // 1. 计算 checksum
-  const textHash = SHA256(text);
-  const checksumInput = `${textHash}_${voiceProvider}_${voiceId}_${speed}`;
-  const checksum = SHA256(checksumInput);
+  const checksum = calculateAudioChecksum({
+    text,
+    voiceProvider,
+    voiceId,
+  });
+  
+  logger.debug({
+    action: 'tts.checksum_calculated',
+    checksum,
+    textLength: text.length,
+    textPreview: text.substring(0, 50),
+    message: 'Audio checksum calculated',
+  });
   
   // 2. 查询是否已存在
   const existingAudio = await prisma.asset.findFirst({
     where: {
       type: 'audio',
       checksum,
-      orphan: false,
+      lifecycleStatus: 'active',
     },
   });
   
   if (existingAudio) {
     // 3. 复用已有音频
+    logger.info({
+      action: 'tts.audio_reused',
+      assetId: existingAudio.id,
+      checksum,
+      message: 'Reusing existing audio asset',
+    });
+    
+    // 增加引用计数
+    await prisma.asset.update({
+      where: { id: existingAudio.id },
+      data: { referenceCount: { increment: 1 } },
+    });
+    
     return existingAudio;
   }
   
@@ -2080,7 +2194,6 @@ export async function generateOrReuseAudio({
   const result = await ttsProvider.synthesize({
     text,
     voiceId,
-    speed,
     format: 'mp3',
   });
   
@@ -2100,16 +2213,19 @@ export async function generateOrReuseAudio({
       type: 'audio',
       provider: 'r2',
       bucket: process.env.R2_BUCKET_NAME,
-      key,
+      assetKey: key,
       contentType: 'audio/mpeg',
       sizeBytes: result.audioBuffer.length,
-      durationMs: result.durationMs,
+      durationSec: result.durationMs / 1000,
       checksum,
+      referenceCount: 1,
+      lifecycleStatus: 'active',
       metadata: {
         voiceProvider,
         voiceId,
-        speed,
         providerRequestId: result.providerRequestId,
+        textLength: text.length,
+        normalizedText: normalizeText(text),  // 可选：用于调试
       },
     },
   });
@@ -2486,32 +2602,182 @@ export const createProject = protectedProcedure
   });
 ```
 
-**Outbox 轮询器**：
+**OutboxEvent 表 Schema**：
+
+```prisma
+model OutboxEvent {
+  id            String   @id @default(cuid())
+  eventName     String
+  payload       Json
+  status        String   // Pending / Sent / Failed / DeadLetter
+  retryCount    Int      @default(0)
+  maxRetries    Int      @default(3)
+  lastError     String?
+  nextRetryAt   DateTime?  // 指数退避
+  sentAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([status, nextRetryAt])
+  @@index([createdAt])
+}
+```
+
+**Outbox 轮询器（带重试计数、指数退避、死信队列）**：
 
 ```typescript
 // src/server/init/outbox-publisher.ts
+import { logger } from '@/lib/logger';
+import { alertService } from '@/lib/alert';
+
 setInterval(async () => {
-  const pendingEvents = await db.outboxEvent.findMany({
-    where: { status: 'Pending' },
+  // 查询待发送事件（含到期的重试事件）
+  const events = await db.outboxEvent.findMany({
+    where: {
+      status: 'Pending',
+      retryCount: { lt: db.raw('maxRetries') },
+      OR: [
+        { nextRetryAt: null },
+        { nextRetryAt: { lte: new Date() } },
+      ],
+    },
     take: 10,
+    orderBy: { createdAt: 'asc' },
   });
-  
-  for (const event of pendingEvents) {
+
+  for (const event of events) {
     try {
+      // 发送 Inngest 事件
       await inngest.send({
-        name: event.eventType,
+        name: event.eventName,
         data: event.payload,
       });
+
+      // 原子更新（乐观锁：仅更新仍为 Pending 的记录）
+      const updated = await db.outboxEvent.updateMany({
+        where: {
+          id: event.id,
+          status: 'Pending',
+        },
+        data: {
+          status: 'Sent',
+          sentAt: new Date(),
+        },
+      });
+
+      if (updated.count > 0) {
+        logger.info({
+          action: 'outbox.sent',
+          eventId: event.id,
+          eventName: event.eventName,
+          message: 'Outbox event sent successfully',
+        });
+      }
+    } catch (error) {
+      const newRetryCount = event.retryCount + 1;
+      const newStatus = newRetryCount >= event.maxRetries ? 'DeadLetter' : 'Pending';
       
+      // 计算下次重试时间（指数退避：5s, 10s, 20s）
+      const nextRetryAt = newStatus === 'Pending'
+        ? new Date(Date.now() + Math.pow(2, newRetryCount) * 5000)
+        : null;
+
       await db.outboxEvent.update({
         where: { id: event.id },
-        data: { status: 'Sent', sentAt: new Date() },
+        data: {
+          retryCount: newRetryCount,
+          status: newStatus,
+          lastError: error.message,
+          nextRetryAt,
+          updatedAt: new Date(),
+        },
       });
-    } catch (error) {
-      console.error(`Failed to send outbox event ${event.id}:`, error);
+
+      logger.error({
+        action: 'outbox.failed',
+        eventId: event.id,
+        eventName: event.eventName,
+        retryCount: newRetryCount,
+        error: error.message,
+        message: 'Outbox event failed to send',
+      });
+
+      // 进入死信队列时触发告警
+      if (newStatus === 'DeadLetter') {
+        await alertService.send({
+          level: 'critical',
+          title: 'Outbox Event Dead Letter',
+          message: `Event ${event.id} (${event.eventName}) moved to dead letter queue after ${event.maxRetries} retries`,
+          metadata: {
+            eventId: event.id,
+            eventName: event.eventName,
+            lastError: error.message,
+          },
+        });
+      }
     }
   }
 }, 5000);  // 每 5 秒轮询一次
+
+logger.info('Outbox publisher started');
+```
+
+#### 11.4.2 死信队列处理
+
+```typescript
+// src/server/jobs/dead-letter-handler.ts
+
+/**
+ * 死信队列处理器
+ * 定期检查死信事件，通知运维人员手动介入
+ */
+export async function processDeadLetterQueue() {
+  const deadLetters = await db.outboxEvent.findMany({
+    where: { status: 'DeadLetter' },
+    orderBy: { updatedAt: 'desc' },
+    take: 50,
+  });
+
+  if (deadLetters.length > 0) {
+    await alertService.send({
+      level: 'warning',
+      title: 'Dead Letter Queue Status',
+      message: `${deadLetters.length} events in dead letter queue requiring manual review`,
+      metadata: {
+        events: deadLetters.map(e => ({
+          id: e.id,
+          eventName: e.eventName,
+          lastError: e.lastError,
+          createdAt: e.createdAt,
+        })),
+      },
+    });
+  }
+}
+
+// 每小时检查一次
+setInterval(processDeadLetterQueue, 3600_000);
+```
+
+**管理员手动重试接口**：
+
+```typescript
+// src/server/api/routers/admin.router.ts
+export const retryDeadLetter = adminProcedure
+  .input(z.object({ eventId: z.string() }))
+  .mutation(async ({ ctx, input }) => {
+    const event = await ctx.db.outboxEvent.update({
+      where: { id: input.eventId, status: 'DeadLetter' },
+      data: {
+        status: 'Pending',
+        retryCount: 0,  // 重置计数器
+        lastError: null,
+        nextRetryAt: null,
+      },
+    });
+    
+    return { success: true, event };
+  });
 ```
 
 #### 11.4.3 Stalled 任务恢复机制
@@ -3186,6 +3452,248 @@ graph LR
     C --> G[R2]
     D --> G
 ```
+
+#### 14.2.1 Remotion Worker 第一版部署方案（MVP）
+
+**设计决策**：采用单实例 Worker + 内存队列的轻量方案，满足第一版并发需求，预留多实例扩展路径。
+
+**方案对比**：
+
+| 方案 | 并发能力 | 成本 | 复杂度 | 适用场景 |
+|------|---------|------|--------|---------|
+| **方案 A：单实例 + 内存队列** | 1 视频/次，队列 10 任务 | $50-80/月（单 EC2） | 低 | MVP，< 5 视频/分钟 |
+| **方案 B：多实例 + Redis Queue** | N 视频/次 | $150-300/月（3 实例 + ALB） | 中 | 高并发，> 5 视频/分钟 |
+| **方案 C：Remotion Lambda** | 按需扩展 | 不可控 | 高 | 流量不可预测 |
+
+**第一版采用方案 A**，理由：
+- 成本可控，满足 MVP 并发需求
+- 实现简单，快速上线
+- 预留方案 B 迁移路径（代码层面抽象 Queue 接口）
+
+**方案 A 架构**：
+
+```
+┌─────────────────────────────────────────┐
+│  Remotion Worker (单实例 EC2 t3.xlarge)  │
+├─────────────────────────────────────────┤
+│  HTTP Server (Express)                   │
+│  ├─ POST /render (接收渲染请求)          │
+│  ├─ GET /health (健康检查)               │
+│  └─ GET /readiness (就绪检查)            │
+├─────────────────────────────────────────┤
+│  In-Memory Queue (最大 10 任务)          │
+│  ├─ pending: [task1, task2, ...]         │
+│  └─ active: task3 (当前渲染)             │
+├─────────────────────────────────────────┤
+│  Remotion Renderer                       │
+│  ├─ Chromium (复用进程)                  │
+│  └─ FFmpeg                               │
+└─────────────────────────────────────────┘
+```
+
+**限制与约束**：
+
+| 限制项 | 值 | 说明 |
+|--------|----|----|
+| **同时渲染数** | 1 | 避免 OOM（8C 32G 单视频渲染峰值 ~4G） |
+| **队列最大任务数** | 10 | 超过返回 503，Inngest 延迟重试 |
+| **单任务超时** | 15 分钟 | 超时 Inngest 触发重试 |
+| **渲染失败重试** | 3 次 | Inngest 自动重试，指数退避 |
+
+**故障处理机制**：
+
+1. **Worker 进程崩溃**：
+   - Docker `--restart=always` 自动重启
+   - 内存队列丢失 → Inngest 超时后自动重试
+   
+2. **队列满**：
+   - 返回 HTTP 503 Service Unavailable
+   - Inngest 收到 503 后延迟重试（1min → 2min → 4min）
+   
+3. **渲染超时**：
+   - Worker 内部 15 分钟超时
+   - Inngest 16 分钟超时兜底
+   - 触发重试，最多 3 次
+
+**Worker 健康检查接口**：
+
+```typescript
+// apps/render-worker/src/server.ts
+import express from 'express';
+
+const app = express();
+let renderQueue: RenderTask[] = [];
+let activeRenderCount = 0;
+
+// 健康检查：Worker 进程是否存活
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    queue: {
+      size: renderQueue.length,
+      maxSize: 10,
+      available: renderQueue.length < 10,
+    },
+    activeRenders: activeRenderCount,
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+  });
+});
+
+// 就绪检查：Worker 是否可以接受新任务
+app.get('/readiness', (req, res) => {
+  if (renderQueue.length >= 10) {
+    return res.status(503).json({
+      status: 'unavailable',
+      reason: 'Queue full',
+      queueSize: renderQueue.length,
+    });
+  }
+  
+  res.json({ status: 'ready' });
+});
+
+// 渲染接口
+app.post('/render', async (req, res) => {
+  if (renderQueue.length >= 10) {
+    return res.status(503).json({
+      error: 'Queue full, please retry later',
+      retryAfter: 60,  // 建议 60 秒后重试
+    });
+  }
+  
+  const task: RenderTask = {
+    id: req.body.taskId,
+    projectId: req.body.projectId,
+    storyboard: req.body.storyboard,
+    config: req.body.config,
+  };
+  
+  renderQueue.push(task);
+  
+  res.json({
+    success: true,
+    taskId: task.id,
+    queuePosition: renderQueue.length,
+  });
+});
+
+// 队列处理器（后台运行）
+async function processQueue() {
+  while (true) {
+    if (renderQueue.length > 0 && activeRenderCount === 0) {
+      const task = renderQueue.shift()!;
+      activeRenderCount = 1;
+      
+      try {
+        await renderVideo(task);
+      } catch (error) {
+        logger.error({ error, taskId: task.id });
+      } finally {
+        activeRenderCount = 0;
+      }
+    }
+    
+    await sleep(1000);  // 每秒检查一次
+  }
+}
+
+processQueue();
+
+app.listen(3001, () => {
+  logger.info('Remotion Worker started on port 3001');
+});
+```
+
+**Docker 部署配置**：
+
+```dockerfile
+# apps/render-worker/Dockerfile
+FROM node:20-slim
+
+# 安装 Chromium 和 FFmpeg
+RUN apt-get update && apt-get install -y \
+    chromium \
+    ffmpeg \
+    fonts-noto-cjk \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --production
+
+COPY . .
+
+ENV CHROMIUM_PATH=/usr/bin/chromium
+ENV NODE_ENV=production
+ENV RENDER_TIMEOUT_MS=900000
+ENV RENDER_MEMORY_LIMIT_MB=4096
+
+EXPOSE 3001
+
+CMD ["node", "src/server.js"]
+```
+
+```bash
+# docker-compose.yml（生产环境）
+version: '3.8'
+services:
+  render-worker:
+    image: volcano/render-worker:latest
+    ports:
+      - "3001:3001"
+    environment:
+      - R2_ENDPOINT=${R2_ENDPOINT}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
+      - R2_BUCKET_NAME=${R2_BUCKET_NAME}
+    restart: always
+    mem_limit: 8g
+    cpus: '8'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+**监控指标**：
+
+```typescript
+// Worker 内部监控
+import { Counter, Histogram } from 'prom-client';
+
+const renderTotal = new Counter({
+  name: 'remotion_render_total',
+  help: 'Total render tasks',
+  labelNames: ['status'],  // success / failed / timeout
+});
+
+const renderDuration = new Histogram({
+  name: 'remotion_render_duration_seconds',
+  help: 'Render duration in seconds',
+  buckets: [60, 180, 300, 600, 900],  // 1min, 3min, 5min, 10min, 15min
+});
+
+const queueSize = new Gauge({
+  name: 'remotion_queue_size',
+  help: 'Current queue size',
+});
+```
+
+**扩展到方案 B 的迁移路径**：
+
+当并发需求 > 5 视频/分钟时，迁移到多实例方案：
+
+1. **部署 Redis**（Upstash 或自建）
+2. **替换内存队列为 Redis Bull Queue**：
+   ```typescript
+   import Queue from 'bull';
+   const renderQueue = new Queue('render', process.env.REDIS_URL);
+   ```
+3. **部署多个 Worker 实例**（ALB 负载均衡）
+4. **代码零修改**（Queue 接口抽象层）
 
 ---
 
