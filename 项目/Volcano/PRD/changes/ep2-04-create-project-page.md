@@ -932,34 +932,69 @@ ep2-04-create-project-page
 1. **字数限制不一致**
    - 前端限制：3000-5000 字
    - 后端限制：需确认与 API Schema 一致
-   - **缓解**：从 tRPC Schema 导入常量
+   - **缓解**：从 tRPC Schema 导入常量（`MIN_TEXT_LENGTH`、`MAX_TEXT_LENGTH`）
 
 2. **语音列表 Mock 数据**
    - 第一版使用硬编码 Mock
    - Epic 4 后替换为真实 API
-   - **缓解**：抽象为 hook，便于后续替换
+   - **缓解**：抽象为 `useVoiceList` hook，便于后续替换
 
 3. **进度页未实现**
    - 提交后跳转目标页可能不存在
-   - **缓解**：先跳转到占位页或 Dashboard
+   - **缓解**：先跳转到 Dashboard + Toast："项目创建成功，正在生成中..."
+
+4. **LocalStorage 容量限制**
+   - 浏览器 LocalStorage 限制 5-10MB
+   - 5000 字文本 ≈ 10KB，无问题
+   - **缓解**：设置最大保存字数（10000 字），超出则不保存
+
+5. **i18n 扩展性**
+   - 第一版硬编码中文
+   - **缓解**：所有文案抽取到 `create-form-text.ts`，预留 i18n 函数签名
+
+6. **性能瓶颈**
+   - 字数统计可能卡顿
+   - **缓解**：使用 debounce（300ms）+ `useMemo` 优化
+
+7. **多标签页冲突**
+   - 用户在 2 个标签页同时编辑
+   - **缓解**：LocalStorage key 包含 timestamp，仅恢复最新草稿
 
 ### 开发建议
 
 1. **复用现有组件**
-   - 使用 shadcn/ui 的 `Form`、`Select`、`Textarea`
-   - 参考 Dashboard 页面样式
+   - 使用 shadcn/ui 的 `Form`、`Select`、`Textarea`、`Collapsible`
+   - 参考 Dashboard 页面样式（颜色、间距、圆角）
 
 2. **参数配置顺序**
    - 按重要性排序：目标对象 > 难度 > 比例 > 时长 > 语音
-   - 提供默认值减少决策负担
+   - 提供合理默认值减少决策负担
 
 3. **错误提示文案**
    - 友好且可操作："字数超限，请精简内容"
    - 避免技术术语："API 调用失败" → "网络错误，请重试"
+   - 提供下一步行动："今日额度已用完，明日刷新"
 
 4. **响应式布局**
-   - 移动端：单列布局
-   - 桌面端：文本输入占 2/3，参数配置占 1/3
+   - 移动端（< 768px）：单列布局，参数面板默认折叠
+   - 桌面端（≥ 768px）：文本输入占 60%，参数配置占 40%
+
+5. **无障碍支持（A11y）**
+   - 所有表单控件添加 `aria-label`
+   - 错误提示使用 `role="alert"`
+   - 支持键盘导航（Tab、Enter）
+
+6. **示例文本内容**
+   ```
+   光合作用是植物、藻类和某些细菌利用光能，将二氧化碳和水转化为有机物，并释放氧气的过程。这个过程是地球上几乎所有生命的能量来源。
+
+   光合作用分为两个阶段：光反应和暗反应。光反应发生在叶绿体的类囊体膜上，需要光能，产生 ATP 和 NADPH。暗反应发生在叶绿体基质中，不需要光能，利用 ATP 和 NADPH 将 CO₂ 转化为葡萄糖。
+
+   影响光合作用的因素包括光照强度、CO₂ 浓度、温度和水分。在一定范围内，这些因素与光合作用速率成正比。
+
+   光合作用的意义：为生物提供有机物和能量；维持大气中氧气和二氧化碳的平衡；是煤、石油等化石燃料的最初来源。
+   ```
+   （约 250 字，展示完整知识点结构）
 
 ---
 
@@ -968,32 +1003,165 @@ ep2-04-create-project-page
 ### 功能验收
 
 - [ ] `/create` 页面可访问且需登录
+- [ ] 首页 `/` 自动重定向
 - [ ] 文本输入框正常工作
-- [ ] 字数统计实时更新
-- [ ] 5 个参数均可选择
+- [ ] 字数统计实时更新（debounce 300ms）
+- [ ] 字数统计颜色正确（灰色/绿色/红色）
+- [ ] Emoji 字符计数正确
+- [ ] 5 个参数均可选择，默认值正确
+- [ ] 参数面板可折叠/展开
+- [ ] "示例文本"按钮正常
 - [ ] 空文本提交被阻止
 - [ ] 超字数提交被阻止
-- [ ] 提交成功后跳转进度页
-- [ ] 提交失败显示错误提示
+- [ ] 短文本警告提示（< 100 字）
+- [ ] 提交成功后跳转（Dashboard 或进度页）
+- [ ] 提交失败显示错误 Toast
 - [ ] Loading 状态正确显示
-- [ ] 无重复提交
+- [ ] 防重复提交（30 秒限制）
+- [ ] LocalStorage 自动保存（> 500 字）
+- [ ] 刷新后草稿恢复
+- [ ] 提交成功后草稿清空
+- [ ] 离开确认弹窗（> 500 字）
 
 ### 技术验收
 
 - [ ] 无 TypeScript 错误
 - [ ] 无 ESLint 警告
-- [ ] 单元测试通过
-- [ ] 集成测试通过（可选）
-- [ ] 响应式布局正常
-- [ ] 无 console 错误
+- [ ] 单元测试通过（覆盖率 > 75%）
+- [ ] 集成测试通过
+- [ ] E2E 测试通过（可延后到 Phase 5）
+- [ ] 响应式布局正常（移动端 + 桌面端）
+- [ ] 无 console 错误或警告
+- [ ] 首屏 LCP < 2 秒
+- [ ] 字数统计无卡顿（5000 字）
 
 ### 用户体验验收
 
-- [ ] 表单填写流畅
-- [ ] 校验提示清晰
-- [ ] 错误提示友好
-- [ ] 提交反馈及时
-- [ ] 页面加载快速
+- [ ] 表单填写流畅，无卡顿
+- [ ] 校验提示清晰易懂
+- [ ] 错误提示友好且可操作
+- [ ] 提交反馈及时（Loading 动画）
+- [ ] 页面加载快速（< 2 秒）
+- [ ] 参数说明 Tooltip 清晰
+- [ ] 键盘导航正常（Tab、Enter）
+- [ ] 无障碍支持（aria-label）
+
+### 安全验收
+
+- [ ] XSS 防护（React 默认转义）
+- [ ] CSRF 防护（tRPC 默认处理）
+- [ ] 前端速率限制（30 秒 1 次）
+- [ ] 认证保护（未登录跳转）
+
+### 性能验收
+
+- [ ] 首屏 LCP < 2 秒
+- [ ] 字数统计 debounce 300ms
+- [ ] 5000 字输入无卡顿
+- [ ] 页面 FPS ≥ 55
+
+---
+
+## 16. 补充说明
+
+### UI/UX 细节明确
+
+1. **字数统计的视觉设计**
+   - 位置：Textarea 右下角
+   - 字体：`text-sm text-muted-foreground`
+   - 颜色规则：
+     - 0-99 字：`text-yellow-600`（警告黄）
+     - 100-5000 字：`text-green-600`（正常绿）
+     - 5001+ 字：`text-red-600`（错误红）
+   - 图标：警告和错误时显示 `AlertCircle` 图标
+
+2. **参数配置默认值（明确）**
+   ```ts
+   const DEFAULT_CONFIG = {
+     targetAudience: 'student',      // 学生
+     difficulty: 'intermediate',      // 中级
+     aspectRatio: '16:9',            // 横屏
+     targetDuration: '3-5',          // 3-5 分钟
+     voiceId: 'female-1',            // 第一个语音
+   }
+   ```
+
+3. **语音选择展示**
+   - 第一版：纯文本 Select 下拉框
+   - 预留：每项右侧留空间（12px padding），Phase 4 添加播放按钮图标
+
+### 国际化（i18n）方案
+
+**第一版**：硬编码中文，但文案集中管理
+
+**文件结构**：
+```ts
+// src/constants/create-form-text.ts
+export const CREATE_FORM_TEXT = {
+  pageTitle: '创建微课视频',
+  pageDescription: '将 AI 回答转换为 PPT 风格微课视频',
+  placeholder: '请粘贴 AI 生成的教学内容...',
+  charCount: (current: number, max: number) => `${current} / ${max}`,
+  charCountWarning: '文本过短（< 100 字），生成效果可能不佳',
+  charCountError: '字数超限，请精简内容',
+  submitButton: '生成视频',
+  // ...
+} as const
+
+// Phase N：替换为 i18n
+import { useTranslation } from 'next-intl'
+const { t } = useTranslation('create-form')
+t('pageTitle') // 创建微课视频
+```
+
+### 埋点事件定义
+
+```ts
+// src/lib/analytics.ts (Phase 1: 空函数)
+export const trackEvent = (eventName: string, data?: Record<string, any>) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Analytics]', eventName, data)
+  }
+  // Phase 6: 接入实际埋点服务
+}
+
+// 事件列表
+export const ANALYTICS_EVENTS = {
+  PAGE_VIEW_CREATE: 'page_view_create',
+  CREATE_SUBMIT_CLICK: 'create_submit_click',
+  CREATE_SUBMIT_SUCCESS: 'create_submit_success',
+  CREATE_SUBMIT_ERROR: 'create_submit_error',
+  CREATE_DRAFT_SAVE: 'create_draft_save',
+  CREATE_DRAFT_RESTORE: 'create_draft_restore',
+  CREATE_EXAMPLE_CLICK: 'create_example_click',
+} as const
+```
+
+### 安全性补充
+
+1. **XSS 防护**：React 默认转义，无需额外处理
+2. **CSRF**：tRPC 默认处理，无需额外处理
+3. **速率限制**：
+   ```ts
+   const [lastSubmitTime, setLastSubmitTime] = useState<number>(0)
+   const canSubmit = Date.now() - lastSubmitTime > 30000 // 30 秒
+   ```
+
+4. **输入验证**：前端 + 后端双重校验
+
+### 导航与集成
+
+1. **面包屑**：
+   - 暂不实现（等待 ep6-04-global-layout-nav）
+   - 预留位置：页面顶部
+
+2. **返回逻辑**：
+   - 浏览器后退 → Dashboard（如果来自 Dashboard）
+   - 或 → 上一页（浏览器默认行为）
+
+3. **跳转目标**：
+   - 优先：`/projects/[id]/progress`
+   - 降级：`/dashboard` + Toast："项目创建成功（ID: xxx）"
 
 ---
 
@@ -1002,3 +1170,4 @@ ep2-04-create-project-page
 | 版本 | 日期 | 变更说明 |
 |------|------|---------|
 | v1.0.0 | 2026-06-15 | 创建 Change Specification |
+| v1.1.0 | 2026-06-15 | 补充完善：<br>- 新增空状态引导和示例文本<br>- 新增 LocalStorage 草稿保存和恢复<br>- 新增离开确认（beforeunload）<br>- 新增埋点预留<br>- 明确字数统计颜色规则和默认值<br>- 新增 i18n 预留方案<br>- 新增性能目标（LCP、debounce）<br>- 新增安全检查清单<br>- 补充响应式布局细节<br>- 新增多标签页冲突处理<br>- 补充示例文本内容<br>- 新增 Emoji 字符计数支持<br>- 预估工期更新：1.5-2 天 → 2-2.5 天 |
