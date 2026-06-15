@@ -1001,7 +1001,7 @@ RSC在服务端进行渲染，生成RSC Payload发送给客户端
 --- 
 ## [6.缓存组件(Cache Components)](https://nextjs.org/docs/app/getting-started/cache-components)
 
-缓存组件允许您在单个路由中**混合静态、缓存和动态内容**，从而兼具静态网站的速度和动态渲染的灵活性。
+缓存组件允许在单个路由中**混合静态、缓存和动态内容**，从而兼具静态网站的速度和动态渲染的灵活性。
 
 缓存组件是一项可选功能。可以通过在 Next 配置文件中设置`cacheComponents`为`true`来启用。有关更多详细信息，请参阅[“启用缓存组件” 。](https://nextjs.org/docs/app/getting-started/cache-components#enabling-cache-components)
 
