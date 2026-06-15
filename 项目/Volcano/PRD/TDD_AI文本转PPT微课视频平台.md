@@ -5033,5 +5033,434 @@ R2_BUCKET_NAME=volcano-prod
 | 版本 | 日期 | 变更说明 |
 |------|------|---------|
 | v1.0.0 | 2026-06-14 | 创建 TDD 完整文档（第 1-20 章） |
+| v1.1.0 | 2026-06-15 | 根据架构评审优化（详见技术评审报告_TDD优化清单_2026-06-15.md） |
+
+---
+
+### 20.7 架构决策记录（ADR）
+
+本节记录项目的关键技术决策，包括上下文、备选方案、最终决策和理由。
+
+#### ADR-001: Inngest 事件可靠性保障方案
+
+**状态**: 已决策  
+**决策日期**: 2026-06-15  
+**决策人**: Tech Lead
+
+**上下文**:
+Inngest 事件发送可能因网络异常失败，导致项目卡在 queued 状态，影响用户体验。
+
+**备选方案**:
+- **方案 A**: Outbox Pattern + 定时重试 + 死信队列
+- **方案 B**: 监控 + 人工介入
+- **方案 C**: 使用 Kafka 替代 Inngest
+
+**决策**: 采用方案 A
+
+**理由**:
+- 保证最终一致性，无需人工介入
+- 实现成本低，基于现有技术栈
+- 死信队列兜底机制，防止无限重试
+- 事件投递成功率可达 ≥ 99.9%
+
+**实现要点**:
+1. OutboxEvent 表增加 `retryCount`, `maxRetries`, `lastError`, `nextRetryAt` 字段
+2. 轮询器使用乐观锁更新状态，避免重复发送
+3. 重试次数达到上限后进入死信队列
+4. 死信队列触发 P1 告警，通知运维人员
+5. 指数退避策略：5s → 10s → 20s
+
+**权衡**:
+- ✅ 可靠性高，故障自动恢复
+- ⚠️ 增加数据库表和定时任务，复杂度略增
+
+---
+
+#### ADR-002: 音频复用 checksum 计算规则
+
+**状态**: 已决策  
+**决策日期**: 2026-06-15  
+**决策人**: Tech Lead
+
+**上下文**:
+相同文本和语音的音频应该复用，减少 TTS 成本和生成时间。需要设计合理的 checksum 计算规则。
+
+**备选方案**:
+- **方案 A**: `SHA256(text + voiceProvider + voiceId + speed)`
+- **方案 B**: `SHA256(normalizedText + voiceProvider + voiceId)`（不含 speed）
+- **方案 C**: 仅 `SHA256(text)`
+
+**决策**: 采用方案 B
+
+**理由**:
+- ❌ **方案 A 不可行**：根据 PRD 和 MiniMax API 文档，MiniMax TTS 不支持 speed 参数
+- ✅ **方案 B 正确**：文本归一化确保语义相同的文本生成相同 checksum
+- ❌ **方案 C 不充分**：忽略了 voiceProvider 和 voiceId，可能错误复用不同语音
+
+**文本归一化规则**:
+```typescript
+function normalizeText(text: string): string {
+  return text
+    .trim()
+    .replace(/\s+/g, ' ')      // 多空格→单空格
+    .replace(/[!！]/g, '!')    // 中英文标点归一化
+    .replace(/[?？]/g, '?')
+    .replace(/[,，]/g, ',')
+    .replace(/[。.]/g, '.')
+    .toLowerCase();            // 转小写
+}
+```
+
+**checksum 计算**:
+```typescript
+const checksum = SHA256(normalizedText + '|' + voiceProvider + '|' + voiceId);
+```
+
+**权衡**:
+- ✅ 复用率高，节省 TTS 成本
+- ✅ SHA256 碰撞概率极低（< 2^-128）
+- ⚠️ 文本归一化可能改变语义（极少数情况）
+
+---
+
+#### ADR-003: Advisory Lock 实现算法
+
+**状态**: 已决策  
+**决策日期**: 2026-06-15  
+**决策人**: Tech Lead
+
+**上下文**:
+需要序列化同一用户的并发"创建项目"请求，避免额度检查和并发检查的竞态条件（TOCTOU）。
+
+**备选方案**:
+- **方案 A**: PostgreSQL advisory lock + CRC32 哈希 + 操作级锁粒度
+- **方案 B**: 数据库行级锁（SELECT FOR UPDATE）
+- **方案 C**: 分布式锁（Redis）
+
+**决策**: 采用方案 A
+
+**理由**:
+- 方案 A 性能高，CRC32 计算 < 1μs
+- 方案 B 锁粒度不灵活，仅限单表单行
+- 方案 C 引入 Redis 依赖，第一版暂不需要
+
+**实现**:
+```typescript
+// 哈希函数
+export function hashUserId(userId: string): bigint {
+  const hash = crc32.str(userId);
+  return BigInt(Math.abs(hash)) + 1000000n;  // 偏移避免系统锁冲突
+}
+
+// 操作级锁粒度（不是用户级）
+export function hashKeys(...keys: string[]): bigint {
+  const combined = keys.join(':');
+  const hash = crc32.str(combined);
+  return BigInt(Math.abs(hash)) + 1000000n;
+}
+
+// 使用示例
+const lockId = hashKeys(userId, 'create_project');
+await tx.$executeRawUnsafe(
+  `SELECT pg_advisory_xact_lock($1::bigint)`,
+  lockId.toString(),
+);
+```
+
+**锁粒度优化**:
+- ❌ 用户级锁：`hashUserId(userId)` 会阻塞该用户所有操作
+- ✅ 操作级锁：`hashKeys(userId, 'create_project')` 仅锁住创建项目操作
+
+**超时配置**:
+- `statement_timeout = 10s`：SQL 语句超时
+- `lock_timeout = 5s`：锁等待超时
+
+**监控**:
+- 记录 `advisory_lock_wait_time` 指标
+- lock_wait_time > 3s 触发 P2 告警
+
+**权衡**:
+- ✅ 性能高，无外部依赖
+- ⚠️ CRC32 冲突率约 0.1%（可接受）
+
+---
+
+#### ADR-004: Remotion Worker 部署方案
+
+**状态**: 已决策  
+**决策日期**: 2026-06-15  
+**决策人**: Tech Lead
+
+**上下文**:
+需要独立部署 Remotion Worker 避免阻塞 Next.js Web 服务，同时控制成本。
+
+**备选方案**:
+- **方案 A**: 单实例 Worker + 内存队列
+- **方案 B**: 多实例 Worker + Redis Bull Queue
+- **方案 C**: Remotion Lambda（Serverless）
+
+**决策**: 第一版采用方案 A，预留方案 B 迁移路径
+
+**理由**:
+- 方案 A 成本低（$50-80/月，单台 EC2），满足第一版并发需求（< 5 视频/分钟）
+- 方案 B 适合高并发场景（> 5 视频/分钟），成本 $150-300/月
+- 方案 C 成本不可控，不适合 MVP
+
+**方案 A 设计**:
+- 同时渲染 1 个视频（避免 OOM，8C 32G 单视频峰值 ~4G）
+- 内存队列最大 10 个任务
+- 队列满时返回 503，Inngest 延迟重试
+- Docker `--restart=always` 自动重启
+
+**故障恢复**:
+1. Worker 进程崩溃 → Docker 自动重启 → 内存队列丢失 → Inngest 超时重试
+2. 队列满 → 返回 503 → Inngest 延迟重试（1min → 2min → 4min）
+3. 渲染超时 → Worker 15 分钟超时 + Inngest 16 分钟兜底 → 自动重试（最多 3 次）
+
+**扩展到方案 B 的迁移路径**:
+1. 部署 Redis（Upstash 或自建）
+2. 替换内存队列为 Redis Bull Queue
+3. 部署多个 Worker 实例（ALB 负载均衡）
+4. 代码零修改（Queue 接口抽象层）
+
+**权衡**:
+- ✅ 成本可控，满足 MVP 需求
+- ✅ 实现简单，快速上线
+- ⚠️ 并发能力有限（1 视频/次）
+- ✅ 预留扩展路径，无技术债务
+
+---
+
+### 20.8 性能压测计划
+
+**压测目标**：验证第 2 章性能目标的可达成性，识别系统瓶颈。
+
+**压测环境**：
+- 在 Staging 环境执行，使用与 Production 相同的硬件配置
+- PostgreSQL: 4C 16G
+- Remotion Worker: 8C 32G（EC2 t3.xlarge）
+- Redis: 2GB（Upstash）
+
+**压测时间**：Epic 4-6 实现后，预计 2026-07-01
+
+---
+
+#### 压测项 1: DeepSeek API 响应时间
+
+**目标**: 验证 LLM 生成 Storyboard 的 P95 ≤ 60s
+
+**压测工具**: Apache Bench (ab)
+
+**压测脚本**:
+```bash
+# 准备测试数据
+cat > storyboard_request.json <<EOF
+{
+  "model": "deepseek-chat",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个专业的微课视频脚本生成助手..."
+    },
+    {
+      "role": "user",
+      "content": "请将以下内容转换为微课视频脚本：什么是概率论？概率论是研究随机现象的数学分支..."
+    }
+  ],
+  "temperature": 0.7,
+  "max_tokens": 4000
+}
+EOF
+
+# 执行压测（100 次请求，并发 10）
+ab -n 100 -c 10 \
+   -p storyboard_request.json \
+   -T application/json \
+   -H "Authorization: Bearer $DEEPSEEK_API_KEY" \
+   https://api.deepseek.com/v1/chat/completions \
+   | tee deepseek_ab_results.txt
+
+# 分析结果
+grep "Percentage of the requests served" deepseek_ab_results.txt
+```
+
+**成功标准**:
+- P50 ≤ 30s
+- P95 ≤ 60s
+- 错误率 < 5%
+
+---
+
+#### 压测项 2: MiniMax TTS 批量并发调用
+
+**目标**: 验证 TTS 批量生成（10 scenes，并发 5）的 P95 ≤ 40s
+
+**压测工具**: Apache Bench (ab)
+
+**压测脚本**:
+```bash
+# 准备测试数据
+cat > tts_request.json <<EOF
+{
+  "model": "speech-01-turbo",
+  "text": "大家好，今天我们来学习概率论的基础知识。概率论是数学的一个分支，它研究随机现象的规律性。",
+  "voice_id": "female-yoyo",
+  "speed": 1.0,
+  "vol": 1.0,
+  "pitch": 0
+}
+EOF
+
+# 执行压测（50 次请求，并发 5）
+ab -n 50 -c 5 \
+   -p tts_request.json \
+   -T application/json \
+   -H "Authorization: Bearer $MINIMAX_API_KEY" \
+   https://api.minimax.chat/v1/t2a_v2 \
+   | tee minimax_ab_results.txt
+
+# 分析结果
+grep "Percentage of the requests served" minimax_ab_results.txt
+```
+
+**成功标准**:
+- P50 ≤ 3s
+- P95 ≤ 5s
+- 批量生成 10 scenes（并发 5）总耗时 P95 ≤ 40s
+
+---
+
+#### 压测项 3: Remotion 渲染耗时
+
+**目标**: 验证 3 分钟视频渲染的 P95 ≤ 8 分钟
+
+**压测工具**: 自定义脚本 + Remotion CLI
+
+**压测脚本**:
+```bash
+#!/bin/bash
+# render_benchmark.sh
+
+# 在目标硬件（8C 32G EC2 t3.xlarge）上执行
+
+cd apps/render-worker
+
+# 准备测试 Storyboard（10 scenes，3 分钟视频）
+cat > test_storyboard.json <<EOF
+{
+  "scenes": [
+    {"id": "1", "narrationText": "...", "durationSec": 18},
+    {"id": "2", "narrationText": "...", "durationSec": 18},
+    ...
+  ]
+}
+EOF
+
+# 执行 10 次渲染，记录耗时
+for i in {1..10}; do
+  echo "Render $i/10"
+  START=$(date +%s)
+  
+  npx remotion render \
+    src/index.ts \
+    VideoComposition \
+    out/test_$i.mp4 \
+    --props test_storyboard.json \
+    --codec h264 \
+    --jpeg-quality 80
+  
+  END=$(date +%s)
+  DURATION=$((END - START))
+  echo "Render $i completed in ${DURATION}s" >> render_results.txt
+done
+
+# 分析结果
+cat render_results.txt | awk '{print $NF}' | sort -n | \
+  awk '{sum+=$1; arr[NR]=$1} END {
+    print "Min:", arr[1]
+    print "P50:", arr[int(NR*0.5)]
+    print "P95:", arr[int(NR*0.95)]
+    print "Max:", arr[NR]
+    print "Avg:", sum/NR
+  }'
+```
+
+**成功标准**:
+- P50 ≤ 5 分钟
+- P95 ≤ 8 分钟
+- 错误率 < 5%
+
+---
+
+#### 压测项 4: 端到端生成耗时
+
+**目标**: 验证 3 分钟视频端到端生成的 P95 ≤ 15 分钟
+
+**压测工具**: Playwright 端到端测试
+
+**压测脚本**:
+```typescript
+// e2e/performance/generate-video.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('端到端视频生成性能测试', async ({ page }) => {
+  const results: number[] = [];
+  
+  for (let i = 0; i < 10; i++) {
+    const startTime = Date.now();
+    
+    // 1. 登录
+    await page.goto('https://staging.volcano.ai');
+    await page.fill('[name="email"]', 'test@example.com');
+    await page.fill('[name="password"]', 'password');
+    await page.click('button[type="submit"]');
+    
+    // 2. 创建项目
+    await page.click('text=创建项目');
+    await page.fill('[name="title"]', `性能测试 ${i+1}`);
+    await page.fill('[name="sourceText"]', TEST_TEXT);
+    await page.click('text=开始生成');
+    
+    // 3. 等待完成（最多 20 分钟）
+    await page.waitForSelector('text=生成完成', { timeout: 1200000 });
+    
+    const endTime = Date.now();
+    const duration = (endTime - startTime) / 1000;
+    results.push(duration);
+    
+    console.log(`Test ${i+1}/10: ${duration}s`);
+  }
+  
+  // 计算统计
+  results.sort((a, b) => a - b);
+  const p50 = results[Math.floor(results.length * 0.5)];
+  const p95 = results[Math.floor(results.length * 0.95)];
+  
+  console.log('P50:', p50);
+  console.log('P95:', p95);
+  
+  expect(p95).toBeLessThan(900);  // 15 分钟 = 900 秒
+});
+```
+
+**成功标准**:
+- P50 ≤ 10 分钟
+- P95 ≤ 15 分钟
+- 成功率 ≥ 85%
+
+---
+
+#### 压测结果记录模板
+
+| 压测项 | P50 | P95 | 错误率 | 目标 | 是否达标 | 备注 |
+|--------|-----|-----|--------|------|---------|------|
+| DeepSeek API | ___ s | ___ s | ___ % | P95 ≤ 60s | ⬜ | |
+| MiniMax TTS | ___ s | ___ s | ___ % | P95 ≤ 5s | ⬜ | |
+| Remotion 渲染 | ___ min | ___ min | ___ % | P95 ≤ 8min | ⬜ | |
+| 端到端生成 | ___ min | ___ min | ___ % | P95 ≤ 15min | ⬜ | |
+
+**压测执行人**: Backend Team  
+**压测日期**: 待定（Epic 4-6 完成后）  
+**结果归档路径**: `PRD/performance-test-results/`
 
 ---
