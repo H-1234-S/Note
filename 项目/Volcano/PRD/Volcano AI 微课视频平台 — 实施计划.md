@@ -49,8 +49,6 @@
 
 ### 0.4 数据库字段映射（现有 vs PRD）
 
-### 0.4 数据库字段映射（现有 vs PRD）
-
 现有 schema 与 PRD 定义存在字段名差异，后续开发以**现有 schema 为准**：
 
 | 现有字段 (实际) | PRD 对应概念 |
@@ -73,7 +71,93 @@
 
 ---
 
-## 1. Epic Tree
+## 1. Architecture Baseline
+
+### 1.1 Domains
+
+本项目按照业务领域划分为 5 个核心域：
+
+| Domain | 职责 | 核心实体 |
+|--------|------|---------|
+| **Auth** | 身份认证与会话管理 | User, Session, Account |
+| **Project** | 项目生命周期管理 | Project, GenerationJob, JobEvent |
+| **Content** | AI 内容生成与编排 | StoryboardVersion, Scene |
+| **Asset** | 媒体资源管理 | Asset（音频/图片/视频） |
+| **Render** | 视频渲染与 Worker 调度 | RenderJob, Worker Registry |
+
+### 1.2 Bounded Contexts
+
+各领域的边界上下文清晰划分：
+
+**Project Context**（项目管理上下文）
+- 聚合根：`Project`
+- 实体：`GenerationJob`, `JobEvent`, `UsageRecord`
+- 边界：项目的创建、状态流转、取消、重试、删除
+- 依赖：依赖 Auth Context（用户身份）、Content Context（生成结果）
+
+**Content Context**（内容生成上下文）
+- 聚合根：`StoryboardVersion`
+- 实体：`Scene`
+- 边界：Storyboard 生成、Scene 拆分、内容校验与修复
+- 依赖：独立领域，被 Project Context 和 Asset Context 依赖
+
+**Asset Context**（资源管理上下文）
+- 聚合根：`Asset`
+- 值对象：R2 存储路径、签名 URL
+- 边界：音频/图片/视频的上传、存储、访问控制、删除
+- 依赖：依赖 Content Context（Scene 关联）、Project Context（权限校验）
+
+**Render Context**（渲染上下文）
+- 聚合根：`RenderJob`
+- 值对象：Worker 健康状态、渲染进度
+- 边界：渲染任务调度、Worker 选择、渲染结果回写
+- 依赖：依赖 Content Context（Storyboard 数据）、Asset Context（音频 URL、视频上传）
+
+**Auth Context**（认证上下文）
+- 聚合根：`User`
+- 实体：`Session`, `Account`
+- 边界：用户注册、登录、会话管理、权限控制
+- 依赖：无外部依赖，被所有其他 Context 依赖
+
+### 1.3 Shared Infrastructure
+
+| 基础设施 | 技术选型 | 用途 | 状态 |
+|---------|---------|------|------|
+| **Database** | PostgreSQL + Prisma ORM | 持久化存储（12 张表） | ✅ 已就绪 |
+| **Queue** | Inngest | 异步任务编排（Storyboard → Audio → Timeline → Render） | ⚠️ 框架已配置，functions 待补充 |
+| **Storage** | Cloudflare R2 (S3-compatible) | 音频/视频/缩略图存储 | ⚠️ Client 已配置，实现为存根 |
+| **Auth** | better-auth | 邮箱 + 微信登录，Session 管理 | ✅ 已完成 |
+| **API** | tRPC | 类型安全的 RPC 框架 | ✅ 已就绪（三级 Procedure） |
+| **Logging** | Console (dev) + Sentry (prod) | 错误追踪与日志 | ⏸️ Phase 6 接入 |
+| **Monitoring** | Inngest Dashboard | 任务执行监控 | ✅ 内置 |
+| **Cache** | 无 | 暂不需要（MVP 阶段） | N/A |
+
+### 1.4 Foundational Changes
+
+以下基础能力在 Epic 1 中已完成，后续所有 Change 均依赖这些基础设施：
+
+| Change | 交付物 | 为什么必须优先 | 状态 |
+|--------|--------|---------------|------|
+| **foundation-auth** | better-auth 认证系统（6 个页面 + 3 个 API） | 所有业务操作需要用户身份校验 | ✅ 已完成 |
+| **foundation-db** | Prisma schema（12 张表 + migrations） | 所有数据持久化的基础 | ✅ 已完成 |
+| **foundation-trpc** | tRPC 框架（三级 Procedure + Context） | 所有 API 的统一入口 | ✅ 已完成 |
+| **foundation-ui** | shadcn/ui 组件库（50+ 组件） | 前端开发的组件基础 | ✅ 已完成 |
+| **foundation-storage** | R2 client（存根） | 媒体文件上传的接口层 | ⚠️ 接口已定义，Phase 3 完整实现 |
+| **foundation-queue** | Inngest 框架（空 functions） | 异步任务编排的基础 | ⚠️ 框架已配置，Phase 2+ 逐步添加 functions |
+| **foundation-env** | 环境变量校验（Zod schema） | 防止配置错误导致运行时异常 | ✅ 已完成 |
+| **foundation-remotion** | Remotion 项目结构（存根） | 视频渲染的代码基础 | ⚠️ 已安装，Phase 4 完整实现 |
+
+**为什么这些必须优先完成？**
+
+1. **foundation-auth**：无认证则无法区分用户，无法实现"每用户每日 1 次"额度限制
+2. **foundation-db**：数据库 schema 是所有业务逻辑的基础，必须先确定数据模型
+3. **foundation-trpc**：统一 API 层避免后续重构，类型安全减少 bug
+4. **foundation-ui**：统一组件库保证视觉一致性，避免重复造轮子
+5. **foundation-storage/queue/remotion**：接口层先行，实现可延后（存根模式）
+
+---
+
+## 2. Epic Tree
 
 ```
 Volcano AI 微课视频平台
@@ -128,7 +212,7 @@ Volcano AI 微课视频平台
 
 ---
 
-## 2. Feature Breakdown
+## 3. Feature Breakdown
 
 ### Epic 2: 项目管理与 Dashboard
 
@@ -423,17 +507,6 @@ Volcano AI 微课视频平台
 
 ---
 
-## 4. Change Breakdown
-
-### 设计原则
-
-1. **每个 Change = 1 个独立 PR**，可独立开发、测试、Review、Merge、回滚
-2. **垂直切片优先**，避免 DB → API → 前端分层拆分
-3. **目标规模 300-1500 LOC**，最长不超过 2000 LOC
-4. **1-3 天工作量**，AI Agent 单次上下文可完整理解
-
----
-
 ### Phase 1: 核心业务基础
 
 #### Change: `ep2-01-project-create-api` ✅ 已完成（2026-06-13）
@@ -445,6 +518,8 @@ Volcano AI 微课视频平台
 | **不包含** | 实际 Inngest function 实现（后续 Change）、进度轮询、UI 页面 |
 | **Files** | `src/server/routers/project.ts`（新建）<br>`src/server/services/project.service.ts`（新建）<br>`src/server/services/quota.service.ts`（新建）<br>`src/inngest/client.ts`（修改：sendEvent）<br>`src/server/routers/_app.ts`（修改：注册 router） |
 | **Dependencies** | Epic 1（DB schema、tRPC 框架、Inngest client 已就绪） |
+| **Impact Analysis** | ✓ Database（Project + GenerationJob 表写入）<br>✓ API（新增 tRPC mutation）<br>✗ Frontend<br>✗ Background Jobs（仅发送事件，不执行）<br>✗ Cache<br>✓ Monitoring（Inngest event 可追踪） |
+| **Rollback Strategy** | **步骤**：<br>1. 禁用 API：在 `_app.ts` 中注释 `projectRouter` 注册<br>2. 数据清理：删除测试期间创建的 Project 和 GenerationJob 记录（可选）<br>3. 无 migration 变更，无需回滚数据库<br>**预计回滚时间**：< 5 分钟<br>**风险**：低（纯新增，不影响现有功能） |
 | **AC** | Given 合法参数，When 调用 API，Then 创建 Project(status=queued) + GenerationJob(status=pending)，返回 projectId |
 | **Size** | M（~600 LOC） |
 | **Priority** | P0 |
@@ -458,6 +533,8 @@ Volcano AI 微课视频平台
 | **不包含** | 前端页面、删除/取消/重试 API |
 | **Files** | `src/server/routers/project.ts`（追加）<br>`src/server/services/project.service.ts`（追加）<br>`src/lib/db/repositories/project.repo.ts`（新建） |
 | **Dependencies** | `ep2-01`（project service 基础） |
+| **Impact Analysis** | ✗ Database（仅读取，无写入）<br>✓ API（新增 2 个 tRPC query）<br>✗ Frontend<br>✗ Background Jobs<br>✗ Cache<br>✗ Monitoring |
+| **Rollback Strategy** | **步骤**：<br>1. 在 `project.ts` router 中注释掉 `list` 和 `getById` 两个 procedure<br>2. 无数据库变更，无需回滚<br>**预计回滚时间**：< 3 分钟<br>**风险**：极低（纯查询，不影响数据） |
 | **AC** | Given 用户 A，When 查询列表，Then 只返回用户 A 的项目 |
 | **Size** | M（~500 LOC） |
 | **Priority** | P0 |
@@ -471,6 +548,8 @@ Volcano AI 微课视频平台
 | **不包含** | 创建页（下一个 Change）、项目详情页、缩略图实际图片 |
 | **Files** | `src/app/(protected)/dashboard/page.tsx`（新建）<br>`src/components/project/ProjectCard.tsx`（新建）<br>`src/components/project/ProjectList.tsx`（新建）<br>`src/components/project/ProjectFilters.tsx`（新建） |
 | **Dependencies** | `ep2-02`（list API） |
+| **Impact Analysis** | ✗ Database<br>✓ API（调用 `project.list`）<br>✓ Frontend（新增页面 + 4 个组件）<br>✗ Background Jobs<br>✗ Cache<br>✗ Monitoring |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `/dashboard` 路由：删除 `src/app/(protected)/dashboard/` 目录<br>2. 删除组件：删除 `src/components/project/` 下的 4 个组件文件<br>3. 无数据库变更，无需回滚<br>**预计回滚时间**：< 5 分钟<br>**风险**：极低（纯前端，不影响后端） |
 | **AC** | Given 用户有 3 个项目（2 完成 1 失败），When 进入 Dashboard，Then 显示 3 张卡片，筛选"失败"后仅 1 张 |
 | **Size** | M（~700 LOC） |
 | **Priority** | P0 |
@@ -484,6 +563,8 @@ Volcano AI 微课视频平台
 | **不包含** | 实际 TTS voice list API（Epic 4）、首页重设计 |
 | **Files** | `src/app/(protected)/create/page.tsx`（新建）<br>`src/app/page.tsx`（修改：重定向或重写）<br>`src/components/project/CreateForm.tsx`（新建）<br>`src/components/project/ConfigPanel.tsx`（新建） |
 | **Dependencies** | `ep2-01`（create API） |
+| **Impact Analysis** | ✗ Database<br>✓ API（调用 `project.createAndGenerate`）<br>✓ Frontend（新增 `/create` 页面 + 2 个组件，修改首页）<br>✗ Background Jobs<br>✗ Cache<br>✗ Monitoring |
+| **Rollback Strategy** | **步骤**：<br>1. 恢复首页：`git checkout src/app/page.tsx` 恢复为脚手架<br>2. 删除创建页：删除 `src/app/(protected)/create/` 目录<br>3. 删除组件：删除 `CreateForm.tsx` 和 `ConfigPanel.tsx`<br>**预计回滚时间**：< 5 分钟<br>**风险**：低（纯前端，不影响后端和数据库） |
 | **AC** | Given 输入为空，When 点击生成，Then 按钮禁用；Given 粘贴 1000 字，When 提交，Then 跳转进度页 |
 | **Size** | M（~700 LOC） |
 | **Priority** | P0 |
@@ -497,6 +578,8 @@ Volcano AI 微课视频平台
 | **不包含** | 实际 Inngest 取消检查（Epic 7）、full_regenerate（管理员） |
 | **Files** | `src/server/routers/project.ts`（追加）<br>`src/server/services/project.service.ts`（追加）<br>`src/server/services/cancel.service.ts`（新建） |
 | **Dependencies** | `ep2-01`（project service） |
+| **Impact Analysis** | ✓ Database（Project/Job status 更新，Asset 软删除标记，级联删除）<br>✓ API（新增 3 个 tRPC mutation）<br>✗ Frontend<br>✓ Background Jobs（标记取消状态，Inngest function 需响应）<br>✗ Cache<br>✓ Storage（R2 文件删除）<br>✓ Monitoring（取消/重试/删除操作日志） |
+| **Rollback Strategy** | **步骤**：<br>1. 禁用 API：在 `project.ts` router 中注释 `cancel`、`retry`、`delete` 三个 procedure<br>2. 数据恢复：若误删除项目，从数据库备份恢复（需提前备份）<br>3. R2 文件恢复：R2 无回收站，误删无法恢复（需谨慎操作）<br>**预计回滚时间**：< 5 分钟（API 禁用），数据恢复取决于备份策略<br>**风险**：中（delete 操作不可逆，需二次确认 + 软删除保护期） |
 | **AC** | Given running 项目，When 取消，Then Project status=cancelled, Job status=cancelled_requested |
 | **Size** | M（~500 LOC） |
 | **Priority** | P0 |
@@ -514,6 +597,8 @@ Volcano AI 微课视频平台
 | **不包含** | 校验函数（下一个 Change）、LLM 调用 |
 | **Files** | `src/lib/storyboard/types.ts`（新建）<br>`src/lib/storyboard/schema.ts`（新建）<br>`src/lib/storyboard/constants.ts`（新建）<br>`src/lib/storyboard/index.ts`（新建） |
 | **Dependencies** | 无 |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend<br>✗ Background Jobs<br>✗ Cache<br>✗ Monitoring<br>**说明**：纯类型定义，不影响运行时 |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `src/lib/storyboard/` 目录<br>2. 无运行时影响，无需重启服务<br>**预计回滚时间**：< 2 分钟<br>**风险**：极低（纯类型，不影响运行时） |
 | **AC** | Given 合法的 Storyboard JSON，When Zod parse，Then 返回类型正确的 Storyboard 对象 |
 | **Size** | M（~600 LOC） |
 | **Priority** | P0 |
@@ -527,6 +612,8 @@ Volcano AI 微课视频平台
 | **不包含** | LLM repair（下一个 Change）、实际渲染 |
 | **Files** | `src/lib/storyboard/validation.ts`（新建）<br>`src/lib/storyboard/repair.ts`（新建） |
 | **Dependencies** | `ep3-01`（类型和 Schema） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend<br>✗ Background Jobs<br>✗ Cache<br>✗ Monitoring<br>**说明**：工具函数库，不直接影响运行时 |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `validation.ts` 和 `repair.ts`<br>2. 若已被其他模块引用，需同时回滚调用方<br>**预计回滚时间**：< 3 分钟<br>**风险**：低（工具函数，无状态） |
 | **AC** | Given 缺失 `sceneKey` 的 JSON，When repair，Then 自动生成 `scene_001` 格式 key |
 | **Size** | M（~500 LOC） |
 | **Priority** | P0 |
@@ -540,6 +627,8 @@ Volcano AI 微课视频平台
 | **不包含** | Inngest function、实际数据库写入 |
 | **Files** | `src/lib/providers/interfaces.ts`（追加 LLM 部分）<br>`src/lib/providers/llm/openai-compatible.ts`（新建）<br>`src/lib/providers/llm/deepseek.ts`（新建）<br>`src/lib/providers/llm/prompts/storyboard.ts`（新建）<br>`src/lib/providers/llm/prompts/repair.ts`（新建） |
 | **Dependencies** | `ep3-01`（类型）、`ep3-02`（repair 函数供 LLM repair 使用） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend<br>✗ Background Jobs<br>✗ Cache<br>✓ External Service（DeepSeek API 调用）<br>✗ Monitoring |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `src/lib/providers/llm/` 目录<br>2. 恢复 `interfaces.ts` 中的 LLM 接口定义<br>3. 无数据库变更，无需回滚<br>**预计回滚时间**：< 5 分钟<br>**风险**：低（Provider 层，无状态） |
 | **AC** | Given mock LLM 返回合法 JSON，When 调用 generateStoryboard，Then 返回类型安全的 Storyboard 对象 |
 | **Size** | L（~900 LOC） |
 | **Priority** | P0 |
@@ -553,6 +642,8 @@ Volcano AI 微课视频平台
 | **不包含** | TTS 音频生成（下一步）、前端 Storyboard 预览 |
 | **Files** | `src/inngest/functions/generate-storyboard.ts`（新建）<br>`src/server/services/storyboard.service.ts`（新建）<br>`src/inngest/functions/index.ts`（修改：注册 function）<br>`src/lib/db/repositories/storyboard.repo.ts`（新建）<br>`src/lib/db/repositories/scene.repo.ts`（新建） |
 | **Dependencies** | `ep3-03`（LLM Provider）、`ep2-01`（Project 更新） |
+| **Impact Analysis** | ✓ Database（StoryboardVersion 和 Scene 表写入，Project status 更新）<br>✗ API<br>✗ Frontend<br>✓ Background Jobs（新增 Inngest function）<br>✗ Cache<br>✓ External Service（DeepSeek API）<br>✓ Monitoring（Inngest Dashboard 可追踪） |
+| **Rollback Strategy** | **步骤**：<br>1. 禁用 function：在 `functions/index.ts` 中注释注册<br>2. 清理测试数据：删除测试期间生成的 StoryboardVersion 和 Scene 记录<br>3. Project status 回退到 `queued`<br>**预计回滚时间**：< 10 分钟<br>**风险**：中（涉及 LLM 调用和数据写入，需仔细测试） |
 | **AC** | Given 1000 字 AI 回答，When Inngest 执行 generate-storyboard，Then 创建 StoryboardVersion + N 个 Scene 记录 |
 | **Size** | L（~800 LOC） |
 | **Priority** | P0 |
@@ -570,6 +661,8 @@ Volcano AI 微课视频平台
 | **不包含** | 音频去重上传（下一个 Change）、异步长文本 TTS |
 | **Files** | `src/lib/providers/interfaces.ts`（追加 TTS 部分）<br>`src/lib/providers/tts/minimax.ts`（新建）<br>`src/lib/providers/tts/mock.ts`（新建：测试用） |
 | **Dependencies** | 无（独立接口） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend<br>✗ Background Jobs<br>✗ Cache<br>✓ External Service（MiniMax TTS API）<br>✗ Monitoring |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `src/lib/providers/tts/` 目录<br>2. 恢复 `interfaces.ts` 中的 TTS 接口定义<br>3. 无运行时影响，无需重启<br>**预计回滚时间**：< 3 分钟<br>**风险**：低（Provider 层，无状态） |
 | **AC** | Given "你好世界"，When 调用 synthesize，Then 返回 audioBuffer(Buffer)、durationMs、captions[] |
 | **Size** | M（~600 LOC） |
 | **Priority** | P0 |
