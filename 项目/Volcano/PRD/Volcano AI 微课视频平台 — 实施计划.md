@@ -7,7 +7,7 @@
 | 文档名称 | 实施计划 (Implementation Plan) |
 | 关联 PRD | `PRD_AI文本转PPT微课视频平台.md` v1.0.6 |
 | 关联补充 | `PRD_Remotion集成补充规格说明书.md` v1.0.0 |
-| 版本 | v1.2.0 |
+| 版本 | v1.3.0 |
 | 更新时间 | 2026-06-15 |
 | 目标受众 | AI Coding Agent (Claude Code / Codex / OpenSpec) |
 | 代码库 | `E:\A\Ai\convert documents to videos` |
@@ -676,6 +676,8 @@ Volcano AI 微课视频平台
 | **不包含** | Asset 数据库写入（下一个 Change）、前端下载 |
 | **Files** | `src/lib/r2.ts`（修改：替换全部存根） |
 | **Dependencies** | Epic 1（R2 client 已配置） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend<br>✗ Background Jobs<br>✗ Cache<br>✓ Storage（R2 对象存储）<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 恢复 `src/lib/r2.ts` 中的存根实现<br>2. 无运行时数据影响（仅替换函数实现）<br>3. 无需重启服务<br>**预计回滚时间**：< 2 分钟<br>**风险**：低（基础设施层，无副作用）<br>**数据保护**：R2 中已上传文件保留（不删除） |
 | **AC** | Given Buffer("hello")，When uploadToR2，Then R2 中可访问该文件 |
 | **Size** | M（~500 LOC） |
 | **Priority** | P0 |
@@ -689,6 +691,8 @@ Volcano AI 微课视频平台
 | **不包含** | 时间轴计算（下一步）、字幕渲染（Epic 5） |
 | **Files** | `src/inngest/functions/generate-audio.ts`（新建）<br>`src/server/services/audio.service.ts`（新建）<br>`src/lib/db/repositories/asset.repo.ts`（新建）<br>`src/inngest/functions/index.ts`（修改：注册 function） |
 | **Dependencies** | `ep4-01`（TTS Provider）、`ep4-02`（R2 上传）、`ep3-04`（需已有 Scene） |
+| **Impact Analysis** | ✓ Database（Scene、Asset 表写入）<br>✗ API<br>✗ Frontend<br>✓ Background Jobs（新增 Inngest function）<br>✗ Cache<br>✓ Storage（R2 音频上传）<br>✗ Monitoring<br>✓ External Service（MiniMax TTS API） |
+| **Rollback Strategy** | **步骤**：<br>1. 停止 Inngest function：从 `index.ts` 移除 `generate-audio` 注册<br>2. 重启 Inngest worker（`npm run inngest:dev`）<br>3. **数据清理**：保留已生成的 Asset 和 Scene.audioAssetId（可复用）<br>4. 删除新增文件（generate-audio.ts、audio.service.ts、asset.repo.ts）<br>**预计回滚时间**：5-8 分钟<br>**风险**：中（涉及 Inngest 任务队列）<br>**数据保护**：已生成的音频文件和 Asset 记录保留，避免重复生成 |
 | **AC** | Given 5 个 Scene，When 执行 generate-audio，Then 上传 5 个音频文件到 R2，Scene 均回填 audioAssetId + durationSec |
 | **Size** | L（~900 LOC） |
 | **Priority** | P0 |
@@ -702,6 +706,8 @@ Volcano AI 微课视频平台
 | **不包含** | 前端视频播放器（Epic 6）、下载按钮 |
 | **Files** | `src/server/routers/asset.ts`（新建）<br>`src/server/routers/provider.ts`（新建）<br>`src/server/services/asset.service.ts`（新建）<br>`src/server/routers/_app.ts`（修改：注册 routers） |
 | **Dependencies** | `ep4-02`（R2 签名 URL）、`ep4-01`（TTS listVoices） |
+| **Impact Analysis** | ✗ Database<br>✓ API（新增 asset 和 provider routers）<br>✓ Frontend（前端需调用这些 API）<br>✗ Background Jobs<br>✓ Cache（语音列表缓存 1 小时）<br>✗ Storage<br>✗ Monitoring<br>✓ External Service（MiniMax listVoices API） |
+| **Rollback Strategy** | **步骤**：<br>1. 从 `_app.ts` 移除 asset 和 provider routers 注册<br>2. 删除 `src/server/routers/asset.ts` 和 `provider.ts`<br>3. 删除 `src/server/services/asset.service.ts`<br>4. 重启 Next.js 服务<br>5. 清除语音列表缓存（如使用 Redis）<br>**预计回滚时间**：3-5 分钟<br>**风险**：低（只读 API，无数据写入）<br>**数据保护**：无数据修改，仅查询操作 |
 | **AC** | Given 用户拥有某 Asset 权限，When 请求 signedUrl，Then 返回 10 分钟有效期 URL |
 | **Size** | M（~400 LOC） |
 | **Priority** | P0 |
@@ -719,6 +725,8 @@ Volcano AI 微课视频平台
 | **不包含** | 具体模板实现（后续 Change）、Composition 完整实现 |
 | **Files** | `src/remotion/templates/registry.ts`（新建）<br>`src/remotion/components/SlideBackground.tsx`（新建）<br>`src/remotion/components/LogoWatermark.tsx`（新建）<br>`src/remotion/components/ProgressBar.tsx`（新建）<br>`src/remotion/styles/theme.ts`（新建）<br>`src/remotion/fonts.ts`（新建）<br>`src/remotion/Root.tsx`（修改）<br>`public/fonts/`（新建目录 + 字体文件） |
 | **Dependencies** | `ep3-01`（Storyboard 类型） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend（仅 Remotion Studio 预览）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage（字体文件放在 public/）<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `src/remotion/templates/`、`src/remotion/components/`、`src/remotion/styles/` 目录<br>2. 恢复 `src/remotion/Root.tsx` 到原始状态<br>3. 删除 `public/fonts/` 目录<br>4. 无需重启（Remotion Studio 热重载）<br>**预计回滚时间**：< 3 分钟<br>**风险**：低（纯前端渲染组件，无服务端依赖）<br>**数据保护**：无数据修改 |
 | **AC** | Given `npx remotion studio`，When 启动，Then 可预览空 Composition，字体加载无报错 |
 | **Size** | M（~700 LOC） |
 | **Priority** | P0 |
@@ -732,6 +740,8 @@ Volcano AI 微课视频平台
 | **不包含** | 其他模板（后续 Change） |
 | **Files** | `src/remotion/templates/TitleSlide.tsx`（新建）<br>`src/remotion/templates/EndingSlide.tsx`（新建）<br>`src/remotion/templates/ConceptCard.tsx`（新建）<br>`src/remotion/templates/registry.ts`（修改：注册 3 个模板） |
 | **Dependencies** | `ep5-01`（基础结构 + 注册表） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend（仅 Remotion Studio）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 3 个模板文件（TitleSlide.tsx、EndingSlide.tsx、ConceptCard.tsx）<br>2. 从 `registry.ts` 移除这 3 个模板的注册<br>3. 无需重启（Remotion Studio 热重载）<br>**预计回滚时间**：< 2 分钟<br>**风险**：低（纯前端组件，无副作用）<br>**数据保护**：无数据修改 |
 | **AC** | Given TitleSlide + aspectRatio=16:9，When 渲染第 0-60 帧，Then 主标题淡入上移动画完整播放 |
 | **Size** | M（~800 LOC） |
 | **Priority** | P0 |
@@ -745,6 +755,8 @@ Volcano AI 微课视频平台
 | **不包含** | 其他模板 |
 | **Files** | `src/remotion/templates/BulletList.tsx`（新建）<br>`src/remotion/templates/ProcessFlow.tsx`（新建）<br>`src/remotion/templates/registry.ts`（修改：注册 2 个模板） |
 | **Dependencies** | `ep5-01`（基础结构） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend（仅 Remotion Studio）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 2 个模板文件（BulletList.tsx、ProcessFlow.tsx）<br>2. 从 `registry.ts` 移除这 2 个模板的注册<br>3. 无需重启（Remotion Studio 热重载）<br>**预计回滚时间**：< 2 分钟<br>**风险**：低（纯前端组件）<br>**数据保护**：无数据修改 |
 | **AC** | Given 8 条列表项 + 16:9，When 渲染，Then 分 2 页显示，每页 5→3 条 |
 | **Size** | M（~700 LOC） |
 | **Priority** | P0 |
@@ -758,6 +770,8 @@ Volcano AI 微课视频平台
 | **不包含** | 动画预设库（独立 Change） |
 | **Files** | `src/remotion/templates/Comparison.tsx`（新建）<br>`src/remotion/templates/Timeline.tsx`（新建）<br>`src/remotion/templates/Summary.tsx`（新建）<br>`src/remotion/templates/registry.ts`（修改：注册 3 个模板，8 个模板集齐） |
 | **Dependencies** | `ep5-01`（基础结构） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend（仅 Remotion Studio）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 3 个模板文件（Comparison.tsx、Timeline.tsx、Summary.tsx）<br>2. 从 `registry.ts` 移除这 3 个模板的注册<br>3. 无需重启（Remotion Studio 热重载）<br>**预计回滚时间**：< 2 分钟<br>**风险**：低（纯前端组件）<br>**数据保护**：无数据修改 |
 | **AC** | Given Comparison scene + 16:9，When 渲染，Then 左栏从左侧滑入，右栏从右侧滑入 |
 | **Size** | M（~700 LOC） |
 | **Priority** | P0 |
@@ -771,6 +785,8 @@ Volcano AI 微课视频平台
 | **不包含** | 词级高亮（WordHighlight，预留） |
 | **Files** | `src/remotion/animations/presets.ts`（新建）<br>`src/remotion/animations/fadeIn.ts`（新建）<br>`src/remotion/animations/slideUp.ts`（新建）<br>`src/remotion/animations/slideLeft.ts`（新建）<br>`src/remotion/animations/scaleIn.ts`（新建）<br>`src/remotion/animations/typewriter.ts`（新建）<br>`src/remotion/animations/stepReveal.ts`（新建）<br>`src/remotion/animations/highlight.ts`（新建）<br>`src/remotion/animations/wipeReveal.ts`（新建）<br>`src/remotion/components/CaptionOverlay.tsx`（新建）<br>`src/remotion/index.ts`（修改：导出） |
 | **Dependencies** | `ep5-01`（基础结构） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend（仅 Remotion Studio）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `src/remotion/animations/` 目录<br>2. 删除 `src/remotion/components/CaptionOverlay.tsx`<br>3. 恢复 `src/remotion/index.ts` 导出列表<br>4. 无需重启（Remotion Studio 热重载）<br>**预计回滚时间**：< 2 分钟<br>**风险**：低（纯工具函数和组件）<br>**数据保护**：无数据修改 |
 | **AC** | Given caption {text:"你好", startMs:0, endMs:2000}，When 渲染 0-60 帧，Then 字幕在 0-2000ms 显示，前后淡入淡出 |
 | **Size** | L（~900 LOC） |
 | **Priority** | P0 |
@@ -784,6 +800,8 @@ Volcano AI 微课视频平台
 | **不包含** | Render Worker 实际渲染（下一个 Change） |
 | **Files** | `src/remotion/compositions/MicroCourseVideo.tsx`（新建）<br>`src/remotion/compositions/ScenePreview.tsx`（新建）<br>`src/remotion/Root.tsx`（修改：实现 calculateMetadata）<br>`src/server/services/timeline.service.ts`（新建）<br>`src/inngest/functions/calculate-timeline.ts`（新建）<br>`src/inngest/functions/index.ts`（修改：注册） |
 | **Dependencies** | `ep5-05`（全部模板 + 动效 + 字幕）、`ep4-03`（需已有音频 Asset） |
+| **Impact Analysis** | ✓ Database（Scene 表回填 startTimeSec、durationSec）<br>✗ API<br>✗ Frontend（仅 Remotion Studio）<br>✓ Background Jobs（新增 calculate-timeline function）<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 停止 Inngest function：从 `index.ts` 移除 `calculate-timeline` 注册<br>2. 删除新增文件（calculate-timeline.ts、timeline.service.ts、MicroCourseVideo.tsx、ScenePreview.tsx）<br>3. 恢复 `Root.tsx` 中的 calculateMetadata<br>4. 重启 Inngest worker<br>**预计回滚时间**：5 分钟<br>**风险**：中（涉及 Inngest 任务和数据库写入）<br>**数据保护**：Scene 的 startTimeSec/durationSec 字段可清空（不影响源数据） |
 | **AC** | Given 3 scene Storyboard（音频 2s/3s/1s），When 计算 timeline，Then startFrame=[0, 69, 168], durationFrames=[69, 99, 39] |
 | **Size** | L（~900 LOC） |
 | **Priority** | P0 |
@@ -797,6 +815,8 @@ Volcano AI 微课视频平台
 | **不包含** | Dockerfile（下一个 Change）、Inngest trigger（再下一个） |
 | **Files** | `apps/render-worker/package.json`（新建）<br>`apps/render-worker/src/index.ts`（新建）<br>`apps/render-worker/src/server.ts`（新建）<br>`apps/render-worker/src/renderer.ts`（新建）<br>`apps/render-worker/src/config.ts`（新建）<br>`apps/render-worker/src/health.ts`（新建）<br>`apps/render-worker/src/bundle-cache.ts`（新建）<br>`apps/render-worker/tsconfig.json`（新建） |
 | **Dependencies** | `ep5-06`（Composition 完成）、`ep4-02`（R2 上传） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend<br>✗ Background Jobs<br>✗ Cache<br>✓ Storage（R2 上传渲染结果）<br>✓ Monitoring（健康检查端点）<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 停止 Render Worker 服务（kill 进程或停止容器）<br>2. 删除 `apps/render-worker/` 目录<br>3. 无数据库影响（Worker 为独立服务）<br>**预计回滚时间**：< 3 分钟<br>**风险**：低（独立服务，无数据库依赖）<br>**数据保护**：已渲染的视频文件保留在 R2 |
 | **AC** | Given POST /internal/render，When 收到合法 Storyboard + audioUrls，Then 启动 renderMedia 并返回进度 |
 | **Size** | L（~1200 LOC） |
 | **Priority** | P0 |
@@ -810,6 +830,8 @@ Volcano AI 微课视频平台
 | **不包含** | K8s 部署配置（后续）、生产 CI/CD |
 | **Files** | `apps/render-worker/Dockerfile`（新建）<br>`apps/render-worker/fonts/NotoSansSC-*.otf`（新建）<br>`apps/render-worker/.env.example`（新建）<br>`docker-compose.yml`（新建或修改）<br>`scripts/dev-worker.sh`（新建） |
 | **Dependencies** | `ep5-07`（Worker 核心代码） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✗ Frontend<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage（字体文件打包进镜像）<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 停止并删除 Docker 容器：`docker stop render-worker && docker rm render-worker`<br>2. 删除 Docker 镜像：`docker rmi render-worker`<br>3. 删除新增文件（Dockerfile、fonts/、.env.example、docker-compose.yml、dev-worker.sh）<br>**预计回滚时间**：3-5 分钟<br>**风险**：低（容器化部署，无数据持久化）<br>**数据保护**：无数据影响 |
 | **AC** | Given `docker build -t render-worker .`，When 启动容器，Then GET /health 返回 healthy |
 | **Size** | M（~400 LOC + 字体文件） |
 | **Priority** | P0 |
@@ -823,6 +845,8 @@ Volcano AI 微课视频平台
 | **不包含** | Worker 自动扩缩容、复杂负载均衡 |
 | **Files** | `src/inngest/functions/trigger-render.ts`（新建）<br>`src/server/services/render.service.ts`（新建）<br>`src/lib/db/repositories/render-job.repo.ts`（新建）<br>`src/lib/render/worker-registry.ts`（新建）<br>`src/inngest/functions/index.ts`（修改：注册） |
 | **Dependencies** | `ep5-07`（Worker 可用）、`ep5-06`（时间轴计算完成）、`ep4-04`（签名 URL） |
+| **Impact Analysis** | ✓ Database（RenderJob、Asset 表写入）<br>✗ API<br>✗ Frontend<br>✓ Background Jobs（新增 trigger-render function）<br>✗ Cache<br>✓ Storage（R2 上传视频和缩略图）<br>✗ Monitoring<br>✓ External Service（Render Worker HTTP API） |
+| **Rollback Strategy** | **步骤**：<br>1. 停止 Inngest function：从 `index.ts` 移除 `trigger-render` 注册<br>2. 删除新增文件（trigger-render.ts、render.service.ts、render-job.repo.ts、worker-registry.ts）<br>3. 重启 Inngest worker<br>**预计回滚时间**：5-8 分钟<br>**风险**：中（涉及 Inngest、RenderJob、外部 Worker）<br>**数据保护**：RenderJob 记录保留（便于追溯），已渲染视频保留在 R2（避免重复渲染） |
 | **AC** | Given 时间轴计算完成，When 触发 render，Then RenderJob 创建，Worker 开始渲染，完成后 MP4 上传 R2 |
 | **Size** | L（~900 LOC） |
 | **Priority** | P0 |
@@ -840,6 +864,8 @@ Volcano AI 微课视频平台
 | **不包含** | 实际 renderStill 实现（Epic 5）、完整分镜编辑 |
 | **Files** | `src/app/(protected)/projects/[id]/progress/page.tsx`（新建）<br>`src/components/project/ProgressStepper.tsx`（新建）<br>`src/components/project/ScenePreviewCard.tsx`（新建）<br>`src/components/project/GenerationError.tsx`（新建） |
 | **Dependencies** | `ep2-04`（create 后跳转至此页）、`ep2-02`（getById API）、`ep2-05`（取消 API） |
+| **Impact Analysis** | ✗ Database<br>✓ API（调用 getById 和 cancel API）<br>✓ Frontend（新增进度页面）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `src/app/(protected)/projects/[id]/progress/` 目录<br>2. 删除 `src/components/project/` 中的新增组件（ProgressStepper、ScenePreviewCard、GenerationError）<br>3. 无需重启（Next.js 热重载）<br>**预计回滚时间**：< 2 分钟<br>**风险**：低（纯前端页面，只读操作为主）<br>**数据保护**：无数据修改（取消操作通过已有 API） |
 | **AC** | Given 项目 status=generating_audio，When 进入进度页，Then 显示"生成语音"为当前阶段，每 3 秒刷新 |
 | **Size** | M（~600 LOC） |
 | **Priority** | P1 |
@@ -853,6 +879,8 @@ Volcano AI 微课视频平台
 | **不包含** | 编辑功能（Out of Scope） |
 | **Files** | `src/app/(protected)/projects/[id]/storyboard/page.tsx`（新建）<br>`src/components/storyboard/SceneList.tsx`（新建）<br>`src/components/storyboard/ScenePreview.tsx`（新建）<br>`src/components/storyboard/SceneProperties.tsx`（新建）<br>`src/lib/stores/storyboard-store.ts`（新建） |
 | **Dependencies** | `ep2-02`（getById API 返回 scenes）、`ep4-04`（签名 URL） |
+| **Impact Analysis** | ✗ Database<br>✓ API（调用 getById 和签名 URL API）<br>✓ Frontend（新增分镜预览页面）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `src/app/(protected)/projects/[id]/storyboard/` 目录<br>2. 删除 `src/components/storyboard/` 目录<br>3. 删除 `src/lib/stores/storyboard-store.ts`<br>4. 无需重启（Next.js 热重载）<br>**预计回滚时间**：< 2 分钟<br>**风险**：低（纯前端只读页面）<br>**数据保护**：无数据修改 |
 | **AC** | Given 5 个 Scene，When 点击第 3 个，Then 中间显示第 3 个 scene 的静态预览图 |
 | **Size** | M（~700 LOC） |
 | **Priority** | P1 |
@@ -866,6 +894,8 @@ Volcano AI 微课视频平台
 | **不包含** | 公开分享（Out of Scope）、复制链接 |
 | **Files** | `src/app/(protected)/projects/[id]/result/page.tsx`（新建）<br>`src/components/video/VideoPlayer.tsx`（新建）<br>`src/components/video/VideoInfo.tsx`（新建）<br>`src/components/video/DownloadButton.tsx`（新建） |
 | **Dependencies** | `ep2-02`（project getById）、`ep4-04`（签名 URL）、`ep5-09`（渲染完成） |
+| **Impact Analysis** | ✗ Database<br>✓ API（调用 getById、签名 URL、retry API）<br>✓ Frontend（新增视频结果页面）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `src/app/(protected)/projects/[id]/result/` 目录<br>2. 删除 `src/components/video/` 目录<br>3. 无需重启（Next.js 热重载）<br>**预计回滚时间**：< 2 分钟<br>**风险**：低（纯前端页面，只读为主）<br>**数据保护**：无数据修改（重新生成通过已有 API） |
 | **AC** | Given completed 项目，When 进入结果页，Then 视频播放器加载签名 URL 并播放 |
 | **Size** | M（~500 LOC） |
 | **Priority** | P1 |
@@ -879,6 +909,8 @@ Volcano AI 微课视频平台
 | **不包含** | 个人中心页面改动、设置页面 |
 | **Files** | `src/app/page.tsx`（修改：替换脚手架）<br>`src/app/(protected)/layout.tsx`（修改）<br>`src/components/layout/AppNavbar.tsx`（新建）<br>`src/components/layout/Breadcrumb.tsx`（新建）<br>`src/components/layout/UserMenu.tsx`（新建） |
 | **Dependencies** | `ep2-03`（Dashboard 页面）、`ep2-04`（Create 页面） |
+| **Impact Analysis** | ✗ Database<br>✗ API<br>✓ Frontend（全局布局和导航）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 恢复 `src/app/page.tsx` 到 Next.js 脚手架版本<br>2. 恢复 `src/app/(protected)/layout.tsx`<br>3. 删除 `src/components/layout/` 中的新增组件（AppNavbar、Breadcrumb、UserMenu）<br>4. 无需重启（Next.js 热重载）<br>**预计回滚时间**：< 3 分钟<br>**风险**：低（纯前端 UI 组件）<br>**数据保护**：无数据修改 |
 | **AC** | Given 已登录用户，When 访问任意页面，Then 顶部显示导航栏（含用户头像） |
 | **Size** | M（~500 LOC） |
 | **Priority** | P1 |
@@ -896,6 +928,8 @@ Volcano AI 微课视频平台
 | **不包含** | Sentry 接入（后续 Change） |
 | **Files** | `src/lib/errors/codes.ts`（新建）<br>`src/lib/errors/messages.ts`（新建）<br>`src/lib/errors/handler.ts`（新建）<br>`src/lib/errors/index.ts`（新建） |
 | **Dependencies** | 无（全局基础设施） |
+| **Impact Analysis** | ✗ Database<br>✓ API（所有 API 统一错误处理）<br>✓ Frontend（错误消息展示）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 `src/lib/errors/` 目录<br>2. 恢复各 tRPC router 中的原始错误处理逻辑<br>3. 重启 Next.js 服务<br>**预计回滚时间**：3-5 分钟<br>**风险**：低（纯工具函数，无状态）<br>**数据保护**：无数据修改 |
 | **AC** | Given TTS 超时，When 调用 handleServiceError，Then 返回 `{code: "TTS_TIMEOUT", message: "语音生成超时，请重试"}` |
 | **Size** | S（~300 LOC） |
 | **Priority** | P1 |
@@ -909,6 +943,8 @@ Volcano AI 微课视频平台
 | **不包含** | 复杂计费系统（Out of Scope） |
 | **Files** | `src/server/services/quota.service.ts`（修改：完善）<br>`src/server/routers/quota.ts`（新建）<br>`src/server/routers/_app.ts`（修改：注册 router）<br>`src/lib/db/repositories/usage-record.repo.ts`（新建） |
 | **Dependencies** | `ep7-01`（错误码） |
+| **Impact Analysis** | ✓ Database（UsageRecord 表写入）<br>✓ API（新增 quota router）<br>✓ Frontend（前端显示额度状态）<br>✗ Background Jobs<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 从 `_app.ts` 移除 quota router 注册<br>2. 恢复 `quota.service.ts` 到初版实现<br>3. 删除 `src/server/routers/quota.ts` 和 `usage-record.repo.ts`<br>4. 重启 Next.js 服务<br>**预计回滚时间**：3-5 分钟<br>**风险**：中（涉及额度限制逻辑）<br>**数据保护**：UsageRecord 记录保留（便于追溯用量历史） |
 | **AC** | Given 用户今日已生成 1 次，When 再次提交，Then 返回 QUOTA_EXCEEDED |
 | **Size** | S（~400 LOC） |
 | **Priority** | P1 |
@@ -922,6 +958,8 @@ Volcano AI 微课视频平台
 | **不包含** | full_regenerate（管理员能力，后续版本） |
 | **Files** | `src/inngest/functions/generate-storyboard.ts`（修改：添加取消检查）<br>`src/inngest/functions/generate-audio.ts`（修改）<br>`src/inngest/functions/calculate-timeline.ts`（修改）<br>`src/inngest/functions/trigger-render.ts`（修改）<br>`src/server/services/cancel.service.ts`（修改：完善） |
 | **Dependencies** | 所有 Inngest functions 已存在（`ep3-04`, `ep4-03`, `ep5-06`, `ep5-09`） |
+| **Impact Analysis** | ✓ Database（Project.status 更新为 cancelled）<br>✗ API<br>✗ Frontend<br>✓ Background Jobs（所有 Inngest functions 修改）<br>✗ Cache<br>✗ Storage<br>✗ Monitoring<br>✗ External Service |
+| **Rollback Strategy** | **步骤**：<br>1. 恢复所有 Inngest functions 到未添加取消检查前的版本<br>2. 恢复 `cancel.service.ts` 到初版<br>3. 重启 Inngest worker<br>**预计回滚时间**：5-8 分钟<br>**风险**：中（影响所有后台任务的取消逻辑）<br>**数据保护**：已标记为 cancelled 的项目保持状态（不影响数据完整性） |
 | **AC** | Given 正在执行 generate-audio 的项目，When 用户取消，Then 当前 step 完成后不进入 calculate-timeline |
 | **Size** | M（~500 LOC） |
 | **Priority** | P1 |
@@ -935,6 +973,8 @@ Volcano AI 微课视频平台
 | **不包含** | 监控 Dashboard、告警规则配置 |
 | **Files** | `sentry.client.config.ts`（新建）<br>`sentry.server.config.ts`（新建）<br>`sentry.edge.config.ts`（新建）<br>`src/instrumentation.ts`（新建）<br>`src/app/global-error.tsx`（新建）<br>`src/server/services/job-event.service.ts`（新建）<br>`src/lib/db/repositories/job-event.repo.ts`（新建）<br>`src/lib/logger.ts`（新建） |
 | **Dependencies** | `ep7-01`（错误码体系） |
+| **Impact Analysis** | ✓ Database（JobEvent 表写入）<br>✗ API<br>✓ Frontend（全局 Error Boundary）<br>✓ Background Jobs（所有 function 记录日志）<br>✗ Cache<br>✗ Storage<br>✓ Monitoring（Sentry 监控接入）<br>✓ External Service（Sentry SaaS） |
+| **Rollback Strategy** | **步骤**：<br>1. 删除 Sentry 配置文件（sentry.client.config.ts、sentry.server.config.ts、sentry.edge.config.ts、instrumentation.ts）<br>2. 删除 `src/app/global-error.tsx`<br>3. 删除 `job-event.service.ts`、`job-event.repo.ts`、`logger.ts`<br>4. 从所有 Inngest functions 移除 JobEvent 日志调用<br>5. 重启 Next.js 和 Inngest worker<br>**预计回滚时间**：8-10 分钟<br>**风险**：中（影响监控和日志系统）<br>**数据保护**：JobEvent 记录保留（便于事后审计） |
 | **AC** | Given generate-storyboard 失败，When 查看 Sentry，Then 可见完整错误栈和上下文 |
 | **Size** | M（~500 LOC） |
 | **Priority** | P1 |
@@ -1741,5 +1781,7 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 |------|------|---------|
 | v1.0.0 | 2026-06-13 | 创建工程实施大纲初稿：6 个 Epic、19 个 Feature、30 个 Change、6 个 Phase |
 | v1.1.0 | 2026-06-15 | 优化为实施计划：标记 ep2-01~03 完成，添加"项目当前状态"、"下一步行动"、"项目里程碑"章节 |
+| v1.2.0 | 2026-06-15 | Review 补充：新增第 1、11-14 章（Architecture Baseline、Release Plan、OpenSpec Mapping、Final Review、测试策略），为 Phase 1-2 的 9 个 Changes 补充 Impact Analysis 和 Rollback Strategy |
+| v1.3.0 | 2026-06-15 | 完成 Phase 3-6 补充：为剩余 20 个 Changes（ep4-02~ep7-04）补充 Impact Analysis 和 Rollback Strategy，所有 30 个 Changes 现已具备完整的影响分析和回滚策略 |
 | v1.2.0 | 2026-06-15 | Review 版本：新增 Architecture Baseline、Release Plan、OpenSpec Mapping、Final Review、测试策略章节 |
 
