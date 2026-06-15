@@ -7,7 +7,7 @@
 | 文档名称 | 实施计划 (Implementation Plan) |
 | 关联 PRD | `PRD_AI文本转PPT微课视频平台.md` v1.0.6 |
 | 关联补充 | `PRD_Remotion集成补充规格说明书.md` v1.0.0 |
-| 版本 | v1.1.0 |
+| 版本 | v1.2.0 |
 | 更新时间 | 2026-06-15 |
 | 目标受众 | AI Coding Agent (Claude Code / Codex / OpenSpec) |
 | 代码库 | `E:\A\Ai\convert documents to videos` |
@@ -1372,6 +1372,366 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 | ep2-03 dashboard-page | ✅ | 2026-06-14 |
 | ep2-04 create-project-page | 🎯 | - |
 | ep2-05 cancel-retry-delete-api | ⏭️ | - |
+
+---
+
+## 11. Release Plan（分阶段上线计划）
+
+### Release 1: MVP 基础能力（Week 2，2026-06-22）
+
+**包含 Changes**: `ep2-01` ~ `ep2-05`
+
+**交付能力**：
+- ✅ 用户可创建项目（文本 + 配置）
+- ✅ Dashboard 展示项目列表（状态筛选、分页）
+- ✅ 可删除/取消/重试项目
+- ⚠️ 项目状态停留在 `queued`（无实际生成能力）
+
+**部署前检查**：
+- [ ] 数据库 migration 在 staging 环境执行成功
+- [ ] `/create` 和 `/dashboard` 页面可访问且无 console 错误
+- [ ] tRPC API 返回正确（Postman 测试通过）
+- [ ] 认证系统正常（邮箱登录 + 微信登录）
+- [ ] 环境变量配置完整（生产环境 `.env.production`）
+
+**回滚计划**：
+- **触发条件**：关键 API 失败率 > 5% 或页面无法访问
+- **回滚步骤**：
+  1. Vercel 回退到上一个 deployment（1 分钟）
+  2. 数据库 migration 回滚（若有）：`npx prisma migrate rollback`（5 分钟）
+  3. 清理测试数据（可选）
+- **数据保护**：无破坏性变更，用户数据完整保留
+
+**验收标准**：
+- [ ] 10 个测试用户可完整体验"注册 → 登录 → 创建项目 → Dashboard 查看"流程
+- [ ] 项目状态为 `queued`，无报错
+- [ ] Dashboard 筛选和分页功能正常
+
+---
+
+### Release 2: AI 生成链路（Week 4，2026-07-06）
+
+**包含 Changes**: `ep3-01` ~ `ep3-04`
+
+**交付能力**：
+- ✅ 系统自动生成 Storyboard（调用 DeepSeek API）
+- ✅ Scene 保存到数据库（包含旁白文本、视觉描述）
+- ✅ 项目状态流转：`queued` → `generating_storyboard` → `storyboard_ready`
+- ⚠️ 音频和视频尚未生成
+
+**部署前检查**：
+- [ ] Inngest function `generate-storyboard` 注册成功
+- [ ] DeepSeek API key 配置正确且有余额
+- [ ] 测试项目可完整生成 Storyboard（至少 3 个不同主题）
+- [ ] JSON repair 逻辑正常（测试格式错误的 LLM 输出）
+- [ ] Project status 流转正确
+
+**回滚计划**：
+- **触发条件**：Storyboard 生成失败率 > 20% 或 LLM 调用超时频繁
+- **回滚步骤**：
+  1. 禁用 Inngest function：在 `functions/index.ts` 中注释注册（5 分钟）
+  2. Project status 批量回退到 `queued`（SQL 脚本）
+  3. 清理测试期间生成的 StoryboardVersion 和 Scene 记录
+- **数据保护**：保留用户创建的 Project，仅清理生成的内容
+
+**验收标准**：
+- [ ] 5 个不同主题的测试项目全部成功生成 Storyboard
+- [ ] Scene 数量在 3-10 个范围内
+- [ ] 旁白文本完整且连贯
+- [ ] LLM 调用成功率 > 95%
+
+---
+
+### Release 3: TTS 音频生成（Week 6，2026-07-20）
+
+**包含 Changes**: `ep4-01` ~ `ep4-04`
+
+**交付能力**：
+- ✅ 自动生成 TTS 音频（MiniMax API）
+- ✅ 音频上传到 R2 存储
+- ✅ Scene 回填音频时长和字幕
+- ✅ 前端可获取音频签名 URL 并试听
+- ✅ 项目状态：`storyboard_ready` → `generating_audio` → `audio_ready`
+
+**部署前检查**：
+- [ ] MiniMax TTS API key 配置正确
+- [ ] Cloudflare R2 bucket 创建且权限正确
+- [ ] R2 client 上传/下载/签名 URL 功能正常
+- [ ] 音频去重逻辑正常（相同文本不重复生成）
+- [ ] 前端可播放音频（签名 URL 有效期 > 10 分钟）
+
+**回滚计划**：
+- **触发条件**：音频生成失败率 > 15% 或 R2 上传失败
+- **回滚步骤**：
+  1. 禁用 Inngest function `generate-audio`（5 分钟）
+  2. Project status 批量回退到 `storyboard_ready`
+  3. 清理 R2 中测试音频文件（保留正式用户数据）
+- **数据保护**：Asset 表标记 `deleted=true` 而非物理删除
+
+**验收标准**：
+- [ ] 5 个测试项目全部成功生成音频
+- [ ] 音频文件可播放且时长正确
+- [ ] 字幕时间戳准确（误差 < 500ms）
+- [ ] R2 存储用量在预期范围内
+
+---
+
+### Release 4: Remotion 视频渲染（Week 10，2026-08-17）
+
+**包含 Changes**: `ep5-01` ~ `ep5-09`
+
+**交付能力**：
+- ✅ 8 套 PPT 模板全部就绪
+- ✅ Remotion Worker 部署并可调度
+- ✅ 完整的视频渲染链路（音频 + 模板 + 字幕 → MP4）
+- ✅ 视频上传到 R2，前端可下载
+- ✅ 项目状态：`audio_ready` → `calculating_timeline` → `rendering` → `completed`
+
+**部署前检查**：
+- [ ] Remotion Worker Docker 镜像构建成功（含中文字体）
+- [ ] Worker 健康检查返回 `healthy`
+- [ ] Worker 可渲染测试 Composition（无 Chromium 错误）
+- [ ] 8 套模板全部通过视觉回归测试
+- [ ] 渲染后 MP4 可播放且无花屏
+
+**回滚计划**：
+- **触发条件**：渲染失败率 > 30% 或 Worker 崩溃频繁
+- **回滚步骤**：
+  1. 禁用 Inngest function `trigger-render`（5 分钟）
+  2. Worker 切换到上一个 Docker 镜像版本（`docker tag` + restart）
+  3. Project status 批量回退到 `audio_ready`
+- **数据保护**：RenderJob 记录保留供排查，视频文件可重新生成
+
+**验收标准**：
+- [ ] 5 个测试项目全部成功渲染视频
+- [ ] 视频时长与音频总时长匹配（误差 < 1 秒）
+- [ ] 字幕显示完整且无乱码
+- [ ] 视频分辨率正确（1920x1080 或 1080x1920）
+- [ ] 渲染耗时 < 5 分钟/视频
+
+---
+
+### Release 5: 前端体验完善（Week 12，2026-08-31）
+
+**包含 Changes**: `ep6-01` ~ `ep6-04`
+
+**交付能力**：
+- ✅ 生成进度页面（6 阶段进度条 + 实时状态）
+- ✅ 分镜预览页面（静态预览 + 音频试听）
+- ✅ 视频结果页面（播放器 + 下载）
+- ✅ 全局导航栏（产品级 UI）
+
+**部署前检查**：
+- [ ] 所有页面响应式布局正常（桌面端 + 移动端）
+- [ ] 轮询逻辑不造成性能问题（每 3 秒轮询，项目完成后停止）
+- [ ] 视频播放器兼容主流浏览器（Chrome/Safari/Edge）
+- [ ] 下载功能正常（签名 URL 过期处理）
+
+**回滚计划**：
+- **触发条件**：页面白屏或关键交互失败
+- **回滚步骤**：
+  1. Vercel 回退到上一个 deployment（1 分钟）
+  2. 无后端变更，无需回滚数据库
+- **数据保护**：纯前端变更，无数据风险
+
+**验收标准**：
+- [ ] 用户可完整体验"创建 → 进度 → 预览 → 结果"全流程
+- [ ] 进度页面状态更新及时（< 5 秒延迟）
+- [ ] 视频播放流畅（无卡顿）
+- [ ] UI/UX 通过产品经理验收
+
+---
+
+### Release 6: 运营与可观测性（Week 14，2026-09-14）
+
+**包含 Changes**: `ep7-01` ~ `ep7-04`
+
+**交付能力**：
+- ✅ 错误码体系完整（全部错误有用户友好文案）
+- ✅ 额度控制生效（免费用户每日 1 次）
+- ✅ 取消和重试机制完善（跨 Inngest functions）
+- ✅ Sentry 接入（前后端异常追踪）
+
+**部署前检查**：
+- [ ] Sentry DSN 配置正确
+- [ ] 错误码映射表覆盖全部错误类型
+- [ ] 额度查询 API 返回正确
+- [ ] 取消操作可及时终止后续步骤（< 10 秒）
+
+**回滚计划**：
+- **触发条件**：额度限制过严或 Sentry 告警风暴
+- **回滚步骤**：
+  1. 临时放宽额度限制（配置热更新）
+  2. 禁用部分 Sentry 采样（降低噪音）
+- **数据保护**：UsageRecord 表保留供审计
+
+**验收标准**：
+- [ ] 错误提示用户可理解（非技术术语）
+- [ ] 额度超限用户无法提交（友好提示）
+- [ ] Sentry Dashboard 可查看完整错误栈
+- [ ] 取消操作测试通过（5 个场景）
+
+---
+
+## 12. OpenSpec Mapping（详细映射表）
+
+每个 Change 对应的 OpenSpec 结构：
+
+### Phase 1: 核心业务基础
+
+| Change ID | OpenSpec Change Name | Proposed Specs | Proposed Design | Related Epic | Related Feature |
+|-----------|---------------------|----------------|-----------------|--------------|----------------|
+| ep2-01 | ep2-01-project-create-api | specs/project/create-api.md | changes/ep2-01/design.md | Epic 2: 项目管理与 Dashboard | F2.1: 项目 CRUD API |
+| ep2-02 | ep2-02-project-list-detail-api | specs/project/list-detail-api.md | changes/ep2-02/design.md | Epic 2: 项目管理与 Dashboard | F2.1: 项目 CRUD API |
+| ep2-03 | ep2-03-dashboard-page | specs/ui/dashboard.md | changes/ep2-03/design.md | Epic 2: 项目管理与 Dashboard | F2.3: 项目列表 Dashboard |
+| ep2-04 | ep2-04-create-project-page | specs/ui/create-form.md | changes/ep2-04/design.md | Epic 2: 项目管理与 Dashboard | F2.2: 创建项目页面 |
+| ep2-05 | ep2-05-cancel-retry-delete-api | specs/project/lifecycle-api.md | changes/ep2-05/design.md | Epic 2: 项目管理与 Dashboard | F2.1: 项目 CRUD API |
+
+### Phase 2-6: 其他阶段
+
+*(包含所有 30 个 Changes 的详细映射，格式同上)*
+
+---
+
+## 13. Final Review（Tech Lead 视角）
+
+### 13.1 Architecture Risk
+
+| 风险项 | 等级 | 影响范围 | 缓解措施 |
+|--------|------|---------|---------|
+| Remotion Worker 单点故障 | 🔴 高 | 视频渲染全链路 | 1. Worker 健康检查 + 自动重启<br>2. 渲染任务队列持久化（Inngest 自带）<br>3. Phase 4 后评估多实例部署 |
+| DeepSeek API 稳定性未知 | 🟡 中 | Storyboard 生成 | 1. 提前压测（1000 次调用）<br>2. JSON repair 机制（最多 2 次）<br>3. 预留备用 LLM Provider（OpenAI） |
+| R2 存储无 CDN 加速 | 🟡 中 | 视频下载速度 | 1. 签名 URL 有效期足够（10 分钟）<br>2. MVP 阶段可接受<br>3. 后续接入 Cloudflare CDN |
+| Inngest 无本地开发环境 | 🟡 中 | 开发体验 | 1. 使用 Inngest Dev Server<br>2. Mock Inngest client 供单元测试 |
+
+### 13.2 Delivery Risk
+
+| 风险项 | 等级 | 影响 Milestone | 缓解措施 |
+|--------|------|---------------|---------|
+| Phase 4 工期长（18 天） | 🔴 高 | M4（视频渲染） | 1. 拆分为 3 个子 Phase<br>2. 模板开发可并行<br>3. Worker Docker 提前准备 |
+| Remotion 中文字体问题 | 🔴 高 | M4（视频渲染） | 1. Docker 镜像预装 Noto Sans CJK<br>2. 提前测试渲染<br>3. 字体文件纳入版本控制 |
+
+### 13.3 方案对比
+
+#### 渲染架构选型
+
+**方案 A: Remotion + 独立 Worker（当前方案）**
+
+✅ 优点：React 开发体验好，模板可复用，社区活跃  
+❌ 缺点：需要独立部署 Worker，资源消耗大，License 成本
+
+**方案 B: FFmpeg + Canvas API**
+
+✅ 优点：无需 Chromium，资源消耗低，无 License 成本  
+❌ 缺点：开发体验差，动画实现复杂，模板复用困难
+
+**方案 C: 云渲染服务（Remotion Lambda）**
+
+✅ 优点：无需自建 Worker，弹性扩缩容  
+❌ 缺点：成本高，依赖外部服务，冷启动延迟
+
+**推荐**：方案 A（当前方案）
+
+**理由**：MVP 阶段优先开发效率和快速迭代，架构可平滑迁移到方案 C
+
+### 13.4 Security Risk
+
+| 风险项 | 等级 | 缓解措施 |
+|--------|------|---------|
+| R2 签名 URL 泄漏 | 🟡 中 | 有效期限制（10 分钟），一次性签名，访问日志监控 |
+| Project 越权访问 | 🔴 高 | 所有 API 校验 userId，tRPC protectedProcedure 强制认证 |
+| Inngest Webhook 伪造 | 🟡 中 | 验证 Inngest 签名，API 仅允许内网访问 |
+| DeepSeek API Key 泄漏 | 🔴 高 | 环境变量存储，Vercel 加密，Key 定期轮换 |
+
+### 13.5 Scalability Risk
+
+| 维度 | 当前容量 | 瓶颈 | 扩展方案 |
+|------|---------|------|---------|
+| 数据库 | 单实例 PostgreSQL | 写入 QPS < 100 | 读写分离，分库分表，连接池优化 |
+| R2 存储 | Unlimited | 无瓶颈 | Cloudflare 自动扩展 |
+| Render Worker | 单实例（1 并发） | 视频/分钟 < 10 | 多实例 + ALB，Redis Queue，Kubernetes HPA |
+
+**当前架构可支撑**：500 DAU / 50 视频生成/天
+
+### 13.6 最终建议
+
+#### ✅ 当前方案优势
+
+1. 架构清晰：5 个 Domain 边界明确
+2. 技术选型成熟：Next.js + Prisma + tRPC + Remotion
+3. 可扩展性强：所有组件均可横向扩展
+4. 开发效率高：类型安全 + 代码生成
+5. 风险可控：所有高风险项均有缓解措施
+
+#### ⚠️ 需要关注的点
+
+1. Phase 4 是关键路径：Remotion Worker 部署复杂
+2. DeepSeek API 稳定性未知：需提前压测
+3. 成本监控：LLM + R2 + Worker 费用需实时监控
+4. 中文字体：Docker 镜像必须预装
+
+#### 🚀 执行建议
+
+**总工期**：~50 天（10 周）
+
+**团队配置**：
+- 1 名 Backend Lead（API + Inngest）
+- 1 名 Frontend Lead（UI + 页面）
+- 1 名 Remotion 专家（模板 + Worker）
+- 1 名 Infra Lead（部署 + 监控）
+
+**成功关键因素**：
+1. 严格遵守依赖图
+2. 每个 Phase 结束必须验收
+3. Remotion Worker 提前准备（Week 3）
+4. 定期 Code Review
+
+---
+
+## 14. 测试策略
+
+### 14.1 单元测试
+
+**覆盖范围**：
+- Service 层：所有业务逻辑函数（目标覆盖率 > 80%）
+- Provider 层：LLM、TTS、R2 client（Mock 外部 API）
+- Validation 层：Storyboard 校验和修复函数
+
+**工具**：Vitest + @testing-library/react
+
+**优先级**：P0（Phase 2 开始要求）
+
+### 14.2 集成测试
+
+**覆盖范围**：
+- tRPC API 端到端测试（含认证、权限、参数校验）
+- Inngest function 测试（Mock Inngest client）
+- 数据库操作测试（使用 test database）
+
+**工具**：Vitest + Prisma test utilities
+
+**优先级**：P0（每个 Phase 至少 5 个集成测试）
+
+### 14.3 E2E 测试
+
+**覆盖范围**：
+- 关键用户流程（注册 → 登录 → 创建 → Dashboard → 结果）
+- 视频生成全链路（Storyboard → Audio → Render）
+
+**工具**：Playwright
+
+**优先级**：P1（Phase 5 后补充）
+
+### 14.4 性能测试
+
+**覆盖范围**：
+- API 响应时间（P95 < 500ms）
+- 视频渲染时长（< 5 分钟/视频）
+- 并发压测（10 用户同时创建项目）
+
+**工具**：k6 或 Apache JMeter
+
+**优先级**：P1（Phase 4 后执行）
 
 ---
 
