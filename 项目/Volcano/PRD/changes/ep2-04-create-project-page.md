@@ -49,7 +49,9 @@ P0
 ### Included（本 Change 必须实现）
 
 1. **创建页面路由** `/create`
-   - 替换 Next.js 默认首页为创建页面（或重定向到 `/create`）
+   - 替换 Next.js 默认首页为重定向逻辑：
+     - **已登录用户**：重定向到 `/dashboard`
+     - **未登录用户**：重定向到 `/sign-in`
    - 使用 `(protected)` 路由组，需要登录态
    - 页面标题："创建微课视频"
    - 简短说明文案："将 AI 回答转换为 PPT 风格微课视频"
@@ -68,6 +70,7 @@ P0
      - 0-99 字：灰色（过短警告）
      - 100-5000 字：绿色（正常）
      - 5001+ 字：红色（超限）
+   - **字符计数规则**：使用 Unicode 字符长度（`[...text].length`），支持 Emoji 和特殊字符，**与后端 API 计数规则保持一致**
 
 3. **参数配置面板**
    - 目标对象选择（学生/自学者/老师/教研人员）— **默认：学生**
@@ -78,10 +81,13 @@ P0
    - 目标时长选择（1-3 分钟 / 3-5 分钟 / 5-10 分钟）— **默认：3-5 分钟**
    - 语音选择（从 Mock 列表加载）— **默认：第一个语音**
    - 面板可折叠（默认展开）
+   - **本地存储**：用户选择的参数配置自动保存到 LocalStorage，页面重新加载时恢复
 
 4. **空状态引导**
    - 首次访问显示轻量级引导（可关闭）
-   - "示例文本"按钮：点击填充 Demo 文本（500 字光合作用示例）
+   - "示例文本"按钮：点击时弹窗确认"加载示例将覆盖当前内容，确认继续？"
+     - 确认后填充 Demo 文本（500 字光合作用示例）
+     - 如果 Textarea 为空（< 10 字），则直接填充，无需弹窗
    - Tooltip 提示关键参数（悬停显示）
 
 5. **前端校验**
@@ -105,7 +111,11 @@ P0
 
 8. **表单状态管理**
    - 不保存到数据库（无草稿功能）
-   - **LocalStorage 临时保存**：输入 > 500 字时自动保存，页面加载时恢复
+   - **LocalStorage 临时保存**：
+     - 输入文本 > 500 字时自动保存到 LocalStorage
+     - 参数配置选择后自动保存到 LocalStorage
+     - 页面加载时自动恢复文本和参数配置
+     - **降级处理**：如果 LocalStorage 不可用（浏览器禁用或隐私模式），仅显示提示信息，不阻止用户正常使用创建功能
    - **离开确认**：文本 > 500 字 + 离开页面时弹窗："内容尚未保存，确定离开？"
    - 提交成功后清空 LocalStorage
 
@@ -279,17 +289,19 @@ src/hooks/
 
 ### Task 1: 修改首页为重定向
 
-**目标**：将 `src/app/page.tsx` 修改为重定向到 `/dashboard` 或 `/create`
+**目标**：将 `src/app/page.tsx` 修改为根据登录态进行重定向
 
 **实施步骤**：
 1. 读取 `src/app/page.tsx`
 2. 检查用户登录态
-3. 已登录：重定向到 `/dashboard`
+3. **已登录：重定向到 `/dashboard`**
 4. 未登录：重定向到 `/sign-in`
 5. 保留基础 SEO 元数据
 
 **完成标准**：
-- [ ] 访问 `/` 自动跳转
+- [ ] 访问 `/` 自动跳转到正确页面
+- [ ] 已登录用户跳转到 `/dashboard`
+- [ ] 未登录用户跳转到 `/sign-in`
 - [ ] 无 console 错误
 
 **预估时间**：30 分钟
@@ -327,7 +339,10 @@ src/hooks/
    export const saveDraft = (key: string, data: any) => { ... }
    export const loadDraft = (key: string) => { ... }
    export const clearDraft = (key: string) => { ... }
+   export const isLocalStorageAvailable = () => { ... }  // 检测可用性
    ```
+   - 包含 LocalStorage 可用性检测
+   - 不可用时返回 null，不抛出异常
 
 4. 创建 `src/hooks/useFormDraft.ts`（自动保存和恢复）
 
@@ -368,20 +383,23 @@ src/hooks/
 **实施步骤**：
 1. 创建 `src/components/project/CreateForm.tsx`
 2. 使用 `react-hook-form` + Zod 校验
-3. 集成 `useFormDraft` Hook（自动保存）
+3. 集成 `useFormDraft` Hook（自动保存文本和参数配置）
 4. 实现 Textarea + 字数统计（debounce 300ms）
-5. 实现字符计数（支持 Emoji）：`[...text].length`
+5. 实现字符计数（支持 Emoji）：`[...text].length`，**与后端 API 计数规则保持一致**
 6. 集成 ConfigPanel
 7. 实现提交逻辑
 8. 实现离开确认（`beforeunload` 事件）
-9. 添加"示例文本"按钮
+9. 添加"示例文本"按钮，**点击时弹窗确认（当前内容不为空时）**
+10. 处理 LocalStorage 不可用情况：显示提示信息，不阻止使用
 
 **完成标准**：
 - [ ] 字数统计实时更新（颜色正确）
-- [ ] 自动保存到 LocalStorage
+- [ ] 自动保存文本和参数配置到 LocalStorage
 - [ ] 离开确认弹窗正常
 - [ ] 提交成功后跳转
 - [ ] 防重复提交
+- [ ] 示例文本按钮有弹窗确认逻辑
+- [ ] LocalStorage 不可用时降级处理正常
 
 **预估时间**：4 小时
 
@@ -501,7 +519,7 @@ src/hooks/
 **When** 重新进入 `/create`  
 **Then** 
 - 文本内容从 LocalStorage 恢复
-- 参数配置恢复为默认值（或保存的值）
+- **参数配置从 LocalStorage 恢复（用户之前的选择）**
 
 ### Error Path
 
@@ -640,11 +658,16 @@ src/hooks/
    - 自动保存到 LocalStorage（> 500 字）
    - 从 LocalStorage 恢复
    - 提交后清空
+   - **参数配置也自动保存和恢复**
 
 4. **离开确认**
    - `beforeunload` 事件触发
    - 文本 < 500 字不弹窗
    - 文本 > 500 字弹窗
+
+5. **LocalStorage 降级**
+   - LocalStorage 不可用时返回 null
+   - 显示提示信息但不阻止使用
 
 ### Integration Test
 
@@ -678,9 +701,13 @@ src/hooks/
 
 4. **草稿功能**
    - 输入 800 字 → 刷新页面 → 内容恢复
+   - 输入 800 字 → 刷新页面 → **参数配置恢复**
 
 5. **离开确认**
    - 输入 800 字 → 点击后退 → 弹窗确认
+
+6. **LocalStorage 降级**
+   - 模拟 LocalStorage 不可用 → 显示提示 → 仍可正常使用表单
 
 ### Regression Test
 
@@ -933,6 +960,7 @@ ep2-04-create-project-page
    - 前端限制：3000-5000 字
    - 后端限制：需确认与 API Schema 一致
    - **缓解**：从 tRPC Schema 导入常量（`MIN_TEXT_LENGTH`、`MAX_TEXT_LENGTH`）
+   - **字符计数规则**：前端使用 `[...text].length`（Unicode 字符长度），**与后端 API 计数规则保持一致**
 
 2. **语音列表 Mock 数据**
    - 第一版使用硬编码 Mock
@@ -947,6 +975,7 @@ ep2-04-create-project-page
    - 浏览器 LocalStorage 限制 5-10MB
    - 5000 字文本 ≈ 10KB，无问题
    - **缓解**：设置最大保存字数（10000 字），超出则不保存
+   - **降级处理**：如果 LocalStorage 不可用（浏览器禁用、隐私模式、配额已满），仅显示提示信息（如"无法自动保存草稿，请及时提交"），不阻止用户正常使用创建功能
 
 5. **i18n 扩展性**
    - 第一版硬编码中文
@@ -1019,9 +1048,12 @@ ep2-04-create-project-page
 - [ ] Loading 状态正确显示
 - [ ] 防重复提交（30 秒限制）
 - [ ] LocalStorage 自动保存（> 500 字）
+- [ ] 参数配置自动保存到 LocalStorage
 - [ ] 刷新后草稿恢复
+- [ ] 刷新后参数配置恢复
 - [ ] 提交成功后草稿清空
 - [ ] 离开确认弹窗（> 500 字）
+- [ ] LocalStorage 不可用时降级处理正常
 
 ### 技术验收
 
@@ -1171,3 +1203,4 @@ export const ANALYTICS_EVENTS = {
 |------|------|---------|
 | v1.0.0 | 2026-06-15 | 创建 Change Specification |
 | v1.1.0 | 2026-06-15 | 补充完善：<br>- 新增空状态引导和示例文本<br>- 新增 LocalStorage 草稿保存和恢复<br>- 新增离开确认（beforeunload）<br>- 新增埋点预留<br>- 明确字数统计颜色规则和默认值<br>- 新增 i18n 预留方案<br>- 新增性能目标（LCP、debounce）<br>- 新增安全检查清单<br>- 补充响应式布局细节<br>- 新增多标签页冲突处理<br>- 补充示例文本内容<br>- 新增 Emoji 字符计数支持<br>- 预估工期更新：1.5-2 天 → 2-2.5 天 |
+| v1.2.0 | 2026-06-15 | 明确六个关键细节：<br>- **P0**: 明确首页重定向逻辑（已登录 → `/dashboard`，未登录 → `/sign-in`）<br>- **P0**: 明确参数配置保存到 LocalStorage（文本+参数一起保存和恢复）<br>- **P1**: 明确示例文本覆盖逻辑（内容不为空时弹窗确认）<br>- **P2**: 明确字符计数规则（与后端 API 保持一致，使用 Unicode 计数）<br>- **P2**: 明确 LocalStorage 禁用降级（显示提示，不阻止使用）<br>- 更新所有相关章节（Implementation Tasks、Acceptance Criteria、Test Plan、关键风险点） |
