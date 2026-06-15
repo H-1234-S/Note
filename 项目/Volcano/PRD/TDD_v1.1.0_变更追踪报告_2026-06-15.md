@@ -86,4 +86,54 @@ model OutboxEvent {
 - ✅ 结构化日志记录（logger.info/error）
 - ✅ Critical 级别告警（alertService.send）
 
-// __CONTINUE_HERE__
+**代码示例**（第 11.4 章）：
+```typescript
+// src/server/init/outbox-publisher.ts
+setInterval(async () => {
+  const events = await db.outboxEvent.findMany({
+    where: {
+      status: 'Pending',
+      retryCount: { lt: db.raw('maxRetries') },
+      OR: [
+        { nextRetryAt: null },
+        { nextRetryAt: { lte: new Date() } },
+      ],
+    },
+    take: 10,
+    orderBy: { createdAt: 'asc' },
+  });
+
+  for (const event of events) {
+    try {
+      await inngest.send({ name: event.eventName, data: event.payload });
+      
+      // 乐观锁更新
+      await db.outboxEvent.updateMany({
+        where: { id: event.id, status: 'Pending' },
+        data: { status: 'Sent', sentAt: new Date() },
+      });
+      
+      logger.info({ action: 'outbox.sent', eventId: event.id });
+    } catch (error) {
+      const newRetryCount = event.retryCount + 1;
+      const newStatus = newRetryCount >= event.maxRetries ? 'DeadLetter' : 'Pending';
+      const nextRetryAt = newStatus === 'Pending'
+        ? new Date(Date.now() + Math.pow(2, newRetryCount) * 5000)
+        : null;
+
+      await db.outboxEvent.update({
+        where: { id: event.id },
+        data: { retryCount: newRetryCount, status: newStatus, lastError: error.message, nextRetryAt },
+      });
+
+      if (newStatus === 'DeadLetter') {
+        await alertService.send({
+          level: 'critical',
+          title: 'Outbox Event Dead Letter',
+          message: `Event ${event.id} moved to dead letter after ${event.maxRetries} retries`,
+        });
+      }
+    }
+  }
+}, 5000);
+```
