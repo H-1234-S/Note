@@ -1381,9 +1381,5 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 |------|------|---------|
 | v1.0.0 | 2026-06-13 | 创建工程实施大纲初稿：6 个 Epic、19 个 Feature、30 个 Change、6 个 Phase |
 | v1.1.0 | 2026-06-15 | 优化为实施计划：标记 ep2-01~03 完成，添加"项目当前状态"、"下一步行动"、"项目里程碑"章节 |
-| ep2-01 project-create-api | ✅ | 2026-06-13 |
-| ep2-02 project-list-detail-api | ✅ | 2026-06-14 |
-| ep2-03 dashboard-page | ✅ | 2026-06-14 |
-| ep2-04 create-project-page | 🎯 | - |
-| ep2-05 cancel-retry-delete-api | ⏭️ | - |
+| v1.2.0 | 2026-06-15 | Review 版本：新增 Architecture Baseline、Release Plan、OpenSpec Mapping、Final Review、测试策略章节 |
 
