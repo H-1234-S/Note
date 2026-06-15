@@ -51,36 +51,67 @@ P0
 1. **创建页面路由** `/create`
    - 替换 Next.js 默认首页为创建页面（或重定向到 `/create`）
    - 使用 `(protected)` 路由组，需要登录态
+   - 页面标题："创建微课视频"
+   - 简短说明文案："将 AI 回答转换为 PPT 风格微课视频"
 
 2. **文本输入区域**
-   - 大尺寸 Textarea（多行文本框）
-   - 实时字数统计（当前字数 / 最大字数）
+   - 大尺寸 Textarea（多行文本框，最小高度 300px）
+   - 实时字数统计（当前字数 / 最大字数，debounce 300ms）
    - 字数限制提示（3000-5000 字）
-   - Placeholder 示例文本
+   - Placeholder 示例文本：
+     ```
+     请粘贴 AI 生成的教学内容（支持 3000-5000 字）
+     
+     示例：光合作用是植物利用光能，将二氧化碳和水转化为有机物...
+     ```
+   - 字数统计颜色规则：
+     - 0-99 字：灰色（过短警告）
+     - 100-5000 字：绿色（正常）
+     - 5001+ 字：红色（超限）
 
 3. **参数配置面板**
-   - 目标对象选择（学生/自学者/老师/教研人员）
-   - 难度选择（初级/中级/高级）
-   - 视频比例选择（16:9 横屏 / 9:16 竖屏）
-   - 目标时长选择（1-3 分钟 / 3-5 分钟 / 5-10 分钟）
-   - 语音选择（从 Mock 列表加载，显示语音名称）
+   - 目标对象选择（学生/自学者/老师/教研人员）— **默认：学生**
+   - 难度选择（初级/中级/高级）— **默认：中级**
+   - 视频比例选择（16:9 横屏 / 9:16 竖屏）— **默认：16:9**
+     - 16:9 显示提示："适合课堂投影和电脑观看"
+     - 9:16 显示提示："适合手机竖屏观看"
+   - 目标时长选择（1-3 分钟 / 3-5 分钟 / 5-10 分钟）— **默认：3-5 分钟**
+   - 语音选择（从 Mock 列表加载）— **默认：第一个语音**
+   - 面板可折叠（默认展开）
 
-4. **前端校验**
-   - 空文本校验（提交时阻止）
+4. **空状态引导**
+   - 首次访问显示轻量级引导（可关闭）
+   - "示例文本"按钮：点击填充 Demo 文本（500 字光合作用示例）
+   - Tooltip 提示关键参数（悬停显示）
+
+5. **前端校验**
+   - 空文本校验（提交时阻止 + 显示提示）
    - 字数超限校验（实时提示 + 提交阻止）
-   - 字数不足校验（< 100 字提示）
+   - 字数不足校验（< 100 字黄色警告，但允许提交）
    - 所有参数必选校验
+   - 特殊字符处理：Emoji 按实际字符长度计算（使用 `[...text].length`）
 
-5. **提交逻辑**
+6. **提交逻辑**
    - 调用 `project.createAndGenerate` tRPC mutation
-   - Loading 状态（禁用表单 + 显示 Spinner）
-   - 防重复提交（提交中禁用按钮）
-   - 成功后跳转 `/projects/[id]/progress`
-   - 失败后显示错误提示（Toast 或 Alert）
+   - Loading 状态（禁用表单 + 显示 Spinner + 文案："正在创建项目..."）
+   - 防重复提交（`isSubmitting` 状态 + 按钮禁用）
+   - 请求超时：30 秒
+   - 成功后跳转 `/projects/[id]/progress`（若页面不存在，临时跳转 `/dashboard` + Toast）
+   - 失败后显示错误 Toast（错误码映射为友好文案）
 
-6. **语音列表加载**
+7. **语音列表加载**
    - 从 Mock 数据加载（暂不调用真实 API）
-   - 显示语音名称和 providerId
+   - Mock 数据：`[{ id: 'female-1', name: '女声-温柔', provider: 'minimax' }, { id: 'male-1', name: '男声-沉稳', provider: 'minimax' }]`
+
+8. **表单状态管理**
+   - 不保存到数据库（无草稿功能）
+   - **LocalStorage 临时保存**：输入 > 500 字时自动保存，页面加载时恢复
+   - **离开确认**：文本 > 500 字 + 离开页面时弹窗："内容尚未保存，确定离开？"
+   - 提交成功后清空 LocalStorage
+
+9. **埋点预留**
+   - 预留 `trackEvent` 调用位置（空函数，Phase 6 实现）
+   - 关键事件：`page_view_create`、`create_submit_click`、`create_submit_success`、`create_submit_error`
 
 ### Excluded（本 Change 不实现）
 
@@ -88,9 +119,11 @@ P0
 2. **首页重设计**（保持简单重定向或占位）
 3. **富文本编辑器**（仅纯文本）
 4. **文件上传**（仅粘贴文本）
-5. **草稿保存**（提交后才创建 Project）
+5. **草稿保存到数据库**（仅 LocalStorage 临时保存）
 6. **高级参数配置**（水印、字幕样式等）
 7. **模板预览**（Epic 5 后实现）
+8. **语音试听**（Epic 4 后实现，但布局预留试听按钮位置）
+9. **完整 i18n 支持**（文案抽取到常量文件，预留 i18n 能力）
 
 ### Out Of Scope（明确禁止扩展）
 
@@ -109,6 +142,8 @@ P0
 - `src/app/(protected)/create/`：创建页面（新建）
 - `src/components/project/`：表单组件（新建）
 - `src/server/routers/project.ts`：已有 API（调用）
+- `src/constants/create-form-text.ts`：文案常量（新建，预留 i18n）
+- `src/lib/analytics.ts`：埋点工具（新建，空函数）
 
 ### 涉及领域模型
 
@@ -120,16 +155,28 @@ P0
 
 ```mermaid
 flowchart TD
-    A[用户输入文本和参数] --> B[前端校验]
-    B -->|校验失败| C[显示错误提示]
-    B -->|校验通过| D[启用提交按钮]
-    D --> E[用户点击生成]
-    E --> F[调用 project.createAndGenerate]
-    F --> G{API 响应}
-    G -->|成功| H[获取 projectId]
-    H --> I[跳转 /projects/projectId/progress]
-    G -->|失败| J[显示错误 Toast]
-    J --> K[用户可重试]
+    A[用户输入文本和参数] --> B[Debounce 300ms]
+    B --> C[实时字数统计]
+    C --> D[前端校验]
+    D -->|校验失败| E[显示错误提示]
+    D -->|校验通过| F[启用提交按钮]
+    F --> G{文本 > 500 字?}
+    G -->|是| H[保存到 LocalStorage]
+    G -->|否| I[等待用户提交]
+    I --> J[用户点击生成]
+    J --> K[防重复检查]
+    K --> L[调用 project.createAndGenerate]
+    L --> M{API 响应}
+    M -->|成功| N[清空 LocalStorage]
+    N --> O[埋点: create_submit_success]
+    O --> P[跳转 /projects/projectId/progress]
+    M -->|失败| Q[埋点: create_submit_error]
+    Q --> R[显示错误 Toast]
+    R --> S[用户可重试]
+    
+    T[用户离开页面] --> U{文本 > 500 字?}
+    U -->|是| V[弹窗确认]
+    U -->|否| W[直接离开]
 ```
 
 ### 状态流转
@@ -181,6 +228,13 @@ src/components/project/
   └── __tests__/
       ├── CreateForm.test.tsx           # 单元测试
       └── ConfigPanel.test.tsx          # 单元测试
+src/constants/
+  └── create-form-text.ts               # 文案常量（预留 i18n）
+src/lib/
+  ├── analytics.ts                      # 埋点工具（空函数）
+  └── local-storage.ts                  # LocalStorage 工具（草稿保存）
+src/hooks/
+  └── useFormDraft.ts                   # 自定义 Hook（草稿自动保存和恢复）
 ```
 
 ### Modified Files
@@ -207,6 +261,16 @@ src/components/
       ├── CreateForm.tsx                # 新增
       ├── ConfigPanel.tsx               # 新增
       └── __tests__/                    # 新增
+
+src/constants/
+  └── create-form-text.ts               # 新增：文案管理
+
+src/lib/
+  ├── analytics.ts                      # 新增：埋点
+  └── local-storage.ts                  # 新增：存储工具
+
+src/hooks/
+  └── useFormDraft.ts                   # 新增：草稿管理
 ```
 
 ---
@@ -215,68 +279,115 @@ src/components/
 
 ### Task 1: 修改首页为重定向
 
-**目标**：将 `src/app/page.tsx` 修改为重定向到 `/create`
+**目标**：将 `src/app/page.tsx` 修改为重定向到 `/dashboard` 或 `/create`
 
 **实施步骤**：
 1. 读取 `src/app/page.tsx`
-2. 保留必要的认证检查（如果有）
-3. 使用 Next.js `redirect()` 函数跳转到 `/dashboard` 或 `/create`
-4. 保留基础 SEO 元数据
+2. 检查用户登录态
+3. 已登录：重定向到 `/dashboard`
+4. 未登录：重定向到 `/sign-in`
+5. 保留基础 SEO 元数据
 
 **完成标准**：
-- [ ] 访问 `/` 自动跳转到 `/create`（已登录）或 `/sign-in`（未登录）
+- [ ] 访问 `/` 自动跳转
 - [ ] 无 console 错误
 
 **预估时间**：30 分钟
 
 ---
 
-### Task 2: 创建参数配置面板组件
+### Task 2: 创建基础设施文件
+
+**目标**：创建文案常量、埋点工具、存储工具、草稿 Hook
+
+**实施步骤**：
+1. 创建 `src/constants/create-form-text.ts`
+   ```ts
+   export const CREATE_FORM_TEXT = {
+     pageTitle: '创建微课视频',
+     pageDescription: '将 AI 回答转换为 PPT 风格微课视频',
+     placeholder: '请粘贴 AI 生成的教学内容（支持 3000-5000 字）\n\n示例：光合作用是植物利用光能...',
+     charCountLabel: (current: number, max: number) => `${current} / ${max}`,
+     submitButton: '生成视频',
+     loadingText: '正在创建项目...',
+     // ... 更多文案
+   }
+   ```
+
+2. 创建 `src/lib/analytics.ts`（空函数，预留）
+   ```ts
+   export const trackEvent = (eventName: string, data?: Record<string, any>) => {
+     // Phase 6 实现
+     console.log('[Analytics]', eventName, data)
+   }
+   ```
+
+3. 创建 `src/lib/local-storage.ts`
+   ```ts
+   export const saveDraft = (key: string, data: any) => { ... }
+   export const loadDraft = (key: string) => { ... }
+   export const clearDraft = (key: string) => { ... }
+   ```
+
+4. 创建 `src/hooks/useFormDraft.ts`（自动保存和恢复）
+
+**完成标准**：
+- [ ] 所有文件创建完成
+- [ ] 无 TypeScript 错误
+
+**预估时间**：1 小时
+
+---
+
+### Task 3: 创建参数配置面板组件
 
 **目标**：实现 `ConfigPanel.tsx`，包含 5 个参数配置项
 
 **实施步骤**：
 1. 创建 `src/components/project/ConfigPanel.tsx`
 2. 使用 shadcn/ui 的 `Select` 和 `RadioGroup` 组件
-3. 定义参数类型（基于 tRPC 输入 Schema）
-4. 实现受控组件（通过 props 接收 value 和 onChange）
-5. 添加参数说明和 Tooltip（可选）
+3. 定义参数类型和默认值
+4. 实现受控组件
+5. 添加参数说明 Tooltip
+6. 支持折叠/展开（使用 `Collapsible` 组件）
 
 **完成标准**：
 - [ ] 5 个参数均可选择
-- [ ] 选中状态正确显示
-- [ ] onChange 回调正常触发
-- [ ] 无 TypeScript 错误
+- [ ] 默认值正确
+- [ ] Tooltip 显示正常
+- [ ] 折叠/展开功能正常
 
-**预估时间**：1.5 小时
+**预估时间**：2 小时
 
 ---
 
-### Task 3: 创建表单容器组件
+### Task 4: 创建表单容器组件
 
 **目标**：实现 `CreateForm.tsx`，集成文本输入和参数配置
 
 **实施步骤**：
 1. 创建 `src/components/project/CreateForm.tsx`
 2. 使用 `react-hook-form` + Zod 校验
-3. 定义表单 Schema（与 tRPC 输入一致）
-4. 集成 Textarea（字数统计）
-5. 集成 ConfigPanel
-6. 实现提交逻辑（调用 tRPC mutation）
-7. 添加 Loading 状态和错误提示
+3. 集成 `useFormDraft` Hook（自动保存）
+4. 实现 Textarea + 字数统计（debounce 300ms）
+5. 实现字符计数（支持 Emoji）：`[...text].length`
+6. 集成 ConfigPanel
+7. 实现提交逻辑
+8. 实现离开确认（`beforeunload` 事件）
+9. 添加"示例文本"按钮
 
 **完成标准**：
-- [ ] 表单校验正常（空文本、超字数）
+- [ ] 字数统计实时更新（颜色正确）
+- [ ] 自动保存到 LocalStorage
+- [ ] 离开确认弹窗正常
 - [ ] 提交成功后跳转
-- [ ] 提交失败显示错误
-- [ ] Loading 期间禁用表单
-- [ ] 无重复提交
+- [ ] 防重复提交
 
-**预估时间**：3 小时
+**预估时间**：4 小时
 
 ---
 
-### Task 4: 创建页面路由
+### Task 5: 创建页面路由
 
 **目标**：实现 `/create` 页面，集成表单组件
 
@@ -284,54 +395,60 @@ src/components/
 1. 创建 `src/app/(protected)/create/page.tsx`
 2. 集成 `CreateForm` 组件
 3. 添加页面标题和说明
-4. 添加面包屑（如果已有 Layout）
-5. 设置页面元数据（title, description）
+4. 添加空状态引导（首次访问）
+5. 设置页面元数据
+6. 添加埋点：`trackEvent('page_view_create')`
 
 **完成标准**：
 - [ ] 页面可访问（需登录）
 - [ ] 表单正常显示
-- [ ] 页面样式符合 Dashboard 风格
+- [ ] 首次访问显示引导
 - [ ] 响应式布局正常
 
 **预估时间**：1 小时
 
 ---
 
-### Task 5: 编写单元测试
+### Task 6: 编写单元测试
 
 **目标**：为 `CreateForm` 和 `ConfigPanel` 编写单元测试
 
 **实施步骤**：
 1. 创建测试文件
 2. 测试 ConfigPanel 参数选择
-3. 测试 CreateForm 校验逻辑
-4. Mock tRPC mutation
-5. 测试提交成功和失败场景
+3. 测试 CreateForm 校验逻辑（空文本、超字数、Emoji 计数）
+4. 测试字数统计颜色变化
+5. 测试 LocalStorage 保存和恢复
+6. 测试离开确认逻辑
+7. Mock tRPC mutation
+8. 测试提交成功和失败场景
 
 **完成标准**：
 - [ ] ConfigPanel 测试覆盖率 > 80%
-- [ ] CreateForm 测试覆盖率 > 70%
+- [ ] CreateForm 测试覆盖率 > 75%
 - [ ] 所有测试通过
 
-**预估时间**：2 小时
+**预估时间**：2.5 小时
 
 ---
 
-### Task 6: E2E 测试（可选）
+### Task 7: 性能优化和安全检查
 
-**目标**：编写创建项目的端到端测试
+**目标**：优化性能并检查安全问题
 
 **实施步骤**：
-1. 使用 Playwright 编写 E2E 测试
-2. 测试完整流程：登录 → 创建 → 提交 → 跳转
-3. 测试校验提示
-4. 测试错误处理
+1. 字数统计添加 debounce（300ms）
+2. 检查 XSS 防护（React 默认转义）
+3. 检查 CSRF（tRPC 默认处理）
+4. 添加前端速率限制（30 秒内最多提交 1 次）
+5. 测试首屏 LCP < 2 秒
 
 **完成标准**：
-- [ ] E2E 测试通过
-- [ ] 覆盖关键用户路径
+- [ ] 字数统计不卡顿
+- [ ] 首屏加载流畅
+- [ ] 安全检查通过
 
-**预估时间**：1.5 小时（可放到 Phase 5）
+**预估时间**：1 小时
 
 ---
 
@@ -341,16 +458,17 @@ src/components/
 
 - **ep2-01-project-create-api** ✅ 已完成
   - 需要 `project.createAndGenerate` mutation
-  - 需要输入 Schema 定义
+  - 需要输入 Schema 定义（字数限制常量）
 
 ### Downstream Changes（被依赖）
 
 - **ep6-01-progress-page**
   - 创建成功后跳转到进度页
-  - 进度页需要接收 `projectId` 参数
+  - **临时方案**：若页面不存在，跳转到 `/dashboard` + Toast 提示
 
 - **ep6-04-global-layout-nav**
   - 导航栏需要"创建"入口链接
+  - **临时方案**：暂无导航栏，用户从 Dashboard 进入
 
 ### Blocking Risks
 
@@ -365,24 +483,33 @@ src/components/
 **Given** 用户已登录并进入 `/create` 页面  
 **When** 用户粘贴 1000 字文本，选择全部参数，点击"生成视频"  
 **Then** 
-- 字数统计显示 `1000 / 5000`
+- 字数统计显示 `1000 / 5000`（绿色）
 - 提交按钮可点击
 - API 调用成功
-- 自动跳转到 `/projects/{projectId}/progress`
+- 自动跳转到 `/projects/{projectId}/progress`（或 `/dashboard`）
+- LocalStorage 草稿已清空
 
 ---
 
 **Given** 用户已登录  
 **When** 用户直接访问 `/`  
-**Then** 自动重定向到 `/create`（或 `/dashboard`）
+**Then** 自动重定向到 `/dashboard`
+
+---
+
+**Given** 用户输入 800 字后刷新页面  
+**When** 重新进入 `/create`  
+**Then** 
+- 文本内容从 LocalStorage 恢复
+- 参数配置恢复为默认值（或保存的值）
 
 ### Error Path
 
 **Given** 用户在 `/create` 页面  
 **When** 用户未输入任何文本，点击"生成视频"  
 **Then** 
-- 提交按钮禁用（或点击后显示错误）
-- 显示"请输入文本内容"提示
+- 提交按钮禁用
+- 显示"请输入文本内容"提示（红色）
 
 ---
 
@@ -401,28 +528,44 @@ src/components/
 - 显示错误 Toast："生成额度不足，请明天再试"
 - 表单恢复可编辑状态
 - 用户可修改后重试
+- LocalStorage 草稿保留
 
 ### Edge Cases
 
 **Given** 用户输入 50 字短文本  
 **When** 提交  
 **Then** 
+- 字数统计显示 `50 / 5000`（灰色）
 - 显示警告提示："文本过短（< 100 字），生成效果可能不佳"
 - 仍可提交（仅警告，不阻止）
+
+---
+
+**Given** 用户输入包含 Emoji："你好😀世界🌍"  
+**When** 查看字数统计  
+**Then** 显示 `6 / 5000`（按 Unicode 字符计算：[...'你好😀世界🌍'].length）
 
 ---
 
 **Given** 用户在提交过程中刷新页面  
 **When** 返回 `/create`  
 **Then** 
-- 表单内容清空（不保存草稿）
-- 用户需重新填写
+- 草稿从 LocalStorage 恢复
+- 如果提交已成功（后端已创建 Project），则草稿应被清空
 
 ---
 
 **Given** 用户选择"9:16 竖屏"  
 **When** 查看参数配置  
-**Then** 显示"适合移动端观看"提示
+**Then** 显示"适合手机竖屏观看"提示
+
+---
+
+**Given** 用户输入 800 字，离开页面  
+**When** 浏览器触发 `beforeunload` 事件  
+**Then** 
+- 弹窗："内容尚未保存，确定离开？"
+- 用户可选择留下或离开
 
 ### Permission Cases
 
@@ -447,6 +590,29 @@ src/components/
 
 ---
 
+**Given** 用户在 30 秒内点击 2 次"生成视频"  
+**When** 第二次点击  
+**Then** 
+- 按钮禁用
+- 显示"请勿频繁提交"提示
+
+### Performance Cases
+
+**Given** 用户粘贴 5000 字文本  
+**When** 输入完成  
+**Then** 
+- 字数统计在 300ms 内更新
+- 无界面卡顿
+- 页面 FPS ≥ 55
+
+---
+
+**Given** 用户首次访问 `/create`  
+**When** 页面加载  
+**Then** LCP（最大内容绘制）< 2 秒
+
+---
+
 ## 9. Test Plan
 
 ### Unit Test
@@ -457,14 +623,28 @@ src/components/
    - 每个参数选择后 onChange 触发
    - 默认值显示正确
    - 受控组件逻辑正常
+   - 折叠/展开功能正常
 
 2. **CreateForm 组件**
-   - 字数统计正确（0字 / 1000字 / 5000字 / 6000字）
+   - 字数统计正确（0字 / 50字 / 1000字 / 5000字 / 6000字）
+   - Emoji 计数正确（使用 `[...text].length`）
+   - 字数统计颜色逻辑（灰色 / 绿色 / 红色）
    - 空文本校验
    - 超字数校验
    - 必选参数校验
    - 提交 Loading 状态
+   - 防重复提交（30 秒限制）
    - Mock tRPC mutation 成功/失败
+
+3. **useFormDraft Hook**
+   - 自动保存到 LocalStorage（> 500 字）
+   - 从 LocalStorage 恢复
+   - 提交后清空
+
+4. **离开确认**
+   - `beforeunload` 事件触发
+   - 文本 < 500 字不弹窗
+   - 文本 > 500 字弹窗
 
 ### Integration Test
 
@@ -473,10 +653,13 @@ src/components/
 1. **tRPC mutation 调用**
    - 传入正确参数格式
    - 接收 projectId 并跳转
-   - 错误处理正确
+   - 错误处理正确（错误码映射）
 
 2. **路由保护**
    - 未登录访问 `/create` 跳转到登录页
+
+3. **LocalStorage 交互**
+   - 跨页面草稿保持
 
 ### E2E Test
 
@@ -493,6 +676,12 @@ src/components/
    - 网络错误重试
    - 额度不足提示
 
+4. **草稿功能**
+   - 输入 800 字 → 刷新页面 → 内容恢复
+
+5. **离开确认**
+   - 输入 800 字 → 点击后退 → 弹窗确认
+
 ### Regression Test
 
 **需要覆盖**：
@@ -500,6 +689,14 @@ src/components/
 - Dashboard 页面不受影响
 - 认证系统正常工作
 - 现有 API 不受影响
+
+### Performance Test
+
+**需要覆盖**：
+
+- 字数统计性能（5000 字 debounce 后无卡顿）
+- 首屏 LCP < 2 秒
+- 表单交互 FPS ≥ 55
 
 ---
 
