@@ -1,35 +1,55 @@
-## Volcano AI 微课视频平台 — 工程实施大纲
+## Volcano AI 微课视频平台 — 实施计划
 
 ## 文档信息
 
 | 项目 | 内容 |
 |------|------|
-| 文档名称 | 工程实施大纲 (Implementation Plan) |
+| 文档名称 | 实施计划 (Implementation Plan) |
 | 关联 PRD | `PRD_AI文本转PPT微课视频平台.md` v1.0.6 |
 | 关联补充 | `PRD_Remotion集成补充规格说明书.md` v1.0.0 |
-| 版本 | v1.0.0 |
-| 创建时间 | 2026-06-13 |
+| 版本 | v1.1.0 |
+| 更新时间 | 2026-06-15 |
 | 目标受众 | AI Coding Agent (Claude Code / Codex / OpenSpec) |
 | 代码库 | `E:\A\Ai\convert documents to videos` |
 
 ---
 
-## 0. 现有基线 (Baseline)
+## 0. 项目当前状态（2026-06-15）
 
-### 0.1 已完成资产
+### 0.1 已完成工作
 
-| 模块 | 状态 | 关键交付物 |
-|------|------|-----------|
-| **认证系统** | ✅ 完成 | better-auth 邮箱+微信登录，6 个认证页面，3 个 API 端点，CSRF/速率限制 |
-| **UI 组件库** | ✅ 完成 | 50+ shadcn/ui 组件（button, card, dialog, form, table 等） |
-| **数据库** | ✅ 完成 | 12 张表（4 auth + 8 business），全部索引和外键已建 |
-| **tRPC 框架** | ✅ 完成 | publicProcedure / protectedProcedure / adminProcedure，context 含 session |
-| **R2 客户端** | ⚠️ 存根 | S3Client 已配置，`uploadToR2`/`getSignedUrl`/`deleteFromR2` 抛出 "not implemented" |
-| **Inngest 框架** | ⚠️ 存根 | 空 `functions` 数组，API handler 已注册 |
-| **环境校验** | ✅ 完成 | Zod schema 覆盖所有服务商，dev/prod 条件校验 |
-| **Remotion** | ⚠️ 存根 | 已安装 `remotion@4.0.476`，`Root.tsx` 为 2 秒空白 Composition |
+**Epic 1: 基础工程与数据模型** ✅ 已完成
+- ✅ 认证系统：better-auth 邮箱+微信登录，6 个认证页面，3 个 API 端点，CSRF/速率限制
+- ✅ UI 组件库：50+ shadcn/ui 组件（button, card, dialog, form, table 等）
+- ✅ 数据库：12 张表（4 auth + 8 business），全部索引和外键已建
+- ✅ tRPC 框架：publicProcedure / protectedProcedure / adminProcedure，context 含 session
+- ⚠️ R2 客户端（存根）：S3Client 已配置，`uploadToR2`/`getSignedUrl`/`deleteFromR2` 抛出 "not implemented"
+- ⚠️ Inngest 框架（存根）：空 `functions` 数组，API handler 已注册
+- ✅ 环境校验：Zod schema 覆盖所有服务商，dev/prod 条件校验
+- ⚠️ Remotion（存根）：已安装 `remotion@4.0.476`，`Root.tsx` 为 2 秒空白 Composition
 
-### 0.2 数据库字段映射（现有 vs PRD）
+**Epic 2: 项目管理与 Dashboard** 🟡 进行中（3/5 完成）
+- ✅ **ep2-01-project-create-api**（2026-06-13）
+- ✅ **ep2-02-project-list-detail-api**（2026-06-14）
+- ✅ **ep2-03-dashboard-page**（2026-06-14）
+
+### 0.2 当前阶段
+
+- **Phase 1: 核心业务基础** — 进度 3/5 (60%)
+- **下一步 Change**: `ep2-04-create-project-page` 🎯 推荐立即开始
+- **后续 Change**: `ep2-05-cancel-retry-delete-api` ⏭️ 可并行或随后进行
+
+### 0.3 项目健康度
+
+- ✅ 所有已完成 Change 测试通过
+- ✅ Dashboard 页面可访问且功能正常
+- ✅ 项目列表和详情 API 工作正常
+- ⚠️ 创建页面尚未实现（用户无法创建新项目）
+- ⚠️ 完整的用户体验闭环尚未建立
+
+### 0.4 数据库字段映射（现有 vs PRD）
+
+### 0.4 数据库字段映射（现有 vs PRD）
 
 现有 schema 与 PRD 定义存在字段名差异，后续开发以**现有 schema 为准**：
 
@@ -43,7 +63,7 @@
 | `GenerationJob.inputParams` | AI 调用参数 |
 | `Asset.assetType` | 资源类型 (audio/image/video) |
 
-### 0.3 关键约束
+### 0.5 关键约束
 
 - **数据库不可重建**：已有 migration，后续只可增量修改
 - **单仓库结构**：当前为单一 Next.js app，非 monorepo
@@ -345,7 +365,65 @@ Volcano AI 微课视频平台
 
 ---
 
-## 3. Change Breakdown
+## 3. 下一步行动（优先级排序）
+
+### 🎯 立即开始（本周）
+
+**推荐**: `ep2-04-create-project-page`
+
+**理由**：
+- 完成 Phase 1 用户完整体验闭环
+- `ep2-01` create API 已就绪，前端调用即可
+- 交付：用户可完整体验"创建 → 查看 Dashboard"流程
+
+**依赖检查**：
+- ✅ ep2-01 project-create-api（API 已实现）
+- ✅ tRPC mutation 可用（已验证）
+
+**预估工期**: 1.5-2 天
+
+**验收标准**：
+- [ ] `/create` 页面可访问
+- [ ] 文本输入框 + 参数配置面板
+- [ ] 前端校验（空文本、超字数）
+- [ ] 提交成功后跳转 `/projects/[id]/progress`
+
+---
+
+### ⏭️ 随后进行（下周）
+
+**推荐**: `ep2-05-cancel-retry-delete-api`
+
+**理由**：
+- 补全项目管理 CRUD 能力
+- 可与 ep2-04 并行开发（无依赖冲突）
+- 为用户提供取消、重试、删除功能
+
+**可并行**: ✅ 与 ep2-04 无冲突
+
+---
+
+### 🔄 Phase 1 收尾后的下一步
+
+**Phase 2 起点**: `ep3-01-storyboard-types-schema`
+
+- 等待 Phase 1 全部完成（ep2-01~05）
+- 开始 AI 生成链路开发
+
+---
+
+## 4. Change Breakdown
+
+### 设计原则
+
+1. **每个 Change = 1 个独立 PR**，可独立开发、测试、Review、Merge、回滚
+2. **垂直切片优先**，避免 DB → API → 前端分层拆分
+3. **目标规模 300-1500 LOC**，最长不超过 2000 LOC
+4. **1-3 天工作量**，AI Agent 单次上下文可完整理解
+
+---
+
+## 4. Change Breakdown
 
 ### 设计原则
 
@@ -358,7 +436,7 @@ Volcano AI 微课视频平台
 
 ### Phase 1: 核心业务基础
 
-#### Change: `ep2-01-project-create-api`
+#### Change: `ep2-01-project-create-api` ✅ 已完成（2026-06-13）
 
 | 属性 | 内容 |
 |------|------|
@@ -371,7 +449,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~600 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep2-02-project-list-detail-api`
+#### Change: `ep2-02-project-list-detail-api` ✅ 已完成（2026-06-14）
 
 | 属性 | 内容 |
 |------|------|
@@ -384,7 +462,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~500 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep2-03-dashboard-page`
+#### Change: `ep2-03-dashboard-page` ✅ 已完成（2026-06-14）
 
 | 属性 | 内容 |
 |------|------|
@@ -397,7 +475,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~700 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep2-04-create-project-page`
+#### Change: `ep2-04-create-project-page` 🎯 下一步
 
 | 属性 | 内容 |
 |------|------|
@@ -410,7 +488,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~700 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep2-05-cancel-retry-delete-api`
+#### Change: `ep2-05-cancel-retry-delete-api` ⏭️ 待开始
 
 | 属性 | 内容 |
 |------|------|
@@ -427,7 +505,7 @@ Volcano AI 微课视频平台
 
 ### Phase 2: AI 生成链路
 
-#### Change: `ep3-01-storyboard-types-schema`
+#### Change: `ep3-01-storyboard-types-schema` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -440,7 +518,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~600 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep3-02-storyboard-validation-repair`
+#### Change: `ep3-02-storyboard-validation-repair` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -453,7 +531,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~500 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep3-03-llm-provider-deepseek`
+#### Change: `ep3-03-llm-provider-deepseek` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -466,7 +544,7 @@ Volcano AI 微课视频平台
 | **Size** | L（~900 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep3-04-storyboard-generation-inngest`
+#### Change: `ep3-04-storyboard-generation-inngest` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -483,7 +561,7 @@ Volcano AI 微课视频平台
 
 ### Phase 3: TTS 音频与存储
 
-#### Change: `ep4-01-tts-provider-minimax`
+#### Change: `ep4-01-tts-provider-minimax` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -496,7 +574,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~600 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep4-02-r2-storage-full-impl`
+#### Change: `ep4-02-r2-storage-full-impl` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -509,7 +587,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~500 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep4-03-audio-generation-inngest`
+#### Change: `ep4-03-audio-generation-inngest` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -522,7 +600,7 @@ Volcano AI 微课视频平台
 | **Size** | L（~900 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep4-04-asset-signed-url-api`
+#### Change: `ep4-04-asset-signed-url-api` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -539,7 +617,7 @@ Volcano AI 微课视频平台
 
 ### Phase 4: Remotion 视频渲染
 
-#### Change: `ep5-01-remotion-foundation`
+#### Change: `ep5-01-remotion-foundation` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -552,7 +630,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~700 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep5-02-templates-batch1`
+#### Change: `ep5-02-templates-batch1` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -565,7 +643,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~800 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep5-03-templates-batch2`
+#### Change: `ep5-03-templates-batch2` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -578,7 +656,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~700 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep5-04-templates-batch3`
+#### Change: `ep5-04-templates-batch3` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -591,7 +669,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~700 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep5-05-animations-captions`
+#### Change: `ep5-05-animations-captions` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -604,7 +682,7 @@ Volcano AI 微课视频平台
 | **Size** | L（~900 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep5-06-composition-timeline`
+#### Change: `ep5-06-composition-timeline` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -617,7 +695,7 @@ Volcano AI 微课视频平台
 | **Size** | L（~900 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep5-07-render-worker-core`
+#### Change: `ep5-07-render-worker-core` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -630,7 +708,7 @@ Volcano AI 微课视频平台
 | **Size** | L（~1200 LOC） |
 | **Priority** | P0 |
 
-#### Change: `ep5-08-render-worker-docker`
+#### Change: `ep5-08-render-worker-docker` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -643,7 +721,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~400 LOC + 字体文件） |
 | **Priority** | P0 |
 
-#### Change: `ep5-09-render-inngest-trigger`
+#### Change: `ep5-09-render-inngest-trigger` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -660,7 +738,7 @@ Volcano AI 微课视频平台
 
 ### Phase 5: 前端体验
 
-#### Change: `ep6-01-progress-page`
+#### Change: `ep6-01-progress-page` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -673,7 +751,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~600 LOC） |
 | **Priority** | P1 |
 
-#### Change: `ep6-02-storyboard-preview-page`
+#### Change: `ep6-02-storyboard-preview-page` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -686,7 +764,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~700 LOC） |
 | **Priority** | P1 |
 
-#### Change: `ep6-03-video-result-page`
+#### Change: `ep6-03-video-result-page` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -699,7 +777,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~500 LOC） |
 | **Priority** | P1 |
 
-#### Change: `ep6-04-global-layout-nav`
+#### Change: `ep6-04-global-layout-nav` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -716,7 +794,7 @@ Volcano AI 微课视频平台
 
 ### Phase 6: 运营与可观测性
 
-#### Change: `ep7-01-error-code-system`
+#### Change: `ep7-01-error-code-system` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -729,7 +807,7 @@ Volcano AI 微课视频平台
 | **Size** | S（~300 LOC） |
 | **Priority** | P1 |
 
-#### Change: `ep7-02-quota-usage-tracking`
+#### Change: `ep7-02-quota-usage-tracking` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -742,7 +820,7 @@ Volcano AI 微课视频平台
 | **Size** | S（~400 LOC） |
 | **Priority** | P1 |
 
-#### Change: `ep7-03-retry-cancel-mechanism`
+#### Change: `ep7-03-retry-cancel-mechanism` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -755,7 +833,7 @@ Volcano AI 微课视频平台
 | **Size** | M（~500 LOC） |
 | **Priority** | P1 |
 
-#### Change: `ep7-04-sentry-logging`
+#### Change: `ep7-04-sentry-logging` ⏸️ 未开始
 
 | 属性 | 内容 |
 |------|------|
@@ -1181,8 +1259,38 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 
 ---
 
+## 10. 项目里程碑
+
+| 里程碑 | 目标时间 | 验收标准 | 状态 | 完成度 |
+|--------|---------|---------|------|--------|
+| **M1**: 基础 CRUD | Week 2 | 用户可创建+查看+删除项目 | 🟡 进行中 | 60% (3/5) |
+| **M2**: AI 生成链路 | Week 4 | Storyboard 自动生成 | ⏸️ 未开始 | 0% (0/4) |
+| **M3**: TTS 音频 | Week 6 | 自动生成配音并上传 R2 | ⏸️ 未开始 | 0% (0/4) |
+| **M4**: 视频渲染 | Week 10 | 端到端生成视频 | ⏸️ 未开始 | 0% (0/9) |
+| **M5**: 前端完善 | Week 12 | 完整用户体验 | ⏸️ 未开始 | 0% (0/4) |
+| **M6**: 运营体系 | Week 14 | 可观测性+错误处理 | ⏸️ 未开始 | 0% (0/4) |
+
+### M1 详细进度
+
+| Change | 状态 | 完成日期 |
+|--------|------|---------|
+| ep2-01 project-create-api | ✅ | 2026-06-13 |
+| ep2-02 project-list-detail-api | ✅ | 2026-06-14 |
+| ep2-03 dashboard-page | ✅ | 2026-06-14 |
+| ep2-04 create-project-page | 🎯 | - |
+| ep2-05 cancel-retry-delete-api | ⏭️ | - |
+
+---
+
 ## 变更记录
 
 | 版本 | 日期 | 变更说明 |
 |------|------|---------|
 | v1.0.0 | 2026-06-13 | 创建工程实施大纲初稿：6 个 Epic、19 个 Feature、30 个 Change、6 个 Phase |
+| v1.1.0 | 2026-06-15 | 优化为实施计划：标记 ep2-01~03 完成，添加"项目当前状态"、"下一步行动"、"项目里程碑"章节 |
+| ep2-01 project-create-api | ✅ | 2026-06-13 |
+| ep2-02 project-list-detail-api | ✅ | 2026-06-14 |
+| ep2-03 dashboard-page | ✅ | 2026-06-14 |
+| ep2-04 create-project-page | 🎯 | - |
+| ep2-05 cancel-retry-delete-api | ⏭️ | - |
+
