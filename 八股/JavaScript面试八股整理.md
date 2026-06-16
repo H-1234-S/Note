@@ -1116,6 +1116,67 @@ flowchart TD
 
 简化版 Promise：
 
+``` js
+class myPromise {
+    constructor(execute) {
+        this.state = 'pending'
+        this.value = undefined
+        this.result = undefined
+        this.onFulfilledCallback = []
+        this.onRejectedCallback = []
+  
+        const resolve = value => {
+            if (this.state !== 'pending') return
+
+            queueMicrotask(() => {
+                this.state = 'fulfilled'
+                this.value = value
+                this.onFulfilledCallback.forEach(fn => fn())
+            })
+        }
+
+        const reject = result => {
+            if (this.state !== 'pending') return
+  
+            queueMicrotask(() => {
+                this.state = 'rejected'
+                this.result = result
+                this.onRejectedCallback.forEach(fn => fn())
+            })
+        }
+
+        try {
+            execute(resolve, reject)
+        } catch (error) {
+            reject(error)
+        }
+    }
+
+    then(onFulfilled, onRejected) {
+        return new myPromise((reject, resolve) => {
+            onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value
+            onRejected = typeof onRejected === 'function' ? onRejected : result => result
+  
+            if (this.state === 'fulfilled') {
+                queueMicrotask(() => {
+                    onFulfilled(this.value)
+                })
+            } else if (this.state === 'rejected') {
+                queueMicrotask(() => {
+                    onRejected(this.result)
+                })
+            } else {
+                this.onFulfilledCallback.push(onFulfilled)
+                this.onRejectedCallback.push(onRejected)
+            }
+        })
+    }
+}
+```
+
+
+看不懂版本Promise：
+
 ```javascript
 class MyPromise {
   constructor(executor) {
@@ -1200,7 +1261,7 @@ class MyPromise {
   }
 }
 
-// 决定 then() 返回的新 Promise 应该变成什么状态
+// 决定 then() 返回的新 Promise 应该变成什么状态 ???
 function resolvePromise(result, resolve, reject) {
   if (result instanceof MyPromise) {
     result.then(resolve, reject);
@@ -1218,6 +1279,7 @@ queueMicrotask() 一个JS原生的API，接收一个callback function，将 call
 ```javascript
 function promiseAll(iterable) {
   return new Promise((resolve, reject) => {
+    // 浅拷贝数组
     const list = Array.from(iterable);
     const results = [];
     let completed = 0;
