@@ -965,7 +965,7 @@ Promise 有三种状态：
 | rejected | 已失败 | 不可再变 |
 
 Promise 解决了回调地狱的两个核心问题：
-[[[[[[[[[[[]()]()]()]()]()]()]()]()]()]()]()
+
 1. 把**嵌套回调**改成**链式调用**。
 2. 把错误通过 rejected 状态统一冒泡也就是 catch 统一处理，不用每层 if(error) 处理
 
@@ -995,6 +995,18 @@ Promise 能链式调用的原因：
 
 > `then` 方法总是返回一个新的 Promise。回调返回普通值，新 Promise resolve 该值；回调返回 Promise，新 Promise 会**采用它的状态**；回调抛错，新 Promise reject 该错误。
 
+``` js
+const p1 = Promise.resolve(1);
+
+const p2 = p1.then((value) => {
+  return Promise.resolve(value + 1);
+});
+
+p2.then(console.log);
+// 返回 2
+// 并不是Promise<Promise<2>>，因为p2采用了新回调的状态，p2就相当于新回调
+```
+
 Promise 状态一旦确定不可变，是为了保证异步结果的确定性。否则一个异步任务可能先成功后失败，调用方无法建立可靠逻辑。
 
 `await expr` 的本质：
@@ -1014,7 +1026,9 @@ Promise.resolve(expr).then(value => {
 ### 5.3 执行流程
 
 不要想的太复杂，async 只是一个语法糖，标记该函数为异步函数
-当函数被调用时会立即执行
+
+被 async 标记的函数跟函数一样，被调用时会立即执行
+
 但是函数执行中遇到 await 就会将后续代码放入微任务队列中
 
 ```javascript
