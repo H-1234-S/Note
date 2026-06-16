@@ -1299,6 +1299,8 @@ function promiseAll(iterable) {
     }
 
     list.forEach((item, index) => {
+	  // Promise 包装
+	  // 因为可能传递的不是一个 promise
       Promise.resolve(item).then(
         value => {
           results[index] = value;
