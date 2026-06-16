@@ -1283,6 +1283,7 @@ queueMicrotask() 一个JS原生的API，接收一个callback function，将 call
 3. 任何一个失败 → 立即 reject
 4. 返回结果顺序必须和输入顺序一致
 5. 空数组直接返回 `[]`
+6. promiseAll 返回一个 Promise
 
 ```javascript
 function promiseAll(iterable) {
