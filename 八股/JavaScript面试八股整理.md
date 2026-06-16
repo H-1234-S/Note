@@ -995,6 +995,10 @@ Promise.resolve(expr).then(value => {
 
 ### 5.3 执行流程
 
+不要想的太复杂，async 只是一个语法糖，标记该函数为异步函数
+当函数被调用时会立即执行
+但是函数执行中遇到 await 就会将后续代码放入微任务队列中
+
 ```javascript
 async function main() {
   console.log(1);
