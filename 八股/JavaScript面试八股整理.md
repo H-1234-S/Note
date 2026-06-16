@@ -1107,9 +1107,10 @@ flowchart TD
 
 根据调用手写Promise
 	1. 基本的框架、结构
-	2. 处理this指向问题
-	3. 处理 throw new Error问题
-	4. 处理
+	2. then方法
+	3. this指向问题
+	4. throw new Error问题
+	5. then 回调是微任务
 
 简化版 Promise：
 
