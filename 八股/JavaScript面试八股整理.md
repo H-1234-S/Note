@@ -1105,6 +1105,8 @@ flowchart TD
 
 ### 5.6 手写代码：Promise 与组合 API
 
+
+
 简化版 Promise：
 
 ```javascript
