@@ -954,7 +954,7 @@ function run(generatorFn) {
 
 ### 5.1 概念解释
 
-Promise 是异步操作的状态容器，用来表示一个现在可能还没有结果、未来会完成或失败的值。
+Promise 是**异步操作的状态容器**，用来表示一个现在可能还没有结果、未来会完成或失败的值。
 
 Promise 有三种状态：
 
@@ -968,6 +968,24 @@ Promise 解决了回调地狱的两个核心问题：
 
 1. 把嵌套回调改成链式调用。
 2. 把错误通过 rejected 状态统一冒泡。
+
+> 什么是回调地狱？
+
+后续请求 用到了 前一个请求 的响应。
+
+因为请求是异步的，必须等待前一个请求响应后才知道结果
+
+``` js
+getUser((user) => {
+  getOrder(user.id, (order) => {
+    getLogistics(order.id, (logistics) => {
+      console.log(logistics);
+    });
+  });
+});
+```
+
+---
 
 async/await 是 Promise 的语法糖。`async` 函数总是返回 Promise，`await` 会暂停 async 函数后续代码，把后续执行放到微任务中恢复。
 
