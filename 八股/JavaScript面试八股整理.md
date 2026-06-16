@@ -1191,6 +1191,9 @@ function resolvePromise(result, resolve, reject) {
   }
   resolve(result);
 }
+/*
+queueMicrotask() 一个JS原生的API，接收一个callback function，将 callback function 放入微任务队列
+*/
 ```
 
 手写 `Promise.all`：
