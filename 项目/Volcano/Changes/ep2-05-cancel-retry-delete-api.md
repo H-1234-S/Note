@@ -363,4 +363,515 @@ stateDiagram-v2
 
 ---
 
+## 4. Impact Analysis
+
+| Area | Impact | 说明 |
+|------|--------|------|
+| **Database** | ✓ | Project/GenerationJob/Asset 表写入<br>新增 Asset.deleted 和 deletedAt 字段<br>GenerationJob.jobType 扩展枚举 |
+| **API** | ✓ | 新增 3 个 tRPC mutation：<br>- `project.delete`<br>- `generation.cancel`<br>- `generation.retry` |
+| **Frontend** | ✗ | 不包含 UI 实现（Phase 5 实现） |
+| **Cache** | ✗ | 无缓存影响 |
+| **Queue** | ✓ | 新增 Inngest function：`video/asset-cleanup` |
+| **Storage** | ✓ | R2 文件删除操作 |
+| **Logging** | ✓ | 取消/重试/删除操作审计日志 |
+| **Monitoring** | ✓ | Inngest Dashboard 可追踪 asset-cleanup |
+| **Tests** | ✓ | 需要完整集成测试（取消、重试、删除） |
+| **Docs** | ✓ | API 文档更新 |
+
+---
+
+## 5. File Planning
+
+### New Files
+
+```
+src/server/services/cancel.service.ts          (~150 LOC)
+  - cancelGeneration(projectId, userId)
+  - 权限校验、状态校验、并发限制释放
+
+src/server/services/retry.service.ts           (~300 LOC)
+  - retryGeneration(projectId, userId)
+  - resume 模式检查逻辑
+  - 智能跳过已完成步骤
+
+src/server/services/delete.service.ts          (~200 LOC)
+  - deleteProject(projectId, userId)
+  - 软删除标记
+  - 异步清理触发
+
+src/inngest/functions/asset-cleanup.ts         (~150 LOC)
+  - 异步删除 R2 文件
+  - 错误处理和日志记录
+
+tests/integration/project-cancel.test.ts       (~150 LOC)
+  - 取消功能集成测试
+
+tests/integration/project-retry.test.ts        (~200 LOC)
+  - 重试功能集成测试
+  - resume 模式各种场景
+
+tests/integration/project-delete.test.ts       (~150 LOC)
+  - 删除功能集成测试
+  - R2 清理验证
+
+tests/unit/retry-logic.test.ts                 (~100 LOC)
+  - resume 检查逻辑单元测试
+```
+
+---
+
+### Modified Files
+
+```
+src/server/routers/project.ts                  (+150 LOC)
+  - 新增 project.delete mutation
+  - 新增 generation.cancel mutation
+  - 新增 generation.retry mutation
+
+src/server/services/project.service.ts         (+100 LOC)
+  - 添加状态校验辅助函数
+  - 添加并发限制释放逻辑
+  - 扩展错误处理
+
+src/lib/db/repositories/project.repo.ts        (+80 LOC)
+  - updateStatus 方法扩展
+  - markAsDeleted 软删除方法
+  - checkConcurrency 更新（释放取消项目）
+
+src/lib/db/repositories/asset.repo.ts          (+50 LOC)
+  - markAsDeleted 批量标记方法
+  - findByProjectId 查询所有关联资产
+  - findDeletedAssets 查询待清理资产
+
+src/inngest/functions/index.ts                 (+5 LOC)
+  - 注册 asset-cleanup function
+
+prisma/schema.prisma                           (+15 LOC)
+  - Asset 表添加 deleted Boolean @default(false)
+  - Asset 表添加 deletedAt DateTime?
+  - GenerationJob 添加 jobType 枚举值: retry, resume
+```
+
+---
+
+### Deleted Files
+
+无
+
+---
+
+### Directory Impact
+
+```
+src/
+├── server/
+│   ├── routers/
+│   │   └── project.ts                    [修改：+150 LOC]
+│   └── services/
+│       ├── cancel.service.ts             [新建：~150 LOC]
+│       ├── retry.service.ts              [新建：~300 LOC]
+│       ├── delete.service.ts             [新建：~200 LOC]
+│       └── project.service.ts            [修改：+100 LOC]
+├── lib/
+│   └── db/
+│       └── repositories/
+│           ├── project.repo.ts           [修改：+80 LOC]
+│           └── asset.repo.ts             [修改：+50 LOC]
+├── inngest/
+│   └── functions/
+│       ├── asset-cleanup.ts              [新建：~150 LOC]
+│       └── index.ts                      [修改：+5 LOC]
+prisma/
+└── schema.prisma                         [修改：+15 LOC]
+tests/
+├── integration/
+│   ├── project-cancel.test.ts            [新建：~150 LOC]
+│   ├── project-retry.test.ts             [新建：~200 LOC]
+│   └── project-delete.test.ts            [新建：~150 LOC]
+└── unit/
+    └── retry-logic.test.ts               [新建：~100 LOC]
+```
+
+**总计**：~2,035 LOC
+
+---
+
+## 6. Implementation Tasks
+
+### Task 1: 数据库 Schema 更新
+
+**目标**：添加软删除和 jobType 字段
+
+**实施步骤**：
+1. 修改 `prisma/schema.prisma`：
+   ```prisma
+   model Asset {
+     // ... 现有字段
+     deleted   Boolean   @default(false)
+     deletedAt DateTime?
+   }
+   
+   model GenerationJob {
+     // ... 现有字段
+     jobType String // 扩展枚举值: "initial" | "retry" | "resume"
+   }
+   ```
+
+2. 生成 migration：
+   ```bash
+   npx prisma migrate dev --name add-soft-delete-and-retry
+   ```
+
+3. 验证 migration：
+   ```bash
+   npx prisma db push
+   npx prisma generate
+   ```
+
+**完成标准**：
+- ✅ Migration 文件生成
+- ✅ `npx prisma db push` 无错误
+- ✅ Prisma Client 类型更新
+- ✅ TypeScript 编译无错误
+
+**预估时间**：0.5 小时
+
+---
+
+### Task 2: 实现取消功能
+
+**目标**：用户可取消生成中的项目
+
+**实施步骤**：
+
+**Step 2.1**: 创建 `cancel.service.ts`
+```typescript
+export async function cancelGeneration(
+  projectId: string,
+  userId: string
+): Promise<void> {
+  // 1. 查询 Project + 权限校验
+  // 2. 状态校验（仅 queued/generating_* 可取消）
+  // 3. 事务：
+  //    - 更新 Project.status = cancelled
+  //    - 更新 Job.status = cancelled_requested
+  //    - 释放并发限制（decrementConcurrency）
+  // 4. 记录审计日志
+}
+```
+
+**Step 2.2**: 在 `project.ts` router 添加 mutation
+```typescript
+cancel: protectedProcedure
+  .input(z.object({ projectId: z.string() }))
+  .mutation(async ({ input, ctx }) => {
+    await cancelGeneration(input.projectId, ctx.session.userId);
+    return { success: true };
+  })
+```
+
+**Step 2.3**: 编写测试
+- 单元测试：权限校验、状态校验
+- 集成测试：完整取消流程
+
+**完成标准**：
+- ✅ 可成功取消 queued/generating_* 状态项目
+- ✅ 取消后 Project.status = cancelled
+- ✅ 取消后用户可创建新项目（并发限制释放）
+- ✅ 已完成/失败项目无法取消（返回 400）
+- ✅ 非 owner 无法取消（返回 403）
+
+**预估时间**：4 小时
+
+---
+
+### Task 3: 实现重试功能（resume 模式）
+
+**目标**：智能跳过已完成步骤，从失败点恢复
+
+**实施步骤**：
+
+**Step 3.1**: 创建 `retry.service.ts`
+```typescript
+// 检查已完成步骤
+async function checkCompletedSteps(projectId: string) {
+  const storyboard = await prisma.storyboardVersion.findFirst({
+    where: { projectId }
+  });
+  
+  const scenes = await prisma.scene.findMany({
+    where: { projectId },
+    include: { audioAsset: true }
+  });
+  
+  const hasAudio = scenes.every(s => s.audioAssetId);
+  const hasTimeline = scenes.every(s => s.startTimeSec !== null);
+  
+  const videoAsset = await prisma.asset.findFirst({
+    where: { projectId, assetType: 'video', deleted: false }
+  });
+  
+  return {
+    hasStoryboard: !!storyboard,
+    hasAudio,
+    hasTimeline,
+    hasVideo: !!videoAsset,
+  };
+}
+
+// 重试逻辑
+export async function retryGeneration(
+  projectId: string,
+  userId: string
+): Promise<{ startFrom: string }> {
+  // 1. 权限校验
+  // 2. 状态校验（仅 failed/cancelled）
+  // 3. 并发限制检查
+  // 4. 额度检查
+  // 5. 检查已完成步骤
+  // 6. 创建新 GenerationJob (jobType=resume)
+  // 7. 根据检查结果发送 Inngest 事件
+  // 8. 返回跳过信息
+}
+```
+
+**Step 3.2**: 在 `project.ts` router 添加 mutation
+
+**Step 3.3**: 编写测试
+- 单元测试：checkCompletedSteps 各种组合
+- 集成测试：
+  - 无 Storyboard → 从头开始
+  - 有 Storyboard 无音频 → 跳过 generate-storyboard
+  - 有音频无时间轴 → 跳过 generate-audio
+  - 有时间轴无视频 → 跳过 calculate-timeline
+
+**完成标准**：
+- ✅ 有 Storyboard 但无音频 → 跳过 generate-storyboard
+- ✅ 有音频但无时间轴 → 跳过 generate-audio
+- ✅ 有时间轴但无视频 → 跳过 calculate-timeline
+- ✅ 全无 → 从头开始
+- ✅ 重试前校验并发限制和额度
+- ✅ 非 owner 无法重试
+
+**预估时间**：8 小时
+
+---
+
+### Task 4: 实现删除功能
+
+**目标**：软删除项目并清理 R2 文件
+
+**实施步骤**：
+
+**Step 4.1**: 创建 `delete.service.ts`
+```typescript
+export async function deleteProject(
+  projectId: string,
+  userId: string
+): Promise<void> {
+  // 1. 权限校验
+  // 2. 事务：
+  //    - 标记 Project.deleted
+  //    - 查询所有 Asset
+  //    - 标记 Asset.deleted = true
+  // 3. 发送 Inngest 事件 video/asset-cleanup
+}
+```
+
+**Step 4.2**: 创建 `asset-cleanup.ts` Inngest function
+```typescript
+export const assetCleanup = inngest.createFunction(
+  { id: "video/asset-cleanup" },
+  { event: "video/asset-cleanup" },
+  async ({ event, step }) => {
+    const assets = await step.run("query-deleted-assets", async () => {
+      return prisma.asset.findMany({
+        where: { deleted: true, projectId: event.data.projectId }
+      });
+    });
+    
+    for (const asset of assets) {
+      await step.run(`delete-${asset.id}`, async () => {
+        try {
+          if (asset.storageKey) {
+            await deleteFromR2(asset.storageKey);
+          }
+          return { success: true };
+        } catch (error) {
+          console.error(`R2 删除失败: ${asset.storageKey}`, error);
+          return { success: false, error };
+        }
+      });
+    }
+  }
+);
+```
+
+**Step 4.3**: 在 `project.ts` router 添加 mutation
+
+**Step 4.4**: 编写测试
+
+**完成标准**：
+- ✅ 删除后 Project.status = deleted
+- ✅ 所有 Asset.deleted = true
+- ✅ R2 文件被异步删除
+- ✅ R2 删除失败不影响软删除
+- ✅ StoryboardVersion/Scene/Job 保留
+- ✅ 非 owner 无法删除
+
+**预估时间**：6 小时
+
+---
+
+### Task 5: Repository 层实现
+
+**目标**：封装数据库操作
+
+**实施步骤**：
+
+**Step 5.1**: 修改 `project.repo.ts`
+```typescript
+export async function updateStatus(
+  projectId: string,
+  status: ProjectStatus
+): Promise<void> {
+  await prisma.project.update({
+    where: { id: projectId },
+    data: { status }
+  });
+}
+
+export async function markAsDeleted(
+  projectId: string
+): Promise<void> {
+  await prisma.project.update({
+    where: { id: projectId },
+    data: { 
+      status: 'deleted',
+      deletedAt: new Date()
+    }
+  });
+}
+
+export async function releaseConcurrency(
+  userId: string
+): Promise<void> {
+  // 实现并发限制释放逻辑
+}
+```
+
+**Step 5.2**: 修改 `asset.repo.ts`
+```typescript
+export async function markAsDeleted(
+  assetIds: string[]
+): Promise<void> {
+  await prisma.asset.updateMany({
+    where: { id: { in: assetIds } },
+    data: { 
+      deleted: true,
+      deletedAt: new Date()
+    }
+  });
+}
+
+export async function findByProjectId(
+  projectId: string
+): Promise<Asset[]> {
+  return prisma.asset.findMany({
+    where: { projectId }
+  });
+}
+
+export async function findDeletedAssets(
+  projectId: string
+): Promise<Asset[]> {
+  return prisma.asset.findMany({
+    where: { projectId, deleted: true }
+  });
+}
+```
+
+**完成标准**：
+- ✅ 所有数据库操作封装为 Repository 方法
+- ✅ 使用 Prisma Transaction 保证一致性
+- ✅ 错误处理完善
+- ✅ TypeScript 类型安全
+
+**预估时间**：3 小时
+
+---
+
+### Task 6: 集成测试与验证
+
+**目标**：验证完整流程
+
+**实施步骤**：
+
+**Step 6.1**: 取消场景测试
+```typescript
+describe('Project Cancel', () => {
+  it('应该成功取消生成中的项目', async () => {
+    // 1. 创建项目
+    // 2. 取消项目
+    // 3. 验证 status = cancelled
+    // 4. 验证可创建新项目
+  });
+  
+  it('应该拒绝取消已完成的项目', async () => {
+    // ...
+  });
+});
+```
+
+**Step 6.2**: 重试场景测试
+```typescript
+describe('Project Retry', () => {
+  it('无 Storyboard 应该从头开始', async () => {
+    // ...
+  });
+  
+  it('有 Storyboard 应该跳过', async () => {
+    // 1. 创建失败项目（有 Storyboard）
+    // 2. 重试
+    // 3. 验证从 generate-audio 开始
+  });
+});
+```
+
+**Step 6.3**: 删除场景测试
+```typescript
+describe('Project Delete', () => {
+  it('应该软删除项目', async () => {
+    // 1. 创建完成项目
+    // 2. 删除
+    // 3. 验证 Project.deleted = true
+    // 4. 验证 Asset.deleted = true
+  });
+  
+  it('应该异步删除 R2 文件', async () => {
+    // 验证 Inngest 事件触发
+  });
+});
+```
+
+**Step 6.4**: 权限测试
+```typescript
+describe('Permission Check', () => {
+  it('用户 A 不能取消用户 B 的项目', async () => {
+    // ...
+  });
+});
+```
+
+**完成标准**：
+- ✅ 所有 API 集成测试通过
+- ✅ Inngest function 测试通过
+- ✅ 权限校验测试通过
+- ✅ 边界条件测试通过
+- ✅ 测试覆盖率 > 80%
+
+**预估时间**：4 小时
+
+---
+
 // __CONTINUE_HERE__
