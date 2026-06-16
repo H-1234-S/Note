@@ -1106,6 +1106,10 @@ flowchart TD
 ### 5.6 手写代码：Promise 与组合 API
 
 根据调用手写Promise
+	1. 基本的框架、结构
+	2. 处理this指向问题
+	3. 处理 throw new Error问题
+	4. 处理
 
 简化版 Promise：
 
@@ -1157,6 +1161,7 @@ class MyPromise {
     onFulfilled = typeof onFulfilled === "function" ? onFulfilled : value => value;
     onRejected = typeof onRejected === "function" ? onRejected : reason => { throw reason; };
 
+	// 返回新的Promise
     return new MyPromise((resolve, reject) => {
       const handleFulfilled = () => {
         try {
