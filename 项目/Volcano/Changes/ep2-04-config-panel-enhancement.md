@@ -8,11 +8,12 @@
 | **Change Type** | FEATURE |
 | **所属 Epic** | Epic 2: 项目管理与 Dashboard |
 | **优先级** | P0 |
-| **预估规模** | M（~600 LOC） |
-| **预估工期** | 2 天 |
+| **预估规模** | M（~510 LOC） |
+| **预估工期** | 1.8 天 |
 | **前置 Change** | `ep2-01-project-create-api`（API 已支持参数）、`ep2-03-dashboard-page`（GenerateTab 基础 UI 已完成） |
 | **目标代码库** | `E:\A\Ai\convert documents to videos` |
 | **实施状态** | 🎯 待开始 |
+| **文档版本** | v2.0（基于项目实际结构优化） |
 
 ---
 
@@ -34,6 +35,15 @@
 - 提升用户留存率（更多可配置项 = 更高参与度）
 - 为付费用户提供高级参数选项奠定基础
 
+### Key Improvements (v2.0)
+
+本版本基于项目实际结构优化：
+1. **枚举从后端导出** — 确保前后端类型一致
+2. **简化文件结构** — 移除不必要的抽象层（ConfigItem）
+3. **符合项目规范** — 使用 `__tests__/` 目录
+4. **强化后端校验** — audienceRole/audienceLevel 改为 z.enum()
+5. **代码量优化** — 从 ~600 LOC 减少到 ~510 LOC（-15%）
+
 ### Related Epic
 
 Epic 2: 项目管理与 Dashboard
@@ -48,31 +58,41 @@ P0 — 核心用户体验，必须在 Phase 1 完成
 
 ### ✅ 包含内容
 
-1. **参数配置面板组件**（`ConfigPanel.tsx`）
+1. **后端增强**
+   - 从 `project.ts` 导出枚举常量（ASPECT_RATIOS, AUDIENCE_ROLES, AUDIENCE_LEVELS）
+   - 强化输入校验（audienceRole/audienceLevel 改为 z.enum()）
+
+2. **参数配置面板组件**（`ConfigPanel.tsx`）
    - 5 个参数项：目标对象、难度级别、视频比例、时长、语音
    - 可折叠面板（默认展开）
    - 极简黑白设计，与 GenerateTab 视觉一致
+   - 所有参数内联在单个组件中（无独立 ConfigItem）
 
-2. **参数输入组件**
+3. **参数输入组件**
    - 目标对象（audienceRole）：Radio Group（学生 / 教师）
    - 难度级别（audienceLevel）：Select 下拉（入门 / 中级 / 高级）
    - 视频比例（aspectRatio）：Radio Group（16:9 / 9:16 / 1:1）
    - 视频时长（targetDurationSec）：Segmented Control（1分钟 / 3分钟 / 5分钟）
    - 语音（voiceProvider + voiceId）：Select 下拉（Mock 数据，6 个选项）
 
-3. **GenerateTab 集成**
+4. **GenerateTab 集成**
    - ConfigPanel 放置在输入框下方（垂直间距 24px）
    - 使用 React state 管理配置参数
    - 提交时使用用户配置替换 DEFAULT_CONFIG
    - 配置项实时生效（无需保存按钮）
 
-4. **前端校验**
+5. **前端校验**
    - 所有参数必填（UI 默认值确保始终有效）
    - 无异步校验（参数均为枚举值）
 
-5. **响应式适配**
+6. **响应式适配**
    - 移动端（< 768px）：单列布局
    - 桌面端（≥ 768px）：双列布局
+
+7. **测试覆盖**
+   - ConfigPanel 单元测试（折叠、参数变化、禁用状态）
+   - GenerateTab 集成测试（配置提交、配置保留）
+   - 测试覆盖率目标 > 80%
 
 ### ❌ 不包含内容
 
@@ -81,6 +101,7 @@ P0 — 核心用户体验，必须在 Phase 1 完成
 - ❌ 高级参数（音频速度、动效风格）→ 付费功能
 - ❌ 参数推荐引擎（AI 自动推荐最优参数）→ 后续版本
 - ❌ 实时预览（参数变化时预览视频效果）→ 后续版本
+- ❌ 独立的 ConfigItem 抽象组件 → 参数类型差异大，不适合过度抽象
 
 ---
 
@@ -88,13 +109,67 @@ P0 — 核心用户体验，必须在 Phase 1 完成
 
 ### 涉及模块
 
+- **后端路由**：project.ts（导出枚举常量，强化校验）
 - **前端组件**：GenerateTab（修改）、ConfigPanel（新建）
-- **UI 组件库**：RadioGroup、Select、Collapsible（已有 shadcn/ui 组件）
+- **UI 组件库**：RadioGroup、Select、SegmentedControl、Collapsible（已有 shadcn/ui 组件）
 - **状态管理**：React useState（无需 Zustand，配置项不跨组件）
 
 ### 涉及领域模型
 
-- **Project Config**（前端 TS 类型）
+- **Project Config**（前端 TS 类型，从后端枚举派生）
+
+### 架构决策
+
+#### 决策 1: 枚举值从后端导出
+
+**原因**：
+- 确保前后端类型定义一致
+- 避免枚举值不匹配导致的运行时错误
+- 单一数据源（Single Source of Truth）
+
+**实施**：
+```typescript
+// 后端 (src/trpc/routers/project.ts)
+export const ASPECT_RATIOS = ["16:9", "9:16", "1:1"] as const;
+export const AUDIENCE_ROLES = ["student", "teacher"] as const;
+export const AUDIENCE_LEVELS = ["beginner", "intermediate", "advanced"] as const;
+
+// 前端导入
+import type { ASPECT_RATIOS, AUDIENCE_ROLES } from "@/trpc/routers/project";
+```
+
+#### 决策 2: 移除 ConfigItem 抽象组件
+
+**原因**：
+- 5 个参数项使用不同的 UI 组件（RadioGroup、Select、SegmentedControl）
+- 抽象层增加复杂度，收益有限（仅节省 ~20 LOC）
+- 内联方式更易维护和调试
+
+**对比**：
+```typescript
+// ❌ 抽象方式（原方案）
+<ConfigItem type="radio" label="目标对象" options={...} />
+<ConfigItem type="select" label="难度级别" options={...} />
+// 需要额外 80 LOC 的 ConfigItem 组件
+
+// ✅ 内联方式（改进方案）
+<div className="space-y-2">
+  <Label>目标对象</Label>
+  <RadioGroup ... />
+</div>
+<div className="space-y-2">
+  <Label>难度级别</Label>
+  <Select ... />
+</div>
+// 直接使用 shadcn/ui 组件，代码更清晰
+```
+
+#### 决策 3: 测试目录使用 `__tests__/`
+
+**原因**：
+- 符合项目现有约定（检查代码库发现使用 `__tests__/`）
+- Jest/Vitest 默认识别此命名模式
+- 测试文件与源码同目录，便于查找
 
 ### 数据流
 
@@ -116,6 +191,37 @@ flowchart TD
     K -->|是| L[清空输入框]
     K -->|否| M[保留输入和配置]
     L --> N[切换到 History Tab]
+```
+
+### 核心数据结构
+
+```typescript
+// src/trpc/routers/project.ts
+export const ASPECT_RATIOS = ["16:9", "9:16", "1:1"] as const;
+export const AUDIENCE_ROLES = ["student", "teacher"] as const;
+export const AUDIENCE_LEVELS = ["beginner", "intermediate", "advanced"] as const;
+export const VOICE_PROVIDERS = ["minimax"] as const;
+
+// src/components/main-app/ConfigPanel.tsx
+export const DEFAULT_CONFIG = {
+  audienceRole: "student" as const,
+  audienceLevel: "intermediate" as const,
+  aspectRatio: "16:9" as const,
+  targetDurationSec: 120,
+  voiceProvider: "minimax" as const,
+  voiceId: "male-qn-qingse",
+};
+
+export type ProjectConfig = typeof DEFAULT_CONFIG;
+
+const MOCK_VOICES = [
+  { providerId: "minimax", voiceId: "male-qn-qingse", label: "青涩青年（男）" },
+  { providerId: "minimax", voiceId: "male-qn-jingying", label: "精英青年（男）" },
+  { providerId: "minimax", voiceId: "male-qn-badao", label: "霸道青年（男）" },
+  { providerId: "minimax", voiceId: "female-shaonv", label: "灿烂少女（女）" },
+  { providerId: "minimax", voiceId: "female-yujie", label: "御姐（女）" },
+  { providerId: "minimax", voiceId: "female-chengshu", label: "成熟女性（女）" },
+] as const;
 ```
 
 ---
@@ -142,17 +248,18 @@ flowchart TD
 ### New Files
 
 ```
-src/components/main-app/ConfigPanel.tsx              ~200 LOC  # 参数配置面板
-src/components/main-app/ConfigItem.tsx               ~80 LOC   # 单个配置项
-src/lib/validation/project-config.ts                 ~100 LOC  # 前端校验 Zod Schema
-src/lib/constants/project-config.ts                  ~60 LOC   # 参数枚举和 Mock 数据
-tests/components/ConfigPanel.test.tsx                ~150 LOC  # 组件测试
+src/components/main-app/
+├── ConfigPanel.tsx                          ~250 LOC  # 参数配置面板（含所有 5 个参数项）
+└── __tests__/
+    └── ConfigPanel.test.tsx                 ~150 LOC  # 单元测试
 ```
 
 ### Modified Files
 
 ```
-src/components/main-app/GenerateTab.tsx              ~40 LOC   # 集成 ConfigPanel + 状态管理
+src/trpc/routers/project.ts                  ~20 LOC   # 导出枚举常量 + 强化校验
+src/components/main-app/GenerateTab.tsx      ~40 LOC   # 集成 ConfigPanel + 状态管理
+src/components/main-app/__tests__/GenerateTab.test.tsx  ~50 LOC  # 新增集成测试用例
 ```
 
 ### Deleted Files
@@ -163,84 +270,140 @@ src/components/main-app/GenerateTab.tsx              ~40 LOC   # 集成 ConfigPa
 
 ```
 src/
+├── trpc/
+│   └── routers/
+│       └── project.ts                       [修改] 导出枚举 + 强化 z.enum() 校验
 ├── components/
 │   └── main-app/
-│       ├── GenerateTab.tsx          [修改]
-│       ├── ConfigPanel.tsx          [新建]
-│       └── ConfigItem.tsx           [新建]
-├── lib/
-│   ├── validation/
-│   │   └── project-config.ts        [新建]
-│   └── constants/
-│       └── project-config.ts        [新建]
-└── tests/
-    └── components/
-        └── ConfigPanel.test.tsx     [新建]
+│       ├── GenerateTab.tsx                  [修改] 集成 ConfigPanel
+│       ├── ConfigPanel.tsx                  [新建] 参数配置面板
+│       └── __tests__/
+│           ├── GenerateTab.test.tsx         [修改] 新增配置相关测试
+│           └── ConfigPanel.test.tsx         [新建] ConfigPanel 单元测试
 ```
+
+### 与原方案的对比
+
+| 方面 | 原始方案 | 改进方案 (v2.0) | 变化说明 |
+|------|---------|----------------|---------|
+| **总代码量** | ~600 LOC | ~510 LOC | ⬇️ -15%（移除不必要抽象） |
+| **新建文件数** | 5 个 | 2 个 | ⬇️ -60%（简化结构） |
+| **修改文件数** | 1 个 | 3 个 | ⬆️ +200%（强化后端校验） |
+| **测试目录** | `tests/components/` | `__tests__/` | ✅ 符合项目规范 |
+| **枚举管理** | 前端重新定义 | 从后端导入 | ✅ 前后端一致 |
+| **ConfigItem** | 独立组件 80 LOC | 内联实现 | ⬇️ 减少过度抽象 |
+
+**改进收益**：
+- ✅ 代码量减少 90 LOC（15%）
+- ✅ 文件数减少 3 个（简化维护）
+- ✅ 前后端类型安全性提升（枚举共享）
+- ✅ 符合项目现有代码组织模式
 
 ---
 
 ## 6. Implementation Tasks
 
-### Task 1: 定义参数常量和类型
+### Task 1: 后端增强 - 导出枚举常量并强化校验
 
-**目标**：建立参数枚举、默认值、Mock 数据
+**目标**：确保前后端枚举值一致，强化输入校验
 
 **实施步骤**：
-1. 创建 `src/lib/constants/project-config.ts`
-2. 定义枚举：`AUDIENCE_ROLES`, `AUDIENCE_LEVELS`, `ASPECT_RATIOS`, `DURATIONS`
-3. 定义 Mock 语音列表（6 个选项）
-4. 定义 `DEFAULT_CONFIG` 常量
-5. 导出 TypeScript 类型 `ProjectConfig`
+1. 修改 `src/trpc/routers/project.ts`
+2. 在文件顶部导出枚举常量：
+   ```typescript
+   export const ASPECT_RATIOS = ["16:9", "9:16", "1:1"] as const;
+   export const AUDIENCE_ROLES = ["student", "teacher"] as const;
+   export const AUDIENCE_LEVELS = ["beginner", "intermediate", "advanced"] as const;
+   export const VOICE_PROVIDERS = ["minimax"] as const;
+   ```
+3. 修改 `createProjectInputSchema`，将 `audienceRole` 和 `audienceLevel` 从 `z.string()` 改为 `z.enum()`
+4. 运行现有测试，确保无回归
 
 **完成标准**：
-- [ ] 所有枚举值与 API Schema 一致
-- [ ] Mock 语音列表含 6 个选项（3 男声 + 3 女声）
-- [ ] 类型可被 GenerateTab 导入使用
+- [ ] 导出所有枚举常量（4 个）
+- [ ] `audienceRole` 使用 `z.enum(AUDIENCE_ROLES)`
+- [ ] `audienceLevel` 使用 `z.enum(AUDIENCE_LEVELS)`
+- [ ] 现有测试全部通过
+- [ ] TypeScript 编译无错误
 
-**预估时间**：0.5 天
+**预估时间**：0.3 天
+
+**代码示例**：
+```typescript
+// src/trpc/routers/project.ts
+
+// ---- 导出枚举常量供前端使用 ----
+export const ASPECT_RATIOS = ["16:9", "9:16", "1:1"] as const;
+export const AUDIENCE_ROLES = ["student", "teacher"] as const;
+export const AUDIENCE_LEVELS = ["beginner", "intermediate", "advanced"] as const;
+export const VOICE_PROVIDERS = ["minimax"] as const;
+
+/** createAndGenerate 输入校验 */
+export const createProjectInputSchema = z.object({
+  sourceText: z.string().min(1).max(5000),
+  aspectRatio: z.enum(ASPECT_RATIOS).optional(),
+  audienceRole: z.enum(AUDIENCE_ROLES).optional(),        // ✅ 改为枚举
+  audienceLevel: z.enum(AUDIENCE_LEVELS).optional(),      // ✅ 改为枚举
+  targetDurationSec: z.number().int().positive().max(3600).optional(),
+  voiceProvider: z.enum(VOICE_PROVIDERS).optional(),
+  voiceId: z.string().max(100).optional(),
+  requestId: z.string().uuid(),
+});
+```
 
 ---
 
-### Task 2: 创建 ConfigPanel 组件
+### Task 2: 创建 ConfigPanel 组件骨架
 
-**目标**：实现可折叠的参数配置面板
+**目标**：实现可折叠面板结构和基础布局
 
 **实施步骤**：
 1. 创建 `src/components/main-app/ConfigPanel.tsx`
-2. 使用 shadcn/ui `Collapsible` 组件
-3. 实现 5 个参数项布局（2 列网格）
-4. 添加折叠/展开动画
-5. 添加参数说明文字（辅助理解）
+2. 导入必要的 UI 组件（Collapsible、Label、shadcn 组件）
+3. 从后端导入枚举类型
+4. 定义 `DEFAULT_CONFIG` 和 `ProjectConfig` 类型
+5. 定义 `MOCK_VOICES` 常量（6 个语音选项）
+6. 实现 Collapsible 结构（默认展开）
+7. 添加 2 列网格布局容器（移动端 1 列，桌面端 2 列）
 
 **完成标准**：
+- [ ] Collapsible 结构正确渲染
 - [ ] 默认展开状态
-- [ ] 点击标题可折叠/展开
-- [ ] 桌面端 2 列，移动端 1 列
-- [ ] 黑白极简设计，符合品牌调性
+- [ ] 点击触发器可折叠/展开
+- [ ] 折叠动画流畅（ChevronDown 旋转 180°）
+- [ ] 从后端正确导入枚举类型
+- [ ] 响应式布局正确（grid-cols-1 md:grid-cols-2）
 
-**预估时间**：0.5 天
+**预估时间**：0.4 天
+
+**代码示例**（完整组件结构见 REVISED 版 Phase 2）
 
 ---
 
 ### Task 3: 实现 5 个参数输入组件
 
-**目标**：创建各参数的输入 UI
+**目标**：在 ConfigPanel 中添加所有参数输入项
 
 **实施步骤**：
-1. **目标对象**：使用 RadioGroup（学生/教师）
-2. **难度级别**：使用 Select 下拉（入门/中级/高级）
-3. **视频比例**：使用 RadioGroup（16:9/9:16/1:1）
-4. **视频时长**：使用 SegmentedControl（1分钟/3分钟/5分钟）
-5. **语音**：使用 Select 下拉（Mock 6 个选项）
+1. **参数 1 - 目标对象**：使用 RadioGroup（学生/教师）
+2. **参数 2 - 难度级别**：使用 Select 下拉（入门/中级/高级）
+3. **参数 3 - 视频比例**：使用 RadioGroup（16:9/9:16/1:1）
+4. **参数 4 - 视频时长**：使用 SegmentedControl（1分钟/3分钟/5分钟）
+5. **参数 5 - 语音**：使用 Select 下拉（6 个 Mock 选项）
+6. 为每个参数添加 Label 和合适的间距
+7. 实现 `disabled` 状态传递
 
 **完成标准**：
-- [ ] 所有输入组件样式一致
-- [ ] 选中状态明显（视觉反馈清晰）
-- [ ] 支持键盘导航（Tab 键切换）
+- [ ] 所有 5 个参数项正确渲染
+- [ ] 选中状态视觉反馈清晰
+- [ ] 键盘导航支持（Tab 键切换）
 - [ ] 移动端触控友好（最小 44px 触控目标）
+- [ ] `disabled` 状态正确禁用所有输入
+- [ ] `onConfigChange` 回调正确触发
 
 **预估时间**：0.5 天
+
+**代码示例**（完整实现见 REVISED 版 Phase 3）
 
 ---
 
@@ -249,38 +412,61 @@ src/
 **目标**：将 ConfigPanel 嵌入 GenerateTab 并实现状态联动
 
 **实施步骤**：
-1. 修改 `GenerateTab.tsx`，添加配置 state
-2. 将 ConfigPanel 放置在输入框下方
-3. 实现配置变化回调（`onConfigChange`）
-4. 提交时使用用户配置替换硬编码 DEFAULT_CONFIG
-5. 调整布局间距（输入框与面板之间 24px）
+1. 修改 `src/components/main-app/GenerateTab.tsx`
+2. 导入 `ConfigPanel`, `DEFAULT_CONFIG`, `ProjectConfig`
+3. 添加配置 state：`const [config, setConfig] = useState<ProjectConfig>(DEFAULT_CONFIG)`
+4. 实现 `handleConfigChange` 回调函数
+5. 在 `handleSubmit` 中使用 `...config` 展开用户配置
+6. 在输入框容器下方添加 ConfigPanel（`space-y-6` 间距）
+7. 传递 `isPending` 状态到 ConfigPanel 的 `disabled` 属性
+8. 确保成功/失败后配置参数不重置
 
 **完成标准**：
-- [ ] ConfigPanel 正确渲染
+- [ ] ConfigPanel 正确渲染在输入框下方
+- [ ] 间距为 24px（space-y-6）
 - [ ] 配置参数实时更新到 state
 - [ ] 提交时传递正确的配置参数
-- [ ] 成功/失败后配置项保留（不重置）
+- [ ] 成功后：输入框清空，配置保留，切换到 History Tab
+- [ ] 失败后：输入框和配置均保留
+- [ ] 提交中时 ConfigPanel 禁用
 
 **预估时间**：0.3 天
 
+**代码示例**（完整实现见 REVISED 版 Phase 4）
+
 ---
 
-### Task 5: 添加前端校验
+### Task 5: 添加测试
 
-**目标**：确保参数有效性
+**目标**：确保功能正确且无回归
 
 **实施步骤**：
-1. 创建 `src/lib/validation/project-config.ts`
-2. 定义 Zod Schema `ProjectConfigSchema`
-3. 在 GenerateTab 提交前校验
-4. 校验失败显示 toast 错误提示
+
+#### 5.1 ConfigPanel 单元测试
+1. 创建 `src/components/main-app/__tests__/ConfigPanel.test.tsx`
+2. 测试用例：
+   - 默认展开状态
+   - 点击折叠/展开功能
+   - 修改目标对象触发回调
+   - 修改难度级别触发回调
+   - disabled 状态禁用所有输入
+
+#### 5.2 GenerateTab 集成测试
+1. 修改 `src/components/main-app/__tests__/GenerateTab.test.tsx`
+2. 新增测试用例：
+   - 提交时包含用户配置的参数
+   - 提交成功后配置保留
+   - 提交失败后配置保留
 
 **完成标准**：
-- [ ] 所有枚举值校验正确
-- [ ] 必填项校验生效
-- [ ] 错误提示友好（中文）
+- [ ] ConfigPanel 单元测试全部通过
+- [ ] GenerateTab 集成测试通过
+- [ ] 测试覆盖率 > 80%
+- [ ] 无测试警告或错误
 
-**预估时间**：0.2 天
+**预估时间**：0.3 天
+
+**代码示例**（完整测试见 REVISED 版 Phase 5）
 
 ---
 
@@ -303,7 +489,19 @@ src/
 
 ### Blocking Risks
 
-无阻塞风险。本 Change 为纯前端增强，不影响现有功能。
+✅ **无阻塞风险**。本 Change 为渐进式增强：
+- 纯前端 + 轻量后端修改（枚举导出）
+- 不影响现有功能
+- 后端枚举修改有测试保护
+- 前端组件独立，可单独回滚
+
+### 与原方案的对比
+
+| 方面 | 原始方案 | 改进方案 (v2.0) |
+|------|---------|----------------|
+| **后端依赖** | 无修改 | ✅ 强化枚举校验，数据一致性更强 |
+| **阻塞风险** | 低 | 低（无变化） |
+| **回滚复杂度** | 简单 | 简单（新增测试保护后端修改） |
 
 ---
 
@@ -423,16 +621,42 @@ Then 显示单列布局，所有参数项垂直排列
 ### Code Rollback
 
 **步骤**：
-1. 恢复 `GenerateTab.tsx` 到修改前版本（Git revert）
-2. 删除新增文件：`ConfigPanel.tsx`, `ConfigItem.tsx`, `project-config.ts`, `tests/`
-3. 重新部署前端（Vercel 自动部署或手动触发）
-4. 验证：GenerateTab 恢复为硬编码配置，功能正常
+1. **后端回滚**：
+   - 恢复 `src/trpc/routers/project.ts` 到修改前版本
+   - 移除导出的枚举常量
+   - 将 `audienceRole` 和 `audienceLevel` 恢复为 `z.string()`
+   
+2. **前端回滚**：
+   - 恢复 `GenerateTab.tsx` 到修改前版本（Git revert）
+   - 删除新增文件：`ConfigPanel.tsx`, `__tests__/ConfigPanel.test.tsx`
+   - 删除 `GenerateTab.test.tsx` 中新增的测试用例
+   
+3. **验证**：
+   - 运行测试套件确保无回归
+   - 手动测试 GenerateTab 恢复为硬编码配置
+   - 验证提交功能正常
 
-**预计回滚时间**：< 5 分钟
+**预计回滚时间**：< 10 分钟
+
+**Git 命令**：
+```bash
+# 查看需要回滚的提交
+git log --oneline -n 5
+
+# 回滚到指定提交（假设 Change ID 为 abc123）
+git revert abc123 --no-edit
+
+# 删除新增文件
+git rm src/components/main-app/ConfigPanel.tsx
+git rm src/components/main-app/__tests__/ConfigPanel.test.tsx
+
+# 提交回滚
+git commit -m "Rollback: ep2-04-config-panel-enhancement"
+```
 
 ### Data Rollback
 
-无需数据回滚（纯前端变更，不涉及数据库）。
+无需数据回滚（纯前端变更，不涉及数据库 schema 修改）。
 
 ### Config Rollback
 
@@ -440,18 +664,56 @@ Then 显示单列布局，所有参数项垂直排列
 
 ### Feature Flag Rollback
 
-无 Feature Flag。若需要，可在 GenerateTab 中添加：
+无 Feature Flag。若需要渐进式发布，可在 GenerateTab 中添加：
 
 ```typescript
 const ENABLE_CONFIG_PANEL = process.env.NEXT_PUBLIC_ENABLE_CONFIG_PANEL === 'true';
 
 return (
-  <>
-    <AutoResizeTextarea ... />
-    {ENABLE_CONFIG_PANEL && <ConfigPanel ... />}
-  </>
+  <div className="w-full max-w-3xl space-y-6">
+    <div className="relative">
+      <AutoResizeTextarea ... />
+      ...
+    </div>
+    {ENABLE_CONFIG_PANEL && (
+      <ConfigPanel 
+        config={config}
+        onConfigChange={handleConfigChange}
+        disabled={isPending}
+      />
+    )}
+  </div>
 );
 ```
+
+**环境变量**：
+```bash
+# .env.local
+NEXT_PUBLIC_ENABLE_CONFIG_PANEL=false  # 默认关闭
+```
+
+### 回滚决策树
+
+```mermaid
+flowchart TD
+    A[发现问题] --> B{影响范围?}
+    B -->|仅配置面板崩溃| C[添加 Feature Flag 关闭]
+    B -->|影响提交功能| D[完全回滚代码]
+    B -->|后端校验失败| E[仅回滚后端枚举修改]
+    C --> F[通知用户，计划修复]
+    D --> G[重新部署，验证功能]
+    E --> H[前端仍可用 Mock 数据]
+```
+
+### 与原方案的对比
+
+| 方面 | 原始方案 | 改进方案 (v2.0) |
+|------|---------|----------------|
+| **回滚复杂度** | 简单（纯前端） | 稍复杂（含后端修改） |
+| **回滚步骤** | 2 步 | 3 步（+后端回滚） |
+| **回滚时间** | < 5 分钟 | < 10 分钟 |
+| **Feature Flag 支持** | 可选 | 可选（同） |
+| **风险点** | 无 | ✅ 后端测试保护枚举修改 |
 
 ---
 
@@ -566,32 +828,91 @@ const handleSubmit = () => {
 
 ### Scope Too Large
 
-✅ **否**。本 Change 约 600 LOC，在 300-1500 LOC 目标范围内。
+✅ **否**。本 Change 约 510 LOC，在 300-1500 LOC 目标范围内。
+
+**代码量分布**：
+- ConfigPanel.tsx: ~250 LOC
+- ConfigPanel.test.tsx: ~150 LOC
+- project.ts 修改: ~20 LOC
+- GenerateTab.tsx 修改: ~40 LOC
+- GenerateTab.test.tsx 修改: ~50 LOC
+- **总计**: ~510 LOC（比原方案减少 15%）
 
 ### Hidden Dependencies
 
-✅ **无**。所有依赖明确列出（ep2-01, ep2-03）。
+✅ **无**。所有依赖明确列出：
+- ep2-01（API 支持）
+- ep2-03（GenerateTab 基础）
+- shadcn/ui 组件（RadioGroup、Select、SegmentedControl、Collapsible）
+- 后端枚举导出（本 Change 自己实现）
 
 ### Context Explosion
 
 ✅ **无风险**。
-- 核心文件：ConfigPanel.tsx（~200 LOC）+ GenerateTab.tsx（修改 ~40 LOC）
-- 辅助文件：constants/project-config.ts（~60 LOC）
-- 总计不超过 500 LOC 核心代码
+- 核心文件：ConfigPanel.tsx（~250 LOC）+ GenerateTab.tsx（修改 ~40 LOC）
+- 辅助文件：project.ts 枚举导出（~20 LOC）
+- 测试文件：独立于实现逻辑
+- **总计核心代码** < 300 LOC
+
+**AI 实施友好性**：
+- ✅ 单一职责（仅配置面板）
+- ✅ 垂直切片（后端枚举 → 前端组件 → 测试）
+- ✅ 独立测试（单元测试 + 集成测试）
+- ✅ 代码示例完整（REVISED 版提供可执行代码）
 
 ### Testing Gap
 
 ✅ **已覆盖**。
-- Unit Test：ConfigPanel 组件测试
-- Integration Test：GenerateTab + ConfigPanel 联动
-- E2E Test：完整生成流程
+- **Unit Test**：ConfigPanel 组件测试（折叠、参数变化、禁用状态）
+- **Integration Test**：GenerateTab + ConfigPanel 联动（配置提交、配置保留）
+- **Regression Test**：现有 GenerateTab 功能不受影响
+- **目标覆盖率**：> 80%
+
+**测试清单**：
+```typescript
+// ConfigPanel.test.tsx
+- [x] 默认展开状态
+- [x] 点击折叠/展开功能
+- [x] 修改目标对象触发回调
+- [x] 修改难度级别触发回调
+- [x] disabled 状态禁用所有输入
+
+// GenerateTab.test.tsx
+- [x] 提交时包含用户配置的参数
+- [x] 提交成功后配置保留
+- [x] 提交失败后配置保留
+```
 
 ### Rollback Risk
 
 ✅ **低风险**。
-- 纯前端变更，无数据库 migration
+- 后端修改：仅枚举导出 + 校验强化，有测试保护
+- 前端变更：独立组件，可单独移除
+- 无数据库 migration
 - Git revert 即可回滚
-- 预计回滚时间 < 5 分钟
+- 预计回滚时间 < 10 分钟
+
+**风险评分**：
+| 风险维度 | 评分 | 说明 |
+|---------|-----|------|
+| 代码复杂度 | 🟢 低 | 组件逻辑简单，参数映射直接 |
+| 测试覆盖 | 🟢 高 | 单元测试 + 集成测试完整 |
+| 回滚难度 | 🟡 中 | 含后端修改，需 2-3 步回滚 |
+| 数据一致性 | 🟢 安全 | 后端枚举校验确保数据有效 |
+| 用户影响 | 🟢 低 | 渐进增强，不影响现有流程 |
+
+### v2.0 改进对 AI 实施的影响
+
+| 方面 | v1.0（原方案） | v2.0（改进方案） | AI 实施友好度 |
+|------|--------------|----------------|-------------|
+| **文件数量** | 6 个 | 5 个 | ✅ 更少 |
+| **代码量** | 600 LOC | 510 LOC | ✅ 更少 |
+| **抽象层级** | 3 层 | 2 层 | ✅ 更简单 |
+| **类型安全** | 前端重新定义 | 后端导出 | ✅ 更强 |
+| **上下文爆炸风险** | 低 | 更低 | ✅ 改进 |
+| **实施指导** | 任务描述 | 完整代码示例 | ✅ 更明确 |
+
+**结论**：改进方案通过简化结构、减少代码量、提供完整示例，进一步提升了 AI 实施的成功率。
 
 ---
 
@@ -599,144 +920,290 @@ const handleSubmit = () => {
 
 ### 推荐实施顺序
 
-1. **Task 1 → Task 2 → Task 3**（基础组件开发）
-2. **Task 4**（集成到 GenerateTab）
-3. **Task 5**（前端校验）
-4. **测试 → 部署 → 验收**
+1. **Task 1**（后端增强）→ **验证测试通过**
+2. **Task 2**（ConfigPanel 骨架）→ **手动验证折叠功能**
+3. **Task 3**（5 个参数项）→ **手动验证所有输入**
+4. **Task 4**（集成到 GenerateTab）→ **手动验证完整流程**
+5. **Task 5**（测试）→ **确保覆盖率 > 80%**
 
 ### 并行开发可能性
 
-- Task 2 和 Task 3 可部分并行（ConfigPanel 结构 + 单个参数输入组件）
-- Task 5 可与 Task 4 并行（独立的校验逻辑）
+✅ **可并行**：
+- Task 2 和 Task 3 可部分并行（ConfigPanel 结构确定后，可同步开发参数项）
+
+❌ **不可并行**：
+- Task 1 必须先完成（后续任务依赖枚举导出）
+- Task 4 依赖 Task 2 和 Task 3 完成
+- Task 5 依赖所有前置任务完成
 
 ### 关键风险点
 
-1. **语音列表 Mock 数据不准确**
-   - 风险：用户选择的 voiceId 在 Epic 4 接入真实 API 时不存在
-   - 缓解：提前与 MiniMax API 文档对齐，使用真实的 voiceId
+#### 风险 1: 修改后端枚举导致现有测试失败
 
-2. **参数枚举值与 API Schema 不一致**
-   - 风险：前端校验通过，但 API 拒绝参数
-   - 缓解：从 ep2-01 的 Zod Schema 导出枚举值，确保一致性
+**概率**：中  
+**影响**：中  
+**缓解措施**：
+1. 先在开发环境运行完整测试套件
+2. 检查是否有测试传递了非枚举值（如 `audienceRole: "invalid"`）
+3. 如有失败，更新测试用例使用合法枚举值
+4. 提交前必须确保所有测试通过
 
-3. **ConfigPanel 折叠状态影响用户体验**
-   - 风险：用户忘记修改参数，使用默认值
-   - 缓解：默认展开 + 参数值在标题栏显示摘要
+**检查命令**：
+```bash
+# 运行所有测试
+npm test
+
+# 仅运行 project 相关测试
+npm test -- project
+
+# 查看测试覆盖率
+npm test -- --coverage
+```
+
+#### 风险 2: 语音 Mock 数据与真实 API 不匹配
+
+**概率**：高  
+**影响**：低  
+**缓解措施**：
+1. ✅ 提前查阅 MiniMax API 文档，使用真实 `voiceId`
+2. ✅ 在 MOCK_VOICES 注释中标注数据来源
+3. ✅ 在 Epic 4 接入真实 API 时优先验证这些 ID
+
+**Mock 数据来源标注**：
+```typescript
+// src/components/main-app/ConfigPanel.tsx
+
+/**
+ * Mock 语音列表
+ * 
+ * 来源：MiniMax TTS API 文档
+ * 链接：https://platform.minimaxi.com/document/T2A%20V2?key=66719005a427f0c8a5701643
+ * 
+ * ⚠️ 注意：Epic 4 接入真实 API 时需要验证这些 voiceId 是否仍然有效
+ */
+const MOCK_VOICES = [
+  { providerId: "minimax", voiceId: "male-qn-qingse", label: "青涩青年（男）" },
+  { providerId: "minimax", voiceId: "male-qn-jingying", label: "精英青年（男）" },
+  { providerId: "minimax", voiceId: "male-qn-badao", label: "霸道青年（男）" },
+  { providerId: "minimax", voiceId: "female-shaonv", label: "灿烂少女（女）" },
+  { providerId: "minimax", voiceId: "female-yujie", label: "御姐（女）" },
+  { providerId: "minimax", voiceId: "female-chengshu", label: "成熟女性（女）" },
+] as const;
+```
+
+#### 风险 3: 移动端布局问题
+
+**概率**：低  
+**影响**：中  
+**缓解措施**：
+1. 使用 Tailwind 响应式类（`grid-cols-1 md:grid-cols-2`）
+2. 在 Chrome DevTools 设备模拟器测试（375px、768px、1024px 宽度）
+3. 确保触控目标 ≥ 44px（RadioGroupItem、SelectTrigger 默认满足）
+
+**测试清单**：
+```
+移动端（375px）：
+- [ ] 所有参数项垂直排列
+- [ ] 触控目标 ≥ 44px
+- [ ] Select 下拉菜单可正常打开
+- [ ] 折叠/展开按钮可正常点击
+
+平板端（768px）：
+- [ ] 2 列布局正确显示
+- [ ] 网格间距合理（gap-6）
+
+桌面端（1024px+）：
+- [ ] 2 列布局正确显示
+- [ ] 整体宽度不超过 max-w-3xl
+```
+
+### v2.0 改进对实施的影响
+
+| 方面 | v1.0（原方案） | v2.0（改进方案） | 改进效果 |
+|------|--------------|----------------|---------|
+| **实施顺序** | 5 个独立任务 | 5 个任务 + 后端优先 | ✅ 依赖关系更清晰 |
+| **风险点数量** | 3 个 | 3 个（同） | - |
+| **最高风险** | 语音 Mock 不匹配 | 后端枚举修改失败 | ⚠️ 新增但可控 |
+| **缓解难度** | 低 | 低（测试保护） | ✅ 可控 |
+| **预估工时** | 2.0 天 | 1.8 天 | ✅ 减少 0.2 天 |
 
 ---
 
 ## 14. 技术细节补充
 
-### ConfigPanel 数据结构
+### 后端枚举导出（Task 1 详细实现）
 
 ```typescript
-// src/lib/constants/project-config.ts
+// src/trpc/routers/project.ts
 
-export const AUDIENCE_ROLES = [
-  { value: 'student', label: '学生' },
-  { value: 'teacher', label: '教师' },
-] as const;
+// ---- 导出枚举常量供前端使用 ----
+export const ASPECT_RATIOS = ["16:9", "9:16", "1:1"] as const;
+export const AUDIENCE_ROLES = ["student", "teacher"] as const;
+export const AUDIENCE_LEVELS = ["beginner", "intermediate", "advanced"] as const;
+export const VOICE_PROVIDERS = ["minimax"] as const;
 
-export const AUDIENCE_LEVELS = [
-  { value: 'beginner', label: '入门' },
-  { value: 'intermediate', label: '中级' },
-  { value: 'advanced', label: '高级' },
-] as const;
-
-export const ASPECT_RATIOS = [
-  { value: '16:9', label: '横屏 (16:9)' },
-  { value: '9:16', label: '竖屏 (9:16)' },
-  { value: '1:1', label: '方形 (1:1)' },
-] as const;
-
-export const DURATIONS = [
-  { value: 60, label: '1 分钟' },
-  { value: 180, label: '3 分钟' },
-  { value: 300, label: '5 分钟' },
-] as const;
-
-export const MOCK_VOICES = [
-  { providerId: 'minimax', voiceId: 'male-qn-qingse', label: '青涩青年（男）' },
-  { providerId: 'minimax', voiceId: 'male-qn-jingying', label: '精英青年（男）' },
-  { providerId: 'minimax', voiceId: 'male-qn-badao', label: '霸道青年（男）' },
-  { providerId: 'minimax', voiceId: 'female-shaonv', label: '灿烂少女（女）' },
-  { providerId: 'minimax', voiceId: 'female-yujie', label: '御姐（女）' },
-  { providerId: 'minimax', voiceId: 'female-chengshu', label: '成熟女性（女）' },
-] as const;
-
-export const DEFAULT_CONFIG = {
-  audienceRole: 'student',
-  audienceLevel: 'intermediate',
-  aspectRatio: '16:9',
-  targetDurationSec: 120,
-  voiceProvider: 'minimax',
-  voiceId: 'male-qn-qingse',
-} as const;
-
-export type ProjectConfig = typeof DEFAULT_CONFIG;
+/** createAndGenerate 输入校验 */
+export const createProjectInputSchema = z.object({
+  sourceText: z.string().min(1).max(5000),
+  aspectRatio: z.enum(ASPECT_RATIOS).optional(),
+  audienceRole: z.enum(AUDIENCE_ROLES).optional(),        // ✅ 改为枚举
+  audienceLevel: z.enum(AUDIENCE_LEVELS).optional(),      // ✅ 改为枚举
+  targetDurationSec: z.number().int().positive().max(3600).optional(),
+  voiceProvider: z.enum(VOICE_PROVIDERS).optional(),
+  voiceId: z.string().max(100).optional(),
+  requestId: z.string().uuid(),
+});
 ```
 
-### ConfigPanel 组件接口
+### ConfigPanel 完整实现（Task 2 + Task 3）
+
+**完整代码见 REVISED 版 Phase 2 和 Phase 3**，核心结构：
 
 ```typescript
 // src/components/main-app/ConfigPanel.tsx
 
+"use client";
+
+import { useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Label } from "@/components/ui/label";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { ASPECT_RATIOS, AUDIENCE_ROLES, AUDIENCE_LEVELS } from "@/trpc/routers/project";
+
+// Mock 数据 + 默认配置 + 类型定义
+const MOCK_VOICES = [...];
+export const DEFAULT_CONFIG = {...};
+export type ProjectConfig = typeof DEFAULT_CONFIG;
+
 interface ConfigPanelProps {
   config: ProjectConfig;
   onConfigChange: (key: keyof ProjectConfig, value: string | number) => void;
-  disabled?: boolean; // 提交中时禁用
+  disabled?: boolean;
 }
 
 export function ConfigPanel({ config, onConfigChange, disabled }: ConfigPanelProps) {
   const [isOpen, setIsOpen] = useState(true);
-  
+
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="flex items-center justify-between w-full">
-        <span>配置参数</span>
-        <ChevronDown className={cn("transition-transform", isOpen && "rotate-180")} />
-      </CollapsibleTrigger>
-      
-      <CollapsibleContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-          {/* 5 个参数项 */}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
+    <div className="w-full rounded-lg border border-border">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/50 transition-colors">
+          <span>配置参数</span>
+          <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isOpen && "rotate-180")} />
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 pt-2">
+            {/* 5 个参数项 - 详见 REVISED 版 */}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
   );
 }
 ```
 
-### GenerateTab 修改摘要
+### GenerateTab 集成（Task 4 详细实现）
 
 ```typescript
-// src/components/main-app/GenerateTab.tsx (修改部分)
+// src/components/main-app/GenerateTab.tsx
+
+"use client";
+
+import { useState, useCallback } from "react";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
+import { IconButton, type IconButtonState } from "@/components/ui/icon-button";
+import { FadeMask } from "@/components/ui/fade-mask";
+import { ConfigPanel, DEFAULT_CONFIG, type ProjectConfig } from "./ConfigPanel"; // ✅ 新增
+import { toast } from "sonner";
+import { useTRPC } from "@/trpc/client";
+import { useMutation } from "@tanstack/react-query";
+
+interface GenerateTabProps {
+  onTabChange: (tab: "history") => void;
+}
 
 export function GenerateTab({ onTabChange }: GenerateTabProps) {
   const [text, setText] = useState("");
-  const [config, setConfig] = useState<ProjectConfig>(DEFAULT_CONFIG); // 新增
+  const [config, setConfig] = useState<ProjectConfig>(DEFAULT_CONFIG); // ✅ 新增
 
-  const handleConfigChange = useCallback((key: keyof ProjectConfig, value: string | number) => {
-    setConfig(prev => ({ ...prev, [key]: value }));
-  }, []);
+  const trpc = useTRPC();
+  const createMutation = useMutation(
+    trpc.project.createAndGenerate.mutationOptions({
+      onSuccess: () => {
+        setText("");
+        // ✅ 成功后保留配置（不重置）
+        toast.success("项目创建成功，正在生成中…");
+        onTabChange("history");
+      },
+      onError: (error) => {
+        toast.error(error.message || "创建失败，请重试");
+      },
+    }),
+  );
+
+  const isPending = createMutation.isPending;
+  const isTextEmpty = text.trim().length === 0;
+
+  const buttonState: IconButtonState = isPending
+    ? "pending"
+    : isTextEmpty
+      ? "disabled"
+      : "ready";
+
+  // ✅ 新增：配置变化回调
+  const handleConfigChange = useCallback(
+    (key: keyof ProjectConfig, value: string | number) => {
+      setConfig((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
 
   const handleSubmit = useCallback(() => {
     if (isTextEmpty || isPending) return;
     createMutation.mutate({
       sourceText: text.trim(),
       requestId: crypto.randomUUID(),
-      ...config, // 使用用户配置
+      ...config, // ✅ 使用用户配置
     });
-  }, [text, config, isTextEmpty, isPending, createMutation]); // 新增 config 依赖
+  }, [text, config, isTextEmpty, isPending, createMutation]); // ✅ 添加 config 依赖
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] px-6 py-12">
-      <div className="w-full max-w-3xl space-y-6"> {/* 新增 space-y-6 */}
+      <div className="w-full max-w-3xl space-y-6"> {/* ✅ 添加 space-y-6 */}
         {/* 输入区域 */}
-        <div className="relative">...</div>
-        
-        {/* 配置面板 - 新增 */}
-        <ConfigPanel 
+        <div className="relative">
+          <AutoResizeTextarea
+            placeholder="描述你想生成的视频内容..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            disabled={isPending}
+            minHeight={56}
+            maxLines={6}
+            paddingRight="pr-14"
+            paddingBottom="pb-14"
+            className="w-full"
+          />
+          <FadeMask />
+          <div className="absolute bottom-3 right-3 z-20">
+            <IconButton
+              state={buttonState}
+              onClick={handleSubmit}
+              aria-label="生成视频"
+            />
+          </div>
+        </div>
+
+        {/* ✅ 配置面板 - 新增 */}
+        <ConfigPanel
           config={config}
           onConfigChange={handleConfigChange}
           disabled={isPending}
@@ -746,6 +1213,29 @@ export function GenerateTab({ onTabChange }: GenerateTabProps) {
   );
 }
 ```
+
+### 关键修改点总结
+
+1. **后端**（20 LOC）
+   - 导出 4 个枚举常量
+   - `audienceRole` 和 `audienceLevel` 改为 `z.enum()`
+
+2. **ConfigPanel**（250 LOC）
+   - Collapsible 结构
+   - 5 个参数项内联实现
+   - 从后端导入枚举类型
+
+3. **GenerateTab**（40 LOC 修改）
+   - 导入 `ConfigPanel`, `DEFAULT_CONFIG`, `ProjectConfig`
+   - 添加 `config` state
+   - 实现 `handleConfigChange` 回调
+   - 提交时使用 `...config`
+   - 布局添加 `space-y-6`
+   - 渲染 `<ConfigPanel />`
+
+4. **测试**（200 LOC）
+   - ConfigPanel 单元测试（150 LOC）
+   - GenerateTab 集成测试（50 LOC 新增）
 
 ---
 
@@ -777,21 +1267,136 @@ export function GenerateTab({ onTabChange }: GenerateTabProps) {
 
 - 集成真实 TTS 语音列表 API（`provider.listTtsVoices`）
 - 语音试听功能（点击播放语音样本）
+- 动态加载语音选项（替换 MOCK_VOICES）
 
 ### Phase 3（付费功能）
 
 - 高级参数：音频速度（0.8x - 1.5x）
 - 高级参数：动效风格（淡入/滑动/缩放）
 - 高级参数：自定义 Logo 水印
+- 参数组合模板（教学视频套装、营销短视频套装）
 
 ### Phase 4（AI 推荐）
 
 - 基于文本内容自动推荐最优参数
 - 参数预设模板（教学视频/营销短视频/知识科普）
+- 智能参数优化建议（如"您的文本较长，建议调整时长为 5 分钟"）
 
 ---
 
-**文档版本**：v1.0  
+## 17. 版本历史与改进说明
+
+### v2.0（本版本）— 2026-06-16
+
+**改进动机**：基于项目实际结构和最佳实践优化原始方案
+
+**主要改进**：
+1. ✅ **枚举从后端导出** — 确保前后端类型一致，避免运行时错误
+2. ✅ **简化文件结构** — 移除 ConfigItem 抽象（减少 80 LOC），参数内联实现
+3. ✅ **符合项目规范** — 使用 `__tests__/` 目录而非 `tests/`
+4. ✅ **强化后端校验** — audienceRole/audienceLevel 改为 z.enum()，数据一致性更强
+5. ✅ **代码量优化** — 从 ~600 LOC 减少到 ~510 LOC（-15%）
+6. ✅ **完整代码示例** — 提供可直接执行的实现代码，降低 AI 实施难度
+
+**改进对比表**：
+
+| 维度 | v1.0（原方案） | v2.0（改进方案） | 改进效果 |
+|------|--------------|----------------|---------|
+| **代码量** | 600 LOC | 510 LOC | ⬇️ -15% |
+| **新建文件** | 5 个 | 2 个 | ⬇️ -60% |
+| **修改文件** | 1 个 | 3 个 | ⬆️ 含后端增强 |
+| **抽象层级** | 3 层 | 2 层 | ✅ 更简单 |
+| **类型安全** | 前端定义 | 后端导出 | ✅ 更强 |
+| **测试目录** | tests/ | __tests__/ | ✅ 符合规范 |
+| **实施指导** | 任务描述 | 完整代码 | ✅ 更明确 |
+| **预估工时** | 2.0 天 | 1.8 天 | ⬇️ -10% |
+
+**风险变化**：
+- ⬆️ 新增：后端枚举修改可能导致测试失败（概率：中，影响：中）
+- ✅ 缓解：测试保护 + 开发环境验证
+- ➡️ 其他风险不变
+
+### v1.0（原始方案）— 2026-06-16
+
+**初始设计**：
+- 纯前端增强方案
+- 5 个新建文件（含 ConfigItem、lib/constants/、lib/validation/）
+- 前端重新定义枚举常量
+- 测试目录使用 `tests/`
+
+**优点**：
+- 纯前端变更，回滚简单
+- 职责划分清晰
+
+**局限**：
+- 前后端枚举值可能不一致
+- 过度抽象（ConfigItem 组件收益有限）
+- 文件结构不符合项目现有模式
+
+---
+
+**文档版本**：v2.0（改进版）  
 **创建日期**：2026-06-16  
-**创建人**：Claude Opus 4.8  
+**基于**：ep2-04-config-panel-enhancement.md v1.0  
+**优化人**：Claude Opus 4.8  
 **审核状态**：待审核
+
+---
+
+## 附录 A: 完整代码清单
+
+本文档提供核心实现示例。完整可执行代码参见：
+- **REVISED 版文档**：`E:\A\Note\项目\Volcano\Changes\ep2-04-config-panel-enhancement-REVISED.md`
+- **Phase 2**：ConfigPanel 完整组件结构
+- **Phase 3**：5 个参数项完整实现
+- **Phase 4**：GenerateTab 集成完整代码
+- **Phase 5**：完整测试用例
+
+## 附录 B: 快速实施检查清单
+
+### 开发前检查
+- [ ] 阅读完整 REVISED 版文档
+- [ ] 确认 ep2-01 和 ep2-03 已完成
+- [ ] 本地环境可正常运行测试
+
+### Task 1: 后端增强
+- [ ] 导出 4 个枚举常量
+- [ ] audienceRole 改为 z.enum(AUDIENCE_ROLES)
+- [ ] audienceLevel 改为 z.enum(AUDIENCE_LEVELS)
+- [ ] 运行 `npm test` 确保测试通过
+
+### Task 2: ConfigPanel 骨架
+- [ ] 创建 ConfigPanel.tsx
+- [ ] 导入后端枚举类型
+- [ ] 定义 DEFAULT_CONFIG 和 MOCK_VOICES
+- [ ] 实现 Collapsible 结构
+- [ ] 手动测试折叠/展开功能
+
+### Task 3: 5 个参数项
+- [ ] 目标对象（RadioGroup）
+- [ ] 难度级别（Select）
+- [ ] 视频比例（RadioGroup）
+- [ ] 视频时长（SegmentedControl）
+- [ ] 语音（Select + MOCK_VOICES）
+- [ ] 手动测试所有输入变化
+
+### Task 4: 集成 GenerateTab
+- [ ] 导入 ConfigPanel、DEFAULT_CONFIG、ProjectConfig
+- [ ] 添加 config state
+- [ ] 实现 handleConfigChange
+- [ ] 提交时使用 ...config
+- [ ] 渲染 <ConfigPanel />
+- [ ] 手动测试完整流程
+
+### Task 5: 测试
+- [ ] 创建 ConfigPanel.test.tsx
+- [ ] 更新 GenerateTab.test.tsx
+- [ ] 运行 `npm test` 确保覆盖率 > 80%
+- [ ] 手动测试响应式布局（375px、768px、1024px）
+
+### 部署前检查
+- [ ] 所有测试通过
+- [ ] TypeScript 编译无错误
+- [ ] ESLint 无警告
+- [ ] 手动验证功能完整性
+- [ ] 确认配置参数正确提交到 API
