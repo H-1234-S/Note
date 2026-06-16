@@ -1142,7 +1142,8 @@ class MyPromise {
       });
     };
 
-	// 处理异常，
+	// 处理异常
+	// 规定throw new Error错误被reject消费
     try {
       executor(resolve, reject);
     } catch (error) {
