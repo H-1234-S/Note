@@ -1274,7 +1274,15 @@ queueMicrotask() 一个JS原生的API，接收一个callback function，将 call
 */
 ```
 
-手写 `Promise.all`：
+> 手写 `Promise.all`：
+
+特点：
+
+1. 接收一个可迭代对象（数组、Set 等）
+2. 所有 Promise 都成功 → 返回结果数组
+3. 任何一个失败 → 立即 reject
+4. 返回结果顺序必须和输入顺序一致
+5. 空数组直接返回 `[]`
 
 ```javascript
 function promiseAll(iterable) {
