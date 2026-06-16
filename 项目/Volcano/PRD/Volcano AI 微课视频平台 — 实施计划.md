@@ -1099,7 +1099,7 @@ src/lib/analytics.ts (新建)
 
 ---
 
-## 2. Epic Tree
+## 9. Epic Tree
 
 ```
 Volcano AI 微课视频平台
@@ -1154,7 +1154,7 @@ Volcano AI 微课视频平台
 
 ---
 
-## 3. Feature Breakdown
+## 10. Feature Breakdown
 
 ### Epic 2: 项目管理与 Dashboard
 
@@ -1386,7 +1386,7 @@ Volcano AI 微课视频平台
 
 ---
 
-## 3. 下一步行动（优先级排序）
+## 11. 下一步行动（优先级排序）
 
 ### 🎯 立即开始（本周）
 
@@ -1501,7 +1501,7 @@ Volcano AI 微课视频平台
 
 ---
 
-## 4. Change Breakdown
+## 12. Change Breakdown
 
 ### 设计原则
 
@@ -1986,7 +1986,7 @@ Volcano AI 微课视频平台
 
 ---
 
-## 4. Dependency Graph
+## 13. Dependency Graph
 
 ```mermaid
 graph TD
@@ -2105,7 +2105,7 @@ graph TD
 
 ---
 
-## 5. Recommended OpenSpec Plan
+## 14. Recommended OpenSpec Plan
 
 ### Phase 1: 核心业务基础（优先并行开发）
 
@@ -2217,7 +2217,7 @@ graph TD
 
 ---
 
-## 6. AI Coding Agent Compatibility Check
+## 15. AI Coding Agent Compatibility Check
 
 ### 6.1 上下文爆炸风险评估
 
@@ -2263,7 +2263,7 @@ graph TD
 
 ---
 
-## 7. 数据流总览
+## 16. 数据流总览
 
 ```mermaid
 flowchart LR
@@ -2336,7 +2336,7 @@ flowchart LR
 
 ---
 
-## 8. 关键风险与缓解
+## 17. 关键风险与缓解
 
 | 风险 | 等级 | 影响 Change | 缓解措施 |
 |------|------|-----------|---------|
@@ -2351,7 +2351,7 @@ flowchart LR
 
 ---
 
-## 9. OpenSpec 使用说明
+## 18. OpenSpec 使用说明
 
 本计划中的每个 Change 均可直接作为 OpenSpec Proposal 使用。
 
@@ -2397,7 +2397,7 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 
 ---
 
-## 10. 项目里程碑
+## 19. 项目里程碑
 
 | 里程碑 | 目标时间 | 验收标准 | 状态 | 完成度 |
 |--------|---------|---------|------|--------|
@@ -2420,7 +2420,7 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 
 ---
 
-## 11. Release Plan（分阶段上线计划）
+## 20. Release Plan（分阶段上线计划）
 
 ### Release 1: MVP 基础能力（Week 2，2026-06-22）
 
@@ -2618,7 +2618,7 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 
 ---
 
-## 12. OpenSpec Mapping（详细映射表）
+## 21. OpenSpec Mapping（详细映射表）
 
 每个 Change 对应的 OpenSpec 结构：
 
@@ -2638,7 +2638,7 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 
 ---
 
-## 13. Final Review（Tech Lead 视角）
+## 22. Final Review（Tech Lead 视角）
 
 ### 13.1 Architecture Risk
 
@@ -2733,7 +2733,7 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 
 ---
 
-## 14. 测试策略
+## 23. 测试策略
 
 ### 14.1 单元测试
 
