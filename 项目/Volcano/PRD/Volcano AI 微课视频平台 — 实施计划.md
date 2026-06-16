@@ -2816,13 +2816,13 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 
 ## 变更记录
 
-| 版本 | 日期 | 变更说明 |
-|------|------|---------|
-| v1.0.0 | 2026-06-13 | 创建工程实施大纲初稿：6 个 Epic、19 个 Feature、30 个 Change、6 个 Phase |
-| v1.1.0 | 2026-06-15 | 优化为实施计划：标记 ep2-01~03 完成，添加"项目当前状态"、"下一步行动"、"项目里程碑"章节 |
-| v1.2.0 | 2026-06-15 | Review 补充：新增第 1、11-14 章（Architecture Baseline、Release Plan、OpenSpec Mapping、Final Review、测试策略），为 Phase 1-2 的 9 个 Changes 补充 Impact Analysis 和 Rollback Strategy |
-| v1.3.0 | 2026-06-15 | 完成 Phase 3-6 补充：为剩余 20 个 Changes（ep4-02~ep7-04）补充 Impact Analysis 和 Rollback Strategy，所有 30 个 Changes 现已具备完整的影响分析和回滚策略 |
+| 版本     | 日期         | 变更说明                                                                                                                                                                                                                                                                        |
+| ------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v1.0.0 | 2026-06-13 | 创建工程实施大纲初稿：6 个 Epic、19 个 Feature、30 个 Change、6 个 Phase                                                                                                                                                                                                                      |
+| v1.1.0 | 2026-06-15 | 优化为实施计划：标记 ep2-01~03 完成，添加"项目当前状态"、"下一步行动"、"项目里程碑"章节                                                                                                                                                                                                                        |
+| v1.2.0 | 2026-06-15 | Review 补充：新增第 1、11-14 章（Architecture Baseline、Release Plan、OpenSpec Mapping、Final Review、测试策略），为 Phase 1-2 的 9 个 Changes 补充 Impact Analysis 和 Rollback Strategy                                                                                                             |
+| v1.3.0 | 2026-06-15 | 完成 Phase 3-6 补充：为剩余 20 个 Changes（ep4-02~ep7-04）补充 Impact Analysis 和 Rollback Strategy，所有 30 个 Changes 现已具备完整的影响分析和回滚策略                                                                                                                                                      |
 | v2.0.0 | 2026-06-16 | 重大优化版本：基于现有项目结构重写实施计划，核心变更包括：1) 保持现有 UI 架构（MainApp.tsx/GenerateTab/HistoryTab）不变；2) 单仓库结构，避免 monorepo 复杂度；3) 聚焦后端 API 实现和 UI 集成；4) 重新组织为 6 个 Phase 渐进式交付；5) 简化 Change 命名（api-01/ai-01/tts-01 等）；6) 新增核心优化原则、实施时间线、关键优化点说明、总结等章节；7) 移除原有 Epic/Feature 结构和已完成的详细追踪内容，专注未来实施路径 |
-| v2.1.0 | 2026-06-16 | P0/P1 修复：1) 新增第3章 Feature Breakdown；2) 新增垂直切片原则例外说明；3) 全局重命名 Changes（domain-feature 格式）；4) 为关键 Changes 补充 Business Context；5) 更新 Dependency Graph |
-| v2.2.0 | 2026-06-16 | 基于验证结果优化：1) 简化第 1 章为概览表格；2) 合并重复的"风险与缓解"章节（删除第 5 章，保留第 17 章）；3) 删除重复的"下一步行动"章节（删除第 11 章，保留第 7 章）；4) 为 4 个关键 P0 Changes 补充文件级 LOC 估算；5) 改善章节结构，减少内容重复；6) 文档总体符合度从 75% 提升到 90%+ |
+| v2.1.0 | 2026-06-16 | P0/P1 修复：1) 新增第3章 Feature Breakdown；2) 新增垂直切片原则例外说明；3) 全局重命名 Changes（domain-feature 格式）；4) 为关键 Changes 补充 Business Context；5) 更新 Dependency Graph                                                                                                                           |
+| v2.2.0 | 2026-06-16 | 基于验证结果优化：1) 简化第 1 章为概览表格；2) 合并重复的"风险与缓解"章节（删除第 5 章，保留第 17 章）；3) 删除重复的"下一步行动"章节（删除第 11 章，保留第 7 章）；4) 为 4 个关键 P0 Changes 补充文件级 LOC 估算；5) 改善章节结构，减少内容重复；6) 文档总体符合度从 75% 提升到 90%+                                                                                               |
 
