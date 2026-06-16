@@ -1,0 +1,366 @@
+# Change: ep2-05-cancel-retry-delete-api
+
+## 元信息
+
+| 属性 | 内容 |
+|------|------|
+| **Change ID** | `ep2-05-cancel-retry-delete-api` |
+| **Change Type** | FEATURE |
+| **所属 Epic** | Epic 2: 项目管理与 Dashboard |
+| **优先级** | P0 |
+| **预估规模** | L（~2,035 LOC） |
+| **预估工期** | 3-4 天 |
+| **前置 Change** | `ep2-01-project-create-api`（✅ 已完成）<br>`ep2-02-project-list-detail-api`（✅ 已完成） |
+| **并行 Change** | 可与 `ep3-01-storyboard-types-schema` 并行开始 |
+| **目标代码库** | `E:\A\Ai\convert documents to videos` |
+| **实施日期** | 待开始 |
+| **实施状态** | ⏸️ 待开始 |
+
+---
+
+## 1. Change Overview
+
+### Goal
+
+实现项目管理的三个核心操作 API：
+- **取消**（软取消）：标记生成中的项目为 `cancelled` 状态
+- **重试**（resume 模式）：检查已完成的步骤，跳过已生成资源，从失败点恢复
+- **删除**（级联清理）：软删除项目 + 标记关联 Asset deleted + 删除 R2 文件
+
+---
+
+### User Value
+
+用户获得对项目的完整控制能力：
+- **生成中途可取消**：节省配额，避免浪费
+- **失败后可重试**：无需重新创建项目，智能跳过已完成步骤
+- **不需要的项目可删除**：清理空间，保持列表整洁
+
+---
+
+### Business Value
+
+- **成本优化**：取消功能避免浪费 LLM/TTS/渲染资源
+- **用户体验**：重试功能提升生成成功率，减少用户流失
+- **数据管理**：删除功能保持系统清洁，控制存储成本
+- **合规性**：软删除保留审计记录，满足数据合规要求
+
+---
+
+### Business Context
+
+**问题背景**：
+当前用户创建项目后，如果生成失败或中途想取消，只能等待任务完成或失败，无法主动干预。失败后只能重新创建项目，浪费配额和时间。完成的项目无法删除，导致列表混乱。
+
+**核心痛点**：
+1. **无法取消**：生成需要 5-10 分钟，用户发现输入错误后无法取消，浪费配额
+2. **无法重试**：TTS 或渲染失败后，已生成的 Storyboard 被丢弃，需要重新等待 LLM 生成
+3. **无法删除**：测试项目和失败项目堆积，影响用户体验
+
+**解决方案**：
+- 软取消机制：标记状态，Inngest 自然停止（不强制中断）
+- 智能重试：检查已完成步骤（Storyboard/Audio/Timeline），跳过成功部分
+- 软删除 + 异步清理：保留审计记录，异步删除 R2 文件
+
+---
+
+## 2. Scope Definition
+
+### ✅ 包含内容
+
+#### 1. 取消功能（`generation.cancel`）
+
+**核心逻辑**：
+- 软取消标记（不中断当前 Inngest step）
+- 更新 `Project.status` → `cancelled`
+- 更新 `GenerationJob.status` → `cancelled_requested`
+- 记录取消时间和操作人
+- 释放用户并发限制（允许创建新项目）
+- Inngest function 在下一个 step 开始前检查取消状态（Phase 6 实现）
+
+**权限校验**：
+- 仅 project owner 或 admin 可取消
+- 仅 `queued`/`generating_*` 状态可取消
+
+**并发控制**：
+- 取消后立即释放用户并发限制
+
+---
+
+#### 2. 重试功能（`generation.retry`）
+
+**核心逻辑 - resume 模式**（智能跳过已完成步骤）：
+
+1. **检查 StoryboardVersion**：
+   - ✅ 存在 → 跳过 `generate-storyboard`
+   - ❌ 不存在 → 从 `generate-storyboard` 开始
+
+2. **检查 Scene.audioAssetId**：
+   - ✅ 所有 scene 都有 audioAssetId → 跳过 `generate-audio`
+   - ❌ 部分或全部缺失 → 从 `generate-audio` 开始（仅生成缺失的）
+
+3. **检查 Scene.startTimeSec**：
+   - ✅ 所有 scene 都有时间轴 → 跳过 `calculate-timeline`
+   - ❌ 缺失 → 从 `calculate-timeline` 开始
+
+4. **检查最终视频 Asset**：
+   - ✅ 存在 `assetType=video` 且未删除 → 直接完成
+   - ❌ 不存在 → 从 `trigger-render` 开始
+
+**权限校验**：
+- 仅 project owner 或 admin 可重试
+- 仅 `failed`/`cancelled` 状态可重试
+
+**并发限制校验**：
+- 重试前检查用户是否有运行中任务
+- 重试前检查今日额度（与创建相同规则）
+
+**GenerationJob 创建**：
+- 创建新的 GenerationJob（`jobType=retry` 或 `resume`）
+- 关联到原 Project（不创建新 Project）
+- 根据检查结果发送相应 Inngest 事件
+
+---
+
+#### 3. 删除功能（`project.delete`）
+
+**核心逻辑 - 软删除**（不物理删除数据库记录）：
+
+1. **标记 Project 删除**：
+   - 更新 `Project.status` → `deleted`
+   - 记录 `deletedAt` 时间戳
+
+2. **标记 Asset 删除**：
+   - 查询所有关联 Asset（音频、视频、缩略图）
+   - 标记 `Asset.deleted = true`
+   - 记录 `Asset.deletedAt`
+
+3. **异步删除 R2 文件**：
+   - 发送 Inngest 事件 `video/asset-cleanup`
+   - Inngest function 遍历 Asset，调用 `deleteFromR2(storageKey)`
+   - 删除失败不阻塞（记录日志，继续处理其他文件）
+
+4. **保留审计数据**：
+   - ✅ 保留 Project 记录（status=deleted）
+   - ✅ 保留 StoryboardVersion/Scene（用于数据分析）
+   - ✅ 保留 GenerationJob/JobEvent（用于审计）
+
+**权限校验**：
+- 仅 project owner 或 admin 可删除
+
+**级联清理范围**：
+- ✅ 所有 Asset（音频、视频、缩略图）
+- ✅ R2 文件（异步删除）
+- ✅ Project 软删除标记
+- ❌ 不删除 StoryboardVersion/Scene
+- ❌ 不删除 GenerationJob/JobEvent
+
+---
+
+### ❌ 不包含内容
+
+- ❌ **硬删除**（物理删除数据库记录）→ 后续管理员功能
+- ❌ **批量操作**（批量删除、批量取消）→ Phase 5 前端增强
+- ❌ **删除恢复**（回收站机制）→ 超出 MVP 范围
+- ❌ **强制取消**（中断当前 Inngest step）→ 技术复杂度高，暂不实现
+- ❌ **完全重新生成**（`full_regenerate`，忽略已有资源）→ 管理员功能
+- ❌ **前端 UI**（二次确认 Dialog、取消按钮、重试按钮）→ Phase 5 实现
+
+---
+
+### 🚫 Out Of Scope
+
+- ❌ Inngest function 的取消检查点逻辑（在 Phase 6 `ep7-03` 实现）
+- ❌ 前端的二次确认 Dialog（在 Phase 5 `ep6-01` 实现）
+- ❌ 删除后的 UsageRecord 退还（超出 MVP 范围）
+- ❌ R2 文件删除失败的自动重试机制（后续优化）
+
+---
+
+## 3. Technical Design Refinement
+
+### 涉及模块
+
+| 模块 | 职责 | 文件路径 |
+|------|------|---------|
+| **tRPC Router** | API 端点定义 | `src/server/routers/project.ts` |
+| **Service 层** | 业务逻辑实现 | `src/server/services/cancel.service.ts`<br>`src/server/services/retry.service.ts`<br>`src/server/services/delete.service.ts`<br>`src/server/services/project.service.ts` |
+| **Repository 层** | 数据库操作封装 | `src/lib/db/repositories/project.repo.ts`<br>`src/lib/db/repositories/asset.repo.ts` |
+| **Inngest** | 异步任务编排 | `src/inngest/functions/asset-cleanup.ts` |
+| **Prisma Schema** | 数据模型 | `prisma/schema.prisma` |
+
+---
+
+### 涉及领域模型
+
+#### Project 状态扩展
+
+```typescript
+// Project 状态流转
+type ProjectStatus = 
+  | "queued"
+  | "generating_storyboard"
+  | "generating_audio"
+  | "calculating_timeline"
+  | "rendering"
+  | "completed"
+  | "failed"
+  | "cancelled"  // ← 新增：用户取消
+  | "deleted";   // ← 新增：软删除
+```
+
+#### GenerationJob 类型扩展
+
+```typescript
+// GenerationJob 类型
+type JobType = 
+  | "initial"    // 首次生成
+  | "retry"      // ← 新增：完全重试
+  | "resume";    // ← 新增：resume 模式（跳过已完成步骤）
+```
+
+#### Asset 软删除扩展
+
+```prisma
+model Asset {
+  // ... 现有字段
+  deleted   Boolean   @default(false)  // ← 新增
+  deletedAt DateTime?                  // ← 新增
+}
+```
+
+---
+
+### 数据流
+
+#### 3.1 取消流程
+
+```mermaid
+flowchart TD
+    A[用户点击取消] --> B{权限校验}
+    B -->|失败| C[返回 403 错误]
+    B -->|成功| D{状态校验}
+    D -->|不可取消| E[返回 400 错误：已完成/失败/已取消]
+    D -->|可取消| F[开启事务]
+    F --> G[更新 Project.status = cancelled]
+    G --> H[更新 Job.status = cancelled_requested]
+    H --> I[释放并发限制<br>decrementConcurrency]
+    I --> J[提交事务]
+    J --> K[返回成功]
+    K -.->|异步| L[Inngest function 检查取消标记]
+    L -->|已取消| M[停止后续步骤]
+    L -->|未取消| N[继续执行]
+```
+
+---
+
+#### 3.2 重试流程（resume 模式）
+
+```mermaid
+flowchart TD
+    A[用户点击重试] --> B{权限校验}
+    B -->|失败| C[返回 403 错误]
+    B -->|成功| D{状态校验}
+    D -->|不可重试| E[返回 400 错误：非失败状态]
+    D -->|可重试| F{并发限制检查}
+    F -->|超限| G[返回 429 错误：有运行中任务]
+    F -->|通过| H{额度检查}
+    H -->|超额| I[返回 429 错误：额度不足]
+    H -->|通过| J[检查已完成步骤]
+    
+    J --> K{有 StoryboardVersion?}
+    K -->|无| L[从 generate-storyboard 开始]
+    K -->|有| M{所有 Scene 有音频?}
+    
+    M -->|无| N[从 generate-audio 开始]
+    M -->|有| O{所有 Scene 有时间轴?}
+    
+    O -->|无| P[从 calculate-timeline 开始]
+    O -->|有| Q{有最终视频?}
+    
+    Q -->|无| R[从 trigger-render 开始]
+    Q -->|有| S[直接标记 completed]
+    
+    L --> T[创建新 GenerationJob<br>jobType=resume]
+    N --> T
+    P --> T
+    R --> T
+    T --> U[发送 Inngest 事件]
+    U --> V[返回成功 + 跳转信息]
+```
+
+---
+
+#### 3.3 删除流程
+
+```mermaid
+flowchart TD
+    A[用户点击删除] --> B{权限校验}
+    B -->|失败| C[返回 403 错误]
+    B -->|成功| D[开启事务]
+    D --> E[更新 Project.status = deleted<br>记录 deletedAt]
+    E --> F[查询所有关联 Asset]
+    F --> G[批量标记 Asset.deleted = true<br>记录 deletedAt]
+    G --> H[提交事务]
+    H --> I[发送 Inngest 事件<br>video/asset-cleanup]
+    I --> J[返回成功]
+    
+    J -.->|异步| K[Inngest function: asset-cleanup]
+    K --> L[查询已标记删除的 Asset]
+    L --> M{遍历 Asset}
+    M --> N{storageKey 存在?}
+    N -->|是| O[调用 deleteFromR2storageKey]
+    N -->|否| P[跳过，记录日志]
+    O --> Q{删除成功?}
+    Q -->|是| R[记录成功日志]
+    Q -->|否| S[记录错误日志<br>继续处理下一个]
+    P --> T[处理下一个 Asset]
+    R --> T
+    S --> T
+    T --> M
+    M -->|完成| U[结束]
+```
+
+---
+
+### 状态流转
+
+#### Project 状态机（完整版）
+
+```mermaid
+stateDiagram-v2
+    [*] --> queued: 创建项目
+    queued --> generating_storyboard: Inngest 开始
+    generating_storyboard --> generating_audio: Storyboard 完成
+    generating_audio --> calculating_timeline: 音频完成
+    calculating_timeline --> rendering: 时间轴完成
+    rendering --> completed: 渲染完成
+    
+    queued --> cancelled: 用户取消
+    generating_storyboard --> cancelled: 用户取消
+    generating_audio --> cancelled: 用户取消
+    calculating_timeline --> cancelled: 用户取消
+    rendering --> cancelled: 用户取消
+    
+    generating_storyboard --> failed: LLM 失败
+    generating_audio --> failed: TTS 失败
+    calculating_timeline --> failed: 计算失败
+    rendering --> failed: Worker 失败
+    
+    failed --> generating_storyboard: 重试（无 Storyboard）
+    failed --> generating_audio: 重试（有 Storyboard）
+    failed --> calculating_timeline: 重试（有音频）
+    failed --> rendering: 重试（有时间轴）
+    
+    cancelled --> generating_storyboard: 重试
+    cancelled --> generating_audio: 重试（有 Storyboard）
+    
+    completed --> deleted: 用户删除
+    failed --> deleted: 用户删除
+    cancelled --> deleted: 用户删除
+    queued --> deleted: 用户删除
+```
+
+---
+
+// __CONTINUE_HERE__
