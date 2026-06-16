@@ -189,732 +189,138 @@
 
 ---
 
-## 2. 详细 Change Breakdown（优化版）
+## 2. Phase Breakdown（阶段概览）
 
-### Phase 1: 后端 API 实现
-
-#### Change: `project-lifecycle-api`
-
-**Business Context**: 
-用户需要将文字内容快速转化为视频，但手动制作视频耗时且需要专业技能。
-当前系统缺少项目管理能力，用户无法保存和追踪生成进度。
-
-本 Change 实现项目创建 API，支持：
-- 文本输入（最大 5000 字）
-- 参数配置（比例、时长、语音）
-- 额度校验（免费用户每日 1 次）
-- 异步任务触发（发送 Inngest 事件）
-
-**用户价值**: 一键创建视频项目，3 分钟内自动完成生成。
-
-**目标**：实现项目 CRUD API，集成到现有 UI
-
-**Scope**：
-- tRPC router `src/trpc/routers/project.ts` 完整实现
-- `project.create`: 创建项目 + 发送 Inngest 事件
-- `project.list`: 分页列表 + 状态筛选
-- `project.getById`: 项目详情 + 关联数据
-- `project.delete`: 软删除 + 资源清理
-- Service 层 `src/server/services/project.service.ts`
-- Repository 层 `src/lib/db/repositories/project.repo.ts`
-
-**集成点**：
-- `GenerateTab.tsx`: 调用 `project.create`
-- `HistoryTab.tsx`: 调用 `project.list`
-
-**Files & Estimated LOC**：
-```
-src/trpc/routers/project.ts (完善现有文件)           ~200 LOC
-src/server/services/project.service.ts (新建)         ~350 LOC
-src/lib/db/repositories/project.repo.ts (新建)        ~250 LOC
-src/components/main-app/GenerateTab.tsx (修改)        ~100 LOC
-src/components/main-app/HistoryTab.tsx (修改)         ~150 LOC
-tests/integration/project-api.test.ts (新建)         ~150 LOC
----------------------------------------------------------------
-Total: ~1,200 LOC
-```
-
-**Acceptance Criteria**：
-- [ ] GenerateTab 可成功创建项目
-- [ ] HistoryTab 可显示项目列表
-- [ ] 列表支持状态筛选（全部/生成中/已完成/失败）
-- [ ] 项目卡片显示正确信息
-
-**Estimated Size**: L (~1,200 LOC)
-**Estimated Time**: 3-4 天
-**Priority**: P0
+> **说明**：本章节从业务视角概述各阶段的目标和价值。详细的技术实施信息请参考 [第12章 Change Breakdown](#12-change-breakdown)。
 
 ---
 
-#### Change: `project-quota-control`
+### Phase 1: 核心业务基础
 
-**Business Context**:
-免费用户如果无限制使用，会导致服务成本失控（LLM + TTS + 渲染费用）。
-同时，单用户多任务并发会导致资源竞争和体验下降。
+**业务目标**：
+用户可以通过 Web 界面提交文字内容，系统创建视频项目并触发异步生成流程。用户可以查看项目列表、跟踪生成进度、管理项目（取消/重试/删除）。
 
-本 Change 实现额度控制，确保：
-- 每日免费额度：1 次/用户/天（可配置化）
-- 并发限制：1 个运行中任务/用户
-- 超额提示友好（显示剩余额度和下次刷新时间）
+**交付能力**：
+- ✅ 用户注册/登录（已完成）
+- ✅ 项目创建：文本输入（最大5000字）+ 参数配置（比例、时长、语音）
+- ✅ 额度控制：免费用户每日1次，单用户最多1个运行中任务
+- ✅ 项目管理：列表查看、状态筛选、取消/重试/删除
+- ✅ Dashboard UI：项目卡片、空状态、骨架屏
 
-**用户价值**: 防止滥用的同时，为付费计划预留扩展空间。
+**用户价值**：
+一键创建视频项目，系统自动完成生成，3分钟内输出高质量微课视频。防止滥用的同时，为未来付费计划预留扩展空间。
 
-**目标**：实现额度检查和并发限制
+**包含 Changes**：ep2-01 ~ ep2-05（详见第12章）
 
-**Scope**：
-- `src/server/services/quota.service.ts`
-- 每日免费额度：1 次/用户/天
-- 并发限制：1 个运行中任务/用户
-- 集成到 `project.create` API
-
-**Files**：
-```
-src/server/services/quota.service.ts (新建)
-src/lib/db/repositories/usage-record.repo.ts (新建)
-src/trpc/routers/project.ts (修改：添加额度检查)
-```
-
-**Acceptance Criteria**：
-- [ ] 用户超额时提交失败
-- [ ] 显示友好错误提示
-- [ ] 并发任务限制生效
-
-**Estimated Size**: M (~500 LOC)
-**Estimated Time**: 1-2 天
-**Priority**: P0
+**预计工时**：~8天
 
 ---
 
-### Phase 2: AI 生成链路
+**业务目标**：
+利用大语言模型（LLM）将用户输入的文字内容自动转化为结构化的视频分镜脚本（Storyboard），包含场景类型、旁白文本、视觉元素描述等。
 
-#### Change: `content-storyboard-schema`
+**核心挑战**：
+- 视频制作的核心难点是分镜设计，需要专业的视觉思维和故事编排能力，普通用户缺少这些技能
+- LLM 生成的内容需要标准化格式才能被后续系统（TTS、Remotion）正确解析
+- 不同 LLM 提供商（DeepSeek、OpenAI）的 API 接口不同，硬编码调用会导致供应商锁定
 
-**Business Context**:
-LLM 生成的内容需要标准化格式才能被后续系统（TTS、Remotion）正确解析。
-没有明确的 Schema，会导致生成结果不一致、验证困难、前端渲染失败。
+**交付能力**：
+- 📐 Storyboard 类型系统：7种Scene类型（标题、概念、列表、流程、对比、时间线、总结）+ Zod Schema校验
+- 🤖 LLM Provider 抽象层：统一接口 + DeepSeek适配器 + JSON repair机制
+- 🎬 自动分镜生成：Inngest异步任务 + LLM调用 + 结果存储
 
-本 Change 定义统一的 Storyboard 数据结构，包括：
-- 7 种 Scene 类型（标题、概念、列表、流程等）
-- 视觉元素描述（文本、关键词、布局）
-- 字幕片段时间轴
-- JSON Schema 供 LLM Function Calling 使用
+**用户价值**：
+用户只需输入文字，系统自动生成专业级分镜脚本，降低视频制作门槛。生成结果结构化、可验证、可渲染，后续可灵活切换更优质的LLM。
 
-**用户价值**: 确保生成内容结构化、可验证、可渲染。
+**包含 Changes**：ep3-01 ~ ep3-03（详见第12章）
 
-**目标**：定义 Storyboard 类型系统
-
-**Scope**：
-- TypeScript 类型定义
-- Zod Schema 校验
-- JSON Schema 导出（供 LLM 使用）
-
-**Files**：
-```
-src/lib/storyboard/types.ts (新建)
-src/lib/storyboard/schema.ts (新建)
-src/lib/storyboard/validation.ts (新建)
-```
-
-**Acceptance Criteria**：
-- [ ] 类型覆盖 7 种 scene type
-- [ ] Zod 校验可正确捕获错误
-- [ ] JSON Schema 可用于 LLM Prompt
-
-**Estimated Size**: M (~600 LOC)
-**Estimated Time**: 2 天
-**Priority**: P0
+**预计工时**：~7天
 
 ---
 
-#### Change: `content-llm-integration`
+**业务目标**：
+为每个分镜场景自动生成高质量的中文配音和字幕，确保音频与字幕精确同步，并安全存储在对象存储服务中。
 
-**Business Context**:
-不同 LLM 提供商（DeepSeek、OpenAI、Claude）的 API 接口不同。
-硬编码调用会导致供应商锁定，无法灵活切换或 A/B 测试。
+**核心挑战**：
+- 视频配音是视频制作的重要环节，但人工配音成本高、耗时长
+- TTS 技术可以自动生成配音，但需要精确的时间轴和字幕同步
+- 不同 TTS 服务质量和成本差异大，直接调用单一供应商会导致供应商锁定
+- 视频、音频、缩略图等媒体文件体积大，不能存储在数据库或本地磁盘
 
-本 Change 实现 LLM Provider 抽象层，支持：
-- 统一的 generateStoryboard 接口
-- OpenAI-compatible 基类（覆盖大部分主流 LLM）
-- DeepSeek 适配器（性价比优先）
-- JSON repair 机制（修复格式错误）
+**交付能力**：
+- 🎙️ TTS Provider 抽象层：统一接口 + MiniMax适配器（中文语音质量优先）+ 语音列表查询
+- 📦 Cloudflare R2 存储服务：Buffer上传 + 签名URL生成 + 文件删除 + SHA256校验
+- 🎵 自动音频生成：Inngest异步任务 + 逐scene TTS调用 + 音频去重（textHash）+ 字幕时间戳提取
 
-**用户价值**: 生成结果更稳定，后续可灵活切换更优质的 LLM。
+**用户价值**：
+自动生成高质量配音和字幕，节省90%的配音成本和时间。高质量中文配音，未来可扩展更多语音选项。安全、可靠的媒体文件存储和访问。
 
-**目标**：实现 LLM Provider 抽象和 DeepSeek 集成
+**包含 Changes**：ep4-01 ~ ep4-03（详见第12章）
 
-**Scope**：
-- Provider 接口定义
-- OpenAI-compatible 基类
-- DeepSeek 适配器
-- Storyboard 生成逻辑
-- JSON repair 机制
-
-**Files**：
-```
-src/lib/providers/interfaces.ts (新建)
-src/lib/providers/llm/openai-compatible.ts (新建)
-src/lib/providers/llm/deepseek.ts (新建)
-src/lib/storyboard/repair.ts (新建)
-```
-
-**Acceptance Criteria**：
-- [ ] 可成功调用 DeepSeek API
-- [ ] 返回符合 Schema 的 Storyboard
-- [ ] JSON repair 可修复常见错误
-
-**Estimated Size**: L (~900 LOC)
-**Estimated Time**: 3 天
-**Priority**: P0
-
----
-
-#### Change: `content-storyboard-generation`
-
-**Business Context**:
-视频制作的核心难点是分镜设计，需要专业的视觉思维和故事编排能力。
-普通用户缺少这些技能，导致无法制作高质量视频。
-
-本 Change 利用 LLM 自动生成分镜脚本，包括：
-- 场景类型选择（标题、概念、列表、流程等）
-- 旁白文本编排
-- 视觉元素描述
-- 关键词提取
-
-**用户价值**: 用户只需输入文字，系统自动生成专业级分镜脚本，降低视频制作门槛。
-
-**目标**：实现 Storyboard 生成 Inngest function
-
-**Scope**：
-- Inngest function `video/generate-storyboard`
-- 调用 LLM Provider
-- 校验和修复逻辑
-- 保存 StoryboardVersion + Scene
-- 更新 Project status
-
-**Files & Estimated LOC**：
-```
-src/inngest/functions/generate-storyboard.ts (新建)   ~300 LOC
-src/inngest/functions/index.ts (修改：注册)            ~10 LOC
-src/server/services/storyboard.service.ts (新建)      ~250 LOC
-src/lib/db/repositories/storyboard.repo.ts (新建)     ~150 LOC
-src/lib/db/repositories/scene.repo.ts (新建)          ~100 LOC
----------------------------------------------------------------
-Total: ~810 LOC
-```
-
-**Acceptance Criteria**：
-- [ ] 项目创建后自动触发生成
-- [ ] Storyboard 成功保存到数据库
-- [ ] Scene 表正确拆分
-- [ ] Project status 正确流转
-
-**Estimated Size**: L (~810 LOC)
-**Estimated Time**: 3 天
-**Priority**: P0
-
----
-
-### Phase 3: TTS 音频生成
-
-#### Change: `asset-tts-provider`
-
-**Business Context**:
-TTS（文本转语音）是视频配音的核心能力，但不同 TTS 服务质量和成本差异大。
-直接调用单一供应商 API 会导致供应商锁定，无法优化成本或切换更好的语音。
-
-本 Change 实现 TTS Provider 抽象层，支持：
-- 统一的 synthesize 接口
-- MiniMax 适配器（中文语音质量优先）
-- 语音列表查询（供前端选择）
-- 字幕时间戳提取
-
-**用户价值**: 高质量中文配音，未来可扩展更多语音选项。
-
-**目标**：实现 TTS Provider 抽象和 MiniMax 集成
-
-**Scope**：
-- TTS Provider 接口
-- MiniMax 适配器
-- 语音列表查询
-- 音频合成
-
-**Files**：
-```
-src/lib/providers/tts/minimax.ts (新建)
-src/lib/providers/tts/mock.ts (新建：测试用)
-```
-
-**Acceptance Criteria**：
-- [ ] 可获取 MiniMax 语音列表
-- [ ] 可成功生成音频
-- [ ] 返回 audioBuffer + durationMs + captions
-
-**Estimated Size**: M (~600 LOC)
-**Estimated Time**: 2 天
-**Priority**: P0
-
----
-
-#### Change: `asset-storage-service`
-
-**Business Context**:
-视频、音频、缩略图等媒体文件体积大，不能存储在数据库或本地磁盘。
-需要对象存储服务（R2）来存储和分发这些文件，并支持签名 URL 访问控制。
-
-本 Change 实现完整的 R2 存储能力，包括：
-- Buffer 上传（支持大文件分块）
-- 签名 URL 生成（时效性访问控制）
-- 文件删除（资源清理）
-- SHA256 校验（防止上传损坏）
-
-**用户价值**: 安全、可靠的媒体文件存储和访问。
-
-**目标**：实现 R2 存储完整功能
-
-**Scope**：
-- 替换现有存根实现
-- `uploadToR2`: Buffer 上传
-- `getSignedUrl`: 生成签名 URL
-- `deleteFromR2`: 删除对象
-
-**Files**：
-```
-src/lib/r2.ts (修改：替换存根)
-src/lib/storage/cloudflare-r2.ts (新建：Provider 实现)
-```
-
-**Acceptance Criteria**：
-- [ ] 可成功上传文件到 R2
-- [ ] 签名 URL 可访问
-- [ ] 删除功能正常
-
-**Estimated Size**: M (~500 LOC)
-**Estimated Time**: 2 天
-**Priority**: P0
-
----
-
-#### Change: `asset-audio-generation`
-
-**Business Context**:
-视频配音是视频制作的重要环节，但人工配音成本高、耗时长。
-TTS 技术可以自动生成配音，但需要精确的时间轴和字幕同步。
-
-本 Change 实现自动音频生成，包括：
-- 逐 scene 调用 TTS API
-- 音频去重（相同文本复用音频）
-- 字幕时间戳提取
-- 音频时长回填到 Scene
-
-**用户价值**: 自动生成高质量配音和字幕，节省 90% 的配音成本和时间。
-
-**目标**：实现音频生成 Inngest function
-
-**Scope**：
-- Inngest function `video/generate-audio`
-- 逐 scene 生成 TTS 音频
-- 音频去重（textHash）
-- 上传 R2
-- 创建 Asset 记录
-- 回填 Scene.audioAssetId
-
-**Files & Estimated LOC**：
-```
-src/inngest/functions/generate-audio.ts (新建)        ~350 LOC
-src/server/services/audio.service.ts (新建)           ~300 LOC
-src/lib/db/repositories/asset.repo.ts (新建)          ~200 LOC
-tests/unit/audio-deduplication.test.ts (新建)         ~100 LOC
----------------------------------------------------------------
-Total: ~950 LOC
-```
-
-**Acceptance Criteria**：
-- [ ] 所有 scene 成功生成音频
-- [ ] 相同文本复用音频
-- [ ] Asset 记录正确
-- [ ] Scene 回填 durationSec
-
-**Estimated Size**: L (~950 LOC)
-**Estimated Time**: 4 天
-**Priority**: P0
+**预计工时**：~8天
 
 ---
 
 ### Phase 4: Remotion 视频渲染
 
-#### Change: `render-foundation-setup`
+**业务目标**：
+将分镜脚本、音频、字幕等元素合成为最终的高清视频，实现全自动视频渲染。
 
-**Business Context**:
-Remotion 视频渲染需要完整的项目结构：模板、组件、主题、字体。
-没有统一的基础设施，每个模板都需要重复实现基础功能，导致代码冗余和维护困难。
+**核心挑战**：
+- 视频渲染是 CPU 和内存密集型任务，在 Next.js 主服务中渲染会导致请求阻塞、内存溢出
+- 传统视频编辑软件操作复杂，自动化难度大
+- Remotion 渲染需要完整的项目结构（模板、组件、主题、字体）
+- 微课视频的核心价值在于将知识点可视化呈现，不同内容类型需要不同的视觉模板
 
-本 Change 建立 Remotion 基础架构，包括：
-- 模板注册表（统一管理 8 套模板）
-- 共享组件（背景、水印、进度条）
-- 主题常量（色板、字体大小、间距）
-- 中文字体加载（解决 Remotion 渲染中文问题）
+**交付能力**：
+- 🏗️ Remotion 基础架构：模板注册表 + 共享组件（背景、水印） + 主题常量 + 中文字体加载
+- 🎨 8套PPT风格模板：标题/结束/概念/列表/流程/对比/时间线/总结 + 动效预设 + 字幕组件
+- ⚙️ 独立 Render Worker：HTTP Server + 渲染引擎（bundle + renderMedia）+ Docker化（隔离依赖，可独立扩容）
+- 🎬 完整渲染流程：时间轴计算 + Inngest任务编排 + Worker调用 + 结果回调
 
-**用户价值**: 确保所有视频风格统一、中文显示正常。
+**用户价值**：
+全自动视频渲染，无需人工干预，3-5分钟输出高质量视频。自动适配内容类型，呈现专业级视觉效果。视频渲染不影响主服务响应，支持并发渲染。
 
-**目标**：建立 Remotion 项目结构
+**包含 Changes**：ep5-01 ~ ep5-04（详见第12章）
 
-**Scope**：
-- 扩展 `src/remotion/` 目录
-- 模板注册表
-- 共享组件（SlideBackground, LogoWatermark）
-- 主题常量
-- 字体加载
-
-**Files**：
-```
-src/remotion/templates/registry.ts (新建)
-src/remotion/components/SlideBackground.tsx (新建)
-src/remotion/components/LogoWatermark.tsx (新建)
-src/remotion/styles/theme.ts (新建)
-src/remotion/fonts.ts (新建)
-src/remotion/Root.tsx (修改)
-public/fonts/ (添加字体文件)
-```
-
-**Acceptance Criteria**：
-- [ ] `npx remotion studio` 可启动
-- [ ] 字体加载无报错
-- [ ] 可预览空 Composition
-
-**Estimated Size**: M (~700 LOC)
-**Estimated Time**: 2 天
-**Priority**: P0
+**预计工时**：~17天
 
 ---
 
-#### Change: `render-ppt-templates`
+**业务目标**：
+完善用户交互界面，提供创建项目、查看列表、跟踪进度、查看结果的完整用户体验。
 
-**Business Context**:
-微课视频的核心价值在于将知识点可视化呈现。
-不同内容类型（标题、概念、列表、流程）需要不同的视觉模板才能有效传达信息。
+**交付能力**：
+- 📝 创建页面：表单校验（Zod + react-hook-form）+ 提交loading + 错误处理
+- 📊 Dashboard页面：项目列表 + 状态筛选 + 操作按钮（取消/重试/删除）+ 分页/无限加载
+- ⏳ 进度追踪：6阶段进度条 + 实时轮询（TanStack Query）+ 取消/重试按钮
+- 🎥 结果展示：视频播放器 + 下载MP4/字幕 + 签名URL访问控制
 
-本 Change 实现 8 套 PPT 风格模板，覆盖主要场景：
-- TitleSlide/EndingSlide: 视频开头结尾
-- ConceptCard: 单一概念解释
-- BulletList: 要点列举（支持分页）
-- ProcessFlow: 步骤流程
-- Comparison: 对比分析
-- Timeline: 时间线
-- Summary: 总结归纳
+**用户价值**：
+流畅的用户体验，从创建到查看结果全流程可视化。实时了解生成进度，随时管理项目。
 
-**用户价值**: 自动适配内容类型，呈现专业级视觉效果。
+**包含 Changes**：ep6-01 ~ ep6-04（详见第12章）
 
-**目标**：实现 8 套 PPT 模板
-
-**Scope**：
-- TitleSlide: 标题页
-- EndingSlide: 结束页
-- ConceptCard: 概念卡片
-- BulletList: 列表（支持分页）
-- ProcessFlow: 流程图
-- Comparison: 对比
-- Timeline: 时间线
-- Summary: 总结
-- 8 种动效预设
-- CaptionOverlay 字幕组件
-
-**Files**：
-```
-src/remotion/templates/TitleSlide.tsx (新建)
-src/remotion/templates/EndingSlide.tsx (新建)
-src/remotion/templates/ConceptCard.tsx (新建)
-src/remotion/templates/BulletList.tsx (新建)
-src/remotion/templates/ProcessFlow.tsx (新建)
-src/remotion/templates/Comparison.tsx (新建)
-src/remotion/templates/Timeline.tsx (新建)
-src/remotion/templates/Summary.tsx (新建)
-src/remotion/animations/presets.ts (新建)
-src/remotion/components/CaptionOverlay.tsx (新建)
-```
-
-**Acceptance Criteria**：
-- [ ] 8 个模板可在 Remotion Studio 预览
-- [ ] 动效流畅
-- [ ] 字幕显示正确
-
-**Estimated Size**: XL (~2000 LOC)
-**Estimated Time**: 6-8 天
-**Priority**: P0
-
----
-
-#### Change: `render-worker-service`
-
-**Business Context**:
-视频渲染是 CPU 和内存密集型任务，需要 Chromium 和 FFmpeg。
-在 Next.js 主服务中渲染会导致请求阻塞、内存溢出、用户体验下降。
-
-本 Change 创建独立的 Render Worker 服务，包括：
-- HTTP Server（接收渲染请求）
-- 渲染引擎（bundle + renderMedia）
-- 健康检查（监控 Worker 状态）
-- Docker 化（隔离依赖，可独立扩容）
-
-**用户价值**: 视频渲染不影响主服务响应，支持并发渲染。
-
-**目标**：创建 Remotion Worker 独立服务
-
-**Scope**：
-- Worker 项目结构（不使用 monorepo，保持简单）
-- HTTP Server (Fastify)
-- 渲染引擎（bundle + renderMedia）
-- 健康检查
-- Docker 化
-
-**Files**：
-```
-render-worker/package.json (新建)
-render-worker/src/index.ts (新建)
-render-worker/src/server.ts (新建)
-render-worker/src/renderer.ts (新建)
-render-worker/Dockerfile (新建)
-docker-compose.yml (新建或修改)
-```
-
-**Acceptance Criteria**：
-- [ ] Worker 可独立启动
-- [ ] 可接收渲染请求
-- [ ] Docker 镜像构建成功
-- [ ] 中文字体正常
-
-**Estimated Size**: L (~1200 LOC)
-**Estimated Time**: 4-5 天
-**Priority**: P0
-
----
-
-#### Change: `render-video-composition`
-
-**Business Context**:
-视频渲染是整个生成流程的最后一步，需要将分镜、音频、字幕、动效等元素合成为最终视频。
-传统视频编辑软件操作复杂，自动化难度大。
-
-本 Change 使用 Remotion 实现视频渲染，包括：
-- 8 套 PPT 模板自动适配
-- 音频和字幕同步
-- 动效和转场
-- 高清视频导出
-
-**用户价值**: 全自动视频渲染，无需人工干预，3-5 分钟输出高质量视频。
-
-**目标**：集成 Remotion 到完整生成链路
-
-**Scope**：
-- 时间轴计算器
-- Inngest function `calculate-timeline`
-- Inngest function `trigger-render`
-- MicroCourseVideo Composition
-- 渲染触发和回调
-
-**Files & Estimated LOC**：
-```
-src/server/services/timeline.service.ts (新建)        ~200 LOC
-src/inngest/functions/calculate-timeline.ts (新建)    ~150 LOC
-src/inngest/functions/trigger-render.ts (新建)        ~250 LOC
-src/server/services/render.service.ts (新建)          ~300 LOC
-src/remotion/compositions/MicroCourseVideo.tsx (新建) ~150 LOC
-tests/unit/timeline-calculation.test.ts (新建)        ~100 LOC
----------------------------------------------------------------
-Total: ~1,150 LOC
-```
-
-**Acceptance Criteria**：
-- [ ] 时间轴计算正确
-- [ ] 可触发 Worker 渲染
-- [ ] 渲染结果上传 R2
-- [ ] Project status 更新为 completed
-
-**Estimated Size**: L (~1,150 LOC)
-**Estimated Time**: 3 天
-**Priority**: P0
-
----
-
-### Phase 5: 前端完善
-
-#### Change: `project-create-ui`
-
-**目标**：完善 GenerateTab，集成 API
-
-**Scope**：
-- 集成 `project.create` API
-- 表单校验（Zod + react-hook-form）
-- 提交 loading 状态
-- 成功后切换到 History Tab
-- 错误处理和提示
-
-**Files**：
-```
-src/components/main-app/GenerateTab.tsx (修改)
-src/lib/validation/project.ts (新建：表单校验)
-```
-
-**Acceptance Criteria**：
-- [ ] 表单校验工作正常
-- [ ] 提交成功后显示 toast
-- [ ] 自动切换到 History Tab
-- [ ] 错误提示友好
-
-**Estimated Size**: M (~400 LOC)
-**Estimated Time**: 2 天
-**Priority**: P1
-
----
-
-#### Change: `project-dashboard-ui`
-
-**目标**：完善 HistoryTab，集成 API
-
-**Scope**：
-- 集成 `project.list` API
-- TanStack Query 数据获取
-- 状态筛选
-- 分页或无限加载
-- 操作按钮（查看详情、取消、重试、删除）
-
-**Files**：
-```
-src/components/main-app/HistoryTab.tsx (修改)
-src/components/main-app/HistoryCardActions.tsx (修改)
-```
-
-**Acceptance Criteria**：
-- [ ] 列表显示正确
-- [ ] 筛选功能正常
-- [ ] 操作按钮可用
-
-**Estimated Size**: M (~500 LOC)
-**Estimated Time**: 2 天
-**Priority**: P1
-
----
-
-#### Change: `project-progress-tracking`
-
-**目标**：添加生成进度查看功能
-
-**Scope**：
-- 进度查看 Dialog 或侧边栏
-- 6 阶段进度条
-- 实时轮询（TanStack Query）
-- 取消和重试按钮
-
-**Files**：
-```
-src/components/main-app/ProgressDialog.tsx (新建)
-src/components/main-app/ProgressStepper.tsx (新建)
-src/components/main-app/HistoryTab.tsx (修改：添加进度查看入口)
-```
-
-**Acceptance Criteria**：
-- [ ] 可查看生成进度
-- [ ] 进度条实时更新
-- [ ] 可取消生成中的任务
-
-**Estimated Size**: M (~600 LOC)
-**Estimated Time**: 3 天
-**Priority**: P1
-
----
-
-#### Change: `project-result-display`
-
-**目标**：添加视频结果查看和下载
-
-**Scope**：
-- 视频结果 Dialog
-- 视频播放器
-- 下载 MP4 按钮
-- 下载字幕按钮
-- 重新生成按钮
-
-**Files**：
-```
-src/components/main-app/VideoResultDialog.tsx (新建)
-src/components/main-app/VideoPlayer.tsx (新建)
-src/trpc/routers/asset.ts (新建：签名 URL API)
-```
-
-**Acceptance Criteria**：
-- [ ] 视频可播放
-- [ ] 下载功能正常
-- [ ] 签名 URL 有效
-
-**Estimated Size**: M (~500 LOC)
-**Estimated Time**: 2 天
-**Priority**: P1
+**预计工时**：~9天
 
 ---
 
 ### Phase 6: 运营与可观测性
 
-#### Change: `system-error-handling`
+**业务目标**：
+建立完善的错误处理、日志记录、监控告警体系，确保系统稳定运行。
 
-**目标**：完善错误处理体系
+**交付能力**：
+- ❌ 错误处理：错误码定义 + 中文错误消息 + tRPC中间件 + 前端错误边界
+- 📝 日志记录：JobEvent审计日志 + 关键操作记录 + Sentry接入（可选）
+- 📊 监控告警：Inngest Dashboard配置 + 关键指标埋点 + 错误率监控
 
-**Scope**：
-- 错误码定义
-- 错误消息映射（中文）
-- tRPC 错误处理中间件
-- 前端错误边界
+**用户价值**：
+系统稳定可靠，问题可追溯，运营团队可快速定位和解决问题。
 
-**Files**：
-```
-src/lib/errors/codes.ts (新建)
-src/lib/errors/messages.ts (新建)
-src/lib/errors/handler.ts (新建)
-src/app/error.tsx (新建)
-```
+**包含 Changes**：ep7-01 ~ ep7-03（详见第12章）
 
-**Estimated Size**: S (~300 LOC)
-**Estimated Time**: 2 天
-**Priority**: P1
-
----
-
-#### Change: `system-logging`
-
-**目标**：实现日志记录
-
-**Scope**：
-- JobEvent 日志
-- 关键操作审计
-- Sentry 接入（可选）
-
-**Files**：
-```
-src/server/services/job-event.service.ts (新建)
-src/lib/logger.ts (新建)
-```
-
-**Estimated Size**: M (~500 LOC)
-**Estimated Time**: 2 天
-**Priority**: P1
-
----
-
-#### Change: `system-monitoring`
-
-**目标**：添加监控和告警
-
-**Scope**：
-- Inngest Dashboard 配置
-- 关键指标埋点
-- 错误率监控
-
-**Files**：
-```
-src/lib/analytics.ts (新建)
-```
-
-**Estimated Size**: S (~300 LOC)
-**Estimated Time**: 2 天
-**Priority**: P2
+**预计工时**：~6天
 
 ---
 
@@ -1453,6 +859,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | FEATURE |
+| **Business Context** | 用户需要将文字内容快速转化为视频，但手动制作视频耗时且需要专业技能。当前系统缺少项目管理能力，用户无法保存和追踪生成进度。本 Change 实现项目创建 API，支持文本输入（最大5000字）、参数配置、额度校验（免费用户每日1次）、异步任务触发。**用户价值**：一键创建视频项目，3分钟内自动完成生成。 |
 | **Goal** | 实现 `project.createAndGenerate` tRPC mutation：校验输入 → 创建 Project + GenerationJob → 发送 Inngest 事件 |
 | **Scope** | - tRPC router `project.createAndGenerate`（Zod 校验 + 额度检查 + 并发限制）<br>- `project.service.ts`（创建 Project + GenerationJob）<br>- `quota.service.ts`（每日额度查询）<br>- Inngest 事件 `video/generate.requested` 发送<br>- `requestId` 幂等检查 |
 | **不包含** | 实际 Inngest function 实现（后续 Change）、进度轮询、UI 页面 |
@@ -1517,6 +924,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | FEATURE |
+| **Business Context** | 免费用户如果无限制使用，会导致服务成本失控（LLM + TTS + 渲染费用）。同时，单用户多任务并发会导致资源竞争和体验下降。本 Change 实现额度控制，确保每日免费额度1次/用户/天、并发限制1个运行中任务/用户、超额提示友好。**用户价值**：防止滥用的同时，为付费计划预留扩展空间。 |
 | **Goal** | 实现 `generation.cancel`、`generation.retry`（resume 模式）、`project.delete`（含关联清理） |
 | **Scope** | - `generation.cancel`：软取消逻辑（标记 Project cancelled → Job cancelled_requested → Inngest step 检查点）<br>- `generation.retry`：resume 模式（检查已有 Storyboard/Audio → 跳过已完成步骤 → 重新创建 GenerationJob）<br>- `project.delete`：权限校验 → 标记 Asset deleted → 删除 R2 文件 → 级联删除 DB 记录<br>- 并发限制校验 |
 | **不包含** | 实际 Inngest 取消检查（Epic 7）、full_regenerate（管理员） |
@@ -1537,6 +945,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | FOUNDATION |
+| **Business Context** | LLM 生成的内容需要标准化格式才能被后续系统（TTS、Remotion）正确解析。没有明确的 Schema，会导致生成结果不一致、验证困难、前端渲染失败。本 Change 定义统一的 Storyboard 数据结构，包括7种Scene类型、视觉元素描述、字幕片段时间轴、JSON Schema 供 LLM Function Calling 使用。**用户价值**：确保生成内容结构化、可验证、可渲染。 |
 | **Goal** | 定义 Storyboard/Scene/SceneVisual/CaptionSegment 的 TS 类型 + Zod Schema + JSON Schema（供 LLM function calling） |
 | **Scope** | - TypeScript 类型定义（`Storyboard`, `Scene`, 7 种 `SceneVisual` 联合类型, `CaptionSegment`）<br>- Zod Schema（`StoryboardSchema`, `SceneSchema`, `VisualSchema` 等）<br>- Zod → JSON Schema 转换（`zod-to-json-schema`）<br>- 导出 `STORYBOARD_JSON_SCHEMA` 供 LLM Prompt 注入<br>- 常量定义（`VALID_SCENE_TYPES`, `SCENE_TYPE_MAP`）<br>- Schema 版本常量 `SCHEMA_VERSION = "1.0.0"` |
 | **不包含** | 校验函数（下一个 Change）、LLM 调用 |
@@ -1569,6 +978,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | INTEGRATION |
+| **Business Context** | 不同 LLM 提供商（DeepSeek、OpenAI、Claude）的 API 接口不同，硬编码调用会导致供应商锁定，无法灵活切换或 A/B 测试。本 Change 实现 LLM Provider 抽象层，支持统一的 generateStoryboard 接口、OpenAI-compatible 基类、DeepSeek 适配器（性价比优先）、JSON repair 机制。**用户价值**：生成结果更稳定，后续可灵活切换更优质的 LLM。 |
 | **Goal** | 实现 LLM Provider 接口 + DeepSeek adapter（OpenAI-compatible），含 `generateStoryboard` 和 `repairStoryboardJson` |
 | **Scope** | - `LlmProvider` 接口定义<br>- `OpenAICompatibleProvider` 基类（封装 HTTP 调用、错误处理、重试、超时、日志）<br>- `DeepSeekProvider` 实现（配置 endpoint、model、apiKey）<br>- `generateStoryboard()`：构建 System Prompt + User Prompt + JSON Schema → 调用 API → 返回 Storyboard<br>- `repairStoryboardJson()`：构建修复 Prompt → 调用 API → 返回修复后 Storyboard<br>- Token 用量跟踪<br>- Provider 错误码映射（`LLM_TIMEOUT` / `LLM_RATE_LIMITED` / `LLM_INVALID_RESPONSE`） |
 | **不包含** | Inngest function、实际数据库写入 |
@@ -1585,6 +995,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | INTEGRATION |
+| **Business Context** | 视频制作的核心难点是分镜设计，需要专业的视觉思维和故事编排能力。普通用户缺少这些技能，导致无法制作高质量视频。本 Change 利用 LLM 自动生成分镜脚本，包括场景类型选择、旁白文本编排、视觉元素描述、关键词提取。**用户价值**：用户只需输入文字，系统自动生成专业级分镜脚本，降低视频制作门槛。 |
 | **Goal** | 实现 Inngest function `generate-storyboard`：读取 Project → 调用 LLM → 校验 → repair → 保存 StoryboardVersion + Scene → 更新 Project 状态 → 触发下一阶段 |
 | **Scope** | - Inngest function `video/generate-storyboard`（幂等键：projectId + storyboard）<br>- 读取 Project sourceText + config<br>- 调用 DeepSeek generateStoryboard<br>- 校验 Storyboard（Zod + 业务校验）<br>- 校验失败则 repair（最多 2 次）<br>- 保存 StoryboardVersion（versionNumber=1, llmResponseRaw=JSON）<br>- 拆分保存 Scene 记录（按 Scene.sceneKey 写入）<br>- 更新 Project.status = `storyboard_ready`<br>- 发送 Inngest 事件 `video/generate-audio`（下一步）<br>- `storyboard.service.ts` 业务层 |
 | **不包含** | TTS 音频生成（下一步）、前端 Storyboard 预览 |
@@ -1605,6 +1016,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | INTEGRATION |
+| **Business Context** | TTS（文本转语音）是视频配音的核心能力，但不同 TTS 服务质量和成本差异大。直接调用单一供应商 API 会导致供应商锁定，无法优化成本或切换更好的语音。本 Change 实现 TTS Provider 抽象层，支持统一的 synthesize 接口、MiniMax 适配器（中文语音质量优先）、语音列表查询、字幕时间戳提取。**用户价值**：高质量中文配音，未来可扩展更多语音选项。 |
 | **Goal** | 实现 TTS Provider 接口 + MiniMax adapter（同步 HTTP T2A），含语音列表和音频合成 |
 | **Scope** | - `TtsProvider` 接口定义<br>- `MiniMaxProvider` 实现<br>  - `listVoices()`：调用 MiniMax API 获取语音列表<br>  - `synthesize()`：调用 MiniMax T2A HTTP API，启用 `subtitle_enable`，获取 audioBuffer + durationMs + captions<br>- 音频二进制 Buffer 处理<br>- MiniMax 文本长度限制校验（< 10000 字）<br>- 错误码映射（`TTS_TIMEOUT` / `TTS_RATE_LIMITED` / `TTS_TEXT_TOO_LONG` / `TTS_VOICE_NOT_FOUND`） |
 | **不包含** | 音频去重上传（下一个 Change）、异步长文本 TTS |
@@ -1621,6 +1033,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | INTEGRATION |
+| **Business Context** | 视频、音频、缩略图等媒体文件体积大，不能存储在数据库或本地磁盘。需要对象存储服务（R2）来存储和分发这些文件，并支持签名 URL 访问控制。本 Change 实现完整的 R2 存储能力，包括 Buffer 上传（支持大文件分块）、签名 URL 生成（时效性访问控制）、文件删除（资源清理）、SHA256 校验。**用户价值**：安全、可靠的媒体文件存储和访问。 |
 | **Goal** | 实现 `uploadToR2` / `getSignedUrl` / `deleteFromR2`（替换现有存根），支持 Buffer 上传和分块上传 |
 | **Scope** | - `uploadToR2()`：PutObjectCommand + SHA256 checksum + ContentType 设置<br>- `getSignedUrl()`：GetObjectCommand + `@aws-sdk/s3-request-presigner`，支持 preview/download/render 三种用途<br>- `deleteFromR2()`：DeleteObjectCommand<br>- 上传大文件分块（> 5MB 使用 multipart upload）<br>- 错误处理和重试（网络错误重试 2 次）<br>- 上传进度回调（供大文件使用） |
 | **不包含** | Asset 数据库写入（下一个 Change）、前端下载 |
@@ -1637,6 +1050,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | FEATURE |
+| **Business Context** | 视频配音是视频制作的重要环节，但人工配音成本高、耗时长。TTS 技术可以自动生成配音，但需要精确的时间轴和字幕同步。本 Change 实现自动音频生成，包括逐 scene 调用 TTS API、音频去重（相同文本复用音频）、字幕时间戳提取、音频时长回填到 Scene。**用户价值**：自动生成高质量配音和字幕，节省 90% 的配音成本和时间。 |
 | **Goal** | 实现 Inngest function `generate-audio`：逐 scene 生成 TTS 音频 → 去重 → 上传 R2 → 写 Asset → 回填 Scene → 提取 captions |
 | **Scope** | - Inngest function `video/generate-audio`<br>- 遍历 Project Scenes（按 order）<br>- 为每个 scene 计算 textHash（text + voiceId + speed）<br>- 查询是否有可复用 Asset（同 checksum）<br>- 调用 MiniMax synthesize<br>- 上传音频到 R2（key: `{userId}/{projectId}/audio/{sceneKey}.mp3`）<br>- 创建 Asset 记录（assetType=audio）<br>- 回填 Scene.audioAssetId + Scene.durationSec<br>- 写入 captions Json 到 Scene（JSON 字段或 metadata）<br>- 处理部分失败（某 scene 失败不影响已成功的 scene）<br>- 更新 Project.status → `generating_audio` → `calculating_timeline`<br>- 发送下一步 Inngest 事件<br>- `audio.service.ts` 业务层 |
 | **不包含** | 时间轴计算（下一步）、字幕渲染（Epic 5） |
@@ -1673,6 +1087,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | FOUNDATION |
+| **Business Context** | Remotion 视频渲染需要完整的项目结构：模板、组件、主题、字体。没有统一的基础设施，每个模板都需要重复实现基础功能，导致代码冗余和维护困难。本 Change 建立 Remotion 基础架构，包括模板注册表（统一管理8套模板）、共享组件（背景、水印、进度条）、主题常量（色板、字体大小、间距）、中文字体加载。**用户价值**：确保所有视频风格统一、中文显示正常。 |
 | **Goal** | 建立 Remotion 项目结构：模板注册表、共享组件（SlideBackground、LogoWatermark、ProgressBar）、主题常量、字体加载 |
 | **Scope** | - 扩展 `src/remotion/` 目录结构<br>- 模板注册表 `templates/registry.ts`（`TEMPLATE_REGISTRY`, `getTemplateComponent`, `hasTemplate`）<br>- `TemplateComponentProps` 接口定义<br>- `SlideBackground` 组件（按 sceneType 渲染不同背景色）<br>- `LogoWatermark` 组件（固定位置水印）<br>- `ProgressBar` 组件（底部进度条）<br>- 主题常量 `styles/theme.ts`（色板、字体大小、间距）<br>- 字体加载 `fonts.ts`（`loadChineseFonts`，使用 `@remotion/fonts` + staticFile）<br>- `Root.tsx` 更新（注册 `MicroCourseVideo` + `ScenePreview` Composition 占位）<br>- 字体文件放入 `public/fonts/` |
 | **不包含** | 具体模板实现（后续 Change）、Composition 完整实现 |
@@ -1689,6 +1104,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | FEATURE |
+| **Business Context** | 微课视频的核心价值在于将知识点可视化呈现。不同内容类型（标题、概念、列表、流程）需要不同的视觉模板才能有效传达信息。本 Change 实现 8 套 PPT 风格模板，覆盖主要场景：TitleSlide/EndingSlide（视频开头结尾）、ConceptCard（单一概念解释）、BulletList（要点列举，支持分页）、ProcessFlow（步骤流程）、Comparison（对比分析）、Timeline（时间线）、Summary（总结归纳）。**用户价值**：自动适配内容类型，呈现专业级视觉效果。 |
 | **Goal** | 实现 TitleSlide、EndingSlide、ConceptCard 模板（含完整入场动效 + 边界条件处理） |
 | **Scope** | - **TitleSlide**：居中布局 + 装饰线 + 主副标题 + fadeIn/slideUp 动效 + 超长标题自动缩小<br>- **EndingSlide**：感谢文字 + Logo + scaleIn 动效 + 固定 90 帧<br>- **ConceptCard**：概念名 + 核心解释 + 关键词标签 + typewriter 动效 + 竖线装饰<br>- 每个模板处理边界条件（空字段、过长文本、不同 aspectRatio）<br>- 使用 `useCurrentFrame` + `interpolate`/`spring`（禁止 CSS animation）<br>- 每个模板使用 `<Sequence premountFor>` 预挂载 |
 | **不包含** | 其他模板（后续 Change） |
@@ -1769,6 +1185,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | FOUNDATION |
+| **Business Context** | 视频渲染是 CPU 和内存密集型任务，需要 Chromium 和 FFmpeg。在 Next.js 主服务中渲染会导致请求阻塞、内存溢出、用户体验下降。本 Change 创建独立的 Render Worker 服务，包括 HTTP Server（接收渲染请求）、渲染引擎（bundle + renderMedia）、健康检查（监控 Worker 状态）、Docker 化（隔离依赖，可独立扩容）。**用户价值**：视频渲染不影响主服务响应，支持并发渲染。 |
 | **Goal** | 创建 Render Worker 独立服务：HTTP Server + bundle + renderMedia + 健康检查 |
 | **Scope** | - 创建 `apps/render-worker/` 目录（独立 package，不依赖 Next.js）<br>- package.json（含 remotion, @remotion/renderer, fastify, @aws-sdk/client-s3）<br>- **HTTP Server**（Fastify）：`POST /internal/render`（接收渲染请求，校验 internal token，并发限制）<br>- **健康检查**：`GET /health`（返回 status, activeRenders, fonts, disk, memory）<br>- **渲染引擎**：`bundle()` + `getCompositions()` + `renderMedia()`（14 个参数精确配置）<br>- `onProgress` 回调（进度写入内存 Map）<br>- **renderStill**（缩略图生成，第 30 帧，scale=0.25）<br>- **R2 上传**（渲染完成后上传 MP4 + 缩略图）<br>- 临时文件清理<br>- Worker 配置常量（`config.ts`） |
 | **不包含** | Dockerfile（下一个 Change）、Inngest trigger（再下一个） |
@@ -1801,6 +1218,7 @@ src/lib/analytics.ts (新建)
 | 属性 | 内容 |
 |------|------|
 | **Change Type** | INTEGRATION |
+| **Business Context** | 视频渲染是整个生成流程的最后一步，需要将分镜、音频、字幕、动效等元素合成为最终视频。传统视频编辑软件操作复杂，自动化难度大。本 Change 使用 Remotion 实现视频渲染，包括 8 套 PPT 模板自动适配、音频和字幕同步、动效和转场、高清视频导出。**用户价值**：全自动视频渲染，无需人工干预，3-5 分钟输出高质量视频。 |
 | **Goal** | 实现 Inngest function `trigger-render`：创建 RenderJob → 选择 Worker → 发送渲染请求 → 处理回调/结果 |
 | **Scope** | - Inngest function `video/trigger-render`<br>- `render.service.ts`：构建 RenderJob inputProps（storyboard + audioUrlMap + config）→ 幂等检查（storyboardVersionId + renderConfigHash）→ 选择 Worker（健康 + 空闲）→ POST 渲染请求 → 轮询/等待回调 → 更新 RenderJob 状态<br>- 音频签名 URL 刷新（有效期 1 小时，覆盖渲染耗时）<br>- 渲染成功：创建 video/thumbnail Asset → 更新 Project.completed → 记录 UsageRecord<br>- 渲染失败：判断重试策略（RENDER_CHROMIUM_LAUNCH_FAILED 重试 2 次，RENDER_INVALID_STORYBOARD 不重试等）<br>- Worker 注册/发现机制（简单实现：通过 RENDER_WORKER_URLS 环境变量配置列表） |
 | **不包含** | Worker 自动扩缩容、复杂负载均衡 |
