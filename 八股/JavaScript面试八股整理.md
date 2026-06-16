@@ -1111,6 +1111,8 @@ flowchart TD
 	3. this指向问题
 	4. throw new Error问题
 	5. then 回调是微任务
+	6. reject、resolve执行时机
+	7. 链式调用
 
 简化版 Promise：
 
