@@ -1309,7 +1309,7 @@ function promiseAll(iterable) {
             resolve(results);
           }
         },
-        reject
+        reject // 调用的是外层 Promise 的 reject
       );
     });
   });
