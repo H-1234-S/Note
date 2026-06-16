@@ -1127,7 +1127,7 @@ class MyPromise {
     const resolve = value => {
       // 只有当state为pending才可以触发
       if (this.state !== "pending") return;
-
+	  // 
       queueMicrotask(() => {
         if (this.state !== "pending") return;
         this.state = "fulfilled";
