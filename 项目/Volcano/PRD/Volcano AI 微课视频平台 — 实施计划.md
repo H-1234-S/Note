@@ -1995,112 +1995,112 @@ graph TD
     end
 
     subgraph "Phase 1: 核心业务基础"
-        ep2-01[ep2-01 project-create-api]
-        ep2-02[ep2-02 project-list-detail-api]
-        ep2-03[ep2-03 dashboard-page]
-        ep2-04[ep2-04 create-project-page]
-        ep2-05[ep2-05 cancel-retry-delete-api]
+        project-lifecycle-api[project-lifecycle-api]
+        project-list-detail-api[project-list-detail-api]
+        dashboard-page[dashboard-page]
+        create-project-page[create-project-page]
+        project-advanced-actions[project-advanced-actions]
     end
 
     subgraph "Phase 2: AI 生成链路"
-        ep3-01[ep3-01 storyboard-types-schema]
-        ep3-02[ep3-02 storyboard-validation-repair]
-        ep3-03[ep3-03 llm-provider-deepseek]
-        ep3-04[ep3-04 storyboard-generation-inngest]
+        content-storyboard-schema[content-storyboard-schema]
+        storyboard-validation-repair[storyboard-validation-repair]
+        content-llm-integration[content-llm-integration]
+        content-storyboard-generation[content-storyboard-generation]
     end
 
     subgraph "Phase 3: TTS 音频与存储"
-        ep4-01[ep4-01 tts-provider-minimax]
-        ep4-02[ep4-02 r2-storage-full-impl]
-        ep4-03[ep4-03 audio-generation-inngest]
-        ep4-04[ep4-04 asset-signed-url-api]
+        asset-tts-provider[asset-tts-provider]
+        asset-storage-service[asset-storage-service]
+        asset-audio-generation[asset-audio-generation]
+        asset-access-control[asset-access-control]
     end
 
     subgraph "Phase 4: Remotion 视频渲染"
-        ep5-01[ep5-01 remotion-foundation]
-        ep5-02[ep5-02 templates-batch1]
-        ep5-03[ep5-03 templates-batch2]
-        ep5-04[ep5-04 templates-batch3]
-        ep5-05[ep5-05 animations-captions]
-        ep5-06[ep5-06 composition-timeline]
-        ep5-07[ep5-07 render-worker-core]
-        ep5-08[ep5-08 render-worker-docker]
-        ep5-09[ep5-09 render-inngest-trigger]
+        render-foundation-setup[render-foundation-setup]
+        render-templates-batch1[render-templates-batch1]
+        render-templates-batch2[render-templates-batch2]
+        render-templates-batch3[render-templates-batch3]
+        render-animations-captions[render-animations-captions]
+        render-composition-timeline[render-composition-timeline]
+        render-worker-core[render-worker-core]
+        render-worker-docker[render-worker-docker]
+        render-video-composition[render-video-composition]
     end
 
     subgraph "Phase 5: 前端体验"
-        ep6-01[ep6-01 progress-page]
-        ep6-02[ep6-02 storyboard-preview-page]
-        ep6-03[ep6-03 video-result-page]
-        ep6-04[ep6-04 global-layout-nav]
+        project-progress-page[project-progress-page]
+        storyboard-preview-page[storyboard-preview-page]
+        project-result-display[project-result-display]
+        global-layout-nav[global-layout-nav]
     end
 
     subgraph "Phase 6: 运营与可观测性"
-        ep7-01[ep7-01 error-code-system]
-        ep7-02[ep7-02 quota-usage-tracking]
-        ep7-03[ep7-03 retry-cancel-mechanism]
-        ep7-04[ep7-04 sentry-logging]
+        system-error-handling[system-error-handling]
+        system-quota-tracking[system-quota-tracking]
+        system-retry-cancel[system-retry-cancel]
+        system-logging[system-logging]
     end
 
     %% Phase 1 internal
-    BASE --> ep2-01
-    ep2-01 --> ep2-02
-    ep2-01 --> ep2-05
-    ep2-02 --> ep2-03
-    ep2-01 --> ep2-04
+    BASE --> project-lifecycle-api
+    project-lifecycle-api --> project-list-detail-api
+    project-lifecycle-api --> project-advanced-actions
+    project-list-detail-api --> dashboard-page
+    project-lifecycle-api --> create-project-page
 
     %% Phase 2
-    ep3-01 --> ep3-02
-    ep3-02 --> ep3-03
-    ep3-03 --> ep3-04
-    ep2-01 --> ep3-04
+    content-storyboard-schema --> storyboard-validation-repair
+    storyboard-validation-repair --> content-llm-integration
+    content-llm-integration --> content-storyboard-generation
+    project-lifecycle-api --> content-storyboard-generation
 
     %% Phase 3
-    ep3-01 --> ep4-01
-    BASE --> ep4-02
-    ep4-01 --> ep4-03
-    ep4-02 --> ep4-03
-    ep3-04 --> ep4-03
-    ep4-02 --> ep4-04
-    ep4-01 --> ep4-04
+    content-storyboard-schema --> asset-tts-provider
+    BASE --> asset-storage-service
+    asset-tts-provider --> asset-audio-generation
+    asset-storage-service --> asset-audio-generation
+    content-storyboard-generation --> asset-audio-generation
+    asset-storage-service --> asset-access-control
+    asset-tts-provider --> asset-access-control
 
     %% Phase 4
-    ep3-01 --> ep5-01
-    ep5-01 --> ep5-02
-    ep5-01 --> ep5-03
-    ep5-01 --> ep5-04
-    ep5-01 --> ep5-05
-    ep5-02 --> ep5-06
-    ep5-03 --> ep5-06
-    ep5-04 --> ep5-06
-    ep5-05 --> ep5-06
-    ep4-03 --> ep5-06
-    ep5-06 --> ep5-07
-    ep4-02 --> ep5-07
-    ep5-07 --> ep5-08
-    ep5-07 --> ep5-09
-    ep5-06 --> ep5-09
-    ep4-04 --> ep5-09
+    content-storyboard-schema --> render-foundation-setup
+    render-foundation-setup --> render-templates-batch1
+    render-foundation-setup --> render-templates-batch2
+    render-foundation-setup --> render-templates-batch3
+    render-foundation-setup --> render-animations-captions
+    render-templates-batch1 --> render-composition-timeline
+    render-templates-batch2 --> render-composition-timeline
+    render-templates-batch3 --> render-composition-timeline
+    render-animations-captions --> render-composition-timeline
+    asset-audio-generation --> render-composition-timeline
+    render-composition-timeline --> render-worker-core
+    asset-storage-service --> render-worker-core
+    render-worker-core --> render-worker-docker
+    render-worker-core --> render-video-composition
+    render-composition-timeline --> render-video-composition
+    asset-access-control --> render-video-composition
 
     %% Phase 5
-    ep2-04 --> ep6-01
-    ep2-02 --> ep6-01
-    ep2-05 --> ep6-01
-    ep2-02 --> ep6-02
-    ep4-04 --> ep6-02
-    ep2-02 --> ep6-03
-    ep4-04 --> ep6-03
-    ep5-09 --> ep6-03
-    ep2-03 --> ep6-04
-    ep2-04 --> ep6-04
+    create-project-page --> project-progress-page
+    project-list-detail-api --> project-progress-page
+    project-advanced-actions --> project-progress-page
+    project-list-detail-api --> storyboard-preview-page
+    asset-access-control --> storyboard-preview-page
+    project-list-detail-api --> project-result-display
+    asset-access-control --> project-result-display
+    render-video-composition --> project-result-display
+    dashboard-page --> global-layout-nav
+    create-project-page --> global-layout-nav
 
     %% Phase 6
-    ep7-01 --> ep7-02
-    ep3-04 --> ep7-03
-    ep4-03 --> ep7-03
-    ep5-06 --> ep7-03
-    ep5-09 --> ep7-03
-    ep7-01 --> ep7-04
+    system-error-handling --> system-quota-tracking
+    content-storyboard-generation --> system-retry-cancel
+    asset-audio-generation --> system-retry-cancel
+    render-composition-timeline --> system-retry-cancel
+    render-video-composition --> system-retry-cancel
+    system-error-handling --> system-logging
 ```
 
 ---
