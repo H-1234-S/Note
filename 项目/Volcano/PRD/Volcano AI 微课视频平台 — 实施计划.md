@@ -14,27 +14,6 @@
 
 ---
 
-## 🎯 核心优化原则
-
-### 1. **保持现有 UI 架构**
-- ✅ 保留 `MainApp.tsx` 的 Tab 架构（Generate / History / Subscribe）
-- ✅ 保留现有所有 UI 组件（AppNavbar, GenerateTab, HistoryTab 等）
-- ✅ 保留现有路由结构（`/` 首页认证分流）
-- 🔧 仅需完善后端 API 和数据集成
-
-### 2. **单仓库结构优化**
-- 当前为单 Next.js 应用，非 monorepo
-- Remotion 集成在 `src/remotion/` 目录
-- 避免引入复杂的 workspace 配置
-- 保持简单的目录结构
-
-### 3. **渐进式实现**
-- 优先完成 API 层（tRPC routers）
-- 然后集成到现有 UI 组件
-- 最后补充 Inngest 异步任务
-
----
-
 ## 0. 项目当前状态（2026-06-16）
 
 ### 0.1 已完成工作
