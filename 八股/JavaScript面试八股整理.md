@@ -993,7 +993,7 @@ async/await 是 Promise 的语法糖。`async` 函数总是返回 Promise，`awa
 
 Promise 能链式调用的原因：
 
-> `then` 方法总是返回一个新的 Promise。回调返回普通值，新 Promise resolve 该值；回调返回 Promise，新 Promise 会采用它的状态；回调抛错，新 Promise reject 该错误。
+> `then` 方法总是返回一个新的 Promise。回调返回普通值，新 Promise resolve 该值；回调返回 Promise，新 Promise 会**采用它的状态**；回调抛错，新 Promise reject 该错误。
 
 Promise 状态一旦确定不可变，是为了保证异步结果的确定性。否则一个异步任务可能先成功后失败，调用方无法建立可靠逻辑。
 
