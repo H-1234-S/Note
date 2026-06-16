@@ -1301,7 +1301,7 @@ function promiseAll(iterable) {
     list.forEach((item, index) => {
 	  // Promise 包装
 	  // 因为可能传递的不是一个 promise
-      Promise.resolve(item).then(
+      Promise.resolve(item).then( // then 会监听 promise 的状态，从而执行哪一个回调
         value => {
           results[index] = value;
           completed++;
