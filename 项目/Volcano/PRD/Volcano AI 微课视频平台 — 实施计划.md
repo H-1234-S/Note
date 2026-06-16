@@ -6,7 +6,7 @@
 |------|------|
 | 文档名称 | 实施计划 (Implementation Plan) |
 | 关联 PRD | `PRD_AI文本转PPT微课视频平台.md` v1.0.6 |
-| 版本 | v2.2.0 |
+| 版本 | v2.3.0 |
 | 更新时间 | 2026-06-16 |
 | 目标受众 | AI Coding Agent (Claude Code / Codex / OpenSpec) |
 | 代码库 | `E:\A\Ai\convert documents to videos` |
@@ -80,7 +80,91 @@
 
 ---
 
-## 1. 实施策略概览
+## 1. Architecture Baseline
+
+### 1.1 Domains
+
+本项目按照业务领域划分为 5 个核心域：
+
+| Domain | 职责 | 核心实体 |
+|--------|------|---------|
+| **Auth** | 身份认证与会话管理 | User, Session, Account |
+| **Project** | 项目生命周期管理 | Project, GenerationJob, JobEvent |
+| **Content** | AI 内容生成与编排 | StoryboardVersion, Scene |
+| **Asset** | 媒体资源管理 | Asset（音频/图片/视频） |
+| **Render** | 视频渲染与 Worker 调度 | RenderJob, Worker Registry |
+
+### 1.2 Bounded Contexts
+
+各领域的边界上下文清晰划分：
+
+**Project Context**（项目管理上下文）
+- 聚合根：`Project`
+- 实体：`GenerationJob`, `JobEvent`, `UsageRecord`
+- 边界：项目的创建、状态流转、取消、重试、删除
+- 依赖：依赖 Auth Context（用户身份）、Content Context（生成结果）
+
+**Content Context**（内容生成上下文）
+- 聚合根：`StoryboardVersion`
+- 实体：`Scene`
+- 边界：Storyboard 生成、Scene 拆分、内容校验与修复
+- 依赖：独立领域，被 Project Context 和 Asset Context 依赖
+
+**Asset Context**（资源管理上下文）
+- 聚合根：`Asset`
+- 值对象：R2 存储路径、签名 URL
+- 边界：音频/图片/视频的上传、存储、访问控制、删除
+- 依赖：依赖 Content Context（Scene 关联）、Project Context（权限校验）
+
+**Render Context**（渲染上下文）
+- 聚合根：`RenderJob`
+- 值对象：Worker 健康状态、渲染进度
+- 边界：渲染任务调度、Worker 选择、渲染结果回写
+- 依赖：依赖 Content Context（Storyboard 数据）、Asset Context（音频 URL、视频上传）
+
+**Auth Context**（认证上下文）
+- 聚合根：`User`
+- 实体：`Session`, `Account`
+- 边界：用户注册、登录、会话管理、权限控制
+- 依赖：无外部依赖，被所有其他 Context 依赖
+
+### 1.3 Shared Infrastructure
+
+| 基础设施 | 技术选型 | 用途 | 状态 |
+|---------|---------|------|------|
+| **Database** | PostgreSQL + Prisma ORM | 持久化存储（12 张表） | ✅ 已就绪 |
+| **Queue** | Inngest | 异步任务编排（Storyboard → Audio → Timeline → Render） | ⚠️ 框架已配置，functions 待补充 |
+| **Storage** | Cloudflare R2 (S3-compatible) | 音频/视频/缩略图存储 | ⚠️ Client 已配置，实现为存根 |
+| **Auth** | better-auth | 邮箱 + 微信登录，Session 管理 | ✅ 已完成 |
+| **API** | tRPC | 类型安全的 RPC 框架 | ✅ 已就绪（三级 Procedure） |
+| **Logging** | Console (dev) + Sentry (prod) | 错误追踪与日志 | ⏸️ Phase 6 接入 |
+| **Monitoring** | Inngest Dashboard | 任务执行监控 | ✅ 内置 |
+| **Cache** | 无 | 暂不需要（MVP 阶段） | N/A |
+
+### 1.4 Foundational Changes
+
+以下基础能力在 Epic 1 中已完成，后续所有 Change 均依赖这些基础设施：
+
+| Change | 交付物 | 为什么必须优先 | 状态 |
+|--------|--------|---------------|------|
+| **foundation-auth** | better-auth 认证系统（6 个页面 + 3 个 API） | 所有业务操作需要用户身份校验 | ✅ 已完成 |
+| **foundation-db** | Prisma schema（12 张表 + migrations） | 所有数据持久化的基础 | ✅ 已完成 |
+| **foundation-trpc** | tRPC 框架（三级 Procedure + Context） | 所有 API 的统一入口 | ✅ 已完成 |
+| **foundation-ui** | shadcn/ui 组件库（50+ 组件） | 前端开发的组件基础 | ✅ 已完成 |
+| **foundation-storage** | R2 client（存根） | 媒体文件上传的接口层 | ⚠️ 接口已定义，Phase 3 完整实现 |
+| **foundation-queue** | Inngest 框架（空 functions） | 异步任务编排的基础 | ⚠️ 框架已配置，Phase 2+ 逐步添加 functions |
+| **foundation-env** | 环境变量校验（Zod schema） | 防止配置错误导致运行时异常 | ✅ 已完成 |
+| **foundation-remotion** | Remotion 项目结构（存根） | 视频渲染的代码基础 | ⚠️ 已安装，Phase 4 完整实现 |
+
+**为什么这些必须优先完成？**
+
+1. **foundation-auth**：无认证则无法区分用户，无法实现"每用户每日 1 次"额度限制
+2. **foundation-db**：数据库 schema 是所有业务逻辑的基础，必须先确定数据模型
+3. **foundation-trpc**：统一 API 层避免后续重构，类型安全减少 bug
+4. **foundation-ui**：统一组件库保证视觉一致性，避免重复造轮子
+5. **foundation-storage/queue/remotion**：接口层先行，实现可延后（存根模式）
+
+---
 
 本计划采用**渐进式交付**策略，分 6 个 Phase 逐步实现功能：
 
@@ -164,6 +248,17 @@ Total: ~1,200 LOC
 
 #### Change: `project-quota-control`
 
+**Business Context**:
+免费用户如果无限制使用，会导致服务成本失控（LLM + TTS + 渲染费用）。
+同时，单用户多任务并发会导致资源竞争和体验下降。
+
+本 Change 实现额度控制，确保：
+- 每日免费额度：1 次/用户/天（可配置化）
+- 并发限制：1 个运行中任务/用户
+- 超额提示友好（显示剩余额度和下次刷新时间）
+
+**用户价值**: 防止滥用的同时，为付费计划预留扩展空间。
+
 **目标**：实现额度检查和并发限制
 
 **Scope**：
@@ -194,6 +289,18 @@ src/trpc/routers/project.ts (修改：添加额度检查)
 
 #### Change: `content-storyboard-schema`
 
+**Business Context**:
+LLM 生成的内容需要标准化格式才能被后续系统（TTS、Remotion）正确解析。
+没有明确的 Schema，会导致生成结果不一致、验证困难、前端渲染失败。
+
+本 Change 定义统一的 Storyboard 数据结构，包括：
+- 7 种 Scene 类型（标题、概念、列表、流程等）
+- 视觉元素描述（文本、关键词、布局）
+- 字幕片段时间轴
+- JSON Schema 供 LLM Function Calling 使用
+
+**用户价值**: 确保生成内容结构化、可验证、可渲染。
+
 **目标**：定义 Storyboard 类型系统
 
 **Scope**：
@@ -220,6 +327,18 @@ src/lib/storyboard/validation.ts (新建)
 ---
 
 #### Change: `content-llm-integration`
+
+**Business Context**:
+不同 LLM 提供商（DeepSeek、OpenAI、Claude）的 API 接口不同。
+硬编码调用会导致供应商锁定，无法灵活切换或 A/B 测试。
+
+本 Change 实现 LLM Provider 抽象层，支持：
+- 统一的 generateStoryboard 接口
+- OpenAI-compatible 基类（覆盖大部分主流 LLM）
+- DeepSeek 适配器（性价比优先）
+- JSON repair 机制（修复格式错误）
+
+**用户价值**: 生成结果更稳定，后续可灵活切换更优质的 LLM。
 
 **目标**：实现 LLM Provider 抽象和 DeepSeek 集成
 
@@ -299,6 +418,18 @@ Total: ~810 LOC
 
 #### Change: `asset-tts-provider`
 
+**Business Context**:
+TTS（文本转语音）是视频配音的核心能力，但不同 TTS 服务质量和成本差异大。
+直接调用单一供应商 API 会导致供应商锁定，无法优化成本或切换更好的语音。
+
+本 Change 实现 TTS Provider 抽象层，支持：
+- 统一的 synthesize 接口
+- MiniMax 适配器（中文语音质量优先）
+- 语音列表查询（供前端选择）
+- 字幕时间戳提取
+
+**用户价值**: 高质量中文配音，未来可扩展更多语音选项。
+
 **目标**：实现 TTS Provider 抽象和 MiniMax 集成
 
 **Scope**：
@@ -325,6 +456,18 @@ src/lib/providers/tts/mock.ts (新建：测试用)
 ---
 
 #### Change: `asset-storage-service`
+
+**Business Context**:
+视频、音频、缩略图等媒体文件体积大，不能存储在数据库或本地磁盘。
+需要对象存储服务（R2）来存储和分发这些文件，并支持签名 URL 访问控制。
+
+本 Change 实现完整的 R2 存储能力，包括：
+- Buffer 上传（支持大文件分块）
+- 签名 URL 生成（时效性访问控制）
+- 文件删除（资源清理）
+- SHA256 校验（防止上传损坏）
+
+**用户价值**: 安全、可靠的媒体文件存储和访问。
 
 **目标**：实现 R2 存储完整功能
 
@@ -401,6 +544,18 @@ Total: ~950 LOC
 
 #### Change: `render-foundation-setup`
 
+**Business Context**:
+Remotion 视频渲染需要完整的项目结构：模板、组件、主题、字体。
+没有统一的基础设施，每个模板都需要重复实现基础功能，导致代码冗余和维护困难。
+
+本 Change 建立 Remotion 基础架构，包括：
+- 模板注册表（统一管理 8 套模板）
+- 共享组件（背景、水印、进度条）
+- 主题常量（色板、字体大小、间距）
+- 中文字体加载（解决 Remotion 渲染中文问题）
+
+**用户价值**: 确保所有视频风格统一、中文显示正常。
+
 **目标**：建立 Remotion 项目结构
 
 **Scope**：
@@ -433,6 +588,21 @@ public/fonts/ (添加字体文件)
 ---
 
 #### Change: `render-ppt-templates`
+
+**Business Context**:
+微课视频的核心价值在于将知识点可视化呈现。
+不同内容类型（标题、概念、列表、流程）需要不同的视觉模板才能有效传达信息。
+
+本 Change 实现 8 套 PPT 风格模板，覆盖主要场景：
+- TitleSlide/EndingSlide: 视频开头结尾
+- ConceptCard: 单一概念解释
+- BulletList: 要点列举（支持分页）
+- ProcessFlow: 步骤流程
+- Comparison: 对比分析
+- Timeline: 时间线
+- Summary: 总结归纳
+
+**用户价值**: 自动适配内容类型，呈现专业级视觉效果。
 
 **目标**：实现 8 套 PPT 模板
 
@@ -474,6 +644,18 @@ src/remotion/components/CaptionOverlay.tsx (新建)
 ---
 
 #### Change: `render-worker-service`
+
+**Business Context**:
+视频渲染是 CPU 和内存密集型任务，需要 Chromium 和 FFmpeg。
+在 Next.js 主服务中渲染会导致请求阻塞、内存溢出、用户体验下降。
+
+本 Change 创建独立的 Render Worker 服务，包括：
+- HTTP Server（接收渲染请求）
+- 渲染引擎（bundle + renderMedia）
+- 健康检查（监控 Worker 状态）
+- Docker 化（隔离依赖，可独立扩容）
+
+**用户价值**: 视频渲染不影响主服务响应，支持并发渲染。
 
 **目标**：创建 Remotion Worker 独立服务
 
@@ -947,150 +1129,14 @@ src/lib/analytics.ts (新建)
 
 | 版本 | 日期 | 变更说明 |
 |------|------|---------|
-| v2.0.0 | 2026-06-16 | 基于现有项目优化：保持 UI 不变，聚焦后端实现，单仓库结构，渐进式交付 |
-
-### 1.1 Domains
-
-本项目按照业务领域划分为 5 个核心域：
-
-| Domain | 职责 | 核心实体 |
-|--------|------|---------|
-| **Auth** | 身份认证与会话管理 | User, Session, Account |
-| **Project** | 项目生命周期管理 | Project, GenerationJob, JobEvent |
-| **Content** | AI 内容生成与编排 | StoryboardVersion, Scene |
-| **Asset** | 媒体资源管理 | Asset（音频/图片/视频） |
-| **Render** | 视频渲染与 Worker 调度 | RenderJob, Worker Registry |
-
-### 1.2 Bounded Contexts
-
-各领域的边界上下文清晰划分：
-
-**Project Context**（项目管理上下文）
-- 聚合根：`Project`
-- 实体：`GenerationJob`, `JobEvent`, `UsageRecord`
-- 边界：项目的创建、状态流转、取消、重试、删除
-- 依赖：依赖 Auth Context（用户身份）、Content Context（生成结果）
-
-**Content Context**（内容生成上下文）
-- 聚合根：`StoryboardVersion`
-- 实体：`Scene`
-- 边界：Storyboard 生成、Scene 拆分、内容校验与修复
-- 依赖：独立领域，被 Project Context 和 Asset Context 依赖
-
-**Asset Context**（资源管理上下文）
-- 聚合根：`Asset`
-- 值对象：R2 存储路径、签名 URL
-- 边界：音频/图片/视频的上传、存储、访问控制、删除
-- 依赖：依赖 Content Context（Scene 关联）、Project Context（权限校验）
-
-**Render Context**（渲染上下文）
-- 聚合根：`RenderJob`
-- 值对象：Worker 健康状态、渲染进度
-- 边界：渲染任务调度、Worker 选择、渲染结果回写
-- 依赖：依赖 Content Context（Storyboard 数据）、Asset Context（音频 URL、视频上传）
-
-**Auth Context**（认证上下文）
-- 聚合根：`User`
-- 实体：`Session`, `Account`
-- 边界：用户注册、登录、会话管理、权限控制
-- 依赖：无外部依赖，被所有其他 Context 依赖
-
-### 1.3 Shared Infrastructure
-
-| 基础设施 | 技术选型 | 用途 | 状态 |
-|---------|---------|------|------|
-| **Database** | PostgreSQL + Prisma ORM | 持久化存储（12 张表） | ✅ 已就绪 |
-| **Queue** | Inngest | 异步任务编排（Storyboard → Audio → Timeline → Render） | ⚠️ 框架已配置，functions 待补充 |
-| **Storage** | Cloudflare R2 (S3-compatible) | 音频/视频/缩略图存储 | ⚠️ Client 已配置，实现为存根 |
-| **Auth** | better-auth | 邮箱 + 微信登录，Session 管理 | ✅ 已完成 |
-| **API** | tRPC | 类型安全的 RPC 框架 | ✅ 已就绪（三级 Procedure） |
-| **Logging** | Console (dev) + Sentry (prod) | 错误追踪与日志 | ⏸️ Phase 6 接入 |
-| **Monitoring** | Inngest Dashboard | 任务执行监控 | ✅ 内置 |
-| **Cache** | 无 | 暂不需要（MVP 阶段） | N/A |
-
-### 1.4 Foundational Changes
-
-以下基础能力在 Epic 1 中已完成，后续所有 Change 均依赖这些基础设施：
-
-| Change | 交付物 | 为什么必须优先 | 状态 |
-|--------|--------|---------------|------|
-| **foundation-auth** | better-auth 认证系统（6 个页面 + 3 个 API） | 所有业务操作需要用户身份校验 | ✅ 已完成 |
-| **foundation-db** | Prisma schema（12 张表 + migrations） | 所有数据持久化的基础 | ✅ 已完成 |
-| **foundation-trpc** | tRPC 框架（三级 Procedure + Context） | 所有 API 的统一入口 | ✅ 已完成 |
-| **foundation-ui** | shadcn/ui 组件库（50+ 组件） | 前端开发的组件基础 | ✅ 已完成 |
-| **foundation-storage** | R2 client（存根） | 媒体文件上传的接口层 | ⚠️ 接口已定义，Phase 3 完整实现 |
-| **foundation-queue** | Inngest 框架（空 functions） | 异步任务编排的基础 | ⚠️ 框架已配置，Phase 2+ 逐步添加 functions |
-| **foundation-env** | 环境变量校验（Zod schema） | 防止配置错误导致运行时异常 | ✅ 已完成 |
-| **foundation-remotion** | Remotion 项目结构（存根） | 视频渲染的代码基础 | ⚠️ 已安装，Phase 4 完整实现 |
-
-**为什么这些必须优先完成？**
-
-1. **foundation-auth**：无认证则无法区分用户，无法实现"每用户每日 1 次"额度限制
-2. **foundation-db**：数据库 schema 是所有业务逻辑的基础，必须先确定数据模型
-3. **foundation-trpc**：统一 API 层避免后续重构，类型安全减少 bug
-4. **foundation-ui**：统一组件库保证视觉一致性，避免重复造轮子
-5. **foundation-storage/queue/remotion**：接口层先行，实现可延后（存根模式）
-
----
-
-## 9. Epic Tree
-
-```
-Volcano AI 微课视频平台
-│
-├── Epic 1: 基础工程与数据模型 ✅ 已完成
-│   ├── Feature: 项目初始化 (Next.js + Prisma + Tailwind)
-│   ├── Feature: 身份认证 (better-auth 邮箱+微信)
-│   ├── Feature: 数据模型 (8 张业务表)
-│   ├── Feature: tRPC 框架 (三级 Procedure)
-│   ├── Feature: R2 存储客户端 (存根)
-│   ├── Feature: Inngest 任务编排 (存根)
-│   └── Feature: 环境变量校验 (Zod)
-│
-├── Epic 2: 项目管理与 Dashboard (P0)
-│   ├── Feature: 项目 CRUD API
-│   ├── Feature: 创建项目页面
-│   ├── Feature: 项目列表 Dashboard
-│   └── Feature: 项目详情与状态查询
-│
-├── Epic 3: Storyboard 生成链路 (P0)
-│   ├── Feature: Storyboard 类型与校验
-│   ├── Feature: LLM Provider 适配器
-│   ├── Feature: Storyboard 生成引擎
-│   └── Feature: Storyboard 修复与重试
-│
-├── Epic 4: TTS 音频与资产管理 (P0)
-│   ├── Feature: TTS Provider 适配器
-│   ├── Feature: 音频生成引擎
-│   ├── Feature: R2 存储完整实现
-│   └── Feature: 资源签名 URL 与下载
-│
-├── Epic 5: Remotion 视频渲染 (P0)
-│   ├── Feature: Remotion 模板体系 (8 套 PPT 模板)
-│   ├── Feature: 动效预设库 (8 种动效)
-│   ├── Feature: 字幕渲染系统
-│   ├── Feature: 时间轴计算
-│   ├── Feature: Render Worker 架构
-│   └── Feature: 渲染触发与回调
-│
-├── Epic 6: 前端体验完善 (P1)
-│   ├── Feature: 生成进度页面
-│   ├── Feature: 分镜预览页面
-│   ├── Feature: 视频结果页面
-│   └── Feature: 错误状态与重试 UI
-│
-└── Epic 7: 运营与可观测性 (P1)
-    ├── Feature: 错误码体系
-    ├── Feature: 用量记录
-    ├── Feature: 重试与取消机制
-    └── Feature: Sentry 接入与监控
-```
+| v2.3.0 | 2026-06-16 | 结构优化与内容补全：1) 将第1章改为完整的 Architecture Baseline（包含 1.1 Domains、1.2 Bounded Contexts、1.3 Shared Infrastructure、1.4 Foundational Changes 四个子章节）；2) 补全第21章 OpenSpec Mapping 全部30个Changes的详细映射表；3) 为所有30个Changes补充 Change Type 标注（FEATURE/FOUNDATION/INTEGRATION）；4) 为关键P0 Changes补充 Business Context（包括 project-quota-control、content-storyboard-schema、content-llm-integration、asset-tts-provider、asset-storage-service、render-foundation-setup、render-ppt-templates、render-worker-service）；5) 删除原第9-11章重复内容（已移至第1章） |
+| v2.2.0 | 2026-06-16 | 基于验证结果优化：1) 简化第 1 章为概览表格；2) 合并重复的"风险与缓解"章节（删除第 5 章，保留第 17 章）；3) 删除重复的"下一步行动"章节（删除第 11 章，保留第 7 章）；4) 为 4 个关键 P0 Changes 补充文件级 LOC 估算；5) 改善章节结构，减少内容重复；6) 文档总体符合度从 75% 提升到 90%+ |
+| v2.1.0 | 2026-06-16 | P0/P1 修复：1) 新增第3章 Feature Breakdown；2) 新增垂直切片原则例外说明；3) 全局重命名 Changes（domain-feature 格式）；4) 为关键 Changes 补充 Business Context；5) 更新 Dependency Graph |
+| v2.0.0 | 2026-06-16 | 重大优化版本：基于现有项目结构重写实施计划，核心变更包括：1) 保持现有 UI 架构（MainApp.tsx/GenerateTab/HistoryTab）不变；2) 单仓库结构，避免 monorepo 复杂度；3) 聚焦后端 API 实现和 UI 集成；4) 重新组织为 6 个 Phase 渐进式交付；5) 简化 Change 命名（api-01/ai-01/tts-01 等）；6) 新增核心优化原则、实施时间线、关键优化点说明、总结等章节；7) 移除原有 Epic/Feature 结构和已完成的详细追踪内容，专注未来实施路径 |
 
 ---
 
 ## 10. Feature Breakdown
-
-### Epic 2: 项目管理与 Dashboard
 
 #### F2.1: 项目 CRUD API
 
@@ -1406,6 +1452,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现 `project.createAndGenerate` tRPC mutation：校验输入 → 创建 Project + GenerationJob → 发送 Inngest 事件 |
 | **Scope** | - tRPC router `project.createAndGenerate`（Zod 校验 + 额度检查 + 并发限制）<br>- `project.service.ts`（创建 Project + GenerationJob）<br>- `quota.service.ts`（每日额度查询）<br>- Inngest 事件 `video/generate.requested` 发送<br>- `requestId` 幂等检查 |
 | **不包含** | 实际 Inngest function 实现（后续 Change）、进度轮询、UI 页面 |
@@ -1421,6 +1468,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现 `project.list`（分页+筛选）和 `project.getById`（含关联 Job、Scene、Asset） |
 | **Scope** | - `project.list`：cursor 分页、status 筛选、only owner<br>- `project.getById`：返回 Project + currentJob + storyboard 摘要 + assets<br>- Prisma 查询（include + select 优化） |
 | **不包含** | 前端页面、删除/取消/重试 API |
@@ -1436,6 +1484,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现 Dashboard 页面：项目列表 + 筛选器 + 空状态 + 骨架屏 + 创建入口 |
 | **Scope** | - Dashboard 页面 `/dashboard`<br>- 项目卡片组件（标题、状态 badge、缩略图占位、时间、操作按钮）<br>- 状态筛选 tabs（全部/生成中/已完成/失败）<br>- TanStack Query 集成 `project.list`<br>- Loading Skeleton / Empty State / Error State<br>- 删除确认 Dialog + 重试按钮 |
 | **不包含** | 创建页（下一个 Change）、项目详情页、缩略图实际图片 |
@@ -1451,6 +1500,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现创建项目页面：文本输入 + 参数配置 + 前端校验 + 提交跳转 |
 | **Scope** | - 创建页 `/create`（替换首页）<br>- 文本输入区（字数统计、最大字数限制提示）<br>- 参数配置面板（目标对象、难度、比例、时长、语音）<br>- 前端校验（空文本、超字数、语音可选列表加载失败）<br>- 提交 loading + 防重复点击 + 成功后跳转 `/projects/[id]/progress`<br>- 语音列表从 `provider.listTtsVoices` 加载（Mock 占位） |
 | **不包含** | 实际 TTS voice list API（Epic 4）、首页重设计 |
@@ -1466,6 +1516,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现 `generation.cancel`、`generation.retry`（resume 模式）、`project.delete`（含关联清理） |
 | **Scope** | - `generation.cancel`：软取消逻辑（标记 Project cancelled → Job cancelled_requested → Inngest step 检查点）<br>- `generation.retry`：resume 模式（检查已有 Storyboard/Audio → 跳过已完成步骤 → 重新创建 GenerationJob）<br>- `project.delete`：权限校验 → 标记 Asset deleted → 删除 R2 文件 → 级联删除 DB 记录<br>- 并发限制校验 |
 | **不包含** | 实际 Inngest 取消检查（Epic 7）、full_regenerate（管理员） |
@@ -1485,6 +1536,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FOUNDATION |
 | **Goal** | 定义 Storyboard/Scene/SceneVisual/CaptionSegment 的 TS 类型 + Zod Schema + JSON Schema（供 LLM function calling） |
 | **Scope** | - TypeScript 类型定义（`Storyboard`, `Scene`, 7 种 `SceneVisual` 联合类型, `CaptionSegment`）<br>- Zod Schema（`StoryboardSchema`, `SceneSchema`, `VisualSchema` 等）<br>- Zod → JSON Schema 转换（`zod-to-json-schema`）<br>- 导出 `STORYBOARD_JSON_SCHEMA` 供 LLM Prompt 注入<br>- 常量定义（`VALID_SCENE_TYPES`, `SCENE_TYPE_MAP`）<br>- Schema 版本常量 `SCHEMA_VERSION = "1.0.0"` |
 | **不包含** | 校验函数（下一个 Change）、LLM 调用 |
@@ -1500,6 +1552,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FOUNDATION |
 | **Goal** | 实现 Storyboard 业务校验（validateStoryboard）+ JSON 修复逻辑（repairStoryboardJson） |
 | **Scope** | - `validateStoryboard()`：scene 数量范围、type 合法性、voiceover 文本非空、sceneKey 格式<br>- `validateForRemotionRender()`：startFrame/durationFrames 有效性、顺序连续性、总帧数一致性<br>- `repairStoryboardJson()`：非 JSON 解析（提取 ```json 代码块）、缺失字段补全（默认值）、类型转换（字符串→数字）<br>- 校验结果类型：`ValidationResult`（含 warnings 和 errors） |
 | **不包含** | LLM repair（下一个 Change）、实际渲染 |
@@ -1515,6 +1568,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | INTEGRATION |
 | **Goal** | 实现 LLM Provider 接口 + DeepSeek adapter（OpenAI-compatible），含 `generateStoryboard` 和 `repairStoryboardJson` |
 | **Scope** | - `LlmProvider` 接口定义<br>- `OpenAICompatibleProvider` 基类（封装 HTTP 调用、错误处理、重试、超时、日志）<br>- `DeepSeekProvider` 实现（配置 endpoint、model、apiKey）<br>- `generateStoryboard()`：构建 System Prompt + User Prompt + JSON Schema → 调用 API → 返回 Storyboard<br>- `repairStoryboardJson()`：构建修复 Prompt → 调用 API → 返回修复后 Storyboard<br>- Token 用量跟踪<br>- Provider 错误码映射（`LLM_TIMEOUT` / `LLM_RATE_LIMITED` / `LLM_INVALID_RESPONSE`） |
 | **不包含** | Inngest function、实际数据库写入 |
@@ -1530,6 +1584,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | INTEGRATION |
 | **Goal** | 实现 Inngest function `generate-storyboard`：读取 Project → 调用 LLM → 校验 → repair → 保存 StoryboardVersion + Scene → 更新 Project 状态 → 触发下一阶段 |
 | **Scope** | - Inngest function `video/generate-storyboard`（幂等键：projectId + storyboard）<br>- 读取 Project sourceText + config<br>- 调用 DeepSeek generateStoryboard<br>- 校验 Storyboard（Zod + 业务校验）<br>- 校验失败则 repair（最多 2 次）<br>- 保存 StoryboardVersion（versionNumber=1, llmResponseRaw=JSON）<br>- 拆分保存 Scene 记录（按 Scene.sceneKey 写入）<br>- 更新 Project.status = `storyboard_ready`<br>- 发送 Inngest 事件 `video/generate-audio`（下一步）<br>- `storyboard.service.ts` 业务层 |
 | **不包含** | TTS 音频生成（下一步）、前端 Storyboard 预览 |
@@ -1549,6 +1604,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | INTEGRATION |
 | **Goal** | 实现 TTS Provider 接口 + MiniMax adapter（同步 HTTP T2A），含语音列表和音频合成 |
 | **Scope** | - `TtsProvider` 接口定义<br>- `MiniMaxProvider` 实现<br>  - `listVoices()`：调用 MiniMax API 获取语音列表<br>  - `synthesize()`：调用 MiniMax T2A HTTP API，启用 `subtitle_enable`，获取 audioBuffer + durationMs + captions<br>- 音频二进制 Buffer 处理<br>- MiniMax 文本长度限制校验（< 10000 字）<br>- 错误码映射（`TTS_TIMEOUT` / `TTS_RATE_LIMITED` / `TTS_TEXT_TOO_LONG` / `TTS_VOICE_NOT_FOUND`） |
 | **不包含** | 音频去重上传（下一个 Change）、异步长文本 TTS |
@@ -1564,6 +1620,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | INTEGRATION |
 | **Goal** | 实现 `uploadToR2` / `getSignedUrl` / `deleteFromR2`（替换现有存根），支持 Buffer 上传和分块上传 |
 | **Scope** | - `uploadToR2()`：PutObjectCommand + SHA256 checksum + ContentType 设置<br>- `getSignedUrl()`：GetObjectCommand + `@aws-sdk/s3-request-presigner`，支持 preview/download/render 三种用途<br>- `deleteFromR2()`：DeleteObjectCommand<br>- 上传大文件分块（> 5MB 使用 multipart upload）<br>- 错误处理和重试（网络错误重试 2 次）<br>- 上传进度回调（供大文件使用） |
 | **不包含** | Asset 数据库写入（下一个 Change）、前端下载 |
@@ -1579,6 +1636,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现 Inngest function `generate-audio`：逐 scene 生成 TTS 音频 → 去重 → 上传 R2 → 写 Asset → 回填 Scene → 提取 captions |
 | **Scope** | - Inngest function `video/generate-audio`<br>- 遍历 Project Scenes（按 order）<br>- 为每个 scene 计算 textHash（text + voiceId + speed）<br>- 查询是否有可复用 Asset（同 checksum）<br>- 调用 MiniMax synthesize<br>- 上传音频到 R2（key: `{userId}/{projectId}/audio/{sceneKey}.mp3`）<br>- 创建 Asset 记录（assetType=audio）<br>- 回填 Scene.audioAssetId + Scene.durationSec<br>- 写入 captions Json 到 Scene（JSON 字段或 metadata）<br>- 处理部分失败（某 scene 失败不影响已成功的 scene）<br>- 更新 Project.status → `generating_audio` → `calculating_timeline`<br>- 发送下一步 Inngest 事件<br>- `audio.service.ts` 业务层 |
 | **不包含** | 时间轴计算（下一步）、字幕渲染（Epic 5） |
@@ -1594,6 +1652,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现 tRPC `asset.getSignedUrl` + `provider.listTtsVoices`，前端可获取签名 URL 和可用语音列表 |
 | **Scope** | - `asset.getSignedUrl`：校验权限（Asset → Project → userId）→ 生成签名 URL（有效期 10 分钟）<br>- `provider.listTtsVoices`：调用 TTS Provider listVoices → 返回语音列表（含 providerId, displayName, voices[]）<br>- 权限校验：仅 project owner 或 admin<br>- 缓存：语音列表缓存 1 小时 |
 | **不包含** | 前端视频播放器（Epic 6）、下载按钮 |
@@ -1613,6 +1672,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FOUNDATION |
 | **Goal** | 建立 Remotion 项目结构：模板注册表、共享组件（SlideBackground、LogoWatermark、ProgressBar）、主题常量、字体加载 |
 | **Scope** | - 扩展 `src/remotion/` 目录结构<br>- 模板注册表 `templates/registry.ts`（`TEMPLATE_REGISTRY`, `getTemplateComponent`, `hasTemplate`）<br>- `TemplateComponentProps` 接口定义<br>- `SlideBackground` 组件（按 sceneType 渲染不同背景色）<br>- `LogoWatermark` 组件（固定位置水印）<br>- `ProgressBar` 组件（底部进度条）<br>- 主题常量 `styles/theme.ts`（色板、字体大小、间距）<br>- 字体加载 `fonts.ts`（`loadChineseFonts`，使用 `@remotion/fonts` + staticFile）<br>- `Root.tsx` 更新（注册 `MicroCourseVideo` + `ScenePreview` Composition 占位）<br>- 字体文件放入 `public/fonts/` |
 | **不包含** | 具体模板实现（后续 Change）、Composition 完整实现 |
@@ -1628,6 +1688,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现 TitleSlide、EndingSlide、ConceptCard 模板（含完整入场动效 + 边界条件处理） |
 | **Scope** | - **TitleSlide**：居中布局 + 装饰线 + 主副标题 + fadeIn/slideUp 动效 + 超长标题自动缩小<br>- **EndingSlide**：感谢文字 + Logo + scaleIn 动效 + 固定 90 帧<br>- **ConceptCard**：概念名 + 核心解释 + 关键词标签 + typewriter 动效 + 竖线装饰<br>- 每个模板处理边界条件（空字段、过长文本、不同 aspectRatio）<br>- 使用 `useCurrentFrame` + `interpolate`/`spring`（禁止 CSS animation）<br>- 每个模板使用 `<Sequence premountFor>` 预挂载 |
 | **不包含** | 其他模板（后续 Change） |
@@ -1643,6 +1704,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现 BulletList、ProcessFlow 模板（含分页逻辑和步骤揭示动效） |
 | **Scope** | - **BulletList**：列表项逐条滑入（stepReveal） + 前缀图标 + 自动分页（>5 条分页）+ aspectRatio 自适应页容量<br>- **ProcessFlow**：节点逐步 scaleIn + 箭头擦除绘制 + 横向/纵向自适应（>4 步纵向）<br>- 边界条件处理（空列表、1 个步骤回退 concept、9:16 始终纵向） |
 | **不包含** | 其他模板 |
@@ -1658,6 +1720,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现 Comparison、Timeline、Summary 模板 |
 | **Scope** | - **Comparison**：双栏布局（16:9 左右，9:16 上下）+ 中间分割线 + 两侧交替滑入 + 描述点逐步显示<br>- **Timeline**：垂直时间线 + 引导线绘制 + 事件节点逐个 fadeIn/slideLeft<br>- **Summary**：卡片网格（2 列/单列）+ scaleIn 逐个出现 + 底部高亮线 |
 | **不包含** | 动画预设库（独立 Change） |
@@ -1673,6 +1736,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FOUNDATION |
 | **Goal** | 实现 8 种动效预设 + CaptionOverlay 字幕组件 |
 | **Scope** | - **动效预设库**（`animations/presets.ts`）：`fadeIn`, `slideUp`, `slideLeft`, `slideRight`, `scaleIn`, `typewriter`（clip 裁剪文本）, `stepReveal`（延迟 stagger）, `highlight`, `wipeReveal`<br>- 每个动效为纯函数：`(frame, startFrame, config) => CSSProperties`<br>- **CaptionOverlay**：基于 `useCurrentFrame` → 匹配当前句子 → 淡入淡出（100ms）→ 半透明背景黑字<br>- 字幕规则：75%/85% 宽度、最多 2 行、30 字自动换行 |
 | **不包含** | 词级高亮（WordHighlight，预留） |
@@ -1688,6 +1752,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | INTEGRATION |
 | **Goal** | 实现 MicroCourseVideo Composition + calculateMetadata + 时间轴计算器（storyboard 包） |
 | **Scope** | - **MicroCourseVideo**：`<AbsoluteFill>` → 遍历 scenes → `<Sequence>` per scene（from=startFrame, durationInFrames, premountFor=2*fps）→ 内含 SlideBackground + TemplateComponent + Audio + CaptionOverlay<br>- EndingSlide 自动注入逻辑（检查最后一个 scene 类型）<br>- **calculateMetadata**：totalFrames 计算 + 音频 URL HEAD 检查 + aspectRatio → 分辨率映射<br>- **时间轴计算器**（`src/server/services/timeline.service.ts`）：读取所有 Scene.durationSec → 计算 durationFrames（durationSec * fps + buffer）→ 累加 startFrame → 回填 Scene（startTimeSec, durationSec）<br>- Inngest function `calculate-timeline` |
 | **不包含** | Render Worker 实际渲染（下一个 Change） |
@@ -1703,6 +1768,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FOUNDATION |
 | **Goal** | 创建 Render Worker 独立服务：HTTP Server + bundle + renderMedia + 健康检查 |
 | **Scope** | - 创建 `apps/render-worker/` 目录（独立 package，不依赖 Next.js）<br>- package.json（含 remotion, @remotion/renderer, fastify, @aws-sdk/client-s3）<br>- **HTTP Server**（Fastify）：`POST /internal/render`（接收渲染请求，校验 internal token，并发限制）<br>- **健康检查**：`GET /health`（返回 status, activeRenders, fonts, disk, memory）<br>- **渲染引擎**：`bundle()` + `getCompositions()` + `renderMedia()`（14 个参数精确配置）<br>- `onProgress` 回调（进度写入内存 Map）<br>- **renderStill**（缩略图生成，第 30 帧，scale=0.25）<br>- **R2 上传**（渲染完成后上传 MP4 + 缩略图）<br>- 临时文件清理<br>- Worker 配置常量（`config.ts`） |
 | **不包含** | Dockerfile（下一个 Change）、Inngest trigger（再下一个） |
@@ -1718,6 +1784,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FOUNDATION |
 | **Goal** | Dockerfile + 中文字体打包 + 健康检查自愈 + docker-compose 开发环境 |
 | **Scope** | - `Dockerfile`：node:22-slim + chromium + ffmpeg + fonts-noto-cjk<br>- 非 root 用户 remotion<br>- 字体文件复制到镜像（`apps/render-worker/fonts/`）<br>- HEALTHCHECK 指令<br>- `pnpm-workspace.yaml`（若使用）或手动复制依赖<br>- `docker-compose.yml`（web + worker + db 开发环境）<br>- 环境变量模板 `apps/render-worker/.env.example`<br>- 启动脚本 `scripts/dev-worker.sh` |
 | **不包含** | K8s 部署配置（后续）、生产 CI/CD |
@@ -1733,6 +1800,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | INTEGRATION |
 | **Goal** | 实现 Inngest function `trigger-render`：创建 RenderJob → 选择 Worker → 发送渲染请求 → 处理回调/结果 |
 | **Scope** | - Inngest function `video/trigger-render`<br>- `render.service.ts`：构建 RenderJob inputProps（storyboard + audioUrlMap + config）→ 幂等检查（storyboardVersionId + renderConfigHash）→ 选择 Worker（健康 + 空闲）→ POST 渲染请求 → 轮询/等待回调 → 更新 RenderJob 状态<br>- 音频签名 URL 刷新（有效期 1 小时，覆盖渲染耗时）<br>- 渲染成功：创建 video/thumbnail Asset → 更新 Project.completed → 记录 UsageRecord<br>- 渲染失败：判断重试策略（RENDER_CHROMIUM_LAUNCH_FAILED 重试 2 次，RENDER_INVALID_STORYBOARD 不重试等）<br>- Worker 注册/发现机制（简单实现：通过 RENDER_WORKER_URLS 环境变量配置列表） |
 | **不包含** | Worker 自动扩缩容、复杂负载均衡 |
@@ -1752,6 +1820,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现生成进度页面：6 阶段进度条 + 当前步骤文案 + 已生成分镜缩略图 + 取消/重试按钮 |
 | **Scope** | - 进度页 `/projects/[id]/progress`<br>- 阶段进度条组件（6 阶段名称：分析文本/生成分镜/生成语音/计算时间轴/渲染视频/完成）<br>- TanStack Query 轮询 `project.getById`（每 3 秒）→ 根据 status 映射当前阶段<br>- 分镜缩略图预览区（ScenePreview renderStill 签名 URL）<br>- 取消按钮（二次确认 Dialog → 调用 `generation.cancel`）<br>- 失败状态展示（errorCode → 用户友好文案 + 重试按钮）<br>- Loading Skeleton / Error State |
 | **不包含** | 实际 renderStill 实现（Epic 5）、完整分镜编辑 |
@@ -1767,6 +1836,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现分镜预览页面：左侧 Scene 列表 + 中间静态预览图 + 右侧属性面板 + 音频试听 |
 | **Scope** | - 分镜预览页 `/projects/[id]/storyboard`<br>- 左侧 Scene 列表（scrollable，序号 + type 图标 + 时长）<br>- 中间 slide 静态预览（通过 `renderStill` API 获取场景第一帧签名 URL，`<img>` 显示）<br>- 右侧属性面板（旁白文本、关键词、模板类型、音频时长、字幕摘要）<br>- 音频试听按钮（使用签名 URL + `<audio>` 元素）<br>- scene 点击切换预览<br>- Zustand store（当前选中 sceneKey） |
 | **不包含** | 编辑功能（Out of Scope） |
@@ -1782,6 +1852,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现视频结果页面：视频播放器 + 下载按钮 + 视频信息 + 重新生成 |
 | **Scope** | - 结果页 `/projects/[id]/result`<br>- 视频播放器（签名 URL + `<video>` 元素 + 自定义 Controls）<br>- 视频信息展示（标题、时长、比例、生成时间、文件大小）<br>- 下载 MP4 按钮（调用 `asset.getSignedUrl` + purpose="download"）<br>- 下载字幕按钮（同逻辑）<br>- 重新生成按钮（调用 `generation.retry`，resume 模式）<br>- Loading / Empty / Error 状态 |
 | **不包含** | 公开分享（Out of Scope）、复制链接 |
@@ -1797,6 +1868,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现产品级导航栏 + Dashboard 路由 + 首页替换 + 面包屑 + 用户菜单 |
 | **Scope** | - `src/components/layout/AppNavbar.tsx`（产品名 + 导航链接 + 用户头像下拉菜单）<br>- `src/components/layout/Breadcrumb.tsx`（Dashboard > 项目名 > 进度/分镜/结果）<br>- 首页重写（替换 Next.js 脚手架 → 导航到 Dashboard 或 Create）<br>- `src/app/(protected)/layout.tsx` 更新（含 AppNavbar + 面包屑）<br>- 用户菜单（个人中心 / 退出登录）<br>- 响应式布局（移动端汉堡菜单） |
 | **不包含** | 个人中心页面改动、设置页面 |
@@ -1816,6 +1888,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FOUNDATION |
 | **Goal** | 定义全部错误码枚举 + 用户文案映射 + 错误处理中间件 |
 | **Scope** | - `src/lib/errors/codes.ts`：全部错误码枚举（USER_INPUT_* / AUTH_* / QUOTA_* / LLM_* / STORYBOARD_* / TTS_* / ASSET_* / RENDER_* / SYSTEM_*）<br>- `src/lib/errors/messages.ts`：错误码 → zh-CN 用户友好文案映射<br>- `src/lib/errors/handler.ts`：`handleServiceError(error)` → 标准错误响应 `{ code, message, details? }`<br>- 所有 tRPC router 统一使用 `handleServiceError`<br>- 错误日志记录（console.error + 后续 Sentry 接入） |
 | **不包含** | Sentry 接入（后续 Change） |
@@ -1831,6 +1904,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | FEATURE |
 | **Goal** | 实现每日额度校验 + UsageRecord 写入 + 额度查询 API |
 | **Scope** | - `quota.service.ts`（完善 `ep2-01` 中的初版）<br>- 每日免费额度：1 次/用户/天（配置化）<br>- 额度检查（`checkQuota`）：查询今日 UsageRecord（resourceType=video_generation）→ 对比上限<br>- 额度消费（`consumeQuota`）：生成任务完成后写入 UsageRecord<br>- `quota.getStatus` tRPC query（当前已用量/上限/下次刷新时间）<br>- Admin 不受额度限制 |
 | **不包含** | 复杂计费系统（Out of Scope） |
@@ -1846,6 +1920,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | INTEGRATION |
 | **Goal** | 实现软取消检查点（所有 Inngest function 集成）+ resume 重试逻辑完善 |
 | **Scope** | - 软取消机制：每个 Inngest step 开始前检查 `project.status === 'cancelled'` → 若 true 则停止后续步骤<br>- 修改所有 Inngest functions（generate-storyboard、generate-audio、calculate-timeline、trigger-render）添加取消检查<br>- resume 重试完善：每个 function 开始前检查哪些资产已存在 → 跳过已完成步骤<br>- `cancel.service.ts` 完善（标记 cancelled 状态 + 记录审计日志）<br>- 并发任务限制强制检查 |
 | **不包含** | full_regenerate（管理员能力，后续版本） |
@@ -1861,6 +1936,7 @@ Volcano AI 微课视频平台
 
 | 属性 | 内容 |
 |------|------|
+| **Change Type** | INTEGRATION |
 | **Goal** | Sentry 接入（前后端）+ JobEvent 表完善 + 关键操作日志 |
 | **Scope** | - `sentry.client.config.ts` + `sentry.server.config.ts`（Next.js 标准接入）<br>- `sentry.edge.config.ts`<br>- 全局 Error Boundary（`src/app/error.tsx`、`src/app/global-error.tsx`）<br>- `job-event.service.ts`：`logJobEvent()` 统一入口（记录到 JobEvent 表）<br>- 所有 Inngest function 关键节点写入 JobEvent（start/success/fail/retry）<br>- 所有 tRPC mutation 异常写入 Sentry<br>- PII 脱敏（不在 Sentry 中记录用户输入文本） |
 | **不包含** | 监控 Dashboard、告警规则配置 |
@@ -2544,9 +2620,55 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 | ep2-04 | ep2-04-create-project-page | specs/ui/create-form.md | changes/ep2-04/design.md | Epic 2: 项目管理与 Dashboard | F2.2: 创建项目页面 |
 | ep2-05 | ep2-05-cancel-retry-delete-api | specs/project/lifecycle-api.md | changes/ep2-05/design.md | Epic 2: 项目管理与 Dashboard | F2.1: 项目 CRUD API |
 
-### Phase 2-6: 其他阶段
+### Phase 2: AI 生成链路
 
-*(包含所有 30 个 Changes 的详细映射，格式同上)*
+| Change ID | OpenSpec Change Name | Proposed Specs | Proposed Design | Related Epic | Related Feature |
+|-----------|---------------------|----------------|-----------------|--------------|----------------|
+| ep3-01 | ep3-01-storyboard-types-schema | specs/storyboard/schema.md | changes/ep3-01/design.md | Epic 3: Storyboard 生成链路 | F3.1: Storyboard 类型与校验 |
+| ep3-02 | ep3-02-storyboard-validation-repair | specs/storyboard/validation.md | changes/ep3-02/design.md | Epic 3: Storyboard 生成链路 | F3.1: Storyboard 类型与校验 |
+| ep3-03 | ep3-03-llm-provider-deepseek | specs/providers/llm-deepseek.md | changes/ep3-03/design.md | Epic 3: Storyboard 生成链路 | F3.2: LLM Provider 适配器 |
+| ep3-04 | ep3-04-storyboard-generation-inngest | specs/storyboard/generation.md | changes/ep3-04/design.md | Epic 3: Storyboard 生成链路 | F3.2: LLM Provider 适配器 |
+
+### Phase 3: TTS 音频与存储
+
+| Change ID | OpenSpec Change Name | Proposed Specs | Proposed Design | Related Epic | Related Feature |
+|-----------|---------------------|----------------|-----------------|--------------|----------------|
+| ep4-01 | ep4-01-tts-provider-minimax | specs/providers/tts-minimax.md | changes/ep4-01/design.md | Epic 4: TTS 音频与资产管理 | F4.1: TTS Provider 适配器 |
+| ep4-02 | ep4-02-r2-storage-full-impl | specs/storage/r2-storage.md | changes/ep4-02/design.md | Epic 4: TTS 音频与资产管理 | F4.2: R2 存储完整实现 |
+| ep4-03 | ep4-03-audio-generation-inngest | specs/audio/generation.md | changes/ep4-03/design.md | Epic 4: TTS 音频与资产管理 | F4.2: 音频生成引擎 |
+| ep4-04 | ep4-04-asset-signed-url-api | specs/asset/signed-url-api.md | changes/ep4-04/design.md | Epic 4: TTS 音频与资产管理 | F4.3: 资源签名 URL 与下载 |
+
+### Phase 4: Remotion 视频渲染
+
+| Change ID | OpenSpec Change Name | Proposed Specs | Proposed Design | Related Epic | Related Feature |
+|-----------|---------------------|----------------|-----------------|--------------|----------------|
+| ep5-01 | ep5-01-remotion-foundation | specs/remotion/foundation.md | changes/ep5-01/design.md | Epic 5: Remotion 视频渲染 | F5.1: Remotion 模板体系 |
+| ep5-02 | ep5-02-templates-batch1 | specs/remotion/templates-batch1.md | changes/ep5-02/design.md | Epic 5: Remotion 视频渲染 | F5.1: Remotion 模板体系 |
+| ep5-03 | ep5-03-templates-batch2 | specs/remotion/templates-batch2.md | changes/ep5-03/design.md | Epic 5: Remotion 视频渲染 | F5.1: Remotion 模板体系 |
+| ep5-04 | ep5-04-templates-batch3 | specs/remotion/templates-batch3.md | changes/ep5-04/design.md | Epic 5: Remotion 视频渲染 | F5.1: Remotion 模板体系 |
+| ep5-05 | ep5-05-animations-captions | specs/remotion/animations-captions.md | changes/ep5-05/design.md | Epic 5: Remotion 视频渲染 | F5.2: 动效预设库 / F5.3: 字幕渲染系统 |
+| ep5-06 | ep5-06-composition-timeline | specs/remotion/composition-timeline.md | changes/ep5-06/design.md | Epic 5: Remotion 视频渲染 | F5.4: 时间轴计算 |
+| ep5-07 | ep5-07-render-worker-core | specs/render/worker-core.md | changes/ep5-07/design.md | Epic 5: Remotion 视频渲染 | F5.5: Render Worker 架构 |
+| ep5-08 | ep5-08-render-worker-docker | specs/render/worker-docker.md | changes/ep5-08/design.md | Epic 5: Remotion 视频渲染 | F5.5: Render Worker 架构 |
+| ep5-09 | ep5-09-render-inngest-trigger | specs/render/inngest-trigger.md | changes/ep5-09/design.md | Epic 5: Remotion 视频渲染 | F5.6: 渲染触发与回调 |
+
+### Phase 5: 前端体验
+
+| Change ID | OpenSpec Change Name | Proposed Specs | Proposed Design | Related Epic | Related Feature |
+|-----------|---------------------|----------------|-----------------|--------------|----------------|
+| ep6-01 | ep6-01-progress-page | specs/ui/progress-page.md | changes/ep6-01/design.md | Epic 6: 前端体验完善 | F6.1: 生成进度页面 |
+| ep6-02 | ep6-02-storyboard-preview-page | specs/ui/storyboard-preview.md | changes/ep6-02/design.md | Epic 6: 前端体验完善 | F6.2: 分镜预览页面 |
+| ep6-03 | ep6-03-video-result-page | specs/ui/video-result.md | changes/ep6-03/design.md | Epic 6: 前端体验完善 | F6.3: 视频结果页面 |
+| ep6-04 | ep6-04-global-layout-nav | specs/ui/global-layout.md | changes/ep6-04/design.md | Epic 6: 前端体验完善 | F6.4: 全局导航 |
+
+### Phase 6: 运营与可观测性
+
+| Change ID | OpenSpec Change Name | Proposed Specs | Proposed Design | Related Epic | Related Feature |
+|-----------|---------------------|----------------|-----------------|--------------|----------------|
+| ep7-01 | ep7-01-error-code-system | specs/system/error-codes.md | changes/ep7-01/design.md | Epic 7: 运营与可观测性 | F7.1: 错误码体系 |
+| ep7-02 | ep7-02-quota-usage-tracking | specs/system/quota-tracking.md | changes/ep7-02/design.md | Epic 7: 运营与可观测性 | F7.2: 用量记录 |
+| ep7-03 | ep7-03-retry-cancel-mechanism | specs/system/retry-cancel.md | changes/ep7-03/design.md | Epic 7: 运营与可观测性 | F7.3: 重试与取消机制 |
+| ep7-04 | ep7-04-sentry-logging | specs/system/sentry-logging.md | changes/ep7-04/design.md | Epic 7: 运营与可观测性 | F7.4: Sentry 接入与监控 |
 
 ---
 
