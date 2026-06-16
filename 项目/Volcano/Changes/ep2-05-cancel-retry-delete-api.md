@@ -874,4 +874,531 @@ describe('Permission Check', () => {
 
 ---
 
-// __CONTINUE_HERE__
+## 7. Dependencies
+
+### Upstream Changes
+
+| Change ID | 依赖内容 | 状态 | 影响 |
+|-----------|---------|------|------|
+| `ep2-01-project-create-api` | Project/GenerationJob 创建逻辑<br>并发限制检查逻辑 | ✅ 已完成 | 提供基础 service 方法 |
+| `ep2-02-project-list-detail-api` | project.service 基础能力<br>project.repo 基础方法 | ✅ 已完成 | 提供 Repository 基础 |
+| `ep4-02-r2-storage-full-impl` | `deleteFromR2` 方法 | ⏸️ 未开始 | 可先实现存根调用，Phase 3 完善 |
+
+**处理策略**：
+- `ep4-02` 未完成时，可以先实现 `deleteFromR2` 存根（仅记录日志，不实际删除）
+- Phase 3 完成 `ep4-02` 后，替换为真实实现
+- 不阻塞本 Change 的开发和测试
+
+---
+
+### Downstream Changes
+
+| Change ID | 如何依赖本 Change | 影响 | 优先级 |
+|-----------|------------------|------|--------|
+| `ep6-01-progress-page` | 前端调用 `generation.cancel` API<br>显示取消按钮 | 需要 API 就绪 | P1 |
+| `ep6-03-video-result-page` | 前端调用 `generation.retry` API<br>显示重试按钮 | 需要 API 就绪 | P1 |
+| `ep2-03-dashboard-page` | 前端调用 `project.delete` API<br>显示删除按钮 | 需要 API 就绪 | P0 |
+| `ep7-03-retry-cancel-mechanism` | Inngest function 集成取消检查点<br>完善 resume 逻辑 | 本 Change 提供 API 基础<br>Phase 6 完善 Inngest 集成 | P1 |
+
+---
+
+### Blocking Risks
+
+| 风险 | 等级 | 影响 | 缓解措施 |
+|------|------|------|---------|
+| **R2 删除失败导致存储泄漏** | 🟡 中 | R2 存储成本增加 | 1. 异步删除不阻塞用户操作<br>2. 失败记录详细日志<br>3. 后续补充定时清理任务<br>4. 提供管理员手动清理工具 |
+| **重试逻辑复杂导致 bug** | 🟡 中 | 用户重试失败<br>资源浪费 | 1. 详细的单元测试覆盖所有分支<br>2. 分阶段实现（先简单重试，再完善 resume）<br>3. 日志记录每个检查步骤<br>4. 提供降级方案（完全重新生成） |
+| **取消检查点需要修改所有 Inngest function** | 🔴 高 | 跨多个 Change<br>测试复杂度高 | 1. 本 Change 仅实现 API 层<br>2. Phase 6 `ep7-03` 统一实现检查点逻辑<br>3. 先验证 API 层正确性<br>4. 渐进式集成 Inngest 检查点 |
+| **并发限制释放时机错误** | 🟡 中 | 用户无法创建新项目<br>或绕过限制 | 1. 仅在取消成功后释放<br>2. 使用事务保证一致性<br>3. 完整的并发测试 |
+
+---
+
+## 8. Acceptance Criteria
+
+### AC1: 取消生成中的项目
+
+**Given**: 用户 A 创建了项目 P，当前状态为 `generating_audio`  
+**When**: 用户 A 调用 `generation.cancel({ projectId: P })`  
+**Then**:  
+- ✅ Project P 的 status 更新为 `cancelled`
+- ✅ GenerationJob 的 status 更新为 `cancelled_requested`
+- ✅ 返回成功响应 `{ success: true }`
+- ✅ 用户 A 可以立即创建新项目（并发限制已释放）
+
+---
+
+### AC2: 取消权限校验
+
+**Given**: 用户 A 创建了项目 P，当前状态为 `generating_storyboard`  
+**When**: 用户 B 调用 `generation.cancel({ projectId: P })`  
+**Then**:  
+- ✅ 返回 403 错误：`Forbidden: You don't own this project`
+- ✅ Project P 的状态保持不变
+
+---
+
+### AC3: 取消状态校验
+
+**Given**: 用户 A 创建了项目 P，当前状态为 `completed`  
+**When**: 用户 A 调用 `generation.cancel({ projectId: P })`  
+**Then**:  
+- ✅ 返回 400 错误：`Cannot cancel completed project`
+- ✅ Project P 的状态保持不变
+
+---
+
+### AC4: 重试失败项目（无 Storyboard）
+
+**Given**: 用户 A 的项目 P 失败于 `generate-storyboard` 步骤（无 StoryboardVersion）  
+**When**: 用户 A 调用 `generation.retry({ projectId: P })`  
+**Then**:  
+- ✅ 创建新的 GenerationJob（jobType=resume）
+- ✅ 发送 Inngest 事件 `video/generate.requested`（从头开始）
+- ✅ 返回 `{ success: true, startFrom: "generate-storyboard" }`
+- ✅ Project 状态更新为 `queued`
+
+---
+
+### AC5: 重试失败项目（有 Storyboard，无音频）
+
+**Given**: 用户 A 的项目 P 失败于 `generate-audio` 步骤  
+- ✅ 有 StoryboardVersion
+- ❌ 部分 Scene 缺少 audioAssetId  
+
+**When**: 用户 A 调用 `generation.retry({ projectId: P })`  
+**Then**:  
+- ✅ 创建新的 GenerationJob（jobType=resume）
+- ✅ 发送 Inngest 事件 `video/generate-audio`（跳过 Storyboard）
+- ✅ 返回 `{ success: true, startFrom: "generate-audio", skipped: ["generate-storyboard"] }`
+- ✅ Project 状态更新为 `generating_audio`
+
+---
+
+### AC6: 重试权限校验
+
+**Given**: 用户 A 的项目 P 状态为 `failed`  
+**When**: 用户 B 调用 `generation.retry({ projectId: P })`  
+**Then**:  
+- ✅ 返回 403 错误：`Forbidden: You don't own this project`
+- ✅ 不创建新的 GenerationJob
+
+---
+
+### AC7: 重试并发限制校验
+
+**Given**: 用户 A 有一个 `generating_audio` 状态的项目 P1  
+**And**: 用户 A 有一个 `failed` 状态的项目 P2  
+**When**: 用户 A 调用 `generation.retry({ projectId: P2 })`  
+**Then**:  
+- ✅ 返回 429 错误：`You have a running generation task`
+- ✅ 不创建新的 GenerationJob
+
+---
+
+### AC8: 重试额度校验
+
+**Given**: 用户 A 今日已用完免费额度（1 次）  
+**And**: 用户 A 有一个 `failed` 状态的项目 P  
+**When**: 用户 A 调用 `generation.retry({ projectId: P })`  
+**Then**:  
+- ✅ 返回 429 错误：`Daily quota exceeded`
+- ✅ 不创建新的 GenerationJob
+
+---
+
+### AC9: 删除完成的项目
+
+**Given**: 用户 A 的项目 P 状态为 `completed`，有 3 个 Asset（音频、视频、缩略图）  
+**When**: 用户 A 调用 `project.delete({ projectId: P })`  
+**Then**:  
+- ✅ Project P 的 status 更新为 `deleted`
+- ✅ 所有 3 个 Asset 的 deleted 标记为 `true`
+- ✅ 发送 Inngest 事件 `video/asset-cleanup`
+- ✅ 返回成功响应
+- ✅ Inngest function 异步删除 R2 文件（3 个 storageKey）
+
+---
+
+### AC10: 删除权限校验
+
+**Given**: 用户 A 的项目 P 状态为 `completed`  
+**When**: 用户 B 调用 `project.delete({ projectId: P })`  
+**Then**:  
+- ✅ 返回 403 错误：`Forbidden: You don't own this project`
+- ✅ Project P 的状态保持不变
+- ✅ Asset 的 deleted 标记保持 `false`
+
+---
+
+### AC11: R2 删除失败不阻塞软删除
+
+**Given**: 用户 A 的项目 P 有 2 个 Asset，R2 删除第 1 个失败  
+**When**: Inngest function `asset-cleanup` 执行  
+**Then**:  
+- ✅ 第 1 个 Asset 删除失败，记录错误日志
+- ✅ 继续处理第 2 个 Asset（不中断）
+- ✅ Project 的 deleted 状态保持不变（不回滚）
+- ✅ 失败的 storageKey 记录到日志，供后续手动清理
+
+---
+
+### AC12: 保留审计数据
+
+**Given**: 用户 A 删除了项目 P  
+**When**: 查询数据库  
+**Then**:  
+- ✅ Project 记录存在（status=deleted）
+- ✅ StoryboardVersion 记录存在
+- ✅ Scene 记录存在
+- ✅ GenerationJob 记录存在
+- ✅ Asset 记录存在（deleted=true）
+
+---
+
+## 9. Test Plan
+
+### Unit Test
+
+#### 需要覆盖的模块
+
+| 模块 | 测试内容 | 用例数 |
+|------|---------|--------|
+| **cancel.service** | - 权限校验（owner/非owner/admin）<br>- 状态校验（所有状态）<br>- 并发限制释放 | ~8 用例 |
+| **retry.service** | - checkCompletedSteps 各种组合<br>- 权限校验<br>- 状态校验<br>- 并发限制校验<br>- 额度校验 | ~15 用例 |
+| **delete.service** | - 权限校验<br>- 软删除标记<br>- Asset 批量标记 | ~6 用例 |
+| **project.repo** | - updateStatus<br>- markAsDeleted<br>- releaseConcurrency | ~5 用例 |
+| **asset.repo** | - markAsDeleted<br>- findByProjectId<br>- findDeletedAssets | ~5 用例 |
+
+**总计**：~39 单元测试用例
+
+---
+
+### Integration Test
+
+#### 需要覆盖的场景
+
+| 场景 | 测试内容 | 用例数 |
+|------|---------|--------|
+| **取消流程** | - 取消成功<br>- 取消后创建新项目<br>- 权限拒绝<br>- 状态拒绝 | ~5 用例 |
+| **重试流程** | - 无 Storyboard<br>- 有 Storyboard 无音频<br>- 有音频无时间轴<br>- 有时间轴无视频<br>- 全有（直接完成）<br>- 并发限制拒绝<br>- 额度限制拒绝 | ~8 用例 |
+| **删除流程** | - 删除成功<br>- R2 清理成功<br>- R2 清理失败继续<br>- 权限拒绝<br>- 审计数据保留 | ~5 用例 |
+| **Inngest** | - asset-cleanup 成功<br>- asset-cleanup 部分失败 | ~2 用例 |
+
+**总计**：~20 集成测试用例
+
+---
+
+### E2E Test
+
+**暂不实现**（Phase 5 前端完成后补充）
+
+---
+
+### Regression Test
+
+| 场景 | 验证内容 |
+|------|---------|
+| **创建项目** | 确保取消/删除逻辑不影响创建流程 |
+| **列表查询** | 确保软删除项目被正确过滤 |
+| **详情查询** | 确保已删除项目返回 404 |
+
+---
+
+## 10. Rollback Plan
+
+### Code Rollback
+
+**步骤**：
+1. 停止 Inngest worker：
+   ```bash
+   # 停止 Inngest Dev Server
+   pkill -f "inngest dev"
+   ```
+
+2. 禁用 API：
+   ```typescript
+   // src/server/routers/project.ts
+   // 注释掉三个 mutation
+   // delete: protectedProcedure...
+   // cancel: protectedProcedure...
+   // retry: protectedProcedure...
+   ```
+
+3. 重启 Next.js：
+   ```bash
+   npm run dev
+   ```
+
+**预计回滚时间**：5-8 分钟
+
+**风险**：中（涉及 Inngest 任务队列和多个 API）
+
+---
+
+### Data Rollback
+
+**场景 1：误删除项目**
+
+**步骤**：
+```sql
+-- 恢复 Project 状态
+UPDATE "Project" 
+SET status = 'completed', "deletedAt" = NULL
+WHERE id = '<project_id>';
+
+-- 恢复 Asset 标记
+UPDATE "Asset" 
+SET deleted = false, "deletedAt" = NULL
+WHERE "projectId" = '<project_id>';
+```
+
+**前提条件**：R2 文件未被删除（或有备份）
+
+**预计回滚时间**：2-5 分钟（手动操作）
+
+**风险**：高（R2 文件删除不可逆）
+
+---
+
+**场景 2：误取消项目**
+
+**步骤**：
+```sql
+-- 恢复 Project 状态到之前的生成阶段
+UPDATE "Project" 
+SET status = 'generating_audio'  -- 根据实际情况调整
+WHERE id = '<project_id>';
+
+-- 恢复 Job 状态
+UPDATE "GenerationJob" 
+SET status = 'in_progress'
+WHERE "projectId" = '<project_id>' 
+  AND status = 'cancelled_requested';
+```
+
+**前提条件**：Inngest 任务未完全停止
+
+**预计回滚时间**：2-3 分钟
+
+**风险**：中（可能需要重新触发 Inngest 事件）
+
+---
+
+### Config Rollback
+
+**无需配置回滚**（纯代码变更）
+
+---
+
+### Feature Flag Rollback
+
+**建议**（可选）：
+- 在 `src/lib/feature-flags.ts` 添加：
+  ```typescript
+  export const FEATURE_FLAGS = {
+    ENABLE_CANCEL: process.env.ENABLE_CANCEL === 'true',
+    ENABLE_RETRY: process.env.ENABLE_RETRY === 'true',
+    ENABLE_DELETE: process.env.ENABLE_DELETE === 'true',
+  };
+  ```
+
+- 在 tRPC mutation 中检查：
+  ```typescript
+  if (!FEATURE_FLAGS.ENABLE_CANCEL) {
+    throw new TRPCError({
+      code: 'NOT_IMPLEMENTED',
+      message: 'Cancel feature is disabled'
+    });
+  }
+  ```
+
+**回滚方式**：设置环境变量为 `false`
+
+**预计回滚时间**：< 1 分钟
+
+---
+
+## 11. OpenSpec Output
+
+### change.md
+
+```markdown
+# Change: ep2-05-cancel-retry-delete-api
+
+## 目标
+实现项目管理的三个核心操作 API：取消、重试、删除
+
+## 用户价值
+- 生成中途可取消，节省配额
+- 失败后可智能重试，跳过已完成步骤
+- 不需要的项目可删除，保持列表整洁
+
+## 业务价值
+- 成本优化：避免浪费 LLM/TTS/渲染资源
+- 用户体验：提升生成成功率
+- 数据管理：控制存储成本
+```
+
+---
+
+### design.md
+
+```markdown
+# 技术设计
+
+## 架构
+- Service 层：cancel.service, retry.service, delete.service
+- Repository 层：project.repo, asset.repo
+- Inngest：asset-cleanup function
+
+## 核心逻辑
+1. 取消：软标记 + 释放并发限制
+2. 重试：检查已完成步骤 + 智能跳过
+3. 删除：软删除 + 异步 R2 清理
+
+## 数据模型
+- Project.status 新增：cancelled, deleted
+- Asset 新增：deleted, deletedAt
+- GenerationJob.jobType 新增：retry, resume
+```
+
+---
+
+### tasks.md
+
+```markdown
+# 任务列表
+
+## Task 1: Schema 更新 (0.5h)
+- [ ] 修改 Prisma schema
+- [ ] 生成 migration
+- [ ] 验证类型更新
+
+## Task 2: 取消功能 (4h)
+- [ ] cancel.service 实现
+- [ ] tRPC mutation
+- [ ] 单元测试
+- [ ] 集成测试
+
+## Task 3: 重试功能 (8h)
+- [ ] retry.service 实现
+- [ ] resume 逻辑
+- [ ] tRPC mutation
+- [ ] 单元测试
+- [ ] 集成测试
+
+## Task 4: 删除功能 (6h)
+- [ ] delete.service 实现
+- [ ] asset-cleanup Inngest function
+- [ ] tRPC mutation
+- [ ] 单元测试
+- [ ] 集成测试
+
+## Task 5: Repository 层 (3h)
+- [ ] project.repo 扩展
+- [ ] asset.repo 扩展
+
+## Task 6: 集成测试 (4h)
+- [ ] 完整流程测试
+- [ ] 权限测试
+- [ ] 边界条件测试
+```
+
+---
+
+## 12. AI Implementation Readiness Check
+
+### Scope Too Large
+
+**检查结果**：✅ 通过
+
+- 预估 2,035 LOC，在 3,000 LOC 限制内
+- 拆分为 6 个 Task，每个 Task 0.5-8 小时
+- 每个 Task 可独立验证
+
+---
+
+### Hidden Dependencies
+
+**检查结果**：⚠️ 部分依赖
+
+| 依赖 | 状态 | 处理方案 |
+|------|------|---------|
+| `ep4-02` R2 删除 | 未完成 | 先实现存根，Phase 3 替换 |
+| Inngest 取消检查点 | Phase 6 | 本 Change 仅实现 API 层 |
+
+**结论**：不阻塞开发，可渐进式完善
+
+---
+
+### Context Explosion
+
+**检查结果**：✅ 通过
+
+- Service 层单一职责：cancel/retry/delete 独立
+- Repository 层封装数据库操作
+- Inngest function 独立文件
+- 单个文件不超过 300 LOC
+
+---
+
+### Testing Gap
+
+**检查结果**：✅ 通过
+
+- 单元测试：~39 用例
+- 集成测试：~20 用例
+- 覆盖率目标：> 80%
+- Mock 策略清晰（R2/Inngest）
+
+---
+
+### Rollback Risk
+
+**检查结果**：⚠️ 中等风险
+
+| 风险 | 等级 | 缓解措施 |
+|------|------|---------|
+| R2 删除不可逆 | 🔴 高 | 软删除保留记录 + 定期备份 |
+| 并发限制错误 | 🟡 中 | 事务保证 + 完整测试 |
+| 重试逻辑复杂 | 🟡 中 | 分阶段实现 + 详细日志 |
+
+**建议**：
+- 启用 Feature Flag，可快速禁用功能
+- R2 定期备份（使用 R2 Object Lifecycle）
+- 详细的审计日志
+
+---
+
+## 最终检查清单
+
+### OpenSpec 可直接创建 Change
+- ✅ change.md 清晰描述目标
+- ✅ design.md 包含技术设计
+- ✅ tasks.md 任务可执行
+
+### Claude Code 可直接实现
+- ✅ 每个 Task 不超过 4 小时
+- ✅ 依赖关系清晰
+- ✅ Mock 策略明确
+- ✅ 验收标准具体
+
+### 单独 PR 可交付
+- ✅ 不超过 15 个文件变更
+- ✅ 可独立测试
+- ✅ 可独立 Review
+- ✅ 可独立 Merge
+
+### 单独上线可回滚
+- ✅ Feature Flag 可选
+- ✅ 回滚步骤清晰
+- ✅ 数据回滚方案明确
+- ✅ 风险可控
+
+---
+
+**文档版本**：v1.0  
+**最后更新**：2026-06-16  
+**创建人**：Claude Opus 4.8  
+**审核状态**：待审核
+
