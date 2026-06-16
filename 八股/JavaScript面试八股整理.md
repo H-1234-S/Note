@@ -1127,7 +1127,8 @@ class MyPromise {
     const resolve = value => {
       // 只有当state为pending才可以触发
       if (this.state !== "pending") return;
-	  // 
+	  // 为什么推入微任务队列？
+	  // 因为规定then是在同步代码执行完才被触发
       queueMicrotask(() => {
         if (this.state !== "pending") return;
         this.state = "fulfilled";
@@ -1198,6 +1199,7 @@ class MyPromise {
   }
 }
 
+// 决定 `then()` 返回的新 Promise 应该变成什么状态。
 function resolvePromise(result, resolve, reject) {
   if (result instanceof MyPromise) {
     result.then(resolve, reject);
