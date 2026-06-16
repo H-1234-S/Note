@@ -1128,7 +1128,6 @@ class MyPromise {
       // 只有当state为pending才可以触发
       if (this.state !== "pending") return;
 	  // 为什么推入微任务队列？
-	  // 因为规定then是在同步代码执行完才被触发
       queueMicrotask(() => {
         if (this.state !== "pending") return;
         this.state = "fulfilled";
