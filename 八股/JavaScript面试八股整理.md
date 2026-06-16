@@ -1162,7 +1162,7 @@ class MyPromise {
   // 对于参数处理，如果是函数则调用该函数；如果不是函数则转为函数
   then(onFulfilled, onRejected) {
     onFulfilled = typeof onFulfilled === "function" ? onFulfilled : value => value;
-    onRejected = typeof onRejected === "function" ? onRejected : reason => { throw reason; };
+    onRejected = typeof onRejected === "function" ? onRejected : reason => { throw reason };
 
 	// 返回新的Promise
     return new MyPromise((resolve, reject) => {
