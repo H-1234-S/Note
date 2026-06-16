@@ -1105,7 +1105,7 @@ flowchart TD
 
 ### 5.6 手写代码：Promise 与组合 API
 
-
+根据调用手写Promise
 
 简化版 Promise：
 
@@ -1118,6 +1118,7 @@ class MyPromise {
     this.onFulfilledCallbacks = [];
     this.onRejectedCallbacks = [];
 
+	// 注意 this 指向问题
     const resolve = value => {
       if (this.state !== "pending") return;
 
