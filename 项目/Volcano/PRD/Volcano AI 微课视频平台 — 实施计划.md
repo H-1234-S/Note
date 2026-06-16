@@ -6,7 +6,7 @@
 |------|------|
 | 文档名称 | 实施计划 (Implementation Plan) |
 | 关联 PRD | `PRD_AI文本转PPT微课视频平台.md` v1.0.6 |
-| 版本 | v2.0.0 |
+| 版本 | v2.1.0 |
 | 更新时间 | 2026-06-16 |
 | 目标受众 | AI Coding Agent (Claude Code / Codex / OpenSpec) |
 | 代码库 | `E:\A\Ai\convert documents to videos` |
@@ -87,19 +87,19 @@
 **目标**：实现 tRPC API，让现有 UI 可以调用
 
 **Changes**：
-1. **api-01-project-crud** (3-4 天)
+1. **project-lifecycle-api** (3-4 天)
    - 实现 `project.create`
    - 实现 `project.list`
    - 实现 `project.getById`
    - 实现 `project.delete`
    - 集成到现有 `GenerateTab` 和 `HistoryTab`
 
-2. **api-02-quota-validation** (1-2 天)
+2. **project-quota-control** (1-2 天)
    - 实现额度检查
    - 实现并发限制
    - 集成到 create API
 
-3. **api-03-project-actions** (2-3 天)
+3. **project-advanced-actions** (2-3 天)
    - 实现 cancel/retry 逻辑
    - 集成到 HistoryTab 操作按钮
 
@@ -108,17 +108,17 @@
 **目标**：实现 Storyboard 生成
 
 **Changes**：
-1. **ai-01-storyboard-types** (2 天)
+1. **content-storyboard-schema** (2 天)
    - 定义 TypeScript 类型
    - 定义 Zod Schema
    - 生成 JSON Schema
 
-2. **ai-02-llm-provider** (3 天)
+2. **content-llm-integration** (3 天)
    - DeepSeek Provider 实现
    - OpenAI-compatible 适配器
    - Storyboard 生成逻辑
 
-3. **ai-03-inngest-storyboard** (3 天)
+3. **content-storyboard-generation** (3 天)
    - Inngest function `generate-storyboard`
    - 校验和修复逻辑
    - 保存 StoryboardVersion + Scene
@@ -128,15 +128,15 @@
 **目标**：生成高质量语音
 
 **Changes**：
-1. **tts-01-provider-interface** (2 天)
+1. **asset-tts-provider** (2 天)
    - TTS Provider 抽象
    - MiniMax 适配器
 
-2. **tts-02-r2-storage** (2 天)
+2. **asset-storage-service** (2 天)
    - 实现 R2 上传/下载
    - 实现签名 URL
 
-3. **tts-03-inngest-audio** (4 天)
+3. **asset-audio-generation** (4 天)
    - Inngest function `generate-audio`
    - 音频去重
    - Asset 管理
@@ -146,22 +146,22 @@
 **目标**：生成最终 MP4 视频
 
 **Changes**：
-1. **remotion-01-foundation** (2 天)
+1. **render-foundation-setup** (2 天)
    - 项目结构
    - 模板注册表
    - 基础组件
 
-2. **remotion-02-templates** (6-8 天)
+2. **render-ppt-templates** (6-8 天)
    - 8 套 PPT 模板
    - 动效预设
    - 字幕组件
 
-3. **remotion-03-worker** (4-5 天)
+3. **render-worker-service** (4-5 天)
    - Worker 架构
    - 渲染引擎
    - Docker 化
 
-4. **remotion-04-integration** (3 天)
+4. **render-video-composition** (3 天)
    - Inngest function `trigger-render`
    - 时间轴计算
    - 结果回写
@@ -171,22 +171,22 @@
 **目标**：完善用户体验
 
 **Changes**：
-1. **ui-01-generate-tab-integration** (2 天)
+1. **project-create-ui** (2 天)
    - 集成 create API
    - 表单校验
    - 提交反馈
 
-2. **ui-02-history-tab-integration** (2 天)
+2. **project-dashboard-ui** (2 天)
    - 集成 list API
    - 状态筛选
    - 操作按钮
 
-3. **ui-03-progress-view** (3 天)
+3. **project-progress-tracking** (3 天)
    - 新增进度查看模态框或侧边栏
    - 轮询状态更新
    - 取消/重试
 
-4. **ui-04-video-result** (2 天)
+4. **project-result-display** (2 天)
    - 视频播放
    - 下载功能
    - 分享（可选）
@@ -194,9 +194,9 @@
 ### Phase 6: 运营与可观测性
 
 **Changes**：
-1. **ops-01-error-handling** (2 天)
-2. **ops-02-logging** (2 天)
-3. **ops-03-monitoring** (2 天)
+1. **system-error-handling** (2 天)
+2. **system-logging** (2 天)
+3. **system-monitoring** (2 天)
 
 ---
 
@@ -204,7 +204,19 @@
 
 ### Phase 1: 后端 API 实现
 
-#### Change: `api-01-project-crud`
+#### Change: `project-lifecycle-api`
+
+**Business Context**: 
+用户需要将文字内容快速转化为视频，但手动制作视频耗时且需要专业技能。
+当前系统缺少项目管理能力，用户无法保存和追踪生成进度。
+
+本 Change 实现项目创建 API，支持：
+- 文本输入（最大 5000 字）
+- 参数配置（比例、时长、语音）
+- 额度校验（免费用户每日 1 次）
+- 异步任务触发（发送 Inngest 事件）
+
+**用户价值**: 一键创建视频项目，3 分钟内自动完成生成。
 
 **目标**：实现项目 CRUD API，集成到现有 UI
 
@@ -242,7 +254,7 @@ src/components/main-app/HistoryTab.tsx (修改：集成 API)
 
 ---
 
-#### Change: `api-02-quota-validation`
+#### Change: `project-quota-control`
 
 **目标**：实现额度检查和并发限制
 
@@ -272,7 +284,7 @@ src/trpc/routers/project.ts (修改：添加额度检查)
 
 ### Phase 2: AI 生成链路
 
-#### Change: `ai-01-storyboard-types`
+#### Change: `content-storyboard-schema`
 
 **目标**：定义 Storyboard 类型系统
 
@@ -299,7 +311,7 @@ src/lib/storyboard/validation.ts (新建)
 
 ---
 
-#### Change: `ai-02-llm-provider`
+#### Change: `content-llm-integration`
 
 **目标**：实现 LLM Provider 抽象和 DeepSeek 集成
 
@@ -329,7 +341,19 @@ src/lib/storyboard/repair.ts (新建)
 
 ---
 
-#### Change: `ai-03-inngest-storyboard`
+#### Change: `content-storyboard-generation`
+
+**Business Context**:
+视频制作的核心难点是分镜设计，需要专业的视觉思维和故事编排能力。
+普通用户缺少这些技能，导致无法制作高质量视频。
+
+本 Change 利用 LLM 自动生成分镜脚本，包括：
+- 场景类型选择（标题、概念、列表、流程等）
+- 旁白文本编排
+- 视觉元素描述
+- 关键词提取
+
+**用户价值**: 用户只需输入文字，系统自动生成专业级分镜脚本，降低视频制作门槛。
 
 **目标**：实现 Storyboard 生成 Inngest function
 
@@ -361,7 +385,7 @@ src/server/services/storyboard.service.ts (新建)
 
 ### Phase 3: TTS 音频生成
 
-#### Change: `tts-01-provider-interface`
+#### Change: `asset-tts-provider`
 
 **目标**：实现 TTS Provider 抽象和 MiniMax 集成
 
@@ -388,7 +412,7 @@ src/lib/providers/tts/mock.ts (新建：测试用)
 
 ---
 
-#### Change: `tts-02-r2-storage`
+#### Change: `asset-storage-service`
 
 **目标**：实现 R2 存储完整功能
 
@@ -415,7 +439,19 @@ src/lib/storage/cloudflare-r2.ts (新建：Provider 实现)
 
 ---
 
-#### Change: `tts-03-inngest-audio`
+#### Change: `asset-audio-generation`
+
+**Business Context**:
+视频配音是视频制作的重要环节，但人工配音成本高、耗时长。
+TTS 技术可以自动生成配音，但需要精确的时间轴和字幕同步。
+
+本 Change 实现自动音频生成，包括：
+- 逐 scene 调用 TTS API
+- 音频去重（相同文本复用音频）
+- 字幕时间戳提取
+- 音频时长回填到 Scene
+
+**用户价值**: 自动生成高质量配音和字幕，节省 90% 的配音成本和时间。
 
 **目标**：实现音频生成 Inngest function
 
@@ -448,7 +484,7 @@ src/lib/db/repositories/asset.repo.ts (新建)
 
 ### Phase 4: Remotion 视频渲染
 
-#### Change: `remotion-01-foundation`
+#### Change: `render-foundation-setup`
 
 **目标**：建立 Remotion 项目结构
 
@@ -481,7 +517,7 @@ public/fonts/ (添加字体文件)
 
 ---
 
-#### Change: `remotion-02-templates`
+#### Change: `render-ppt-templates`
 
 **目标**：实现 8 套 PPT 模板
 
@@ -522,7 +558,7 @@ src/remotion/components/CaptionOverlay.tsx (新建)
 
 ---
 
-#### Change: `remotion-03-worker`
+#### Change: `render-worker-service`
 
 **目标**：创建 Remotion Worker 独立服务
 
@@ -555,7 +591,19 @@ docker-compose.yml (新建或修改)
 
 ---
 
-#### Change: `remotion-04-integration`
+#### Change: `render-video-composition`
+
+**Business Context**:
+视频渲染是整个生成流程的最后一步，需要将分镜、音频、字幕、动效等元素合成为最终视频。
+传统视频编辑软件操作复杂，自动化难度大。
+
+本 Change 使用 Remotion 实现视频渲染，包括：
+- 8 套 PPT 模板自动适配
+- 音频和字幕同步
+- 动效和转场
+- 高清视频导出
+
+**用户价值**: 全自动视频渲染，无需人工干预，3-5 分钟输出高质量视频。
 
 **目标**：集成 Remotion 到完整生成链路
 
@@ -589,7 +637,7 @@ src/remotion/compositions/MicroCourseVideo.tsx (新建)
 
 ### Phase 5: 前端完善
 
-#### Change: `ui-01-generate-tab-integration`
+#### Change: `project-create-ui`
 
 **目标**：完善 GenerateTab，集成 API
 
@@ -618,7 +666,7 @@ src/lib/validation/project.ts (新建：表单校验)
 
 ---
 
-#### Change: `ui-02-history-tab-integration`
+#### Change: `project-dashboard-ui`
 
 **目标**：完善 HistoryTab，集成 API
 
@@ -646,7 +694,7 @@ src/components/main-app/HistoryCardActions.tsx (修改)
 
 ---
 
-#### Change: `ui-03-progress-view`
+#### Change: `project-progress-tracking`
 
 **目标**：添加生成进度查看功能
 
@@ -674,7 +722,7 @@ src/components/main-app/HistoryTab.tsx (修改：添加进度查看入口)
 
 ---
 
-#### Change: `ui-04-video-result`
+#### Change: `project-result-display`
 
 **目标**：添加视频结果查看和下载
 
@@ -705,7 +753,7 @@ src/trpc/routers/asset.ts (新建：签名 URL API)
 
 ### Phase 6: 运营与可观测性
 
-#### Change: `ops-01-error-handling`
+#### Change: `system-error-handling`
 
 **目标**：完善错误处理体系
 
@@ -729,7 +777,7 @@ src/app/error.tsx (新建)
 
 ---
 
-#### Change: `ops-02-logging`
+#### Change: `system-logging`
 
 **目标**：实现日志记录
 
@@ -750,7 +798,7 @@ src/lib/logger.ts (新建)
 
 ---
 
-#### Change: `ops-03-monitoring`
+#### Change: `system-monitoring`
 
 **目标**：添加监控和告警
 
@@ -776,9 +824,9 @@ src/lib/analytics.ts (新建)
 
 | 天 | Change | 输出 |
 |----|--------|------|
-| 1-4 | api-01-project-crud | 项目 CRUD API 完成，UI 可调用 |
-| 5-6 | api-02-quota-validation | 额度控制生效 |
-| 7-9 | api-03-project-actions | 取消/重试功能完成 |
+| 1-4 | project-lifecycle-api | 项目 CRUD API 完成，UI 可调用 |
+| 5-6 | project-quota-control | 额度控制生效 |
+| 7-9 | project-advanced-actions | 取消/重试功能完成 |
 
 **里程碑 M1**：用户可创建项目，查看列表，执行基本操作
 
@@ -788,9 +836,9 @@ src/lib/analytics.ts (新建)
 
 | 天 | Change | 输出 |
 |----|--------|------|
-| 1-2 | ai-01-storyboard-types | 类型系统完成 |
-| 3-5 | ai-02-llm-provider | DeepSeek 集成完成 |
-| 6-8 | ai-03-inngest-storyboard | Storyboard 自动生成 |
+| 1-2 | content-storyboard-schema | 类型系统完成 |
+| 3-5 | content-llm-integration | DeepSeek 集成完成 |
+| 6-8 | content-storyboard-generation | Storyboard 自动生成 |
 
 **里程碑 M2**：系统可自动生成 Storyboard
 
@@ -800,9 +848,9 @@ src/lib/analytics.ts (新建)
 
 | 天 | Change | 输出 |
 |----|--------|------|
-| 1-2 | tts-01-provider-interface | MiniMax TTS 集成 |
-| 3-4 | tts-02-r2-storage | R2 存储完成 |
-| 5-8 | tts-03-inngest-audio | 音频自动生成 |
+| 1-2 | asset-tts-provider | MiniMax TTS 集成 |
+| 3-4 | asset-storage-service | R2 存储完成 |
+| 5-8 | asset-audio-generation | 音频自动生成 |
 
 **里程碑 M3**：系统可生成音频并上传 R2
 
@@ -812,10 +860,10 @@ src/lib/analytics.ts (新建)
 
 | 天 | Change | 输出 |
 |----|--------|------|
-| 1-2 | remotion-01-foundation | Remotion 基础完成 |
-| 3-10 | remotion-02-templates | 8 套模板完成 |
-| 11-15 | remotion-03-worker | Worker 服务完成 |
-| 16-18 | remotion-04-integration | 完整渲染链路 |
+| 1-2 | render-foundation-setup | Remotion 基础完成 |
+| 3-10 | render-ppt-templates | 8 套模板完成 |
+| 11-15 | render-worker-service | Worker 服务完成 |
+| 16-18 | render-video-composition | 完整渲染链路 |
 
 **里程碑 M4**：系统可生成完整视频
 
@@ -825,10 +873,10 @@ src/lib/analytics.ts (新建)
 
 | 天 | Change | 输出 |
 |----|--------|------|
-| 1-2 | ui-01-generate-tab-integration | 创建表单完善 |
-| 3-4 | ui-02-history-tab-integration | 列表功能完善 |
-| 5-7 | ui-03-progress-view | 进度查看完成 |
-| 8-9 | ui-04-video-result | 视频播放完成 |
+| 1-2 | project-create-ui | 创建表单完善 |
+| 3-4 | project-dashboard-ui | 列表功能完善 |
+| 5-7 | project-progress-tracking | 进度查看完成 |
+| 8-9 | project-result-display | 视频播放完成 |
 
 **里程碑 M5**：完整用户体验
 
@@ -838,9 +886,9 @@ src/lib/analytics.ts (新建)
 
 | 天 | Change | 输出 |
 |----|--------|------|
-| 1-2 | ops-01-error-handling | 错误处理完善 |
-| 3-4 | ops-02-logging | 日志系统完成 |
-| 5-6 | ops-03-monitoring | 监控配置完成 |
+| 1-2 | system-error-handling | 错误处理完善 |
+| 3-4 | system-logging | 日志系统完成 |
+| 5-6 | system-monitoring | 监控配置完成 |
 
 **里程碑 M6**：生产就绪
 
@@ -914,7 +962,7 @@ src/lib/analytics.ts (新建)
 
 ### 🎯 立即开始（本周）
 
-**推荐**: `api-01-project-crud`
+**推荐**: `project-lifecycle-api`
 
 **理由**：
 - 现有 UI 已就绪，等待 API
@@ -1112,32 +1160,125 @@ Volcano AI 微课视频平台
 
 #### F2.1: 项目 CRUD API
 
-- **目标**：实现项目的创建、列表、详情、删除、取消、重试 API
-- **涉及模块**：`src/server/routers/`, `src/lib/db/`, `src/server/services/`
-- **依赖**：Epic 1（DB schema + tRPC 框架已有）
-- **风险**：低。标准的 CRUD + 额度校验逻辑
-- **推荐实施顺序**：先 create → 再 list → 再 getById → 再 delete/cancel/retry
+**Goal**: 实现项目的完整生命周期管理 API
+
+**User Value**: 
+- 用户可以创建视频项目并自动进入生成流程
+- 用户可以查看所有历史项目和生成状态
+- 用户可以管理项目（取消、重试、删除）
+
+**Technical Scope**:
+- tRPC routers: project.createAndGenerate, project.list, project.getById, project.delete, project.cancel, project.retry
+- Service 层: 业务逻辑、额度校验、并发限制
+- Repository 层: 数据库操作封装
+- Inngest 事件: video/generate.requested
+
+**Dependencies**:
+- Epic 1: 数据库 schema 已完成（Project、GenerationJob、UsageRecord 表）
+- Epic 1: tRPC 框架已配置（三级 Procedure）
+- Epic 1: Inngest client 已配置
+
+**Risks**:
+- **并发限制影响用户体验**（中）: 多设备登录时可能阻塞，缓解：基于 userId + sessionId 的精细化限制
+- **额度检查性能问题**（中）: 高并发时数据库查询压力大，缓解：Redis 缓存 + 异步写入 UsageRecord
+- **幂等性保证困难**（低）: requestId 可能被绕过，缓解：客户端 + 服务端双重校验
+
+**Recommended Order**:
+1. project.createAndGenerate - 核心功能，优先实现
+2. project.list - 查看项目列表，紧接着实现
+3. project.getById - 详情页依赖
+4. project.delete - 管理功能
+5. project.cancel / project.retry - 高级管理功能
+
+---
 
 #### F2.2: 创建项目页面
 
-- **目标**：替换首页为创建页，含文本输入、参数配置、提交逻辑
-- **涉及模块**：`src/app/page.tsx`, `src/components/`, `src/app/(protected)/create/`
-- **依赖**：F2.1（需要 create API）
-- **风险**：低。表单 + 校验 + 调用 API
+**Goal**: 提供用户友好的项目创建界面
+
+**User Value**:
+- 用户可以通过简单表单输入文本并配置参数
+- 用户可以实时看到字数统计和额度剩余
+- 用户可以立即看到创建结果并跳转到进度页
+
+**Technical Scope**:
+- 创建页面 `/create`（或集成到 GenerateTab）
+- 表单组件（文本输入、参数配置面板）
+- 前端校验（Zod + react-hook-form）
+- TanStack Query 集成 `project.createAndGenerate`
+
+**Dependencies**:
+- F2.1: project.createAndGenerate API 已完成
+
+**Risks**:
+- **UI 复杂度高**（低）: 参数配置项多，缓解：分步表单或折叠面板
+- **表单状态管理**（低）: 草稿保存、提交 loading，缓解：使用 react-hook-form
+
+**Recommended Order**:
+1. 基础表单（文本输入 + 提交）
+2. 参数配置面板
+3. 前端校验和错误提示
+4. 额度显示和限制提示
+
+---
 
 #### F2.3: 项目列表 Dashboard
 
-- **目标**：展示用户项目列表，支持筛选、分页、状态展示
-- **涉及模块**：`src/app/(protected)/dashboard/`, `src/components/`
-- **依赖**：F2.1（需要 list API）
-- **风险**：低。标准列表页面
+**Goal**: 展示用户项目列表，支持筛选、分页、状态展示
+
+**User Value**:
+- 用户可以一目了然看到所有项目的状态
+- 用户可以快速筛选特定状态的项目
+- 用户可以在列表中直接操作项目（查看、删除）
+
+**Technical Scope**:
+- Dashboard 页面 `/dashboard`
+- 项目卡片组件（标题、状态 badge、缩略图占位、时间、操作按钮）
+- 状态筛选 tabs（全部/生成中/已完成/失败）
+- TanStack Query 集成 `project.list`
+- Loading Skeleton / Empty State / Error State
+
+**Dependencies**:
+- F2.1: project.list API 已完成
+
+**Risks**:
+- **性能问题**（低）: 大量项目时列表加载慢，缓解：分页 + 虚拟滚动
+- **状态同步**（低）: 生成中项目状态更新不及时，缓解：轮询 + WebSocket（可选）
+
+**Recommended Order**:
+1. 基础列表页面（无筛选）
+2. 状态筛选 tabs
+3. 分页或无限加载
+4. 操作按钮（查看详情、删除）
+
+---
 
 #### F2.4: 项目详情与状态查询
 
-- **目标**：项目详情页含状态、分镜摘要、关联资源
-- **涉及模块**：`src/app/(protected)/projects/[id]/`, `src/server/routers/`
-- **依赖**：F2.1（需要 getById API）
-- **风险**：低
+**Goal**: 项目详情页含状态、分镜摘要、关联资源
+
+**User Value**:
+- 用户可以查看项目的完整信息
+- 用户可以了解生成进度和当前状态
+- 用户可以访问生成的资源（音频、视频）
+
+**Technical Scope**:
+- 详情页 `/projects/[id]`
+- 项目基本信息展示
+- 生成状态和进度展示
+- 关联资源列表（音频、视频、缩略图）
+- TanStack Query 集成 `project.getById`
+
+**Dependencies**:
+- F2.1: project.getById API 已完成
+
+**Risks**:
+- **数据加载慢**（低）: 关联数据多，缓解：按需加载 + 骨架屏
+
+**Recommended Order**:
+1. 基本信息展示
+2. 状态和进度展示
+3. 关联资源列表
 
 ---
 
@@ -1145,31 +1286,67 @@ Volcano AI 微课视频平台
 
 #### F3.1: Storyboard 类型与校验
 
-- **目标**：定义 Storyboard/Scene/SceneVisual/CaptionSegment 的 TypeScript 类型和 Zod Schema，生成 JSON Schema 供 LLM function calling 使用
-- **涉及模块**：`src/lib/storyboard/types.ts`, `src/lib/storyboard/schema.ts`, `src/lib/storyboard/validation.ts`
-- **依赖**：无（纯类型定义）
-- **风险**：中。需要确保 Schema 设计对未来模板扩展友好
+**Goal**: 定义 Storyboard/Scene/SceneVisual/CaptionSegment 的 TS 类型 + Zod Schema + JSON Schema（供 LLM function calling）
+
+**User Value**:
+- 开发者可以使用类型安全的 Storyboard 数据结构
+- LLM 可以按照标准格式生成 Storyboard
+- 系统可以自动校验和修复生成结果
+
+**Technical Scope**:
+- TypeScript 类型定义（Storyboard, Scene, 7 种 SceneVisual 联合类型, CaptionSegment）
+- Zod Schema（StoryboardSchema, SceneSchema, VisualSchema 等）
+- Zod → JSON Schema 转换（zod-to-json-schema）
+- 导出 STORYBOARD_JSON_SCHEMA 供 LLM Prompt 注入
+- 常量定义（VALID_SCENE_TYPES, SCENE_TYPE_MAP）
+- Schema 版本常量 SCHEMA_VERSION = "1.0.0"
+
+**Dependencies**:
+- 无（纯类型定义）
+
+**Risks**:
+- **Schema 设计不合理**（中）: 后续扩展困难，缓解：预留扩展字段 + 版本控制
+- **类型过于复杂**（低）: 开发者难以理解，缓解：完善文档 + 示例
+
+**Recommended Order**:
+1. 定义核心类型（Storyboard, Scene）
+2. 定义 SceneVisual 联合类型（7 种）
+3. 定义 Zod Schema
+4. 生成 JSON Schema
+
+---
 
 #### F3.2: LLM Provider 适配器
 
-- **目标**：实现 OpenAI-compatible Provider 抽象（含 DeepSeek），暴露 `generateStoryboard` / `repairStoryboardJson`
-- **涉及模块**：`src/lib/providers/llm/`, `src/lib/providers/interfaces.ts`
-- **依赖**：F3.1（需要 Storyboard 类型定义）
-- **风险**：中。DeepSeek JSON 稳定性需实测
+**Goal**: 实现 LLM Provider 接口 + DeepSeek adapter（OpenAI-compatible），含 generateStoryboard 和 repairStoryboardJson
 
-#### F3.3: Storyboard 生成引擎
+**User Value**:
+- 系统可以自动调用 LLM 生成 Storyboard
+- 支持多个 LLM 提供商（DeepSeek、OpenAI 等）
+- 自动修复 LLM 返回的格式错误
 
-- **目标**：实现 Inngest function `generate-storyboard`，调用 LLM → 校验 → 修复循环 → 保存 StoryboardVersion + Scene
-- **涉及模块**：`src/inngest/functions/`, `src/server/services/storyboard.service.ts`
-- **依赖**：F3.2（LLM Provider）、F2.1（Project 更新）
-- **风险**：中。完整 LLM→DB 链路
+**Technical Scope**:
+- LlmProvider 接口定义
+- OpenAICompatibleProvider 基类（封装 HTTP 调用、错误处理、重试、超时、日志）
+- DeepSeekProvider 实现（配置 endpoint、model、apiKey）
+- generateStoryboard(): 构建 System Prompt + User Prompt + JSON Schema → 调用 API → 返回 Storyboard
+- repairStoryboardJson(): 构建修复 Prompt → 调用 API → 返回修复后 Storyboard
+- Token 用量跟踪
+- Provider 错误码映射（LLM_TIMEOUT / LLM_RATE_LIMITED / LLM_INVALID_RESPONSE）
 
-#### F3.4: Storyboard 修复与重试
+**Dependencies**:
+- F3.1: Storyboard 类型和 Schema
 
-- **目标**：实现 JSON repair 逻辑（非 JSON 解析、缺失字段补全、类型转换）
-- **涉及模块**：`src/lib/storyboard/repair.ts`
-- **依赖**：F3.1
-- **风险**：中。修复逻辑边界情况多
+**Risks**:
+- **DeepSeek JSON 不稳定**（高）: 返回格式错误率高，缓解：JSON repair 机制 + 最多 2 次重试
+- **API 调用超时**（中）: 网络不稳定，缓解：超时重试 + 降级策略
+
+**Recommended Order**:
+1. 定义 LlmProvider 接口
+2. 实现 OpenAICompatibleProvider 基类
+3. 实现 DeepSeekProvider
+4. 实现 generateStoryboard
+5. 实现 repairStoryboardJson
 
 ---
 
@@ -1177,169 +1354,35 @@ Volcano AI 微课视频平台
 
 #### F4.1: TTS Provider 适配器
 
-- **目标**：实现 TTS Provider 接口 + MiniMax adapter（同步 HTTP T2A），返回 audioBuffer + durationMs + captions
-- **涉及模块**：`src/lib/providers/tts/`
-- **依赖**：无（独立接口）
-- **风险**：中。MiniMax API 的时间戳返回格式需验证
+**Goal**: 实现 TTS Provider 接口 + MiniMax adapter（同步 HTTP T2A），含语音列表和音频合成
 
-#### F4.2: 音频生成引擎
+**User Value**:
+- 系统可以自动生成高质量语音
+- 支持多种语音风格选择
+- 自动提取字幕时间戳
 
-- **目标**：实现 Inngest function `generate-audio`，逐 scene 调用 TTS → 去重（textHash）→ 上传 R2 → 回填 Scene
-- **涉及模块**：`src/inngest/functions/`, `src/server/services/tts.service.ts`
-- **依赖**：F4.1（TTS Provider）、F4.3（R2 上传）、F3.3（需已有 Scene）
-- **风险**：中。长任务逐 scene 生成，需处理部分失败
+**Technical Scope**:
+- TtsProvider 接口定义
+- MiniMaxProvider 实现
+  - listVoices(): 调用 MiniMax API 获取语音列表
+  - synthesize(): 调用 MiniMax T2A HTTP API，启用 subtitle_enable，获取 audioBuffer + durationMs + captions
+- 音频二进制 Buffer 处理
+- MiniMax 文本长度限制校验（< 10000 字）
+- 错误码映射（TTS_TIMEOUT / TTS_RATE_LIMITED / TTS_TEXT_TOO_LONG / TTS_VOICE_NOT_FOUND）
 
-#### F4.3: R2 存储完整实现
+**Dependencies**:
+- 无（独立接口）
 
-- **目标**：实现 `uploadToR2` / `getSignedUrl` / `deleteFromR2`（替换现有存根），支持音频/视频/缩略图上传
-- **涉及模块**：`src/lib/r2.ts`
-- **依赖**：无（独立实现，替换存根）
-- **风险**：低。S3 SDK 标准 API
+**Risks**:
+- **MiniMax 字幕格式不确定**（中）: API 文档不完善，缓解：提前验证 + 多种格式适配
+- **音频质量问题**（低）: 部分文本生成效果不佳，缓解：文本预处理 + 语音参数调优
 
-#### F4.4: 资源签名 URL 与访问控制
-
-- **目标**：实现 tRPC `asset.getSignedUrl`，校验权限 → 查询 Asset → 生成签名 URL
-- **涉及模块**：`src/server/routers/asset.ts`, `src/server/services/asset.service.ts`
-- **依赖**：F4.3（R2 签名）、F2.1（权限校验）
-- **风险**：低
-
----
-
-### Epic 5: Remotion 视频渲染
-
-#### F5.1: Remotion 项目结构与模板注册表
-
-- **目标**：创建 `src/remotion/` 完整结构，模板注册表 `registry.ts`，Composition 入口
-- **涉及模块**：`src/remotion/`（扩展现有存根）
-- **依赖**：F3.1（Storyboard 类型）
-- **风险**：低。项目结构调整
-
-#### F5.2: 8 套 PPT 模板（第一部分：简单模板）
-
-- **目标**：实现 TitleSlide、EndingSlide、ConceptCard 模板组件（含入场动效）
-- **涉及模块**：`src/remotion/templates/TitleSlide.tsx`, `EndingSlide.tsx`, `ConceptCard.tsx`
-- **依赖**：F5.1
-- **风险**：中。Remention API 动画实现需精确
-
-#### F5.3: 8 套 PPT 模板（第二部分：列表与流程）
-
-- **目标**：实现 BulletList、ProcessFlow 模板组件（含分页和步骤揭示）
-- **涉及模块**：`src/remotion/templates/BulletList.tsx`, `ProcessFlow.tsx`
-- **依赖**：F5.1
-- **风险**：中。BulletList 分页逻辑复杂
-
-#### F5.4: 8 套 PPT 模板（第三部分：对比与时间线）
-
-- **目标**：实现 Comparison、Timeline、Summary 模板组件
-- **涉及模块**：`src/remotion/templates/Comparison.tsx`, `Timeline.tsx`, `Summary.tsx`
-- **依赖**：F5.1
-- **风险**：中
-
-#### F5.5: 动效预设库 + 字幕组件
-
-- **目标**：实现 8 种动效（fadeIn/slideUp/slideLeft/scaleIn/typewriter/stepReveal/highlight/wipeReveal）+ CaptionOverlay 组件
-- **涉及模块**：`src/remotion/animations/`, `src/remotion/components/CaptionOverlay.tsx`
-- **依赖**：F5.1
-- **风险**：中。所有动效必须用 `useCurrentFrame` + `interpolate`
-
-#### F5.6: MicroCourseVideo Composition + calculateMetadata
-
-- **目标**：实现主 Composition（编排 scene 序列、音频、字幕、水印）+ 动态 duration 计算
-- **涉及模块**：`src/remotion/compositions/MicroCourseVideo.tsx`, `Root.tsx`（更新）
-- **依赖**：F5.2-F5.5（所有模板和组件已就绪）
-- **风险**：中。Sequencing 逻辑需精确
-
-#### F5.7: 时间轴计算器
-
-- **目标**：根据 Scene.audioAssetId 对应音频 durationSec → 计算 startFrame/durationFrames → 回填 Scene + StoryboardVersion
-- **涉及模块**：`src/server/services/timeline.service.ts`, `src/inngest/functions/calculate-timeline.ts`
-- **依赖**：F3.1（Storyboard 类型）、F4.2（需已有音频 Asset）
-- **风险**：低。纯计算逻辑
-
-#### F5.8: Render Worker 基础架构
-
-- **目标**：创建 `apps/render-worker/` 独立服务，HTTP Server (Fastify)、健康检查、内部 token 校验
-- **涉及模块**：`apps/render-worker/`（新建目录）
-- **依赖**：无（独立进程）
-- **风险**：高。Docker + Chromium + FFmpeg + 中文字体环境搭建
-
-#### F5.9: Render Worker 渲染引擎
-
-- **目标**：实现 bundle + getCompositions + renderMedia 调用、进度上报、错误处理、渲染后 R2 上传
-- **涉及模块**：`apps/render-worker/src/renderer.ts`
-- **依赖**：F5.8（Worker 基础）、F5.6（Composition）、F4.3（R2 上传）
-- **风险**：高。renderMedia 参数调优 + 错误恢复
-
-#### F5.10: 渲染触发与回调
-
-- **目标**：实现 Inngest `trigger-render` function，包括 RenderJob 创建、Worker 选择、幂等检查、结果回写
-- **涉及模块**：`src/inngest/functions/trigger-render.ts`, `src/server/services/render.service.ts`
-- **依赖**：F5.9（Worker）、F5.7（时间轴）
-- **风险**：中。Worker 选择与回调可靠性
-
----
-
-### Epic 6: 前端体验完善
-
-#### F6.1: 生成进度页面
-
-- **目标**：展示生成步骤进度（6 阶段）、当前步骤文案、已生成分镜预览、取消/重试按钮
-- **涉及模块**：`src/app/(protected)/projects/[id]/progress/`
-- **依赖**：F2.1（project API）、F2.4（详情查询）
-- **风险**：低。状态轮询 + UI
-
-#### F6.2: 分镜预览页面
-
-- **目标**：左侧 scene 列表 + 中间 slide 静态预览（renderStill）+ 右侧属性面板
-- **涉及模块**：`src/app/(protected)/projects/[id]/storyboard/`
-- **依赖**：F3.3（需已有 Scene 数据）、F5.9（renderStill 能力）
-- **风险**：中。renderStill 性能与缓存
-
-#### F6.3: 视频结果页面
-
-- **目标**：视频播放器（签名 URL）、下载 MP4、下载字幕、重新生成按钮
-- **涉及模块**：`src/app/(protected)/projects/[id]/result/`
-- **依赖**：F4.4（签名 URL）、F5.10（渲染完成）
-- **风险**：低。标准视频页
-
-#### F6.4: 全局布局与导航
-
-- **目标**：实现产品级导航栏、Dashboard 路由、面包屑、用户头像菜单、替换首页脚手架
-- **涉及模块**：`src/app/layout.tsx`, `src/app/page.tsx`, `src/components/layout/`
-- **依赖**：F2.2（创建页）、F2.3（Dashboard）
-- **风险**：低
-
----
-
-### Epic 7: 运营与可观测性
-
-#### F7.1: 错误码体系
-
-- **目标**：定义全部错误码枚举（USER_INPUT_*/AUTH_*/QUOTA_*/LLM_*/STORYBOARD_*/TTS_*/ASSET_*/RENDER_*/SYSTEM_*），实现错误码 → 用户文案映射
-- **涉及模块**：`src/lib/errors/`
-- **依赖**：无（全局基础设施）
-- **风险**：低
-
-#### F7.2: 用量记录与额度控制
-
-- **目标**：实现每日额度校验（免费用户每日 1 次）、UsageRecord 写入、额度查询 API
-- **涉及模块**：`src/server/services/quota.service.ts`, `src/server/routers/quota.ts`
-- **依赖**：无
-- **风险**：低
-
-#### F7.3: 重试与取消机制
-
-- **目标**：实现软取消（Inngest step 前检查 Project status）、resume 重试（不重复生成已有资产）、full_regenerate（管理员）
-- **涉及模块**：`src/inngest/functions/`（修改所有 functions）、`src/server/services/cancel.service.ts`
-- **依赖**：F2.1、F3.3、F4.2、F5.10（所有 Inngest functions 已存在）
-- **风险**：中。跨多个 function 的取消逻辑
-
-#### F7.4: Sentry 接入与 JobEvent 日志
-
-- **目标**：接入 Sentry 记录前端+后端异常、完善 JobEvent 表写入、实现 Inngest step 级日志
-- **涉及模块**：`src/lib/logger.ts`, `src/server/services/job-event.service.ts`, `sentry.client.config.ts`, `sentry.server.config.ts`
-- **依赖**：F7.1（错误码体系）
-- **风险**：低
+**Recommended Order**:
+1. 定义 TtsProvider 接口
+2. 实现 MiniMaxProvider
+3. 实现 listVoices
+4. 实现 synthesize
+5. 实现错误处理
 
 ---
 
@@ -1387,6 +1430,74 @@ Volcano AI 微课视频平台
 
 - 等待 Phase 1 全部完成（ep2-01~05）
 - 开始 AI 生成链路开发
+
+---
+
+## 垂直切片原则的例外说明
+
+本项目采用"API 先行，前端后集成"的策略，原因如下：
+
+### 背景
+
+标准的工程实践要求采用**垂直切片**（Vertical Slice）原则，即每个 Change 应该包含从数据库到前端的完整功能。
+但本项目由于以下特殊情况，采用了"水平切片"（Horizontal Slice）的实施策略。
+
+### 例外理由
+
+1. **UI 架构已完成**: MainApp.tsx、GenerateTab、HistoryTab 已有完整 UI 结构
+   - 现有 UI 组件已经过设计验证和用户测试
+   - 组件接口清晰，只需接入数据即可
+   - 无需重新设计或大幅修改 UI
+
+2. **前端工程师未就位**: Phase 1-4 期间只有后端工程师，Phase 5 前端工程师加入
+   - 团队资源限制，后端和前端开发串行进行
+   - 后端 API 可以独立测试和验证
+   - 前端工程师加入后可以快速集成
+
+3. **API 可独立测试**: 通过 tRPC Playground 和 Postman 验证 API 正确性
+   - tRPC 提供了自动生成的 API 文档和测试界面
+   - 后端团队可以独立验证业务逻辑正确性
+   - 减少前后端联调成本
+
+4. **风险可控**: 前端集成前会进行 API 设计 Review
+   - Tech Lead 和前端 Lead 会在 Phase 1-4 结束时进行 API Contract Review
+   - 保留 API 版本兼容性，允许前端集成时微调
+   - 前端工程师会提前试用 API 并提出改进建议
+
+### 缓解措施
+
+为了降低"水平切片"带来的风险，我们采取以下缓解措施：
+
+1. **API Contract Review**
+   - 每个 Phase 结束时，Tech Lead + 前端 Lead 进行 API 设计评审
+   - 评审内容：API 命名、参数设计、错误处理、性能指标
+   - 评审通过后才进入下一 Phase
+
+2. **前端提前参与**
+   - Phase 1-4 期间，前端工程师（如果有）会试用 API 并提出改进建议
+   - 通过 tRPC Playground 体验 API 调用流程
+   - 提前发现 API 设计问题
+
+3. **保留版本兼容性**
+   - API 设计时考虑扩展性，避免破坏性变更
+   - 如果前端集成时需要调整 API，采用版本控制（如 v2）
+   - 旧版本保留一段时间，平滑过渡
+
+4. **E2E 测试在 Phase 5**
+   - Phase 5 前端集成时，补充完整的 E2E 测试
+   - 验证端到端流程的正确性
+   - 发现并修复集成问题
+
+### 交付节奏
+
+- **Phase 1-4**: 后端 API Ready → API Review → 前端可开始集成
+- **Phase 5**: 前端集成 → E2E 测试 → 完整功能交付
+- **Phase 6**: 运营完善 → 生产就绪
+
+### 总结
+
+虽然本项目采用了"水平切片"策略，但通过严格的 API Review、前端提前参与、版本兼容性保证等措施，
+可以有效降低返工风险，确保前后端集成顺利。
 
 ---
 
@@ -2678,4 +2789,5 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 | v1.2.0 | 2026-06-15 | Review 补充：新增第 1、11-14 章（Architecture Baseline、Release Plan、OpenSpec Mapping、Final Review、测试策略），为 Phase 1-2 的 9 个 Changes 补充 Impact Analysis 和 Rollback Strategy |
 | v1.3.0 | 2026-06-15 | 完成 Phase 3-6 补充：为剩余 20 个 Changes（ep4-02~ep7-04）补充 Impact Analysis 和 Rollback Strategy，所有 30 个 Changes 现已具备完整的影响分析和回滚策略 |
 | v2.0.0 | 2026-06-16 | 重大优化版本：基于现有项目结构重写实施计划，核心变更包括：1) 保持现有 UI 架构（MainApp.tsx/GenerateTab/HistoryTab）不变；2) 单仓库结构，避免 monorepo 复杂度；3) 聚焦后端 API 实现和 UI 集成；4) 重新组织为 6 个 Phase 渐进式交付；5) 简化 Change 命名（api-01/ai-01/tts-01 等）；6) 新增核心优化原则、实施时间线、关键优化点说明、总结等章节；7) 移除原有 Epic/Feature 结构和已完成的详细追踪内容，专注未来实施路径 |
+| v2.1.0 | 2026-06-16 | P0/P1 修复：1) 新增第3章 Feature Breakdown；2) 新增垂直切片原则例外说明；3) 全局重命名 Changes（domain-feature 格式）；4) 为关键 Changes 补充 Business Context；5) 更新 Dependency Graph |
 
