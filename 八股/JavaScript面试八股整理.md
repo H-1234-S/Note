@@ -1076,12 +1076,12 @@ flowchart TD
 
 **Q：Promise.all / allSettled / race / any 区别？**
 
-| API | 成功条件 | 失败条件 | 典型场景 |
-|---|---|---|---|
-| `Promise.all` | 全部 fulfilled | 任意一个 rejected | 多个请求都成功才继续 |
-| `Promise.allSettled` | 等全部 settled | 不会整体 reject | 批量任务统计结果 |
-| `Promise.race` | 第一个 settled 决定结果 | 第一个 settled 决定结果 | 超时控制 |
-| `Promise.any` | 任意一个 fulfilled | 全部 rejected | 多源容灾 |
+| API                  | 成功条件             | 失败条件             | 典型场景       |
+| -------------------- | ---------------- | ---------------- | ---------- |
+| `Promise.all`        | 全部 fulfilled     | 任意一个 rejected    | 多个请求都成功才继续 |
+| `Promise.allSettled` | 等全部 settled      | 不会整体 reject      | 批量任务统计结果   |
+| `Promise.race`       | 第一个 settled 决定结果 | 第一个 settled 决定结果 | 超时控制       |
+| `Promise.any`        | 任意一个 fulfilled   | 全部 rejected      | 多源容灾       |
 
 **Q：async/await 为什么本质是 Promise？**
 
