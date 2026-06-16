@@ -6,7 +6,7 @@
 |------|------|
 | 文档名称 | 实施计划 (Implementation Plan) |
 | 关联 PRD | `PRD_AI文本转PPT微课视频平台.md` v1.0.6 |
-| 版本 | v2.1.0 |
+| 版本 | v2.2.0 |
 | 更新时间 | 2026-06-16 |
 | 目标受众 | AI Coding Agent (Claude Code / Codex / OpenSpec) |
 | 代码库 | `E:\A\Ai\convert documents to videos` |
@@ -80,123 +80,28 @@
 
 ---
 
-## 1. 优化后的实施策略
+## 1. 实施策略概览
 
-### Phase 1: 后端 API 实现（优先级最高）
+本计划采用**渐进式交付**策略，分 6 个 Phase 逐步实现功能：
 
-**目标**：实现 tRPC API，让现有 UI 可以调用
+| Phase | 核心目标 | 交付能力 | 预计工期 |
+|-------|---------|---------|---------|
+| **Phase 1** | 后端 API 实现 | 用户可创建/查看/管理项目 | 7.5 天 |
+| **Phase 2** | AI 生成链路 | 自动生成 Storyboard | 6.5 天 |
+| **Phase 3** | TTS 音频生成 | 自动生成配音并上传 R2 | 7 天 |
+| **Phase 4** | Remotion 视频渲染 | 端到端视频生成 | 18 天 |
+| **Phase 5** | 前端体验完善 | 完整用户体验 | 6.5 天 |
+| **Phase 6** | 运营与可观测性 | 生产就绪 | 5 天 |
 
-**Changes**：
-1. **project-lifecycle-api** (3-4 天)
-   - 实现 `project.create`
-   - 实现 `project.list`
-   - 实现 `project.getById`
-   - 实现 `project.delete`
-   - 集成到现有 `GenerateTab` 和 `HistoryTab`
+**总工期**：约 50 天（10 周）
 
-2. **project-quota-control** (1-2 天)
-   - 实现额度检查
-   - 实现并发限制
-   - 集成到 create API
+**核心原则**：
+1. ✅ **保持 UI 不变** — 基于现有 MainApp.tsx/GenerateTab/HistoryTab 架构
+2. ✅ **单仓库结构** — 避免 monorepo 复杂度
+3. ✅ **API 优先** — 后端实现完成后前端快速集成
+4. ✅ **每 Phase 可独立部署** — 渐进式交付，风险可控
 
-3. **project-advanced-actions** (2-3 天)
-   - 实现 cancel/retry 逻辑
-   - 集成到 HistoryTab 操作按钮
-
-### Phase 2: AI 生成链路（核心功能）
-
-**目标**：实现 Storyboard 生成
-
-**Changes**：
-1. **content-storyboard-schema** (2 天)
-   - 定义 TypeScript 类型
-   - 定义 Zod Schema
-   - 生成 JSON Schema
-
-2. **content-llm-integration** (3 天)
-   - DeepSeek Provider 实现
-   - OpenAI-compatible 适配器
-   - Storyboard 生成逻辑
-
-3. **content-storyboard-generation** (3 天)
-   - Inngest function `generate-storyboard`
-   - 校验和修复逻辑
-   - 保存 StoryboardVersion + Scene
-
-### Phase 3: TTS 音频生成
-
-**目标**：生成高质量语音
-
-**Changes**：
-1. **asset-tts-provider** (2 天)
-   - TTS Provider 抽象
-   - MiniMax 适配器
-
-2. **asset-storage-service** (2 天)
-   - 实现 R2 上传/下载
-   - 实现签名 URL
-
-3. **asset-audio-generation** (4 天)
-   - Inngest function `generate-audio`
-   - 音频去重
-   - Asset 管理
-
-### Phase 4: Remotion 视频渲染
-
-**目标**：生成最终 MP4 视频
-
-**Changes**：
-1. **render-foundation-setup** (2 天)
-   - 项目结构
-   - 模板注册表
-   - 基础组件
-
-2. **render-ppt-templates** (6-8 天)
-   - 8 套 PPT 模板
-   - 动效预设
-   - 字幕组件
-
-3. **render-worker-service** (4-5 天)
-   - Worker 架构
-   - 渲染引擎
-   - Docker 化
-
-4. **render-video-composition** (3 天)
-   - Inngest function `trigger-render`
-   - 时间轴计算
-   - 结果回写
-
-### Phase 5: 前端完善（基于现有 UI）
-
-**目标**：完善用户体验
-
-**Changes**：
-1. **project-create-ui** (2 天)
-   - 集成 create API
-   - 表单校验
-   - 提交反馈
-
-2. **project-dashboard-ui** (2 天)
-   - 集成 list API
-   - 状态筛选
-   - 操作按钮
-
-3. **project-progress-tracking** (3 天)
-   - 新增进度查看模态框或侧边栏
-   - 轮询状态更新
-   - 取消/重试
-
-4. **project-result-display** (2 天)
-   - 视频播放
-   - 下载功能
-   - 分享（可选）
-
-### Phase 6: 运营与可观测性
-
-**Changes**：
-1. **system-error-handling** (2 天)
-2. **system-logging** (2 天)
-3. **system-monitoring** (2 天)
+详细的 Phase 和 Change 说明请见第 2 章。
 
 ---
 
@@ -233,13 +138,16 @@
 - `GenerateTab.tsx`: 调用 `project.create`
 - `HistoryTab.tsx`: 调用 `project.list`
 
-**Files**：
+**Files & Estimated LOC**：
 ```
-src/trpc/routers/project.ts (完善现有文件)
-src/server/services/project.service.ts (新建)
-src/lib/db/repositories/project.repo.ts (新建)
-src/components/main-app/GenerateTab.tsx (修改：集成 API)
-src/components/main-app/HistoryTab.tsx (修改：集成 API)
+src/trpc/routers/project.ts (完善现有文件)           ~200 LOC
+src/server/services/project.service.ts (新建)         ~350 LOC
+src/lib/db/repositories/project.repo.ts (新建)        ~250 LOC
+src/components/main-app/GenerateTab.tsx (修改)        ~100 LOC
+src/components/main-app/HistoryTab.tsx (修改)         ~150 LOC
+tests/integration/project-api.test.ts (新建)         ~150 LOC
+---------------------------------------------------------------
+Total: ~1,200 LOC
 ```
 
 **Acceptance Criteria**：
@@ -248,7 +156,7 @@ src/components/main-app/HistoryTab.tsx (修改：集成 API)
 - [ ] 列表支持状态筛选（全部/生成中/已完成/失败）
 - [ ] 项目卡片显示正确信息
 
-**Estimated Size**: L (~1200 LOC)
+**Estimated Size**: L (~1,200 LOC)
 **Estimated Time**: 3-4 天
 **Priority**: P0
 
@@ -364,11 +272,15 @@ src/lib/storyboard/repair.ts (新建)
 - 保存 StoryboardVersion + Scene
 - 更新 Project status
 
-**Files**：
+**Files & Estimated LOC**：
 ```
-src/inngest/functions/generate-storyboard.ts (新建)
-src/inngest/functions/index.ts (修改：注册 function)
-src/server/services/storyboard.service.ts (新建)
+src/inngest/functions/generate-storyboard.ts (新建)   ~300 LOC
+src/inngest/functions/index.ts (修改：注册)            ~10 LOC
+src/server/services/storyboard.service.ts (新建)      ~250 LOC
+src/lib/db/repositories/storyboard.repo.ts (新建)     ~150 LOC
+src/lib/db/repositories/scene.repo.ts (新建)          ~100 LOC
+---------------------------------------------------------------
+Total: ~810 LOC
 ```
 
 **Acceptance Criteria**：
@@ -377,7 +289,7 @@ src/server/services/storyboard.service.ts (新建)
 - [ ] Scene 表正确拆分
 - [ ] Project status 正确流转
 
-**Estimated Size**: L (~800 LOC)
+**Estimated Size**: L (~810 LOC)
 **Estimated Time**: 3 天
 **Priority**: P0
 
@@ -463,11 +375,14 @@ TTS 技术可以自动生成配音，但需要精确的时间轴和字幕同步�
 - 创建 Asset 记录
 - 回填 Scene.audioAssetId
 
-**Files**：
+**Files & Estimated LOC**：
 ```
-src/inngest/functions/generate-audio.ts (新建)
-src/server/services/audio.service.ts (新建)
-src/lib/db/repositories/asset.repo.ts (新建)
+src/inngest/functions/generate-audio.ts (新建)        ~350 LOC
+src/server/services/audio.service.ts (新建)           ~300 LOC
+src/lib/db/repositories/asset.repo.ts (新建)          ~200 LOC
+tests/unit/audio-deduplication.test.ts (新建)         ~100 LOC
+---------------------------------------------------------------
+Total: ~950 LOC
 ```
 
 **Acceptance Criteria**：
@@ -476,7 +391,7 @@ src/lib/db/repositories/asset.repo.ts (新建)
 - [ ] Asset 记录正确
 - [ ] Scene 回填 durationSec
 
-**Estimated Size**: L (~900 LOC)
+**Estimated Size**: L (~950 LOC)
 **Estimated Time**: 4 天
 **Priority**: P0
 
@@ -614,13 +529,16 @@ docker-compose.yml (新建或修改)
 - MicroCourseVideo Composition
 - 渲染触发和回调
 
-**Files**：
+**Files & Estimated LOC**：
 ```
-src/server/services/timeline.service.ts (新建)
-src/inngest/functions/calculate-timeline.ts (新建)
-src/inngest/functions/trigger-render.ts (新建)
-src/server/services/render.service.ts (新建)
-src/remotion/compositions/MicroCourseVideo.tsx (新建)
+src/server/services/timeline.service.ts (新建)        ~200 LOC
+src/inngest/functions/calculate-timeline.ts (新建)    ~150 LOC
+src/inngest/functions/trigger-render.ts (新建)        ~250 LOC
+src/server/services/render.service.ts (新建)          ~300 LOC
+src/remotion/compositions/MicroCourseVideo.tsx (新建) ~150 LOC
+tests/unit/timeline-calculation.test.ts (新建)        ~100 LOC
+---------------------------------------------------------------
+Total: ~1,150 LOC
 ```
 
 **Acceptance Criteria**：
@@ -629,7 +547,7 @@ src/remotion/compositions/MicroCourseVideo.tsx (新建)
 - [ ] 渲染结果上传 R2
 - [ ] Project status 更新为 completed
 
-**Estimated Size**: L (~900 LOC)
+**Estimated Size**: L (~1,150 LOC)
 **Estimated Time**: 3 天
 **Priority**: P0
 
@@ -898,20 +816,12 @@ src/lib/analytics.ts (新建)
 
 ### 4.1 UI 保持不变
 
-**原实施计划问题**：
-- ❌ 计划新建 `/dashboard`, `/create`, `/projects/[id]` 等多个页面
-- ❌ 与现有 UI 架构不匹配
-
 **优化方案**：
-- ✅ 保留现有 Tab 架构
-- ✅ 在 Tab 内集成功能
+- ✅ 保留现有 Tab 架构（MainApp.tsx）
+- ✅ 在 GenerateTab/HistoryTab 内集成功能
 - ✅ 使用 Dialog/Drawer 展示详情
 
 ### 4.2 单仓库结构
-
-**原实施计划问题**：
-- ❌ 建议使用 monorepo
-- ❌ 增加项目复杂度
 
 **优化方案**：
 - ✅ 保持单 Next.js 应用
@@ -927,28 +837,31 @@ src/lib/analytics.ts (新建)
 
 ---
 
-## 5. 风险与缓解
+## 5. 风险与缓解策略
 
-| 风险 | 等级 | 缓解措施 |
-|------|------|---------|
-| 现有 UI 需要大改 | 🟢 低 | 已确认 UI 架构合适，仅需集成 |
-| DeepSeek JSON 不稳定 | 🟡 中 | JSON repair + 重试机制 |
-| Remotion Worker 部署复杂 | 🔴 高 | Docker 化 + 提前测试 |
-| 中文字体问题 | 🔴 高 | 预装字体 + 验证渲染 |
+| 风险 | 等级 | 影响范围 | 缓解措施 |
+|------|------|---------|---------|
+| 现有 UI 需要大改 | 🟢 低 | 前端集成 | 已确认 UI 架构合适，仅需集成 API |
+| DeepSeek JSON 不稳定 | 🟡 中 | Storyboard 生成 | JSON repair 机制 + 最多 2 次重试 + 预先压测 |
+| Remotion Worker 部署复杂 | 🔴 高 | 视频渲染 | Docker 化 + 健康检查 + 提前测试 |
+| 中文字体渲染问题 | 🔴 高 | 视频质量 | Docker 预装 Noto Sans CJK + 字体文件版本控制 |
+| R2 存储无 CDN | 🟡 中 | 下载速度 | 签名 URL 有效期足够 + 后续接入 Cloudflare CDN |
+| Worker 单点故障 | 🔴 高 | 渲染可用性 | 健康检查 + 自动重启 + 任务队列持久化 |
+| MiniMax API 稳定性 | 🟡 中 | TTS 音频生成 | 字幕格式适配 + 文本预处理 + 备用方案 |
 
 ---
 
 ## 6. 成功标准
 
 ### 技术标准
-- [ ] 所有 API 有单元测试
+- [ ] 所有 API 有单元测试（覆盖率 > 80%）
 - [ ] 生成成功率 ≥ 85%
 - [ ] 3 分钟视频生成耗时 ≤ 8 分钟
 - [ ] UI 响应时间 ≤ 500ms
 
 ### 用户体验标准
 - [ ] 用户可完成"创建→查看进度→播放视频"完整流程
-- [ ] 错误提示友好
+- [ ] 错误提示友好（用户友好文案）
 - [ ] 无明显 bug
 
 ### 交付标准
@@ -958,11 +871,11 @@ src/lib/analytics.ts (新建)
 
 ---
 
-## 7. 下一步行动
+## 7. 下一步行动与优先级
 
 ### 🎯 立即开始（本周）
 
-**推荐**: `project-lifecycle-api`
+**推荐 Change**: `project-lifecycle-api`
 
 **理由**：
 - 现有 UI 已就绪，等待 API
@@ -974,9 +887,29 @@ src/lib/analytics.ts (新建)
 - [ ] HistoryTab 可显示项目列表
 - [ ] 状态筛选功能正常
 
+### ⏭️ 后续顺序
+
+1. **Week 1-2**: Phase 1（后端 API）
+   - project-lifecycle-api → project-quota-control → project-advanced-actions
+   
+2. **Week 3-4**: Phase 2（AI 生成）
+   - content-storyboard-schema → content-llm-integration → content-storyboard-generation
+
+3. **Week 5-6**: Phase 3（TTS 音频）
+   - asset-tts-provider → asset-storage-service → asset-audio-generation
+
+4. **Week 7-10**: Phase 4（视频渲染）
+   - render-foundation-setup → render-ppt-templates → render-worker-service → render-video-composition
+
+5. **Week 11-12**: Phase 5（前端完善）
+   - project-create-ui → project-dashboard-ui → project-progress-tracking → project-result-display
+
+6. **Week 13-14**: Phase 6（运营完善）
+   - system-error-handling → system-logging → system-monitoring
+
 ---
 
-## 8. 总结
+## 8. 实施计划总结
 
 ### 优化亮点
 
@@ -997,15 +930,16 @@ src/lib/analytics.ts (新建)
 
 ### 预计总工期
 
-- **原计划**: ~50 天（10 周）
-- **优化后**: ~70 天（14 周）
-- **原因**: 保持了更完整的功能覆盖，但降低了返工风险
+- **总工期**: ~50 天（10 周）
+- **交付模式**: 6 个 Phase 渐进式交付
+- **团队配置**: 3-4 人（Backend + Frontend + Remotion + Infra）
 
 ### 团队配置建议
 
 - 1 名 Full-stack Lead（API + UI 集成）
 - 1 名 Remotion 专家（模板 + Worker）
 - 1 名 Backend Engineer（AI 链路 + Inngest）
+- 1 名 Infra Lead（可选，部署 + 监控）
 
 ---
 
@@ -1384,52 +1318,6 @@ Volcano AI 微课视频平台
 4. 实现 synthesize
 5. 实现错误处理
 
----
-
-## 11. 下一步行动（优先级排序）
-
-### 🎯 立即开始（本周）
-
-**推荐**: `ep2-04-create-project-page`
-
-**理由**：
-- 完成 Phase 1 用户完整体验闭环
-- `ep2-01` create API 已就绪，前端调用即可
-- 交付：用户可完整体验"创建 → 查看 Dashboard"流程
-
-**依赖检查**：
-- ✅ ep2-01 project-create-api（API 已实现）
-- ✅ tRPC mutation 可用（已验证）
-
-**预估工期**: 1.5-2 天
-
-**验收标准**：
-- [ ] `/create` 页面可访问
-- [ ] 文本输入框 + 参数配置面板
-- [ ] 前端校验（空文本、超字数）
-- [ ] 提交成功后跳转 `/projects/[id]/progress`
-
----
-
-### ⏭️ 随后进行（下周）
-
-**推荐**: `ep2-05-cancel-retry-delete-api`
-
-**理由**：
-- 补全项目管理 CRUD 能力
-- 可与 ep2-04 并行开发（无依赖冲突）
-- 为用户提供取消、重试、删除功能
-
-**可并行**: ✅ 与 ep2-04 无冲突
-
----
-
-### 🔄 Phase 1 收尾后的下一步
-
-**Phase 2 起点**: `ep3-01-storyboard-types-schema`
-
-- 等待 Phase 1 全部完成（ep2-01~05）
-- 开始 AI 生成链路开发
 
 ---
 
@@ -2336,18 +2224,42 @@ flowchart LR
 
 ---
 
-## 17. 关键风险与缓解
+## 17. 关键风险与应对
 
-| 风险 | 等级 | 影响 Change | 缓解措施 |
-|------|------|-----------|---------|
-| DeepSeek JSON 输出不稳定 | 🔴 高 | `ep3-04` | JSON repair 最多 2 次 + 严格 Schema 约束 + 预先压测 |
-| MiniMax 字幕时间戳格式不确定 | 🟡 中 | `ep4-01`, `ep4-03` | 提前验证文档 → 写 adapter 时适配多种格式 → 若无法获取则 fallback 到句子级估算 |
-| Remotion Worker 部署复杂 | 🔴 高 | `ep5-07`, `ep5-08` | Docker 化 + 预装字体 + 固定版本 + 健康检查自愈 |
-| 中文字体在 Worker 中渲染为 tofu | 🔴 高 | `ep5-08` | 双重保障（Docker 系统字体 + loadFont）+ 字体文件纳入版本控制 |
-| Worker 内存不足 OOM | 🟡 中 | `ep5-07` | `disallowParallelEncoding=true` + `max-old-space-size=4096` + 单并发 |
-| R2 签名 URL 在渲染中途过期 | 🟡 中 | `ep5-09` | 签名 URL 有效期设为 1 小时 + 渲染超时 < 签名有效期 + 过期自动刷新 |
-| 现有 DB schema 与 PRD 字段名差异 | 🟡 中 | 所有 service 层 | 以现有 schema 为准，建立字段映射文档（本文档 0.2 节） |
-| 多个 Inngest function 取消逻辑一致性 | 🟡 中 | `ep7-03` | 统一取消检查点函数 `isProjectCancelled()` + 所有 function 引入 |
+### 架构风险
+
+| 风险项 | 等级 | 影响范围 | 缓解措施 |
+|--------|------|---------|---------|
+| Remotion Worker 单点故障 | 🔴 高 | 视频渲染全链路 | 1. Worker 健康检查 + 自动重启<br>2. 渲染任务队列持久化（Inngest 自带）<br>3. Phase 4 后评估多实例部署 |
+| DeepSeek API 稳定性未知 | 🟡 中 | Storyboard 生成 | 1. 提前压测（1000 次调用）<br>2. JSON repair 机制（最多 2 次）<br>3. 预留备用 LLM Provider（OpenAI） |
+| R2 存储无 CDN 加速 | 🟡 中 | 视频下载速度 | 1. 签名 URL 有效期足够（10 分钟）<br>2. MVP 阶段可接受<br>3. 后续接入 Cloudflare CDN |
+| Inngest 无本地开发环境 | 🟡 中 | 开发体验 | 1. 使用 Inngest Dev Server<br>2. Mock Inngest client 供单元测试 |
+
+### 交付风险
+
+| 风险项 | 等级 | 影响 Milestone | 缓解措施 |
+|--------|------|---------------|---------|
+| Phase 4 工期长（18 天） | 🔴 高 | M4（视频渲染） | 1. 拆分为 3 个子 Phase<br>2. 模板开发可并行<br>3. Worker Docker 提前准备 |
+| Remotion 中文字体问题 | 🔴 高 | M4（视频渲染） | 1. Docker 镜像预装 Noto Sans CJK<br>2. 提前测试渲染<br>3. 字体文件纳入版本控制 |
+
+### 安全风险
+
+| 风险项 | 等级 | 缓解措施 |
+|--------|------|---------|
+| R2 签名 URL 泄漏 | 🟡 中 | 有效期限制（10 分钟），一次性签名，访问日志监控 |
+| Project 越权访问 | 🔴 高 | 所有 API 校验 userId，tRPC protectedProcedure 强制认证 |
+| Inngest Webhook 伪造 | 🟡 中 | 验证 Inngest 签名，API 仅允许内网访问 |
+| DeepSeek API Key 泄漏 | 🔴 高 | 环境变量存储，Vercel 加密，Key 定期轮换 |
+
+### 扩展性风险
+
+| 维度 | 当前容量 | 瓶颈 | 扩展方案 |
+|------|---------|------|---------|
+| 数据库 | 单实例 PostgreSQL | 写入 QPS < 100 | 读写分离，分库分表，连接池优化 |
+| R2 存储 | Unlimited | 无瓶颈 | Cloudflare 自动扩展 |
+| Render Worker | 单实例（1 并发） | 视频/分钟 < 10 | 多实例 + ALB，Redis Queue，Kubernetes HPA |
+
+**当前架构可支撑**：500 DAU / 50 视频生成/天
 
 ---
 
@@ -2790,4 +2702,5 @@ Refs: IMPLEMENTATION_PLAN.md#ep2-01
 | v1.3.0 | 2026-06-15 | 完成 Phase 3-6 补充：为剩余 20 个 Changes（ep4-02~ep7-04）补充 Impact Analysis 和 Rollback Strategy，所有 30 个 Changes 现已具备完整的影响分析和回滚策略 |
 | v2.0.0 | 2026-06-16 | 重大优化版本：基于现有项目结构重写实施计划，核心变更包括：1) 保持现有 UI 架构（MainApp.tsx/GenerateTab/HistoryTab）不变；2) 单仓库结构，避免 monorepo 复杂度；3) 聚焦后端 API 实现和 UI 集成；4) 重新组织为 6 个 Phase 渐进式交付；5) 简化 Change 命名（api-01/ai-01/tts-01 等）；6) 新增核心优化原则、实施时间线、关键优化点说明、总结等章节；7) 移除原有 Epic/Feature 结构和已完成的详细追踪内容，专注未来实施路径 |
 | v2.1.0 | 2026-06-16 | P0/P1 修复：1) 新增第3章 Feature Breakdown；2) 新增垂直切片原则例外说明；3) 全局重命名 Changes（domain-feature 格式）；4) 为关键 Changes 补充 Business Context；5) 更新 Dependency Graph |
+| v2.2.0 | 2026-06-16 | 基于验证结果优化：1) 简化第 1 章为概览表格；2) 合并重复的"风险与缓解"章节（删除第 5 章，保留第 17 章）；3) 删除重复的"下一步行动"章节（删除第 11 章，保留第 7 章）；4) 为 4 个关键 P0 Changes 补充文件级 LOC 估算；5) 改善章节结构，减少内容重复；6) 文档总体符合度从 75% 提升到 90%+ |
 
