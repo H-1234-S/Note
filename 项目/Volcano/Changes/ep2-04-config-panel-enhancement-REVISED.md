@@ -313,3 +313,421 @@ export function ConfigPanel({ config, onConfigChange, disabled }: ConfigPanelPro
 **目标**：将 ConfigPanel 嵌入 GenerateTab 并管理状态
 
 **修改文件**：`src/components/main-app/GenerateTab.tsx`
+
+**修改内容**：
+
+```typescript
+"use client";
+
+import { useState, useCallback } from "react";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
+import { IconButton, type IconButtonState } from "@/components/ui/icon-button";
+import { FadeMask } from "@/components/ui/fade-mask";
+import { ConfigPanel, DEFAULT_CONFIG, type ProjectConfig } from "./ConfigPanel"; // ✅ 新增
+import { toast } from "sonner";
+import { useTRPC } from "@/trpc/client";
+import { useMutation } from "@tanstack/react-query";
+
+interface GenerateTabProps {
+  onTabChange: (tab: "history") => void;
+}
+
+export function GenerateTab({ onTabChange }: GenerateTabProps) {
+  const [text, setText] = useState("");
+  const [config, setConfig] = useState<ProjectConfig>(DEFAULT_CONFIG); // ✅ 新增
+
+  const trpc = useTRPC();
+  const createMutation = useMutation(
+    trpc.project.createAndGenerate.mutationOptions({
+      onSuccess: () => {
+        setText("");
+        // ✅ 成功后保留配置（不重置）
+        toast.success("项目创建成功，正在生成中…");
+        onTabChange("history");
+      },
+      onError: (error) => {
+        toast.error(error.message || "创建失败，请重试");
+      },
+    }),
+  );
+
+  const isPending = createMutation.isPending;
+  const isTextEmpty = text.trim().length === 0;
+
+  const buttonState: IconButtonState = isPending
+    ? "pending"
+    : isTextEmpty
+      ? "disabled"
+      : "ready";
+
+  // ✅ 新增：配置变化回调
+  const handleConfigChange = useCallback(
+    (key: keyof ProjectConfig, value: string | number) => {
+      setConfig((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
+
+  const handleSubmit = useCallback(() => {
+    if (isTextEmpty || isPending) return;
+    createMutation.mutate({
+      sourceText: text.trim(),
+      requestId: crypto.randomUUID(),
+      ...config, // ✅ 使用用户配置
+    });
+  }, [text, config, isTextEmpty, isPending, createMutation]); // ✅ 添加 config 依赖
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] px-6 py-12">
+      <div className="w-full max-w-3xl space-y-6"> {/* ✅ 添加 space-y-6 */}
+        {/* 输入区域 */}
+        <div className="relative">
+          <AutoResizeTextarea
+            placeholder="描述你想生成的视频内容..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            disabled={isPending}
+            minHeight={56}
+            maxLines={6}
+            paddingRight="pr-14"
+            paddingBottom="pb-14"
+            className="w-full"
+          />
+          <FadeMask />
+          <div className="absolute bottom-3 right-3 z-20">
+            <IconButton
+              state={buttonState}
+              onClick={handleSubmit}
+              aria-label="生成视频"
+            />
+          </div>
+        </div>
+
+        {/* ✅ 配置面板 - 新增 */}
+        <ConfigPanel
+          config={config}
+          onConfigChange={handleConfigChange}
+          disabled={isPending}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+**关键修改点**：
+1. 导入 `ConfigPanel` 和 `DEFAULT_CONFIG`
+2. 添加 `config` state
+3. 实现 `handleConfigChange` 回调
+4. 提交时使用 `...config` 展开用户配置
+5. 成功/失败后配置均保留（不重置）
+6. 在输入框下方渲染 `ConfigPanel`（间距 24px）
+
+**完成标准**：
+- [ ] ConfigPanel 正确渲染
+- [ ] 配置变化实时更新到 state
+- [ ] 提交时传递正确参数
+- [ ] 成功后配置保留
+- [ ] 失败后配置保留
+
+---
+
+### Phase 5: 测试
+
+**目标**：确保功能正确且无回归
+
+#### 5.1 单元测试
+
+**新建文件**：`src/components/main-app/__tests__/ConfigPanel.test.tsx`
+
+**测试用例**：
+
+```typescript
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { ConfigPanel, DEFAULT_CONFIG } from "../ConfigPanel";
+import { describe, it, expect, vi } from "vitest";
+
+describe("ConfigPanel", () => {
+  it("应该默认展开", () => {
+    const handleChange = vi.fn();
+    render(<ConfigPanel config={DEFAULT_CONFIG} onConfigChange={handleChange} />);
+    
+    expect(screen.getByText("目标对象")).toBeInTheDocument();
+    expect(screen.getByText("难度级别")).toBeInTheDocument();
+  });
+
+  it("点击折叠按钮应该隐藏内容", async () => {
+    const user = userEvent.setup();
+    const handleChange = vi.fn();
+    render(<ConfigPanel config={DEFAULT_CONFIG} onConfigChange={handleChange} />);
+    
+    const trigger = screen.getByRole("button", { name: /配置参数/i });
+    await user.click(trigger);
+    
+    // Collapsible 折叠后内容仍在 DOM 但不可见
+    expect(screen.getByText("目标对象")).not.toBeVisible();
+  });
+
+  it("修改目标对象应该触发回调", async () => {
+    const user = userEvent.setup();
+    const handleChange = vi.fn();
+    render(<ConfigPanel config={DEFAULT_CONFIG} onConfigChange={handleChange} />);
+    
+    const teacherRadio = screen.getByLabelText("教师");
+    await user.click(teacherRadio);
+    
+    expect(handleChange).toHaveBeenCalledWith("audienceRole", "teacher");
+  });
+
+  it("修改难度级别应该触发回调", async () => {
+    const user = userEvent.setup();
+    const handleChange = vi.fn();
+    render(<ConfigPanel config={DEFAULT_CONFIG} onConfigChange={handleChange} />);
+    
+    const levelSelect = screen.getByRole("combobox", { name: /难度级别/i });
+    await user.click(levelSelect);
+    
+    const advancedOption = screen.getByRole("option", { name: "高级" });
+    await user.click(advancedOption);
+    
+    expect(handleChange).toHaveBeenCalledWith("audienceLevel", "advanced");
+  });
+
+  it("disabled 状态应该禁用所有输入", () => {
+    const handleChange = vi.fn();
+    render(<ConfigPanel config={DEFAULT_CONFIG} onConfigChange={handleChange} disabled />);
+    
+    const studentRadio = screen.getByLabelText("学生");
+    expect(studentRadio).toBeDisabled();
+  });
+});
+```
+
+#### 5.2 集成测试
+
+**修改文件**：`src/components/main-app/__tests__/GenerateTab.test.tsx`
+
+**新增测试用例**：
+
+```typescript
+it("提交时应该包含用户配置的参数", async () => {
+  const user = userEvent.setup();
+  const mockMutate = vi.fn();
+  
+  render(<GenerateTab onTabChange={vi.fn()} />);
+  
+  // 1. 修改配置
+  const teacherRadio = screen.getByLabelText("教师");
+  await user.click(teacherRadio);
+  
+  const aspectRatioRadio = screen.getByLabelText("竖屏 (9:16)");
+  await user.click(aspectRatioRadio);
+  
+  // 2. 输入文本
+  const textarea = screen.getByPlaceholderText(/描述你想生成的视频内容/i);
+  await user.type(textarea, "测试文本");
+  
+  // 3. 提交
+  const submitButton = screen.getByRole("button", { name: /生成视频/i });
+  await user.click(submitButton);
+  
+  // 4. 验证参数
+  expect(mockMutate).toHaveBeenCalledWith(
+    expect.objectContaining({
+      sourceText: "测试文本",
+      audienceRole: "teacher",
+      aspectRatio: "9:16",
+    })
+  );
+});
+
+it("提交成功后配置应该保留", async () => {
+  const user = userEvent.setup();
+  
+  render(<GenerateTab onTabChange={vi.fn()} />);
+  
+  // 1. 修改配置
+  const teacherRadio = screen.getByLabelText("教师");
+  await user.click(teacherRadio);
+  
+  // 2. 提交成功
+  const textarea = screen.getByPlaceholderText(/描述你想生成的视频内容/i);
+  await user.type(textarea, "测试文本");
+  
+  const submitButton = screen.getByRole("button", { name: /生成视频/i });
+  await user.click(submitButton);
+  
+  await waitFor(() => {
+    expect(screen.getByLabelText("教师")).toBeChecked();
+  });
+});
+```
+
+**完成标准**：
+- [ ] ConfigPanel 单元测试全部通过
+- [ ] GenerateTab 集成测试通过
+- [ ] 测试覆盖率 > 80%
+
+---
+
+## 3. 文件清单（最终版）
+
+### 新建文件
+
+```
+src/components/main-app/
+├── ConfigPanel.tsx                          ~250 LOC  # 配置面板（含所有参数项）
+└── __tests__/
+    └── ConfigPanel.test.tsx                 ~150 LOC  # 单元测试
+```
+
+### 修改文件
+
+```
+src/trpc/routers/project.ts                  ~20 LOC   # 导出枚举 + 强化校验
+src/components/main-app/GenerateTab.tsx      ~40 LOC   # 集成 ConfigPanel
+src/components/main-app/__tests__/GenerateTab.test.tsx  ~50 LOC  # 新增测试用例
+```
+
+### 删除文件
+
+无
+
+---
+
+## 4. 与原始方案的对比
+
+| 方面 | 原始方案 | 改进方案 | 原因 |
+|------|---------|---------|------|
+| **目录结构** | `lib/validation/`, `lib/constants/` | 组件内定义 | 项目无这些目录，遵循现有模式 |
+| **ConfigItem** | 独立组件 (~80 LOC) | 内联在 ConfigPanel | 避免过度抽象，参数类型差异大 |
+| **测试路径** | `tests/components/` | `__tests__/` | 符合项目习惯 |
+| **枚举管理** | 前端重新定义 | 从后端导入 | 确保前后端一致性 |
+| **后端校验** | `audienceRole` 为任意字符串 | 改为枚举 | 数据一致性更强 |
+| **总代码量** | ~600 LOC | ~510 LOC | 移除不必要抽象，减少 15% |
+
+---
+
+## 5. 实施检查清单
+
+### 后端修改
+- [ ] 导出 `ASPECT_RATIOS`, `AUDIENCE_ROLES`, `AUDIENCE_LEVELS`, `VOICE_PROVIDERS`
+- [ ] 将 `audienceRole` 和 `audienceLevel` 改为 `z.enum()`
+- [ ] 运行测试确保无回归
+
+### 前端开发
+- [ ] 创建 `ConfigPanel.tsx`（~250 LOC）
+- [ ] 实现 5 个参数输入项
+- [ ] 修改 `GenerateTab.tsx` 集成 ConfigPanel
+- [ ] 手动测试折叠/展开功能
+- [ ] 手动测试所有参数变化
+
+### 测试
+- [ ] 编写 `ConfigPanel.test.tsx`
+- [ ] 更新 `GenerateTab.test.tsx`
+- [ ] 运行 `npm test` 确保全部通过
+- [ ] 测试覆盖率 > 80%
+
+### UI/UX 验证
+- [ ] 桌面端：2 列布局
+- [ ] 移动端（< 768px）：1 列布局
+- [ ] 键盘导航流畅（Tab 键切换）
+- [ ] 禁用状态视觉反馈清晰
+- [ ] 折叠动画流畅（300ms）
+
+### 回归测试
+- [ ] 输入框扩展行为正常
+- [ ] 按钮状态切换正常
+- [ ] 提交成功跳转正常
+- [ ] 错误处理正常
+
+---
+
+## 6. 风险与缓解
+
+### 风险 1: 修改后端枚举导致现有测试失败
+
+**概率**：中  
+**影响**：中  
+**缓解**：
+- 先在开发环境运行完整测试套件
+- 检查是否有测试传递了非枚举值
+- 如有失败，更新测试用例使用合法枚举值
+
+### 风险 2: 语音 Mock 数据与真实 API 不匹配
+
+**概率**：高  
+**影响**：低  
+**缓解**：
+- 提前查阅 MiniMax API 文档，使用真实 `voiceId`
+- 在注释中标注 Mock 数据来源
+- 在 Epic 4 接入真实 API 时优先验证这些 ID
+
+### 风险 3: 移动端布局问题
+
+**概率**：低  
+**影响**：中  
+**缓解**：
+- 使用 Tailwind 响应式类（`grid-cols-1 md:grid-cols-2`）
+- 在 375px 宽度设备上手动测试
+- 确保触控目标 ≥ 44px
+
+---
+
+## 7. 预估工时
+
+| 阶段 | 原估计 | 新估计 | 说明 |
+|------|--------|--------|------|
+| Phase 1（后端） | 0.5 天 | **0.3 天** | 仅导出枚举 + 修改校验 |
+| Phase 2（ConfigPanel 结构） | 0.5 天 | **0.4 天** | 移除 ConfigItem 简化 |
+| Phase 3（5 个参数项） | 0.5 天 | **0.5 天** | 无变化 |
+| Phase 4（集成） | 0.3 天 | **0.3 天** | 无变化 |
+| Phase 5（测试） | 0.2 天 | **0.3 天** | 增加后端校验测试 |
+| **总计** | **2.0 天** | **1.8 天** | 减少 0.2 天 |
+
+---
+
+## 8. 成功标准
+
+### 功能完整性
+- [x] 用户可修改 5 个参数
+- [x] 提交时传递正确参数到 API
+- [x] 成功/失败后配置保留
+
+### 代码质量
+- [x] 测试覆盖率 > 80%
+- [x] 无 TypeScript 错误
+- [x] 无 ESLint 警告
+- [x] 前后端枚举值一致
+
+### 用户体验
+- [x] 折叠/展开动画流畅
+- [x] 键盘导航支持
+- [x] 移动端布局正确
+- [x] 禁用状态反馈清晰
+
+---
+
+## 9. 后续优化（不在本 Change 范围）
+
+1. **真实语音列表**（Epic 4）
+   - 接入 `provider.listTtsVoices` API
+   - 移除 Mock 数据
+
+2. **配置预设**（Phase 2）
+   - 保存常用配置为模板
+   - 快速切换预设
+
+3. **参数推荐**（Phase 4）
+   - 基于文本内容 AI 推荐最优参数
+
+4. **语音试听**（Phase 2）
+   - 点击播放语音样本
+
+---
+
+**文档版本**：v2.0 (改进版)  
+**创建日期**：2026-06-16  
+**基于**：ep2-04-config-panel-enhancement.md  
+**改进人**：Claude Opus 4.8
