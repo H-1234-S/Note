@@ -1,4 +1,4 @@
-## Volcano AI 微课视频平台 — 实施计划
+# Volcano AI 微课视频平台 — 实施计划
 
 ## 文档信息
 
@@ -6,68 +6,218 @@
 |------|------|
 | 文档名称 | 实施计划 (Implementation Plan) |
 | 关联 PRD | `PRD_AI文本转PPT微课视频平台.md` v1.0.6 |
-| 关联补充 | `PRD_Remotion集成补充规格说明书.md` v1.0.0 |
-| 版本 | v1.3.0 |
-| 更新时间 | 2026-06-15 |
+| 版本 | v2.0.0 |
+| 更新时间 | 2026-06-16 |
 | 目标受众 | AI Coding Agent (Claude Code / Codex / OpenSpec) |
 | 代码库 | `E:\A\Ai\convert documents to videos` |
+| 优化重点 | 基于现有项目结构，保持 UI 不变，聚焦后端实现 |
 
 ---
 
-## 0. 项目当前状态（2026-06-15）
+## 🎯 核心优化原则
+
+### 1. **保持现有 UI 架构**
+- ✅ 保留 `MainApp.tsx` 的 Tab 架构（Generate / History / Subscribe）
+- ✅ 保留现有所有 UI 组件（AppNavbar, GenerateTab, HistoryTab 等）
+- ✅ 保留现有路由结构（`/` 首页认证分流）
+- 🔧 仅需完善后端 API 和数据集成
+
+### 2. **单仓库结构优化**
+- 当前为单 Next.js 应用，非 monorepo
+- Remotion 集成在 `src/remotion/` 目录
+- 避免引入复杂的 workspace 配置
+- 保持简单的目录结构
+
+### 3. **渐进式实现**
+- 优先完成 API 层（tRPC routers）
+- 然后集成到现有 UI 组件
+- 最后补充 Inngest 异步任务
+
+---
+
+## 0. 项目当前状态（2026-06-16）
 
 ### 0.1 已完成工作
 
-**Epic 1: 基础工程与数据模型** ✅ 已完成
-- ✅ 认证系统：better-auth 邮箱+微信登录，6 个认证页面，3 个 API 端点，CSRF/速率限制
-- ✅ UI 组件库：50+ shadcn/ui 组件（button, card, dialog, form, table 等）
-- ✅ 数据库：12 张表（4 auth + 8 business），全部索引和外键已建
-- ✅ tRPC 框架：publicProcedure / protectedProcedure / adminProcedure，context 含 session
-- ⚠️ R2 客户端（存根）：S3Client 已配置，`uploadToR2`/`getSignedUrl`/`deleteFromR2` 抛出 "not implemented"
-- ⚠️ Inngest 框架（存根）：空 `functions` 数组，API handler 已注册
-- ✅ 环境校验：Zod schema 覆盖所有服务商，dev/prod 条件校验
-- ⚠️ Remotion（存根）：已安装 `remotion@4.0.476`，`Root.tsx` 为 2 秒空白 Composition
+**✅ 认证系统**
+- better-auth 完整集成
+- 6 个认证页面：login, signup, verify-email, forgot-password, reset-password
+- Session 管理已集成到 tRPC context
 
-**Epic 2: 项目管理与 Dashboard** 🟡 进行中（3/5 完成）
-- ✅ **ep2-01-project-create-api**（2026-06-13）
-- ✅ **ep2-02-project-list-detail-api**（2026-06-14）
-- ✅ **ep2-03-dashboard-page**（2026-06-14）
+**✅ UI 组件库**
+- 完整的 shadcn/ui 组件库
+- 自定义组件：
+  - `MainApp.tsx`: Tab 切换主架构 ⭐
+  - `GenerateTab.tsx`: 创建项目表单 UI ⭐
+  - `HistoryTab.tsx`: 项目列表 UI ⭐
+  - `AppNavbar.tsx`: 顶部导航
+  - `UserMenu.tsx`: 用户菜单
+  - `EmptyState.tsx` / `ErrorState.tsx`: 状态组件
+  - `VideoCardSkeleton.tsx`: 加载骨架
 
-### 0.2 当前阶段
+**✅ 数据库**
+- Prisma schema 完整（12 张表）
+- User, Session, Account（better-auth）
+- Project, StoryboardVersion, Scene
+- Asset, GenerationJob, RenderJob
+- JobEvent, UsageRecord
 
-- **Phase 1: 核心业务基础** — 进度 3/5 (60%)
-- **下一步 Change**: `ep2-04-create-project-page` 🎯 推荐立即开始
-- **后续 Change**: `ep2-05-cancel-retry-delete-api` ⏭️ 可并行或随后进行
+**⚠️ 待完善部分**
+- tRPC API 实现（现有 `project.ts` 为空壳）
+- R2 存储客户端（存根）
+- Inngest functions（框架已配置，无 functions）
+- Remotion 模板体系（存根）
 
-### 0.3 项目健康度
+### 0.2 现有 UI 架构（需保持）
 
-- ✅ 所有已完成 Change 测试通过
-- ✅ Dashboard 页面可访问且功能正常
-- ✅ 项目列表和详情 API 工作正常
-- ⚠️ 创建页面尚未实现（用户无法创建新项目）
-- ⚠️ 完整的用户体验闭环尚未建立
+```
+/ (首页)
+├── 未登录 → LandingHero
+└── 已登录 → MainApp
+    ├── AppNavbar (顶部导航)
+    └── Tab Content
+        ├── GenerateTab (创建项目) ⭐ 已有 UI
+        ├── HistoryTab (项目列表) ⭐ 已有 UI
+        └── SubscribeTab (订阅)
+```
 
-### 0.4 数据库字段映射（现有 vs PRD）
+**关键发现**：
+- ✅ UI 结构完整，不需要新建页面
+- ✅ Tab 切换逻辑已实现
+- 🔧 需要：实现后端 API + 数据集成
 
-现有 schema 与 PRD 定义存在字段名差异，后续开发以**现有 schema 为准**：
+### 0.3 技术栈确认
 
-| 现有字段 (实际) | PRD 对应概念 |
-|----------------|-------------|
-| `Scene.narrationText` | voiceover.text |
-| `Scene.visualDescription` | visualJson（文本存储而非 JSON） |
-| `Scene.animationPreset` | animationJson.preset |
-| `StoryboardVersion.llmResponseRaw` | storyboardJson |
-| `GenerationJob.jobType` | 任务类型 (storyboard/audio/image) |
-| `GenerationJob.inputParams` | AI 调用参数 |
-| `Asset.assetType` | 资源类型 (audio/image/video) |
+| 技术 | 版本 | 状态 |
+|------|------|------|
+| Next.js | 16.2.7 | ✅ |
+| React | 19.2.4 | ✅ |
+| Prisma | 7.8.0 | ✅ |
+| tRPC | 11.17.0 | ✅ |
+| TanStack Query | 5.101.0 | ✅ |
+| Remotion | 4.0.476 | ⚠️ 存根 |
+| Inngest | 4.5.1 | ⚠️ 存根 |
+| better-auth | 1.6.14 | ✅ |
 
-### 0.5 关键约束
+---
 
-- **数据库不可重建**：已有 migration，后续只可增量修改
-- **单仓库结构**：当前为单一 Next.js app，非 monorepo
-- **Remotion 存根**：需从零构建模板体系
-- **tRPC 空路由器**：无任何业务 API
-- **首页为脚手架**：需替换为 Dashboard
+## 1. 优化后的实施策略
+
+### Phase 1: 后端 API 实现（优先级最高）
+
+**目标**：实现 tRPC API，让现有 UI 可以调用
+
+**Changes**：
+1. **api-01-project-crud** (3-4 天)
+   - 实现 `project.create`
+   - 实现 `project.list`
+   - 实现 `project.getById`
+   - 实现 `project.delete`
+   - 集成到现有 `GenerateTab` 和 `HistoryTab`
+
+2. **api-02-quota-validation** (1-2 天)
+   - 实现额度检查
+   - 实现并发限制
+   - 集成到 create API
+
+3. **api-03-project-actions** (2-3 天)
+   - 实现 cancel/retry 逻辑
+   - 集成到 HistoryTab 操作按钮
+
+### Phase 2: AI 生成链路（核心功能）
+
+**目标**：实现 Storyboard 生成
+
+**Changes**：
+1. **ai-01-storyboard-types** (2 天)
+   - 定义 TypeScript 类型
+   - 定义 Zod Schema
+   - 生成 JSON Schema
+
+2. **ai-02-llm-provider** (3 天)
+   - DeepSeek Provider 实现
+   - OpenAI-compatible 适配器
+   - Storyboard 生成逻辑
+
+3. **ai-03-inngest-storyboard** (3 天)
+   - Inngest function `generate-storyboard`
+   - 校验和修复逻辑
+   - 保存 StoryboardVersion + Scene
+
+### Phase 3: TTS 音频生成
+
+**目标**：生成高质量语音
+
+**Changes**：
+1. **tts-01-provider-interface** (2 天)
+   - TTS Provider 抽象
+   - MiniMax 适配器
+
+2. **tts-02-r2-storage** (2 天)
+   - 实现 R2 上传/下载
+   - 实现签名 URL
+
+3. **tts-03-inngest-audio** (4 天)
+   - Inngest function `generate-audio`
+   - 音频去重
+   - Asset 管理
+
+### Phase 4: Remotion 视频渲染
+
+**目标**：生成最终 MP4 视频
+
+**Changes**：
+1. **remotion-01-foundation** (2 天)
+   - 项目结构
+   - 模板注册表
+   - 基础组件
+
+2. **remotion-02-templates** (6-8 天)
+   - 8 套 PPT 模板
+   - 动效预设
+   - 字幕组件
+
+3. **remotion-03-worker** (4-5 天)
+   - Worker 架构
+   - 渲染引擎
+   - Docker 化
+
+4. **remotion-04-integration** (3 天)
+   - Inngest function `trigger-render`
+   - 时间轴计算
+   - 结果回写
+
+### Phase 5: 前端完善（基于现有 UI）
+
+**目标**：完善用户体验
+
+**Changes**：
+1. **ui-01-generate-tab-integration** (2 天)
+   - 集成 create API
+   - 表单校验
+   - 提交反馈
+
+2. **ui-02-history-tab-integration** (2 天)
+   - 集成 list API
+   - 状态筛选
+   - 操作按钮
+
+3. **ui-03-progress-view** (3 天)
+   - 新增进度查看模态框或侧边栏
+   - 轮询状态更新
+   - 取消/重试
+
+4. **ui-04-video-result** (2 天)
+   - 视频播放
+   - 下载功能
+   - 分享（可选）
+
+### Phase 6: 运营与可观测性
+
+**Changes**：
+1. **ops-01-error-handling** (2 天)
+2. **ops-02-logging** (2 天)
+3. **ops-03-monitoring** (2 天)
 
 ---
 
