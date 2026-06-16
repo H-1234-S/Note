@@ -1151,6 +1151,8 @@ class MyPromise {
     }
   }
 
+  // then 方法返回一个新的 Promise
+  // 对于参数处理，如果是
   then(onFulfilled, onRejected) {
     onFulfilled = typeof onFulfilled === "function" ? onFulfilled : value => value;
     onRejected = typeof onRejected === "function" ? onRejected : reason => { throw reason; };
