@@ -1120,6 +1120,7 @@ class MyPromise {
 
 	// 注意 this 指向问题
     const resolve = value => {
+      // 只有当state为pending才可以触发
       if (this.state !== "pending") return;
 
       queueMicrotask(() => {
@@ -1141,6 +1142,7 @@ class MyPromise {
       });
     };
 
+	// 处理异常，
     try {
       executor(resolve, reject);
     } catch (error) {
