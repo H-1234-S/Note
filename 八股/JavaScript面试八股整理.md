@@ -1199,7 +1199,7 @@ class MyPromise {
   }
 }
 
-// 决定 `then()` 返回的新 Promise 应该变成什么状态。
+// 决定 then() 返回的新 Promise 应该变成什么状态
 function resolvePromise(result, resolve, reject) {
   if (result instanceof MyPromise) {
     result.then(resolve, reject);
