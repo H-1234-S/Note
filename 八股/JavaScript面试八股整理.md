@@ -1360,6 +1360,7 @@ function limitConcurrency(tasks, limit) {
 }
 ```
 
+代码还缺少了失败策略，这个按需求来，一种是all，一种是allSettled
 ### 5.7 实际项目场景
 
 1. 首页多个接口必须全部成功：使用 `Promise.all`。
