@@ -1425,18 +1425,18 @@ MutationObserver 是浏览器提供的一个 **DOM 变化监听器**
 为什么 0ms 的 `setTimeout` 不会立刻执行：
 
 1. `setTimeout` 回调会进入定时器任务队列。
-2. 当前调用栈必须先清空。
+2. 当前**JS调用栈**必须先清空才能执行。
 3. 当前宏任务结束后还要先清空微任务。
 4. 浏览器还有最小延迟、嵌套定时器钳制和线程调度成本。
 
 浏览器和 Node.js Event Loop 差异：
 
-| 维度 | 浏览器 | Node.js |
-|---|---|---|
-| 主要目标 | 协调 JS、用户事件、网络、渲染 | 协调 JS、I/O、定时器、系统事件 |
-| 宏任务来源 | script、timer、UI 事件、网络 | timers、poll、check、close callbacks |
-| 微任务 | Promise、queueMicrotask、MutationObserver | Promise、queueMicrotask、process.nextTick |
-| 特殊点 | 每轮可能渲染 | `process.nextTick` 优先级高于 Promise 微任务 |
+| 维度    | 浏览器                                     | Node.js                                 |
+| ----- | --------------------------------------- | --------------------------------------- |
+| 主要目标  | 协调 JS、用户事件、网络、渲染                        | 协调 JS、I/O、定时器、系统事件                      |
+| 宏任务来源 | script、timer、UI 事件、网络                   | timers、poll、check、close callbacks       |
+| 微任务   | Promise、queueMicrotask、MutationObserver | Promise、queueMicrotask、process.nextTick |
+| 特殊点   | 每轮可能渲染                                  | `process.nextTick` 优先级高于 Promise 微任务    |
 
 Node.js 事件循环阶段：
 
