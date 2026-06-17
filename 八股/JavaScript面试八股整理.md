@@ -1583,6 +1583,25 @@ class Scheduler {
 }
 ```
 
+为什么 `Promise.resolve()` ，直接调用 `task` 不行吗？
+
+```
+为什么 promise 状态变为 fulfilled 再调用？
+
+统一处理 同步异常 和 异步异常
+
+异步异常：
+const task = () =>
+  Promise.reject("boom");
+
+如果传入：
+scheduler.add(() => {  
+	throw new Error("boom");  
+});
+
+调度器直接炸
+```
+
 ### 6.7 实际项目场景
 
 1. React 状态批处理依赖事件循环和调度机制，不同版本中同步事件、异步事件的批处理策略不同。
