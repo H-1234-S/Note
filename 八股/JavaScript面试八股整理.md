@@ -1361,6 +1361,55 @@ function limitConcurrency(tasks, limit) {
 ```
 
 代码还缺少了失败策略，这个按需求来，一种是all，一种是allSettled
+
+``` js
+// 此版本单独处理状态，也就是 allSettled 版本
+function limitConcurrency(tasks, limit) {
+  return new Promise(resolve => {
+    const results = [];
+    let nextIndex = 0;
+    let running = 0;
+    let finished = 0;
+
+    function runNext() {
+      if (finished === tasks.length) {
+        resolve(results);
+        return;
+      }
+
+      while (running < limit && nextIndex < tasks.length) {
+        const current = nextIndex++;
+        running++;
+
+        Promise.resolve()
+          .then(() => tasks[current]())
+          .then(
+            value => {
+              results[current] = {
+                status: "fulfilled",
+                value
+              };
+            },
+            // 处理失败状态
+            reason => {
+              results[current] = {
+                status: "rejected",
+                reason
+              };
+            }
+          )
+          .finally(() => {
+            running--;
+            finished++;
+            runNext();
+          });
+      }
+    }
+
+    runNext();
+  });
+} 
+```
 ### 5.7 实际项目场景
 
 1. 首页多个接口必须全部成功：使用 `Promise.all`。
