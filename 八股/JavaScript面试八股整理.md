@@ -1339,6 +1339,7 @@ function limitConcurrency(tasks, limit) {
         return;
       }
 	  // 有任务还没启动 并且 还没有执行完
+	  // 每次执行完开启新的请求
       while (running < limit && nextIndex < tasks.length) {
         const current = nextIndex++;
         running++;
@@ -1374,14 +1375,16 @@ function limitConcurrency(tasks, limit) {
 
 ### 6.1 概念解释
 
-JavaScript 主线程一次只能执行一个任务。Event Loop 用来协调同步代码、异步回调、渲染和 I/O。
+Event Loop 是浏览器协调 JS 运行的一种机制
+
+JavaScript 主线程一次只能执行一个任务。Event Loop 用来协调**同步代码**、**异步回调**、**渲染**和 **I/O**。
 
 浏览器中常见任务：
 
-| 类型 | 示例 |
-|---|---|
+| 类型  | 示例                                                     |
+| --- | ------------------------------------------------------ |
 | 宏任务 | script、setTimeout、setInterval、MessageChannel、I/O、UI 事件 |
-| 微任务 | Promise.then、queueMicrotask、MutationObserver |
+| 微任务 | Promise.then、queueMicrotask、MutationObserver           |
 
 基本规则：
 
