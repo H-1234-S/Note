@@ -1386,6 +1386,10 @@ JavaScript 主线程一次只能执行一个任务。Event Loop 用来协调**�
 | 宏任务 | script、setTimeout、setInterval、MessageChannel、I/O、UI 事件 |
 | 微任务 | Promise.then、queueMicrotask、MutationObserver           |
 
+MessageChannel
+queueMicrotask 将一个函数推入微任务队列中
+MutationObserver 是浏览器提供的一个 **DOM 变化监听器**
+
 基本规则：
 
 1. 执行一个宏任务。
