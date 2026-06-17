@@ -1559,6 +1559,7 @@ class Scheduler {
   // task 为返回 Promise 的函数
   add(task) {
     return new Promise((resolve, reject) => {
+      // resolve 和 reject 其实就是写好的程序，表示当前 promise 是成功还是失败时的调用
       this.queue.push({ task, resolve, reject });
       this.run();
     });
