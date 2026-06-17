@@ -1536,6 +1536,8 @@ flowchart TD
 
 ### 6.6 手写代码：任务调度器
 
+一次最多执行 limit 个异步任务 ，其余任务排队等待
+
 ```javascript
 class Scheduler {
   constructor(limit) {
