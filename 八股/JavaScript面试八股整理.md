@@ -1323,17 +1323,22 @@ function promiseAll(iterable) {
 ```javascript
 function limitConcurrency(tasks, limit) {
   return new Promise((resolve, reject) => {
+    // 结果数组
     const results = [];
+    // 下一个执行
     let nextIndex = 0;
+    // 当前执行数量
     let running = 0;
+    // 完成的数量
     let finished = 0;
 
     function runNext() {
+      // 当完成的数量 等于 栈的长度
       if (finished === tasks.length) {
         resolve(results);
         return;
       }
-
+	  // 有任务还没启动 并且 还没有执行完
       while (running < limit && nextIndex < tasks.length) {
         const current = nextIndex++;
         running++;
