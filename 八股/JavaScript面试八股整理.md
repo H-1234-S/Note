@@ -1538,6 +1538,8 @@ flowchart TD
 
 一次最多执行 limit 个异步任务 ，其余任务排队等待
 
+感觉跟**并发控制器**很相似
+
 ```javascript
 class Scheduler {
   constructor(limit) {
@@ -1546,6 +1548,7 @@ class Scheduler {
     this.queue = [];
   }
 
+  // task 为返回 Promise 的函数
   add(task) {
     return new Promise((resolve, reject) => {
       this.queue.push({ task, resolve, reject });
