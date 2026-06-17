@@ -1386,7 +1386,23 @@ JavaScript 主线程一次只能执行一个任务。Event Loop 用来协调**�
 | 宏任务 | script、setTimeout、setInterval、MessageChannel、I/O、UI 事件 |
 | 微任务 | Promise.then、queueMicrotask、MutationObserver           |
 
-MessageChannel 是浏览器提供的一个 **创建两个通信端口（port）的 API**。
+MessageChannel 是浏览器提供的一个 **创建两个通信端口（port）的 API**。常用于 Worker、iframe 通信以及 React Scheduler 等**任务调度**场景。
+
+``` js
+Promise.resolve().then(() => console.log("promise"));
+
+channel.port2.postMessage(null);
+
+setTimeout(() => console.log("timeout"));
+
+console.log("sync");
+/*
+sync
+promise
+message
+timeout
+*/
+```
 
 queueMicrotask 将一个函数推入微任务队列中
 
