@@ -1570,6 +1570,7 @@ class Scheduler {
       const { task, resolve, reject } = this.queue.shift();
       this.running++;
 
+	  // Promise.resolve() 
       Promise.resolve()
         .then(task)
         .then(resolve, reject)
