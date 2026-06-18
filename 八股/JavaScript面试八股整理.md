@@ -1766,6 +1766,7 @@ flowchart TD
 ### 7.6 手写代码
 
 深拷贝：
+	1. 循环引用问题
 
 ```javascript
 function deepClone(value, cache = new WeakMap()) {
