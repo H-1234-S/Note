@@ -1919,6 +1919,9 @@ immediate 部分作用 ？
 
 > 节流：
 
+一段时间内，频繁触发事件，只执行一次
+
+这段代码保证了**第一次触发立刻响应**，又保证了**最后一次触发结束后还能查漏补缺执行一次**。
 ```javascript
 function throttle(fn, delay) {
   let lastTime = 0;
@@ -1926,8 +1929,10 @@ function throttle(fn, delay) {
 
   return function throttled(...args) {
     const context = this;
-    
-    const now = Date.now();
+    // 当前的时间戳
+    const now = Date.now(); 
+    // now - lastTime 上次执行到现在过了多长时间
+    // remaining 表示设剩余时间
     const remaining = delay - (now - lastTime);
 
     if (remaining <= 0) {
