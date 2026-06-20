@@ -1884,6 +1884,8 @@ function deepClone(value, cache = new WeakMap()) {
 
 > 防抖：
 
+频繁触发事件，只执行最后一次
+
 ```javascript
 function debounce(fn, delay, immediate = false) {
   let timer = null;
