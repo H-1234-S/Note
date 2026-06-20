@@ -1326,7 +1326,9 @@ function promiseAll(iterable) {
 function promiseRace(promises) {
 	return new Promise((resolve,reject) => {
 		for(const p of promises) {
-			Promise.resolve().then()
+			Promise.resolve()
+				.then(p)
+				.then(resolve,reject)
 		}
 	})
 }
