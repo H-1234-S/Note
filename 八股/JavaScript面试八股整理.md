@@ -2180,6 +2180,8 @@ V8 会为相同结构的对象复用隐藏类。如果对象属性添加顺序�
 
 ### 8.6 手写代码：简单 LRU 缓存
 
+**LRU (Least Recently Used，最近最少使用) 缓存淘汰算法**。
+
 ```javascript
 class LRUCache {
   constructor(capacity) {
