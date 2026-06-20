@@ -831,7 +831,9 @@ for (const item of iterable) {set.add(item)}
 new Set([  1,2,3,4,5,
 		  1,7,8,9])
 实际上会变成：
-set.add(1) set.add(2) set.add(3)...
+set.add(1) 
+set.add(2) 
+set.add(3)...
 然后自动去重。
 ```
 
