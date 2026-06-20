@@ -1886,6 +1886,9 @@ function deepClone(value, cache = new WeakMap()) {
 
 频繁触发事件，只执行最后一次
 
+该段代码有两种模式：**立即执行**和**非立即执行**
+	对于**非立即执行**跟基本防抖没有区别
+	对于**立即执行**，其实就是忽略 delay 时间内的操作，只执行**第一次操作**
 ```javascript
 function debounce(fn, delay, immediate = false) {
   let timer = null;
@@ -1893,6 +1896,7 @@ function debounce(fn, delay, immediate = false) {
   return function debounced(...args) {
     const context = this;
     // 第一次触发时立即执行
+    // 后续需要等恢复
     const shouldCallNow = immediate && timer === null;
 
     clearTimeout(timer);
