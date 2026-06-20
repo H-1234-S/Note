@@ -1943,7 +1943,8 @@ function throttle(fn, delay) {
       fn.apply(context, args);
       return;
     }
-
+    
+    // 执行收尾操作
     if (!timer) {
       timer = setTimeout(() => {
         lastTime = Date.now();
