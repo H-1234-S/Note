@@ -810,6 +810,31 @@ WeakMap key 必须是对象的原因：
 
 > 弱引用依赖对象的可达性。原始值没有引用身份，不能作为弱引用目标。
 
+Set 去重：
+	`Set` 构造函数的参数是一个 **可迭代对象**
+
+``` js
+const arr1 = [1,2,3,4,5]
+const arr2 = [1,7,8,9]
+
+const set = new Set([...arr1, ...arr2])
+
+console.log(set)
+/*
+set.add 只接收一个参数
+
+规范大概相当于：
+new Set(iterable)
+内部逻辑类似：
+for (const item of iterable) {set.add(item)}
+所以：
+new Set([  1,2,3,4,5,
+		  1,7,8,9])
+实际上会变成：
+set.add(1) set.add(2) set.add(3)...
+然后自动去重。
+```
+
 ### 4.3 执行流程
 
 `for...of` 遍历过程：
