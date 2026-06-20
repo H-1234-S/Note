@@ -81,6 +81,7 @@ const obj = {
 console.log(obj + 1); // 2
 ```
 
+
 ### 1.3 执行流程
 
 表达式 `obj + 1` 的执行过程：
