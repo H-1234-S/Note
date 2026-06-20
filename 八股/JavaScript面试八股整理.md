@@ -1811,7 +1811,7 @@ flowchart TD
 ### 7.6 手写代码
 
 深拷贝：
-	1. 循环引用问题，使用weakMap在每次可能会有循环引用的地方存储，并作为缓存存储
+	1. 循环引用问题，使用weakMap在每次可能会有循环引用的地方作为缓存存储
 	2. 特殊数据类型进行 `instanceof` 单独处理，`Map`、`Set`、`Date`、`RegExp`
 	3. 最后使用 `Reflect.ownKeys` 克隆所有属性
 
