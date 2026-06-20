@@ -1812,7 +1812,9 @@ function deepClone(value, cache = new WeakMap()) {
 
   if (value instanceof Map) {
     const result = new Map();
+    // 抢先存入缓存，防止 Map 的值有循环引用
     cache.set(value, result);
+    // map的foEach属性的参数格式 (value, key, map)
     value.forEach((mapValue, mapKey) => {
       result.set(deepClone(mapKey, cache), deepClone(mapValue, cache));
     });
