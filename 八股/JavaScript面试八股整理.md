@@ -1788,14 +1788,17 @@ flowchart TD
 
 ```javascript
 function deepClone(value, cache = new WeakMap()) {
+  // 处理 null 和 基本数据类型
   if (value === null || typeof value !== "object") {
     return value;
   }
 
+  // 处理 循环引用问题
   if (cache.has(value)) {
     return cache.get(value);
   }
 
+  // 处理日期
   if (value instanceof Date) {
     return new Date(value.getTime());
   }
