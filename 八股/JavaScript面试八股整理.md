@@ -2182,7 +2182,7 @@ V8 会为相同结构的对象复用隐藏类。如果对象属性添加顺序�
 
 **LRU (Least Recently Used，最近最少使用) 缓存淘汰算法**。
 
-原理很简单，根据 Map 的插入顺序，淘汰掉最前面的数据
+原理很简单，根据 Map 的插入顺序，淘汰掉最久未使用的数据，也就是在Map最前面的数据
 
 ```javascript
 class LRUCache {
@@ -2208,6 +2208,8 @@ class LRUCache {
     this.cache.set(key, value);
 
     if (this.cache.size > this.capacity) {
+      // this.cache.keys() 返回一个 Map 迭代器
+      // 迭代器的方法 next()，会返回下一个元素，固定格式的对象：{ value: 'A', done: false }
       const oldestKey = this.cache.keys().next().value;
       this.cache.delete(oldestKey);
     }
