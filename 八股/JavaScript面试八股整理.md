@@ -1995,10 +1995,16 @@ function compose(...fns) {
 
 function pipe(...fns) {
   return function piped(input) {
+    // 从左往右执行，跟 reduceRight 类似
     return fns.reduce((value, fn) => fn(value), input);
   };
 }
 ```
+
+`Array.prototype.reduceRight(callbackFn, initialValue)` 
+	对数组中的元素，从右往左执行
+	初始的 value 就是 input
+	每次把当前的 value 传给函数 fn 执行，返回值作为下一个函数的 value
 
 ### 7.7 实际项目场景
 
