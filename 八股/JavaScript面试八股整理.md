@@ -1890,6 +1890,7 @@ function debounce(fn, delay, immediate = false) {
 
   return function debounced(...args) {
     const context = this;
+    // 第一次触发时立即执行
     const shouldCallNow = immediate && timer === null;
 
     clearTimeout(timer);
