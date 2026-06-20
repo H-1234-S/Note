@@ -1084,7 +1084,7 @@ flowchart TD
 | `Promise.race`       | 第一个 settled 决定结果 | 第一个 settled 决定结果 | 超时控制       |
 | `Promise.any`        | 任意一个 fulfilled   | 全部 rejected      | 多源容灾       |
 
-`Promise.race()` 多个 Promise 同时执行，谁最先确定状态（fulfilled 或 rejected），就采用谁的结果。
+`Promise.race()` 多个 Promise 同时执行，谁最先确定状态（fulfilled 或 rejected），就采用谁的结果，**忽略后续 Promise 执行结果**。
 
 **Q：async/await 为什么本质是 Promise？**
 
