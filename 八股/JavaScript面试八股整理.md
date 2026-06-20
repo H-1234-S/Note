@@ -1114,6 +1114,7 @@ flowchart TD
 	5. then 回调是微任务
 	6. reject、resolve执行时机
 	7. 链式调用
+	8. 成功的队列、失败的队列
 
 简化版 Promise：
 
