@@ -1798,11 +1798,12 @@ function deepClone(value, cache = new WeakMap()) {
     return cache.get(value);
   }
 
-  // 处理日期
+  // 处理日期格式
   if (value instanceof Date) {
     return new Date(value.getTime());
   }
 
+  // 处理正则格式
   if (value instanceof RegExp) {
     return new RegExp(value.source, value.flags);
   }
