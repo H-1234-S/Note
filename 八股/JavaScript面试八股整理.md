@@ -1321,6 +1321,7 @@ function promiseAll(iterable) {
 ```
 
 手写 Promise.reac 
+	`Promise.resolve(p)` 对 p 进行包装为 promise，根据 p 进行状态的抽象 
 
 ``` js
 function promiseRace(promises) {
