@@ -1806,7 +1806,7 @@ function deepClone(value, cache = new WeakMap()) {
 
   // 处理正则格式
   if (value instanceof RegExp) {
-	  // 创建正则表达式
+	  // 创建一个新的正则表达式对象
     return new RegExp(value.source, value.flags);
   }
 
