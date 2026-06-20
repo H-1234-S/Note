@@ -1926,6 +1926,7 @@ function throttle(fn, delay) {
 
   return function throttled(...args) {
     const context = this;
+    
     const now = Date.now();
     const remaining = delay - (now - lastTime);
 
