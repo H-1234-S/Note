@@ -1972,11 +1972,13 @@ function throttle(fn, delay) {
 function curry(fn, ...presetArgs) {
   return function curried(...args) {
     const allArgs = presetArgs.concat(args);
-
+	
+	// 如果参数足够，则执行
     if (allArgs.length >= fn.length) {
       return fn.apply(this, allArgs);
     }
-
+	
+	// 接着收集参数
     return curry(fn, ...allArgs);
   };
 }
