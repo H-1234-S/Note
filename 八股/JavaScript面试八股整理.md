@@ -1800,11 +1800,13 @@ function deepClone(value, cache = new WeakMap()) {
 
   // 处理日期格式
   if (value instanceof Date) {
+	  // 创建一个新的日期对象
     return new Date(value.getTime());
   }
 
   // 处理正则格式
   if (value instanceof RegExp) {
+	  // 创建正则表达式
     return new RegExp(value.source, value.flags);
   }
 
