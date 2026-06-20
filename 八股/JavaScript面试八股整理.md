@@ -1935,6 +1935,7 @@ function throttle(fn, delay) {
     // remaining 表示设剩余时间
     const remaining = delay - (now - lastTime);
 
+	// 第一次执行 / 剩余时间
     if (remaining <= 0) {
       clearTimeout(timer);
       timer = null;
