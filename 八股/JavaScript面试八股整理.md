@@ -1872,7 +1872,15 @@ function deepClone(value, cache = new WeakMap()) {
 }
 ```
 
-防抖：
+**为什么要用 `Reflect.ownKeys`？**
+
+- 常规的 `Object.keys()` 只能获取可枚举的字符串键。
+    
+- `Reflect.ownKeys(value)` 非常强大，它等同于 `Object.getOwnPropertyNames(target).concat(Object.getOwnPropertySymbols(target))`。
+    
+- 这意味着，无论是**不可枚举的属性**，还是以 **`Symbol` 作为键的属性**，全都能被它抓出来进行递归克隆。
+
+> 防抖：
 
 ```javascript
 function debounce(fn, delay, immediate = false) {
