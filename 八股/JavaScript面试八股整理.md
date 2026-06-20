@@ -1813,7 +1813,7 @@ flowchart TD
 深拷贝：
 	1. 循环引用问题，使用weakMap在每次可能会有循环引用的地方作为缓存存储
 	2. 特殊数据类型进行 `instanceof` 单独处理，`Map`、`Set`、`Date`、`RegExp`
-	3. 最后使用 `Reflect.ownKeys` 克隆所有属性
+	3. 最后使用 `Reflect.ownKeys` 克隆所有属性，也就是注意一下原型、不可枚举属性、Symble key
 
 ```javascript
 function deepClone(value, cache = new WeakMap()) {
