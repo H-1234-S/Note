@@ -1909,7 +1909,13 @@ function debounce(fn, delay, immediate = false) {
 }
 ```
 
-节流：
+immediate 部分作用：
+	**第一次点击时立刻有响应**，而不是等一会再响应（例如：点赞按钮、提交表单，用户点第一下就要立刻生效，随后的连续狂点才需要被防抖拦截）。
+
+为什么要用 `this` ？
+	
+
+> 节流：
 
 ```javascript
 function throttle(fn, delay) {
