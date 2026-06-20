@@ -714,7 +714,7 @@ function myNew(Constructor, ...args) {
 ```
 
 手写 `instanceof`
-	1. 本质就是判断对象的 `proto` 是否出现在函数的 **原型链** 上
+	1. 本质就是判断函数是否出现在对象的 **原型链** 上
 	2. 处理 基本数据类型 和 null 情况
 
 ``` js
