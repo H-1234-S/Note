@@ -1984,7 +1984,7 @@ function curry(fn, ...presetArgs) {
 }
 ```
 
-函数组合：
+> 函数组合：
 
 ```javascript
 function compose(...fns) {
@@ -2005,6 +2005,35 @@ function pipe(...fns) {
 	对数组中的元素，从右往左执行
 	初始的 value 就是 input
 	每次把当前的 value 传给函数 fn 执行，返回值作为下一个函数的 value
+
+假设我们现在有三个简单的文本处理函数：
+
+1. `addExclamation`（加感叹号）
+    
+2. `toUpperCase`（转大写）
+    
+3. `repeatTwice`（重复两次）
+
+``` js
+const addExclamation = str => str + '!';
+const toUpperCase = str => str.toUpperCase();
+const repeatTwice = str => `${str} ${str}`;
+```
+
+使用 `compose`（从右到左）
+
+因为是从右到左，如果我们希望先“转大写”，再“加感叹号”，最后“重复两次”，我们需要把函数**倒序**传入：
+
+``` js
+const transformWithCompose = compose(repeatTwice, addExclamation, toUpperCase);
+
+console.log(transformWithCompose("hello")); 
+// 运行顺序：
+// 1. toUpperCase("hello") -> "HELLO"
+// 2. addExclamation("HELLO") -> "HELLO!"
+// 3. repeatTwice("HELLO!") -> "HELLO! HELLO!"
+// 输出: "HELLO! HELLO!"
+```
 
 ### 7.7 实际项目场景
 
