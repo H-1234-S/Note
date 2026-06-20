@@ -1806,7 +1806,7 @@ function deepClone(value, cache = new WeakMap()) {
 
   // 处理正则格式
   if (value instanceof RegExp) {
-	  // 创建一个新的正则表达式对象
+	  // 提取原正则的文本（.source）和修饰符（.flags，如 g, i, m）
     return new RegExp(value.source, value.flags);
   }
 
