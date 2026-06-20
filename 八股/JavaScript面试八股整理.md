@@ -1320,6 +1320,15 @@ function promiseAll(iterable) {
 }
 ```
 
+手写 Promise.reac 
+
+``` js
+function promiseRace(promises) {
+	return new Promise((resolve,reject) => {
+	})
+}
+```
+
 > 手写并发控制器：
 
 并发控制器，就是**限制同一时刻正在进行的异步任务数量**
