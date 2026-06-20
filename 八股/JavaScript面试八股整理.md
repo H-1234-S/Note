@@ -1909,11 +1909,11 @@ function debounce(fn, delay, immediate = false) {
 }
 ```
 
-immediate 部分作用：
+immediate 部分作用 ？
 	**第一次点击时立刻有响应**，而不是等一会再响应（例如：点赞按钮、提交表单，用户点第一下就要立刻生效，随后的连续狂点才需要被防抖拦截）。
 
 为什么要用 `this` ？
-	
+	如果你的防抖函数绑定在某个 DOM 元素上（比如 `button.addEventListener('click', debounced)`），在 `debounced` 内部，`this` 指向这个 `button`。我们使用 `fn.apply(context, args)` 就是为了保证 `fn` 内部如果用了 `this`，依然能正确指向该 `button` 元素，而不是变成 `window` 或 `undefined`。
 
 > 节流：
 
