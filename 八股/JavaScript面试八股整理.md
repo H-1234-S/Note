@@ -1857,6 +1857,7 @@ function deepClone(value, cache = new WeakMap()) {
 
   const result = Array.isArray(value)
     ? []
+    // 创建一个新对象，并且把新对象的proto指向value的proto
     : Object.create(Object.getPrototypeOf(value));
 
   cache.set(value, result);
