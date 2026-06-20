@@ -25,10 +25,10 @@
 
 JavaScript 数据类型分为两大类：
 
-| 分类 | 类型 | 存储特点 | 典型面试点 |
-|---|---|---|---|
-| 原始类型 | `undefined`、`null`、`boolean`、`number`、`string`、`symbol`、`bigint` | 值本身不可变，通常按值访问 | `typeof null`、`NaN`、`Symbol` 唯一性 |
-| 引用类型 | `object`、`array`、`function`、`date`、`regexp`、`map`、`set` 等 | 变量保存引用地址，对象内容可变 | 浅拷贝、深拷贝、原型链 |
+| 分类   | 类型                                                               | 存储特点            | 典型面试点                            |
+| ---- | ---------------------------------------------------------------- | --------------- | -------------------------------- |
+| 原始类型 | `undefined`、`null`、`boolean`、`number`、`string`、`symbol`、`bigint` | 值本身不可变，通常按值访问   | `typeof null`、`NaN`、`Symbol` 唯一性 |
+| 引用类型 | `object`、`array`、`function`、`date`、`regexp`、`map`、`set` 等        | 变量保存引用地址，对象内容可变 | 浅拷贝、深拷贝、原型链                      |
 
 面试中可以这样回答：
 
