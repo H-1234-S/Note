@@ -2659,6 +2659,16 @@ function fetchWithTimeout(url, options = {}, timeout = 8000) {
     clearTimeout(timer);
   });
 }
+
+fetchWithTimeout(url)
+  .catch(err => {
+    if (err.name === 'AbortError') {
+      console.log('请求超时');
+      return;
+    }
+
+    console.error(err);
+  });
 ```
 
 自定义支持取消的异步任务：
