@@ -109,4 +109,5 @@ export async function createPost(formData) {
 
 ## 哪些场景不适合用 Server Action？
 
-1. 请求数据不适用；Server Action 底层一定是 POST 请求，
+1. 请求数据不适用；因为 Server Action 底层一定是 POST 请求
+2. 
