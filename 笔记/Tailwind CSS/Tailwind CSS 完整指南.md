@@ -547,17 +547,17 @@ Tailwind 内置了一套精心设计的设计系统：
 
 #### 4.8.1 父容器属性
 
-| 类名 | 解释 | 作用 |
-|------|------|------|
-| `flex` | 块级弹性盒 | display: flex |
-| `inline-flex` | 行内弹性盒 | display: inline-flex |
-| `flex-row` | 水平排列（默认） | flex-direction: row |
-| `flex-row-reverse` | 水平反向排列 | flex-direction: row-reverse |
-| `flex-col` | 垂直排列 | flex-direction: column |
-| `flex-col-reverse` | 垂直反向排列 | flex-direction: column-reverse |
-| `flex-wrap` | 允许换行 | flex-wrap: wrap |
-| `flex-wrap-reverse` | 允许换行且反向 | flex-wrap: wrap-reverse |
-| `flex-nowrap` | 不允许换行（默认） | flex-wrap: nowrap |
+| 类名                  | 解释        | 作用                             |
+| ------------------- | --------- | ------------------------------ |
+| `flex`              | 块级弹性盒     | display: flex                  |
+| `inline-flex`       | 行内弹性盒     | display: inline-flex           |
+| `flex-row`          | 水平排列（默认）  | flex-direction: row            |
+| `flex-row-reverse`  | 水平反向排列    | flex-direction: row-reverse    |
+| `flex-col`          | 垂直排列      | flex-direction: column         |
+| `flex-col-reverse`  | 垂直反向排列    | flex-direction: column-reverse |
+| `flex-wrap`         | 允许换行      | flex-wrap: wrap                |
+| `flex-wrap-reverse` | 允许换行且反向   | flex-wrap: wrap-reverse        |
+| `flex-nowrap`       | 不允许换行（默认） | flex-wrap: nowrap              |
 
 #### 4.8.2 主轴对齐 (justify-content)
 
