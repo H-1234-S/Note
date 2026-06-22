@@ -1154,6 +1154,10 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 
 **触发条件**：路由必须是静态的。如果你使用了 `cookies()`、`headers()` 或非缓存的 `fetch`，这一层就会失效。
 
+``` ts
+export const dynamic = "force-dynamic"
+```
+
 ---
 
 ## 4. 路由器缓存 (Router Cache)
