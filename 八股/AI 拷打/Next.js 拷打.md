@@ -110,4 +110,5 @@ export async function createPost(formData) {
 ## 哪些场景不适合用 Server Action？
 
 1. 请求数据不适用；因为 Server Action 底层一定是 POST 请求
-2. 
+2. 高频触发也不适用；每次触发 Server Action 都会产生一次完整的网络往返
+3. 对外开放的 API 和第三方回调；
