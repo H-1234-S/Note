@@ -81,6 +81,6 @@ await fetch(url, {
 revalidateTag('posts')
 ```
 
-Server Action 设计上是不缓存的，因为 Server Action 本质是副作用，也就是**写操作**（例如修改数据库、删除数据）
+Server Action 设计上是不缓存的，因为 Server Action 本质是副作用，也就是**写操作**（例如修改数据库、删除数据）。相反，Action 常常是**缓存的触发者**。当你在 Action 里调用 `revalidatePath('/dashboard')` 时，Next.js 会在当前 Action 请求的响应中，顺便把更新后的页面数据（RSC Payload）一起带回前端，实现页面的**无刷新感知更新**。
 
-**Server Action**: **设计上绝不缓存**。因为 Action 的本质是“副作用（Side Effects）”。相反，Action 常常是**缓存的触发者**。当你在 Action 里调用 `revalidatePath('/dashboard')` 时，Next.js 会在当前 Action 请求的响应中，顺便把更新后的页面数据（RSC Payload）一起带回前端，实现页面的**无刷新感知更新**。
+
