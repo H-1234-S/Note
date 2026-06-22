@@ -97,3 +97,9 @@ export async function createPost(formData) {
 之后 /posts 页面数据重新渲染 -> 生成新的RSC Payload -> 随响应一起返回 -> React直接更新UI
 */
 ```
+
+## 错误处理
+
+**Route Handler**: 遵循标准的 Web 规范。通过 `NextResponse.json({ error: 'msg' }, { status: 400 })` 返回，前端通过解析 HTTP 状态码和 Body 来处理错误。
+
+**Server Component**: 如果在渲染时抛出错误，它会触发 Next.js 的 **Error Boundary** 机制。页面会直接降级展示同级或上级的 `error.js` 组件。
