@@ -1987,9 +1987,9 @@ export default App;
 
 ## useCallback
 
-useCallback解决的是：当函数作为 props 传给被 `React.memo` 包裹的子组件，或者作为 effect 依赖时，保持引用稳定，避免不必要更新
+* useCallback 用于优化性能，返回一个记忆化的回调函数，可以减少不必要的重新渲染，也就是说它是用于缓存组件内的函数，避免被重复创建。
+* 在React中，函数组件的重新渲染会导致组件内的函数被重新创建，这可能会导致性能问题。useCallback 通过缓存函数，可以减少不必要的重新渲染，提高性能。
 
-* 在React中，函数组件的重新渲染会导致组件内的函数被销毁后重新创建，这可能会导致性能问题，因为函数的地址发生变化，会导致useEffect和React.memo引用不稳定。
 
 ### 语法
 
@@ -2264,11 +2264,11 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 
 ## memo
 
-* `React.memo` 对props进行浅比较，仅当 props 发生变化时才会重新渲染,，否则跳过该次渲染
+* `React.memo` 是一个 React API，用于优化性能。它通过记忆上一次的渲染结果，仅当 props 发生变化时才会重新渲染, 避免重复渲染。
 
 ### 语法
 
-* memo是一个函数，用于包裹组件
+* memo是一个函数，用于包裹组件，仅当子组件的props发生变化时才会重新渲染
 
 ~~~typescript
 import React, { memo } from 'react';
