@@ -104,3 +104,7 @@ export async function createPost(formData) {
 
 **Server Component**: 如果在渲染时抛出错误，它会触发 Next.js 的 **Error Boundary** 机制。页面会直接降级展示同级或上级的 `error.js` 组件。
 
+**Server Action:** 不要直接 `throw new Error`（这会导致控制台报错或触发全局 Error Boundary），而是**返回一个包含错误信息的普通对象**。
+	如果在 Action 中 `throw new Error()`，通常会被前端的 `useActionState`或 `try...catch` 捕获。
+
+## 
