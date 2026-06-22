@@ -107,4 +107,6 @@ export async function createPost(formData) {
 **Server Action:** 不要直接 `throw new Error`（这会导致控制台报错或触发全局 Error Boundary），而是**返回一个包含错误信息的普通对象**。
 	如果在 Action 中 `throw new Error()`，通常会被前端的 `useActionState`或 `try...catch` 捕获。
 
-## 
+## 哪些场景不适合用 Server Action？
+
+1. 请求数据不适用；Server Action 底层一定是 POST 请求，
