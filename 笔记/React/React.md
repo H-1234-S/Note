@@ -2264,7 +2264,7 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 
 ## memo
 
-* `React.memo` 是一个 React API，用于优化性能。它通过记忆上一次的渲染结果，仅当 props 发生变化时才会重新渲染, 避免重新渲染。
+* `React.memo` 是一个 React API，用于优化性能。它通过记忆上一次的渲染结果，仅当 props 发生变化时才会重新渲染, 避免重复渲染。
 
 ### 语法
 
