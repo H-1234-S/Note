@@ -49,7 +49,7 @@ export async function updatePost(id: string, data: any) {
 }
 ```
 
-Server Component 通常在 Layout 中进行鉴权，没有权限则重定向到登录页面（`redirect('/login')`）
+Server Component 通常在 Layout 中进行鉴权，没有权限则重定向到登录页面（`redirect('/login')`）；其次也需要在具体的数据查询处进行校验
 
 ``` ts
 // app/dashboard/page.tsx
