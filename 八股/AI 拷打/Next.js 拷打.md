@@ -70,6 +70,15 @@ Server Component 里的数据获取（fetch）和页面渲染结果会自动接�
 ``` ts
 // 执行时，/posts 对应的缓存失效，包括 Data cache 和 full router cache
 revalidatePath('/posts')
+//---------------------------
+// 
+await fetch(url, {
+  next: {
+    tags: ['posts']
+  }
+})
+
+revalidateTag('posts')
 ```
  
 **Server Action**: **设计上绝不缓存**。因为 Action 的本质是“副作用（Side Effects）”。相反，Action 常常是**缓存的触发者**。当你在 Action 里调用 `revalidatePath('/dashboard')` 时，Next.js 会在当前 Action 请求的响应中，顺便把更新后的页面数据（RSC Payload）一起带回前端，实现页面的**无刷新感知更新**。
