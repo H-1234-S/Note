@@ -63,10 +63,8 @@ export default async function Dashboard() {
 
 ## 缓存/重新验证
 
-Route Handle 通过 GET 请求在默认情况下是会呗被缓存的，也就是静态路由。如果不想被缓存可以转为
+Route Handle 通过 GET 请求在默认情况下是会被缓存的，也就是静态路由。如果不想被缓存可以转为动态路由（例如使用 `cookies()`、`headers()`，或设置 `export const dynamic = 'force-dynamic'`）。
 
- **Server Component**: 天生与 Next.js 的 Full Route Cache 和 Data Cache 集成。使用 `fetch` 时默认会缓存，直到通过 `revalidatePath` 或 `revalidateTag` 显式清除。
+**Server Component**: 天生与 Next.js 的 Full Route Cache 和 Data Cache 集成。使用 `fetch` 时默认会缓存，直到通过 `revalidatePath` 或 `revalidateTag` 显式清除。
  
 **Server Action**: **设计上绝不缓存**。因为 Action 的本质是“副作用（Side Effects）”。相反，Action 常常是**缓存的触发者**。当你在 Action 里调用 `revalidatePath('/dashboard')` 时，Next.js 会在当前 Action 请求的响应中，顺便把更新后的页面数据（RSC Payload）一起带回前端，实现页面的**无刷新感知更新**。
-
-**Route Handler**: `GET` 请求在默认情况下（静态路由）会被缓存。如果要禁用缓存，需要将其变为动态 Handler（例如使用 `cookies()`、`headers()`，或设置 `export const dynamic = 'force-dynamic'`）。
