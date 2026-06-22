@@ -1146,6 +1146,8 @@ Next.js 通过识别特定的“动态信号”来决定是否开启实时渲染
 
 ## 3. 全路由缓存 (Full Route Cache)
 
+全路由缓存是 Next.js 的 App Router 缓存机制，缓存的不是数据，而是一整个页面渲染的结果（HTML + RSC payload）。
+
 - **层级**：服务器端（构建时/重新校验时）。
     
 - **原理**：在构建（build）时，Next.js 会自动将**静态路由**渲染成 HTML 和 RSC Payload 并存储。
