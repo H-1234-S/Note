@@ -71,7 +71,7 @@ Server Component 里的数据获取（fetch）和页面渲染结果会自动接�
 // 执行时，/posts 对应的缓存失效，包括 Data cache 和 full router cache
 revalidatePath('/posts')
 //---------------------------
-// 给fetch打标签，执行时，所有使用了该标签的fetch缓存全失效，重新请求
+// 给fetch打标签，执行时，所有使用了该标签的 fetch请求 缓存全失效
 await fetch(url, {
   next: {
     tags: ['posts']
