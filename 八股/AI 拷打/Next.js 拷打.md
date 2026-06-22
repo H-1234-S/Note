@@ -111,4 +111,5 @@ export async function createPost(formData) {
 
 1. 请求数据不适用；因为 Server Action 底层一定是 POST 请求
 2. 高频触发也不适用；每次触发 Server Action 都会产生一次完整的网络往返
-3. 对外开放的 API 和第三方回调；
+3. 对外开放的 API 和第三方回调；Server Action 的请求是由 Next.js 内部完成的，并且依赖 Next.js 特定的请求头
+4. 精准的文件上传进度；虽然 Server Action 支持 `FormData` 上传文件，但它目前很难原生做到精准的“上传进度条”感知。
