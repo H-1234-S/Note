@@ -2330,6 +2330,10 @@ function App() {
 }
 
 export default App;
+
+/*
+表单发生变化时，也就是调用setSearch改变state，但是与Card内容无关，但是Card组件也会重新渲染
+*/
 ~~~
 
 ### 总结
