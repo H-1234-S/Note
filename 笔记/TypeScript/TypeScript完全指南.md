@@ -1465,6 +1465,39 @@ function Select<T extends string>({ value, options, onChange }: SelectProps<T>) 
 const themes = ["light", "dark", "system"] as const;
 
 <Select value="light" options={themes} onChange={(theme) => console.log(theme)} />;
+/*
+T会被自动推导为 "light" | "dark" | "system" 联合类型
+不需要手动传递泛型参数
+*/
+```
+
+#### 15.3.1 TSX 泛型坑
+
+如果组件使用**箭头函数**定义，并且**传入泛型**
+
+``` ts
+const Select = <T>(props: SelectProps<T>) => {
+  return null;
+};
+// 会报错：JSX element 'T' has no corresponding closing tag
+```
+
+这是因为 `<T>` 被 TS 编译器当作为标签解析
+
+``` ts
+// 解决方法1：添加逗号
+const Select = <T,>(
+  props: SelectProps<T>
+) => {
+  return null;
+};
+// 解决方法2：加约束
+const Select = <T extends unknown>(
+  props: SelectProps<T>
+) => {
+  return null;
+};
+// 直接使用function没有这个问题
 ```
 
 ### 15.4 API 状态建模
