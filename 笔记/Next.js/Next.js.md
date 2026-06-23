@@ -1809,6 +1809,21 @@ const id = searchParams.get('id')
 - `<Table>` 是一个服务器组件，它获取自己的数据，所以你可以将页面中的 `searchParams` 属性传递给组件。
 
 通常情况下，如果你需要从客户端读取参数，应使用 `useSearchParams()` 钩子，这样可以避免返回服务器。
+
+``` ts
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+}) {
+  const params = await searchParams;
+
+  return <div>{params.page}</div>;
+}
+```
+
 ## useParams
 
 - 用于获取**动态路由参数**
