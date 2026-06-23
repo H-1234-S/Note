@@ -942,10 +942,14 @@ type B = IsString<number>;
 
 分布式条件类型：
 
+意思是：条件类型接收的是一个**联合类型**时，TypeScript 会自动把联合类型拆开，分别计算后再合并结果。
+
 ```ts
 type ToArray<T> = T extends unknown ? T[] : never;
 
 type Result = ToArray<string | number>;
+// 相当于
+ToArray<string> | ToArray<number>
 // string[] | number[]
 ```
 
