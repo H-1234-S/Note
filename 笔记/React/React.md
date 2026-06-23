@@ -1002,14 +1002,19 @@ export default function App() {
 
 ## useImmer
 
-* 安装useImmer库
+`useImmer` 是基于 [immer](https://immerjs.github.io/immer/) 库实现的一个 React Hook，它让你可以像**修改可变数据一样来修改不可变数据**。
+
+useImmer 用以解决嵌套状态更新的问题
+
+对于嵌套对象，不可以直接使用展开运算符进行操作，因为展开运算符相当于浅拷贝，对于里层对象复制的还是引用
+
+安装useImmer库
 
 ~~~npm
 npm install immer use-immer
 ~~~
 
-* `useImmer` 是基于 [immer](https://immerjs.github.io/immer/) 库实现的一个 React Hook，它让你可以像**修改可变数据一样来修改不可变数据**。immer 是一个不可变的数据结构库，完全符合 React 的不可变性原则。
-
+immer 是一个不可变的数据结构库，完全符合 React 的不可变性原则。
 ### 语法
 
 ~~~typescript
@@ -1023,6 +1028,7 @@ setUser( draft => {
 ### 案例
 
 #### 处理嵌套对象
+
 
 * useImmer里的参数是user的初始值
 
@@ -1055,9 +1061,26 @@ export default function UserProfile() {
       }
     }
   })
-
+	
+	/*
+	setUser({
+		...user,
+		
+		profile:{
+			...user.profile
+			
+			preferences:{
+				...user.profile.preferences
+				
+				theme:dark
+			}
+		}
+	})
+	*/
+	
   {/*useImmer使得可以直接修改不可变数据*/}
   {/*draft.profile.preferences.theme = 'dark' 直接修改的是user中的数据*/}
+  
   const updateTheme = () => {
     setUser(draft => {
       draft.profile.preferences.theme = 'dark'
