@@ -127,6 +127,8 @@ error,
 ```
 ### not-found
 
+`not-found.tsx` 在路由未匹配或调用 `notFound()` 展示的页面
+
 - Next.js 默认会生成一个404页面，但我们可能自定义404页面，只需要在app目录下创建一个not-found.tsx文件即可
 
 #### 如果想在路由段内渲染not-found
