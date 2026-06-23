@@ -944,6 +944,8 @@ type B = IsString<number>;
 
 意思是：条件类型接收的是一个**联合类型**时，TypeScript 会自动把联合类型拆开，分别计算后再合并结果。
 
+解决什么问题：可以让 TS 像遍历数组一样遍历联合类型，对联合类型中的每个元素分别计算
+
 ```ts
 type ToArray<T> = T extends unknown ? T[] : never;
 
