@@ -131,10 +131,10 @@ export async function createPost(formData) {
 
 ## 在 App Router 里，如果你在 `layout.tsx` 做了鉴权，没有登录就 `redirect("/sign-in")`，是不是就能保证该路由下所有数据接口都安全？为什么？请结合 Server Component、Route Handler、Server Action 分别说明。
 
-`layout.tsx` 里没有登录就`redirect("/sign-in")`，这只是在ui层做了鉴权，但是Next中有三种服务端获取数据逻辑，数据获取时也应该做鉴权，一个项目要良好的允许，路由要是受保护的
+`layout.tsx` 里没有登录就`redirect("/sign-in")`，这只是在ui层做了鉴权，但是Next中有三种服务端获取数据逻辑，数据获取时也应该做鉴权，一个项目要良好的运行，路由要是受保护的
 
 Server Component 
 
 Route Handler 是 Next.js 提供的一种**底层的 HTTP 请求处理机制**，显示定义API路径，暴露标准的 HTTP 请求端点，它是公开的API，意味着谁都可以请求，因此一定要做路由保护进行鉴权，不然就会导致数据泄露
 
-Server Action 是
+Server Action 是Next一个新特性，可以让客户端触发服务端逻辑，处理交互式的写入操作，本质就是一个 POST 请求，只不过采用了 RPC 机制，既然是请求就可以被构造，因此也需要鉴权
