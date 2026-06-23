@@ -757,6 +757,65 @@ function myCreate(proto) {
 1. React 类组件本质依赖 class 继承，实例方法和生命周期方法都在原型链上。
 2. SDK 设计中常用原型方法共享行为，减少实例内存开销。
 3. `instanceof` 在多 iframe、多 realm 环境会失效，因为构造函数来自不同全局对象。更稳的判断方式是 `Object.prototype.toString` 或鸭子类型。
+### 3.8 补充
+
+**请解释 `prototype` 和 `__proto__` 的区别。**
+
+然后说出下面代码的输出和原因：
+
+``` js
+function Foo() {}
+
+const a = new Foo();
+
+console.log(a.__proto__ === Foo.prototype);
+console.log(Foo.prototype.__proto__ === Object.prototype);
+console.log(Foo.__proto__ === Function.prototype);
+console.log(Function.__proto__ === Function.prototype);
+console.log(Object.__proto__ === Function.prototype);
+```
+
+这几行结果是：
+
+```
+true
+true
+true
+true
+true
+```
+
+解释：
+
+```
+a.__proto__ === Foo.prototype
+```
+
+`new Foo()` 创建实例时，会把实例的 `[[Prototype]]` 指向 `Foo.prototype`。
+
+```
+Foo.prototype.__proto__ === Object.prototype
+```
+
+`Foo.prototype` 本身是一个普通对象，普通对象通常由 `Object` 创建，所以它的原型是 `Object.prototype`。
+
+```
+Foo.__proto__ === Function.prototype
+```
+
+`Foo` 是函数对象，函数对象可以理解为由 `Function` 构造出来，所以它的原型是 `Function.prototype`。
+
+```
+Function.__proto__ === Function.prototype
+```
+
+`Function` 本身也是一个函数对象，所以它的原型也是 `Function.prototype`。这里有点绕，但这是 JS 原型系统的自举设计。
+
+```
+Object.__proto__ === Function.prototype
+```
+
+`Object` 也是一个构造函数，既然是函数对象，它的原型同样指向 `Function.prototype`。
 
 ---
 
