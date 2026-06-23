@@ -125,3 +125,8 @@ export async function createPost(formData) {
 `next: { revalidate: 60 }`：不是“60 秒之后立刻重新运行”，而是缓存最多认为新鲜 60 秒。超过 60 秒后的下一次请求会触发重新验证
 
 其实要看整体情况，虽然默认情况下是`cache: "force-cache"`，是静态路由，但是还要看有没有`cookies()`、`headers()`、`export const dynamic = 'force-dynamic'`动态因素
+
+---
+# Next.js 鉴权安全
+
+**在 App Router 里，如果你在 `layout.tsx` 做了鉴权，没有登录就 `redirect("/sign-in")`，是不是就能保证该路由下所有数据接口都安全？为什么？请结合 Server Component、Route Handler、Server Action 分别说明。**
