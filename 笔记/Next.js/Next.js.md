@@ -85,12 +85,15 @@ export const metadata: Metadata = {
 ```
 
 接收一个对象
-
 ### loading
 
-- Next.js的loading是借助了`Suspense`实现的
-	
-- 触发异步自动跳转到loading页面，页面结束后自动跳转
+`loading.tsx` 表示**当前路由段及子路由段**加载异步数据时展示的页面
+
+本质就是借助 React 的 Suspense 实现的，其实相当于 Next 在最外层包了一层 Suspense
+
+生效范围是**当前路由段**及**子路由段**
+
+- 触发异步自动跳转到 loading 页面，结束后自动跳转
 	
 - `loading.tsx` 中添加的任何 UI 都将嵌入为静态文件的一部分，并首先发送。然后，其余的动态内容将从服务器流式传输到客户端。
 ### error
