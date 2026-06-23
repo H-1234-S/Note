@@ -10,14 +10,14 @@
 
 Route Handler、Server Action、Server Component 取数据这三种服务端逻辑适用场景是不同
 
-Route Handler 是传统的 RESTful API，负责标准的 HTTP 通信
+Route Handler 是 Next 提供的一种 HTTP 请求处理机制
 
 Server Component 主要适用于页面初始化时候的数据拉取
 
 Server Action 采用 RPC 机制，负责用户**交互式**的**写操作**，例如表单提交时的 action
 ## 调用方式
 
-Route Handle 传统的**RESTful API**。通过显式声明 `app/api/route.ts`，暴露标准的 HTTP 端点（GET, POST, PUT, DELETE）。前端或其他客户端必须通过 `fetch` 或 `axios` 显式请求。
+Route Handle 是 Next 提供的一种 HTTP 请求处理机制。通过显式声明 `app/api/route.ts`，暴露标准的 HTTP 端点（GET, POST, PUT, DELETE）。前端或其他客户端必须通过 `fetch` 或 `axios` 显式请求。
 
 Server Action 采用 RPC 机制。意思是在客户端中就像一个本地的异步函数，但是是 next.js 自动处理了请求，不需要手动 Fetch
 
@@ -136,3 +136,5 @@ export async function createPost(formData) {
 Server Component 
 
 Route Handler 是 Next.js 提供的一种**底层的 HTTP 请求处理机制**，显示定义API路径，暴露标准的 HTTP 请求端点，它是公开的API，意味着谁都可以请求，因此一定要做路由保护进行鉴权，不然就会导致数据泄露
+
+Server Action 是
