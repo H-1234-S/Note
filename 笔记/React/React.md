@@ -620,7 +620,7 @@ export default App;
 
 ### 语法
 
-~~~react
+~~~ react
 import React, { Suspense } from 'react'
 
 <Suspense fallback={<加载提示组件 />}>
