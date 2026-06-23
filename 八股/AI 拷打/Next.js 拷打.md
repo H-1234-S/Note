@@ -113,3 +113,15 @@ export async function createPost(formData) {
 2. 高频触发也不适用；每次触发 Server Action 都会产生一次完整的网络往返
 3. 对外开放的 API 和第三方回调；Server Action 的请求是由 Next.js 内部完成的，并且依赖 Next.js 特定的请求头
 4. 精准的文件上传进度；虽然 Server Action 支持 `FormData` 上传文件，但它目前很难原生做到精准的“上传进度条”感知。
+
+---
+
+# 在 Server Component 里调用 `fetch` 时，`cache: "force-cache"`、`cache: "no-store"`、`next: { revalidate: 60 }` 分别是什么意思？它们和路由的静态/动态渲染有什么关系？
+
+`force-cache`：优先使用 Next 的 Data Cache，构建时或首次请求时缓存结果，后续复用。fetch 默认就是这个配置。
+
+`no-store`：不进入 Data Cache，每次请求都重新获取；通常会让使用它的 route 变成动态渲染，因为结果依赖每次请求。
+
+`next: { revalidate: 60 }`：不是“60 秒之后立刻重新运行”，而是缓存最多认为新鲜 60 秒。超过 60 秒后的下一次请求会触发重新验证
+
+其实要看整体情况，虽然默认情况下是`cache: "force-cache"`，是静态路由，但是还要看有没有`cookies()`、`headers()`、`export const dynamic = 'force-dynamic'`动态因素
