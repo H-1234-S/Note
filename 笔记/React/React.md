@@ -1527,18 +1527,21 @@ export default App
 
 ## useTransition
 
-* `useTransition` 是一个让你可以在后台渲染部分 UI 的 React Hook。
+`useTransition` 是一个让你可以在后台渲染部分 UI 的 React Hook。
 
+其实就是将渲染分为**高优先级**和**低优先级**，让高优先级先响应，低优先级后响应并且可中断
 ### 语法
 
 ~~~typescript
 const [isPending, startTransition] = useTransition()
 ~~~
-
 ### 返回值
 
 * `isPending`(boolean)，告诉你是否存在待处理的 transition。
 * `startTransition`(function) 函数，你可以使用此方法将状态更新标记为 transition。(低优先级)
+
+### 问题
+
 
 
 ## useDeferredValue
