@@ -1529,7 +1529,7 @@ export default App
 
 `useTransition` 是一个让你可以在后台渲染部分 UI 的 React Hook。
 
-其实就是将渲染分为**高优先级**和**低优先级**，让高优先级先响应，低优先级后响应并且可中断
+其实就是将渲染分为**高优先级**和**低优先级**，让高优先级先响应，低优先级后响应并且**可中断**
 ### 语法
 
 ~~~typescript
@@ -1542,8 +1542,45 @@ const [isPending, startTransition] = useTransition()
 
 ### 问题
 
+主要用于解决像**搜索框实时联动**这种`用户交互必须立即响应，但是后续渲染比较重`的场景
 
+例如：
+``` ts
+function Search() {
+  const [keyword, setKeyword] = useState("");
+  const [isPending, startTransition] = useTransition()
+  const [list, setList] = useState(bigData);
 
+  function handleChange(e) {
+    const value = e.target.value;
+
+    setKeyword(value);
+    
+	startTransition(() => {
+		setList(
+	      bigData.filter(item =>
+	        item.includes(value)
+	      )
+	    );	
+	})
+  }
+
+  return (
+    <>
+      <input
+        value={keyword}
+        onChange={handleChange}
+      />
+
+      <HugeList list={list} />
+    </>
+  );
+}
+```
+
+如果不加 `startTransition` ，用户在表单输入，ste 函数更新会导致组件重新渲染，同时子组件 HugeList 也重新渲染，但是如果子组件有一万条数据，会有很明显的卡顿，可能也会造成表单不响应
+
+问题在于**更新优先级**是不一样的，表单可以立即更新，但是搜索结果可以慢一点更新
 ## useDeferredValue
 
 * **延迟某些状态的更新，直到主渲染任务完成。**这对于高频更新的内容（如输入框、滚动等）非常有用，可以让 UI 更加流畅，避免由于频繁更新而导致的性能问题。
