@@ -1467,8 +1467,13 @@ const themes = ["light", "dark", "system"] as const;
 <Select value="light" options={themes} onChange={(theme) => console.log(theme)} />;
 /*
 T会被自动推导为 "light" | "dark" | "system" 联合类型
-不需要手动传递泛型参数
+不需要手动传递泛型参数，但是也可以手动传递泛型
 */
+// 手动将 T 指定为 "light" | "dark" | "system" 
+<Select<"light" | "dark" | "system"> 
+	value="light" 
+	options={themes} 
+	onChange={(theme) => console.log(theme)} />
 ```
 
 #### 15.3.1 TSX 泛型坑
