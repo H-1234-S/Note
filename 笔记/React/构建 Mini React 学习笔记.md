@@ -1631,6 +1631,8 @@ set 更新的函数的 action 什么时候执行？
 
 在下一次执行函数组件时，执行 useState 时，对该队列进行执行
 
+具体什么时候执行要看 react 的调度机制，但是只有当下次执行到 useState 时才会更新 state
+
  时间线：
 
   用户点击 → setState(c => c + 1)
@@ -1665,6 +1667,9 @@ set 更新的函数的 action 什么时候执行？
 -  `const [age, setAge] = useState(25)` （索引 1）
 
 > 如果在某次渲染中，用 `if` 跳过了第一个 `name` 的 Hook，那么原本属于 `age` 的那个 `useState` 执行时，它的 `hookIndex`还是0，会从hooks[0] 开始读取数据
+---
+
+
 
 **为什么多次 setState 会被"批处理"？**
 
