@@ -98,6 +98,14 @@ export const metadata: Metadata = {
 - `loading.tsx` 中添加的任何 UI 都将嵌入为静态文件的一部分，并首先发送。然后，其余的动态内容将从服务器流式传输到客户端。
 ### error
 
+`error.tsx`捕获当前路由段及子路由段渲染过程中抛出的错误
+
+``` ts
+<ErrorBoundary fallback={<Error />}>
+   <Page />
+</ErrorBoundary>
+```
+
 - Next.js的error是借助了`Error Boundary`实现的。
 	
 - 'use client' **错误组件必须是客户端组件**
@@ -109,7 +117,13 @@ export const metadata: Metadata = {
     - `reset`: 这是一个用于重置错误边界的函数。当执行时，该函数将尝试重新渲染该路由片段。
 
 ``` ts
-export default function Error({ error, reset,}: { error: Error & { digest?: string }; reset: () => void;}) {}
+export default function Error({ 
+error,
+ reset,
+ }: { 
+ error: Error & { digest?: string };
+  reset: () => void;
+  }) {}
 ```
 ### not-found
 
