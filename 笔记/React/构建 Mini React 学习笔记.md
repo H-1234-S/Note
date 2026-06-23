@@ -1692,8 +1692,6 @@ function Demo({ n }) {
 
 ---
 
-
-
 **为什么多次 setState 会被"批处理"？**
 
 因为 setState 只是将 action 推入队列中，wipRoot 虽然被设置了三次，但是最终只会触发一次渲染？？？
