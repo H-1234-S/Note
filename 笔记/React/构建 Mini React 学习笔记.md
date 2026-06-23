@@ -1682,3 +1682,4 @@ set 更新的函数的 action 什么时候执行？
 调用 `setState(count + 1)` 入队的是值，因为调用 set 函数时值不更新，三次调用时 count 值还是 0，下次调用 useState 时将 hook.state = 1
 
 调用 `setState(prev => prev + 1)` 入队的是函数，下次运行 useState 时会将上一次的 hook.state 作为 prev 传入
+
