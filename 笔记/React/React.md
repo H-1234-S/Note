@@ -1587,7 +1587,7 @@ function Search() {
 
 
 
-**防抖（debounce）、节流（throttle）解决的是“事件触发太频繁”的问题。**
+**防抖（debounce）、节流（throttle）解决的是“事件触发太频繁”的问题。** 不会降低渲染次数
 
 **startTransition 解决的是“渲染太重导致界面卡顿”的问题。**
 
