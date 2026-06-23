@@ -1674,8 +1674,21 @@ set 更新的函数的 action 什么时候执行？
 第二：如果循环之外还有`useState`函数，那么会导致状态获取错误
 
 举个例子：
+``` js
+function Demo({ n }) {
+  for (let i = 0; i < n; i++) {
+    useState(0);
+  }
 
+  const [name] = useState("Tom");
 
+  return null;
+}
+```
+
+第一次运行三次，产生三个state，Tom在第四个state
+第二次运行五i次，产生五个State，Tom应该在第六个state
+但是第四个useState函数运行时，发现有旧状态（Tom），就会使用旧状态
 
 ---
 
