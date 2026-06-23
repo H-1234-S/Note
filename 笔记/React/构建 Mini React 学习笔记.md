@@ -1667,6 +1667,16 @@ set 更新的函数的 action 什么时候执行？
 -  `const [age, setAge] = useState(25)` （索引 1）
 
 > 如果在某次渲染中，用 `if` 跳过了第一个 `name` 的 Hook，那么原本属于 `age` 的那个 `useState` 执行时，它的 `hookIndex`还是0，会从hooks[0] 开始读取数据
+
+**循环呢？**
+
+第一：循环中执行的`useState`产生的state不固定，可能第一次循环执行3次，第二次循环执行5次
+第二：如果循环之外还有`useState`函数，那么会导致状态获取错误
+
+举个例子：
+
+
+
 ---
 
 
