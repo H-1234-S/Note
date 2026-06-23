@@ -135,4 +135,4 @@ export async function createPost(formData) {
 
 Server Component 
 
-Route Handler 是标准的 HTTP 通信格式，采用 RESTful API 规范，这是公开的API，一定要做路由保护进行鉴权
+Route Handler 是 Next.js 提供的一种**底层的 HTTP 请求处理机制**，显示定义API路径，暴露标准的 HTTP 请求端点，它是公开的API，意味着谁都可以请求，因此一定要做路由保护进行鉴权，不然就会导致数据泄露
