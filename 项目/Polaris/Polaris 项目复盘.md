@@ -426,7 +426,7 @@ return true;
 
 当前只对文件操作，使用writeFile对所有符合条件的文件进行覆盖，即使该文件之前没有更新
 
-```
+``` js
 // 同步文件更改（热重载）
   useEffect(() => {
     const container = containerRef.current;
@@ -434,20 +434,22 @@ return true;
     const filesMap = new Map(files.map((f) => [f._id, f]));
     // 每次 files 变化，把项目里所有符合条件的文件都写一遍到虚拟文件系统中
     for (const file of files) {
-
       if (file.type !== "file" || file.storageId || !file.content) continue;
-
-  
-
       const filePath = getFilePath(file, filesMap);
-
       // 现在的逻辑是全量覆盖，不止覆盖改动后的文件，没有改动的文件也覆盖
-
       // 实现diff、rm、mkdir，还可以维护上一版本文件内容
-
       container.fs.writeFile(filePath, file.content);
-
     }
-
   }, [files, status]);
+```
+
+如果用户在 AI 对话里一次性生成了 80 个文件修改：新增、删除、重命名、内容变更都有。此时 dev server 正在运行。
+
+你现在的 `useEffect(files)` 全量遍历然后 `writeFile` 会有什么问题？  
+请你给一个更可靠的同步方案，要求说明：如何 diff、如何保证操作顺序、如何避免和用户手动编辑产生冲突。
+
+```
+可能会导致删除的文件还存在在webcontainer虚拟文件系统中；
+对于重命名的文件，可能会维护两条路径、也可能会加载错误，加载成old路径从而报错；
+对于新增的文件，如果文件夹存在还好，如果文件夹不存在则会新增错误，因为不会根据路径创建新的文件夹；对于这些问题，其实目前还实现了一个重启整个webcontainer方法，重启一次可以解决这些问题，但是带来的用户体验不是很好。
 ```
