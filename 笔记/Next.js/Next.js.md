@@ -745,7 +745,7 @@ export const config = {
       locale: false,
       // 必须有这个请求头 
       // URL 必须带 ?admin=true ]
-      has: [ { type: 'header', key: 'x-prerender' },{ type: 'query', key: 'admin', value: 'true' } 
+      has: [ { type: 'header', key: 'x-prerender' },{ type: 'query', key: 'admin', value: 'true' } ]
       // cookie 没有 session=active 时才会触发
       missing: [{ type: 'cookie', key: 'session', value: 'active' }],
     },
