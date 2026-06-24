@@ -424,4 +424,30 @@ return true;
 
 现在的问题是对于后续文件**更新逻辑**是**全量覆盖**
 
-当前只对文件操作，使用writeFile
+当前只对文件操作，使用writeFile对所有符合条件的文件进行覆盖，即使该文件之前没有更新
+
+```
+// 同步文件更改（热重载）
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !files || status !== "running") return;
+    const filesMap = new Map(files.map((f) => [f._id, f]));
+    // 每次 files 变化，把项目里所有符合条件的文件都写一遍到虚拟文件系统中
+    for (const file of files) {
+
+      if (file.type !== "file" || file.storageId || !file.content) continue;
+
+  
+
+      const filePath = getFilePath(file, filesMap);
+
+      // 现在的逻辑是全量覆盖，不止覆盖改动后的文件，没有改动的文件也覆盖
+
+      // 实现diff、rm、mkdir，还可以维护上一版本文件内容
+
+      container.fs.writeFile(filePath, file.content);
+
+    }
+
+  }, [files, status]);
+```
