@@ -457,5 +457,15 @@ AI 工具是多次 mutation（createFiles、updateFile、deleteFiles、renameFil
 对于这些问题，其实目前还实现了一个重启整个webcontainer方法，重启一次可以解决这些问题，但是带来的用户体验不是很好。
 ```
 
-请你给一个更可靠的同步方案，要求说明：如何 diff、如何保证操作顺序、如何避免和用户手动编辑产生冲突。
+> 请你给一个更可靠的同步方案，要求说明：如何 diff、如何保证操作顺序、如何避免和用户手动编辑产生冲突。
 
+维护一份 `lastSyncedSnapshot`，记录每个文件的 `id、path、type、contentHash、updatedAt`。每次 Convex files 变化后，先生成 `nextSnapshot`，然后按 `id` diff：
+
+删除：`old` 有、`new` 没有，执行 `fs.rm(old.path, { recursive: true })`。  
+新增：`new` 有、`old` 没有，目录先 `mkdir`，文件先确保父目录存在，再 `writeFile`。  
+重命名/移动：`old` 和 `new` 都有但 `path` 不同，可以优先 `fs.rename(old.path, new.path)`；如果目标父目录不存在先创建。如果 rename 失败，则降级为写新路径再删旧路径。  
+内容变更：路径相同但 `contentHash` 或版本号变化，执行 `writeFile`。
+
+操作顺序要分阶段：先删可能冲突的旧路径，再建目录，再移动/重命名，再写文件内容，最后删除空目录。并且所有同步任务进入一个串行队列，例如 `syncPromise = syncPromise.then(() => applyPatch(diff))`，避免上一轮还没写完下一轮又进来。每轮带版本号，落后版本可以合并或跳过。
+
+手动编辑冲突要单独处理：编辑器维护 `dirtyBuffer` 和 `baseVersion`。如果 AI 更新到同一个 `fileId`，而用户本地有未提交内容，就不能直接覆盖编辑器内容。可以标记冲突，保留用户 buffer，同时提示“远端有 AI 修改”，让用户选择覆盖、本地优先或查看 diff。WebContainer 里运行的文件可以先按远端同步，也可以对当前正在编辑文件延迟写入，关键是不能静默覆盖用户输入。
