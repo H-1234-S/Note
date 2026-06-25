@@ -70,13 +70,15 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 	它会向环境变量 CHATTERBOX_API_URL 指向的 Modal 平台上的 Chatterbox 服务发送 HTTP 请求
 	而这个 Modal 服务就是由根目录的 chatterbox_tts.py 部署出来的
 
+如果生成失败，会返回错误信息，那么直接抛出 TRPCError 错误，结束请求
+
 返回的数据是 web 标准的 ArrayBuffer 原始二进制数据
 
 对于返回的 generation 音频，需要转为node标准的buffer
 
-因为在cloudeflare中是按generation/orgs/userOrgsId/generationId格式管理数据的
+因为在 cloudeflare 中是按 generation/orgs/userOrgsId/generationId 格式管理数据的
 
-因此需要在generation表中创建一条记录，用来返回自动生成的generationId
+因此需要在 generation 表中创建一条记录，用来返回自动生成的generationId
 
 之后上传到 cloudflare 中，用于生成一个预览url，便于前端展示
 
