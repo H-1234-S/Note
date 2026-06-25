@@ -449,7 +449,9 @@ iframe 直接加载 url 即可
 ---
 webconatiner 其实是实现了一个**虚拟网络栈**和注册了一个 **service worker**
 
-service worker 会拦截 iframe 发出的请求，
+虚拟网络栈其实是监听一个虚拟端口，并基于该端口生成一个 url 
+
+service worker 会拦截 iframe 发出的请求，在内存中找到对应的虚拟 node 进程，将数据返回
 
 ---
 # 优化
