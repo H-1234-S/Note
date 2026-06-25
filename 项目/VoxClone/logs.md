@@ -38,6 +38,8 @@
 
 ## Audio Generation Process
 
+在 VoxClone 里，用户点击“生成语音”按钮后，从前端表单提交，到 tRPC procedure，到 Prisma 写入数据库，再到 TanStack Query 更新页面列表，这条链路怎么设计？
+
 ```
 用户在 tts 页面输入文本，选择音色，调整对应参数，点击生成之后
 
