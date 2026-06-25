@@ -104,11 +104,11 @@ githubExportRepo.create({ projectId, repoName, visibility, description, githubTo
 
 项目实际用到的 API 大致需要：
 
-| 能力 | 典型 scope |
-|------|------------|
-| 读公开/私有仓库内容 | `repo` |
-| 以用户身份创建仓库 | `repo` 或 `public_repo`（仅公开库） |
-| 获取当前用户信息 | 通常随 GitHub OAuth 默认可用 |
+| 能力         | 典型 scope                     |
+| ---------- | ---------------------------- |
+| 读公开/私有仓库内容 | `repo`                       |
+| 以用户身份创建仓库  | `repo` 或 `public_repo`（仅公开库） |
+| 获取当前用户信息   | 通常随 GitHub OAuth 默认可用        |
 
 具体 scope 在 Clerk GitHub OAuth 配置里设置；若导入私有仓库或创建私有仓库失败，优先检查 scope 是否包含 `repo`。
 
