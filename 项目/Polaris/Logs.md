@@ -1455,13 +1455,15 @@ tree t67890
 
 ------------------------------------------------------
 
-在inngset中，初始化 octokit，调用 octokit.rest.git.getTree 获得“目录结构快照”
+在inngset中，初始化 octokit，调用 octokit.rest.git.getTree 获得所有数据
 
-对于得到的目录结构，先通过path创建文件夹，同时创建一个键为path，值为id的映射
+对数据进行遍历，先得到所有的文件夹，并且对文件夹进行深度排序
 
-	该映射用于 创建文件夹时 和 创建文件时 的parentId
+将path按照 / 分割转为数组，判断数组长度，如果长排在后面，这样确保创建子文件夹时父文件夹存在
 
-对于文件，通过octokit.rest.git.getBlob传递SHA获取content
+建立一个键是path，值是fileId映射，对数组里每一个数据遍历处理，在数据库创建对应的文件夹
+
+对于文件，通过octokit.rest.git.getBlob传递SHA获取具体的文件内容
 
 因为github是按base64格式返回数据，需要对数据Buffer.from parse一下
 
