@@ -1930,6 +1930,12 @@ function deepClone(value, cache = new WeakMap()) {
   Reflect.ownKeys(value).forEach(key => {
     result[key] = deepClone(value[key], cache);
   });
+  
+  /*
+  for(const key of Reflect.ownKeys(value)) {
+	  result[key] = deepClone(value[key],cache)
+  }
+  */
 
   return result;
 }
