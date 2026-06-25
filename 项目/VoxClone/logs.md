@@ -40,6 +40,11 @@
 
 在 VoxClone 里，用户点击“生成语音”按钮后，从前端表单提交，到 tRPC procedure，到 Prisma 写入数据库，再到 TanStack Query 更新页面列表，这条链路怎么设计？
 
+思路：
+
+其实就是前端携带参数发送trpc请求到procedure中，巴拉巴拉处理，返回generationId，前端自动重定向到生成详情页面
+
+具体流程：
 ```
 用户在 tts 页面输入文本，选择音色，调整对应参数，点击生成之后
 
@@ -65,7 +70,13 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 返回的数据是 web 标准的 ArrayBuffer 原始二进制数据
 
-对于返回的 generation 音频，上传到 cloudflare 中，用于生成一个预览url，便于前端展示
+对于返回的 generation 音频，需要转为node标准的buffer
+
+因为在cloudeflare中是按generation/orgs/userOrgsId/generationId格式管理数据的
+
+因此需要在generation表中创建一条记录，用来返回自动生成的generationId
+
+之后上传到 cloudflare 中，用于生成一个预览url，便于前端展示
 
 响应成功后携带 generationId 跳转到生成音频详情页
 
