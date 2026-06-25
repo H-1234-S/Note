@@ -1531,9 +1531,13 @@ octokit初始化仓库之后，就要对扁平的文件结构进行处理，转�
 
 首先向getProjectFilesWithUrls函数发送请求，获取项目中的所有文件(如果文件为存储文件则携带url)
 
-之后自定义buildfullpaths函数，该函数返回一个键为path值为file映射对象
+之后自定义buildfullpaths函数，该函数返回一个键为path值为file对象
 
 	其实很简单，每个文件都有一个parentId，如果不为空则表示有父文件，向上遍历就好	
+
+再之后过滤一下type为文件夹的对象属性，因为git会根据路径自动生成对应的文件夹，还有blob只上传有内容的文件
+	
+	Object.entries(filePaths).filter((_,file) => file.type === 'file')
 
 然后需要调用octokit.rest.git.createBlob方法，该方法返回一个sha，其实相当于文件的指纹
 
