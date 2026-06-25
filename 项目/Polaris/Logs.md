@@ -907,12 +907,6 @@ await writer.close();
 对于之前的文件夹，继续进行嵌套处理就好
 ```
 
-### 热更新怎么实现的？
-
-```
-
-```
-
 ## webcontainers
 
 `webcontainer` 提供了一种浏览器内`node`环境，可以在浏览器内执行node应用和对应命令

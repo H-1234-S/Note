@@ -416,6 +416,35 @@ return true;
 
 ```
 
+## 需求五：WebContainer preview
+
+从用户打开一个 Polaris 项目开始，到浏览器里跑起来 Vite/Next dev server，你是怎么把云端虚拟文件树同步进 WebContainer 的？
+
+重点讲文件树格式转换、`mount`、安装依赖、启动进程、监听 dev server URL、以及文件变更后的同步。
+
+```
+获取projectId，使用useQuery传入projectId获取当前项目下的所有数据
+
+该操作得到的是一个扁平的文件数组，对于webconatiner需要的是一个固定格式的嵌套文件树
+
+自定义了一个转换函数，函数参数接收扁平的文件数组，返回嵌套格式的文件树
+
+先建立一套映射，key是fileId，值是对应的文件内容
+
+通过遍历每一个数组元素，得到具体的路径
+
+这样只需要判断最后一个元素是文件还是文件夹，对于之前路径的文件一定是文件夹
+
+对是文件还是文件夹按照webcontainer需要的处理方法进行处理即可
+```
+
+对于转换完的文件内容，直接调用 `mount` 挂载即可
+
+挂载完之后调用 spawn 安装依赖，即运行 npm install 即可
+
+当 npm run dev 运行完毕之后，webcontainer 会触发一个 server right 事件，对外暴露出一个 url
+
+iframe 直接加载 url 即可
 # 优化
 
 ## WebContainer
