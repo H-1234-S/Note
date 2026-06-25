@@ -1480,7 +1480,16 @@ tree t67890
 对于文本数据，转为utf-8即可，上传到数据库中，这样整个仓库导出完毕
 ```
 
+---
+
 ## github export
+
+Polaris 导出到 GitHub 新仓库时，假设用户项目里有 300 个文件，其中包含文本文件、图片文件、嵌套目录。
+
+请你具体说明：
+
+你如何用 Octokit 创建仓库并提交这些文件？  
+重点讲：创建 repo、生成 tree、blob、commit、更新 ref 的流程，以及为什么不建议一个文件一个 commit。
 
 > **github export思路：** 
 
