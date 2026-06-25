@@ -83,7 +83,7 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 tRPC，全称 TypeScript Remote Procedure Call。它让**前端**像调用本地函数一样调用**服务端 Procedure**，同时把输入、输出、错误类型从服务端路由自动推导到客户端。
 ### 核心概念
 
-**Router**
+> **Router**
 
 其实就是在 approuter 中将多个 procedure 组合到一起，然后导出 approuter type
 
@@ -101,7 +101,7 @@ export const appRouter = t.router({
 export type AppRouter = typeof appRouter; // 核心：只导出类型
 ```
 
-**Procedure**
+> **Procedure**
 
 procedure 其实就是前端调用后，在后端执行的业务逻辑，也就是每一个具体的接口
 
@@ -113,11 +113,11 @@ procedure 其实就是前端调用后，在后端执行的业务逻辑，也就�
     
 - **Subscription**：用于**实时双向通信**（基于 WebSocket）
 
-**Context**
+> **Context**
 
 context 是每次请求共享的运行环境，每个请求至少会调用 createTRPCContext 函数一次，但是通常都会将 createTRPCContext 包一层 cache，如果同一请求调用多次时会使用缓存
 
-**Middleware**
+> **Middleware**
 
 middleware 其实是在每次 procedure 执行前都会调用一次，通常可以用来鉴权等操作
 
