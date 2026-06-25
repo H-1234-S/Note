@@ -64,7 +64,7 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 在 middleware 中对请求鉴权，在 procedure 中对数据基本验证，根据 voiceId 查找对应的 r2ObjectKey
 
-因为是多组织管理，对于 voiceId 是系统内置的那就直接返回，如果是自定义那就验证用户orgsId
+因为是多组织管理，对于 voiceId 是系统内置的那就直接返回，如果是自定义那就验证用户 orgsId，成功后继续向下运行
 
 调用 chatterbox.POST 传入 r2ObjectKey，Chatterbox 后端根据 r2ObjectKey 去加载对应的参考音频，根据 prompt 生成新的音频
 
