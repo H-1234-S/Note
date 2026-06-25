@@ -1467,7 +1467,9 @@ tree t67890
 
 因为github是按base64格式返回数据，需要对数据Buffer.from parse一下
 
-对于parse后的数据，可以利用一个库判断是二进制还是能utf-8转为文本进行不一样的处理
+对于parse后的数据，可以利用一个库判断是 图片之类的二进制数据 还是能 utf-8转为文本
+
+如果是图片数据
 ```
 
 ## github export
