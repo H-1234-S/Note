@@ -1539,6 +1539,8 @@ octokit初始化仓库之后，就要对扁平的文件结构进行处理，转�
 	
 	Object.entries(filePaths).filter((_,file) => file.type === 'file')
 
+之后对文件进行遍历处理，判断文件是文本文件还是存储文件，若是存储文件根据url请求二进制数据，将数据使用Buffer.from转为base64编码
+
 然后需要调用octokit.rest.git.createBlob方法，该方法返回一个sha，其实相当于文件的指纹
 
 	在这里为了一次提交仓库中所有的文件，创建了一个items数组，数组中每一元素与文件对应，传递path、sha、mode、type
