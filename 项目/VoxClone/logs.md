@@ -144,7 +144,7 @@ protectedProcedure.query(({ ctx }) => {
 });
 ```
 
-**Data Transformers**
+> **Data Transformers**
 
 因为传统的 JSON api 只能传字符串，没有`Date`、`Map`、`Set`等类型，例如你从数据库查出一个 `Date` 对象，经过网络传输变成 JSON 后，前端收到的就变成了一个 `string`，不得不手动 `new Date(dateStr)`
 
