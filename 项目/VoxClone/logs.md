@@ -44,6 +44,8 @@
 
 其实就是前端携带参数发送trpc请求到procedure中，巴拉巴拉处理，返回generationId，前端自动重定向到生成详情页面
 
+请求怎么设计的、错误怎么处理的
+
 具体流程：
 ```
 用户在 tts 页面输入文本，选择音色，调整对应参数，点击生成之后
@@ -80,7 +82,11 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 因此需要在 generation 表中创建一条记录，用来返回自动生成的generationId
 
-之后上传到 cloudflare 中，用于生成一个预览url，便于前端展示
+之后上传到 cloudflare 中
+
+在此链路中，如果在 generation 中创建记录失败，会抛出错误并结束请求
+
+如果上传失败的，那么就会根据 generationId 清空记录
 
 响应成功后携带 generationId 跳转到生成音频详情页
 
