@@ -445,6 +445,13 @@ return true;
 当 npm run dev 运行完毕之后，webcontainer 会触发一个 server right 事件，对外暴露出一个 url
 
 iframe 直接加载 url 即可
+
+---
+webconatiner 其实是实现了一个**虚拟网络栈**和注册了一个 **service worker**
+
+service worker 会拦截 iframe 发出的请求，
+
+---
 # 优化
 
 ## WebContainer
