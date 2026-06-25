@@ -1521,7 +1521,7 @@ Polaris 导出到 GitHub 新仓库时，假设用户项目里有 300 个文件�
 
 	因为导出时需要以当前用户名义创建仓库、写git对象
 
-之后调用octokit.rest.repos.createForAuthenticatedUser方法，为已认证用户创建一个新仓库
+之后调用octokit.rest.repos.createForAuthenticatedUser方法，传递auto_init：tree，表示自动初始化，为已认证用户创建一个新仓库
 
 创建仓库完毕后，需要调用octokit.rest.git.getRef方法拿到仓库初始commit的sha
 
