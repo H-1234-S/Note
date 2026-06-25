@@ -1381,7 +1381,7 @@ octokit.rest.git.getBlob
 ```
 
 
-> **Git 底层对象模型**
+> **Git 对象模型**
 
 git 仓库可以理解为一个 “链表 + 树” 的结构
 
