@@ -1527,7 +1527,7 @@ Polaris 导出到 GitHub 新仓库时，假设用户项目里有 300 个文件�
 
 	因为git规定，除初始commit外，之后的每次commit都要有一个parent，其实相当于指针，指向上一次提交	
 
-octokit初始化仓库之后，就要对扁平的文件结构进行处理，转为 path
+octokit初始化仓库之后，就要对扁平的文件结构进行处理，目的是将扁平的文件结构转为tree提交时需要的path
 
 首先向getProjectFilesWithUrls函数发送请求，获取项目中的所有文件(如果文件为存储文件则携带url)
 
