@@ -68,10 +68,13 @@
 	对于 cloudflare 的应用，其实也就是初始化r2，之后上传数据、删除数据、获取一个临时的url链接用来预览音频
 ```
 
-> wav 格式的音频数据
+> PCM（**Pulse Code Modulation，脉冲编码调制**）并不是一种音频文件格式，而是**数字音频最原始的数据表示方式**。
+
+> wav 格式的音频数据，就是对 PCM 的包装，通常保存未经有损压缩的 PCM 音频数据
 
 1. 音质无损(最大的特点)
 2. chatterbox 要求使用 wav 格式的音频数据
+
 ## Audio Generation Process
 
 在 VoxClone 里，用户点击“生成语音”按钮后，从前端表单提交，到 tRPC procedure，到 Prisma 写入数据库，再到 TanStack Query 更新页面列表，这条链路怎么设计？
