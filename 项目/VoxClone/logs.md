@@ -31,9 +31,7 @@
 
 在函数里首先调用 getUserMedia 获取麦克风权限，得到一个 mediastream 实例，使用 useRef 保存实例，方便后续接入波形图和释放资源
 
-之后初始化 RecordRTC，接入
-
-在函数获取麦克风权限、对recordRTC初始化，调用recorder.startRecording方法开始录音
+之后初始化 RecordRTC，接入 MediaStream 实例对象，用于收集音频数据，调用recorder.startRecording方法开始录音，更改状态 isRecording
 
 当用户点击暂停时，也就是调用stopRecording函数
 
