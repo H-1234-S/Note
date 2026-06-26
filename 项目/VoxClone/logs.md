@@ -9,7 +9,8 @@
 
 调用浏览器提供的 `navigator.mediaDevices.getUserMedia` api 向用户要麦克风，拿到一条 `MediaStream` 其中是连续的*音频数据*
 
-将 `MediaStream` 
+* 将 `MediaStream` 用 **WaveSurfer.js + Record 插件**，接到画布上
+* 用 **RecordRTC**，得到 `Blob`
 
 **录音上传流程：**
 ```
