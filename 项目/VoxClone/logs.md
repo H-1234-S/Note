@@ -7,7 +7,9 @@
 
 录音上传做什么？
 
-调用浏览器提供的 `navigator.mediaDevices.getUserMedia` api 向用户要麦克风，拿到一条 **`MediaStream`**
+调用浏览器提供的 `navigator.mediaDevices.getUserMedia` api 向用户要麦克风，拿到一条 `MediaStream` 其中是连续的*音频数据*
+
+将 `MediaStream` 
 
 **录音上传流程：**
 ```
