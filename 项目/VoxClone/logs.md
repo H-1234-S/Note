@@ -3,6 +3,12 @@
 
 自定义语音存在两种语音上传方式，一种是**上传音频文件**，另一种是**录音上传**，其实都是基于recordRTC实现的
 
+### Recorder Voice
+
+录音上传做什么？
+
+调用浏览器提供的 `navigator.mediaDevices.getUserMedia` api 向用户要麦克风，拿到一条 **`MediaStream`**
+
 **录音上传流程：**
 ```
 用户点击录制按钮，其实是调用startRecording函数
