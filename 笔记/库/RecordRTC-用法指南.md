@@ -126,20 +126,20 @@ async function recordScreen() {
 
 RecordRTC 的配置对象包含以下选项：
 
-| 配置项 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| `type` | string | - | 录制类型：`audio`、`video`、`screen`、`canvas`、`gif` |
-| `recorderType` | function | - | 录制器类型：`MediaStreamRecorder`、`StereoAudioRecorder`、`CanvasRecorder`、`GifRecorder` 等 |
-| `mimeType` | string | `video/webm` | MIME 类型，如 `video/webm`、`video/mp4`、`audio/webm` |
-| `disableLogs` | boolean | `false` | 是否禁用日志 |
-| `numberOfAudioChannels` | number | `1` | 音频通道数（1 或 2） |
-| `bufferSize` | number | `0` | 缓冲区大小（0 为自动） |
-| `sampleRate` | number | `0` | 采样率 |
-| `desiredSampRate` | number | `16000` | 期望采样率 |
-| `video` | HTMLVideoElement | - | 视频元素引用 |
-| `timeSlice` | number | - | 间隔时间（毫秒），每段时间后触发 ondataavailable |
-| `ondataavailable` | function | - | 数据可用时的回调 |
-| `onStateChanged` | function | - | 状态变化回调 |
+| 配置项                     | 类型               | 默认值          | 说明                                                                                 |
+| ----------------------- | ---------------- | ------------ | ---------------------------------------------------------------------------------- |
+| `type`                  | string           | -            | 录制类型：`audio`、`video`、`screen`、`canvas`、`gif`                                       |
+| `recorderType`          | function         | -            | 录制器类型：`MediaStreamRecorder`、`StereoAudioRecorder`、`CanvasRecorder`、`GifRecorder` 等 |
+| `mimeType`              | string           | `video/webm` | MIME 类型，如 `video/webm`、`video/mp4`、`audio/webm`                                    |
+| `disableLogs`           | boolean          | `false`      | 是否禁用日志                                                                             |
+| `numberOfAudioChannels` | number           | `1`          | 音频通道数（1 或 2）                                                                       |
+| `bufferSize`            | number           | `0`          | 缓冲区大小（0 为自动）                                                                       |
+| `sampleRate`            | number           | `0`          | 采样率                                                                                |
+| `desiredSampRate`       | number           | `16000`      | 期望采样率                                                                              |
+| `video`                 | HTMLVideoElement | -            | 视频元素引用                                                                             |
+| `timeSlice`             | number           | -            | 间隔时间（毫秒），每段时间后触发 ondataavailable                                                   |
+| `ondataavailable`       | function         | -            | 数据可用时的回调                                                                           |
+| `onStateChanged`        | function         | -            | 状态变化回调                                                                             |
 
 ### 4.1 type 选项
 
