@@ -41,7 +41,7 @@
 
 当用户点击暂停时，也就是调用stopRecording函数
 
-在函数中调用recorder.stopRecording方法暂停录音，调用recorder.getBlob方法获取类型为audio/wav的blob对象
+在函数中调用recorder.stopRecording方法暂停录音，调用recorder.getBlob方法获取类型为audio/wav的blob对象，更改对应的状态，释放所有资源
 
 	blob 代表一段二进制数据，可以是任何东西的二进制形式
 	file 是 blob 的特殊形式，也是对 blob 的拓展，目的是使其能够表现为一个操作系统中的文件
