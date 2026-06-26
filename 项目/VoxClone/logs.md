@@ -35,6 +35,8 @@
 
 在此过程中，使用try、catch捕获错误，如果获取麦克风权限失败，则将错误在前端渲染
 
+当zhuang'ta
+
 当用户点击暂停时，也就是调用stopRecording函数
 
 在函数中调用recorder.stopRecording方法暂停录音，调用recorder.getBlob方法获取类型为audio/wav的blob对象
