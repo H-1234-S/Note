@@ -37,7 +37,7 @@
 
 在此过程中，使用try、catch捕获错误，如果获取麦克风权限失败，则将错误在前端渲染
 
-当状态 isRecording 为 true，也就是画布已经在qi
+当状态 isRecording 为 true，也就是画布div已经在前端展示，那么初始化ws实例，也初始化Record插件，接入媒体流，同时使用useRef保存对应实例，方便后续
 
 当用户点击暂停时，也就是调用stopRecording函数
 
