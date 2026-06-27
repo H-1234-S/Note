@@ -257,7 +257,7 @@ requestIdleCallback(WorkLoop)
 function performUnitOfWork(nextUnitOfWork) {
 	
 	// 将虚拟dom渲染为真实dom
-	// 为子元素创建fiber节点
+	// 为当前元素和子元素创建fiber节点
 	// 返回下一工作单元
 }
 ```
