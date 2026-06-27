@@ -1708,4 +1708,5 @@ function Demo({ n }) {
 
 ## 编译阶段
 
-函数组件 return 的内容，会被 swc 等编译工具编译为 React.
+函数组件 return 的内容，会被 swc 等编译工具编译为 React.createElement 的引用
+
