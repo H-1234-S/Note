@@ -1716,4 +1716,11 @@ function Demo({ n }) {
 function MyComponent() {
   return <div className="box">Hello</div>;
 }
+// 编译后
+function MyComponent() {
+  return React.createElement("div", { className: "box" }, "Hello");
+}
 ```
+
+## 构建阶段
+
