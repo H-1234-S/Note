@@ -155,13 +155,13 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 但浏览器录出来的是 `webm/opus`，采样率可能是 48kHz。
 
-你会在前端还是后端处理这些约束？具体怎么做校验、转码、错误提示和上传？
+> 你会在前端还是后端处理这些约束？具体怎么做校验、转码、错误提示和上传？
 
-```
+我会前后端都处理。前端负责快速反馈：录制时用计时器限制 5 到 30 秒，超过 30 秒自动停止；录制结束后检查 `file.size <= 10MB`，并用 `AudioContext.decodeAudioData` 尝试解码，拿 `audioBuffer.duration` 做真实时长校验。如果浏览器录出的是 `webm/opus`，前端可以把它解码成 PCM，然后用 `OfflineAudioContext(1, targetLength, 16000)` 重采样成 16kHz 单声道，再手动写 WAV header，把 PCM 编码成 WAV blob。这样上传前就尽量符合模型要求。
 
-```
+但后端仍然必须重新校验。Route Handler 或后台任务收到文件后，先限制请求大小，解析音频元信息，确认格式是 WAV、采样率 16kHz、声道 1、时长 5 到 30 秒、大小不超过 10MB。不满足就返回明确错误，比如“音频需要 5-30 秒”或“采样率不符合要求”。如果要保证一致性，更推荐后端统一用 ffmpeg 转码成标准格式，前端只做预览和基础校验。
 
-
+上传流程上，可以先把原始文件传到后端，后端校验/转码成功后再上传 R2，并创建或更新 `voice` 记录为 `ready`。如果失败，记录状态为 `failed` 和错误原因，前端用 TanStack Query invalidate 或更新缓存展示失败原因。不要静默删除。
 
 ---
 ## tRPC
