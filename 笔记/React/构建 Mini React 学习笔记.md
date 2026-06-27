@@ -1152,7 +1152,7 @@ performUnitOfWork函数处理fiber节点
 	
 当所有fiber节点处理完毕，也就是nextUnitOfWork不存在，开始进行提交和渲染
 
-调用commitRoot函数，首先清空deletion数组
+调用commitRoot函数，首先清空deletion数组，保留对当前fiber节点的引用，方便后续diff
 
 之后commitWork中提交wipRoot的第一个子节点
 
