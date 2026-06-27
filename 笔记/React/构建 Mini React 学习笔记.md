@@ -1722,5 +1722,6 @@ function MyComponent() {
 }
 ```
 
+打包为 .js 文件发送给用户li
 ## 构建阶段
 
