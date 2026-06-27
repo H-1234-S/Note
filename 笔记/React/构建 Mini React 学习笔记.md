@@ -1753,7 +1753,38 @@ ReactDOM.createRoot(
 
 **注意：** 此时 JSX 内容已经被编译为 JS 内容，这里的 `<App />` 其实就是一个对象 `{type:"App",props:{} }`
 
-之后浏览器开始执行，
+之后浏览器开始执行，获取 root 节点，然后`ReactDOM.createRoot(root)` 
+
+---
+
+>createRoot 做了什么？ 这是整个 React 控制中心，里面保存了
+
+```
+root DOM
+Fiber Tree
+更新队列
+优先级
+调度器
+缓存
+```
+
+但是此时 `<App />` 还没有开始渲染，之后开始执行 `render(<App />)` ，注意：此时 App 其实是个编译后的 js 对象
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## 组件挂载
 ### 编译阶段
