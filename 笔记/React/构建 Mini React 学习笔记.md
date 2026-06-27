@@ -1708,8 +1708,29 @@ function Demo({ n }) {
 
 ## 初次构建
 
+对于初次构建 React 项目，当运行 `npm run dev` 时，Node 会在本地启动一个 Vite/Next 开发服务器
 
+Vite 先加载 `vite.config.js` 配置文件，之后启动 HTTP Server，对外暴露服务地址，使浏览器可以访问
 
+**注意：** Vite 会监听 `src` 等目录下的文件，被修改后立即知道，进行 HMR
+
+---
+
+之后浏览器访问本地服务地址，发送 GET 请求获取初始 HTML 文件，也就是 index.html
+
+``` html
+<!DOCTYPE html>
+<html>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+```
+
+浏览器解析 HTML 文件，创建 DOM 节点，遇到 JS 文件，再次请求 `GET /src/main.jsx`
+
+但是此时是 JSX 文件，Vite 进行拦截
 
 ## 组件挂载
 ### 编译阶段
