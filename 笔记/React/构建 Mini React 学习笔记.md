@@ -1145,9 +1145,10 @@ performUnitOfWork函数处理fiber节点
 	
 	为子节点创建对应的fiber节点
 		reconcileChildren函数进行执行，也就是diff算法，差异化更新子节点
-		同时为子节点打上不同的操作标签，后续commitWork操作
+		其实还有key这一机制
+		同时为子节点打上不同的操作标签，方便后续commitWork操作
 	
-	返回nextUnitOfWork
+	之后按照深度优先搜索原则，返回nextUnitOfWork
 	
 当所有fiber节点处理完毕，也就是nextUnitOfWork不存在，开始进行提交和渲染
 
