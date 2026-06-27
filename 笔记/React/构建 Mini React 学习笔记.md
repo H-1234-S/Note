@@ -1736,7 +1736,7 @@ export default defineConfig({
 
 浏览器解析 HTML 文件，创建 DOM 节点，遇到 JS 文件，再次请求 `GET /src/main.jsx`
 
-但是此时是 JSX 文件，Vite 进行拦截，执行注册的插件，返回给浏览器的已经是编译完的 JS 文件
+但是此时是 JSX 文件，Vite 进行拦截文件，将文件交给编译工具，编译工具返回编译后的 JS 文件再发给浏览器
 
 ---
 
