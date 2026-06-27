@@ -1,8 +1,11 @@
 
 ## Custom Voice Process
 
-自定义语音存在两种语音上传方式，一种是**上传音频文件**，另一种是**录音上传**，其实都是基于recordRTC实现的
+自定义语音存在两种语音上传方式
 
+一种是**录音上传**，是基于 recordRTC 实现的
+
+另一种是拖拽上传音频文件，是基于 react-dropzone 实现的
 ### Recorder Voice
 
 其实就是点击开始录音，最后得到音频文件
@@ -73,10 +76,7 @@
 > wav 格式的音频数据，就是对 PCM 的包装，通常保存未经有损压缩的 PCM 音频数据
 
 1. 音质无损(最大的特点)
-2. chatterbox 要求使用 wav 格式的音频数据
-
----
-
+2. chatterbox 推荐使用 wav 格式的音频数据
 
 ---
 ## Audio Generation Process
@@ -140,7 +140,6 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 调用 useSuspenseQueries 直接命中缓存，从缓存中获取数据
 
 对数据进行渲染就好了，在这里实现了音频波形可视化，用到了一个第三方库叫 wavesurfer.js
-
 ```
 
 ## Audio Processing
@@ -157,11 +156,11 @@ onSubmit 函数中使用了 tanstack query 的 mutation 函数处理请求
 
 > 你会在前端还是后端处理这些约束？具体怎么做校验、转码、错误提示和上传？
 
-我会前后端都处理。前端负责快速反馈：录制时用计时器限制 5 到 30 秒，超过 30 秒自动停止；录制结束后检查 `file.size <= 10MB`，并用 `AudioContext.decodeAudioData` 尝试解码，拿 `audioBuffer.duration` 做真实时长校验。如果浏览器录出的是 `webm/opus`，前端可以把它解码成 PCM，然后用 `OfflineAudioContext(1, targetLength, 16000)` 重采样成 16kHz 单声道，再手动写 WAV header，把 PCM 编码成 WAV blob。这样上传前就尽量符合模型要求。
+我会前后端都处理。前端负责快速反馈、提升用户体验、进行预处理：录制时用计时器限制 5 到 30 秒，超过 30 秒自动停止；录制结束后检查 `file.size <= 10MB`，并用 `AudioContext.decodeAudioData` 尝试解码，拿 `audioBuffer.duration` 做真实时长校验。如果浏览器录出的是 `webm/opus`，前端可以把它解码成 PCM，然后用 `OfflineAudioContext(1, targetLength, 16000)` 重采样成 16kHz 单声道，再手动写 WAV header，把 PCM 编码成 WAV blob。这样上传前就尽量符合模型要求。
 
 但后端仍然必须重新校验。Route Handler 或后台任务收到文件后，先限制请求大小，解析音频元信息，确认格式是 WAV、采样率 16kHz、声道 1、时长 5 到 30 秒、大小不超过 10MB。不满足就返回明确错误，比如“音频需要 5-30 秒”或“采样率不符合要求”。如果要保证一致性，更推荐后端统一用 ffmpeg 转码成标准格式，前端只做预览和基础校验。
 
-上传流程上，可以先把原始文件传到后端，后端校验/转码成功后再上传 R2，并创建或更新 `voice` 记录为 `ready`。如果失败，记录状态为 `failed` 和错误原因，前端用 TanStack Query invalidate 或更新缓存展示失败原因。不要静默删除。
+这在技术上是可行的，项目部署在 Vercel，由于无法直接安装软件，需要引入 `@ffmpeg-installer/ffmpeg` 这个 npm 包，它会自动为你下载对应系统的 FFmpeg 二进制文件。
 
 ---
 ## tRPC
