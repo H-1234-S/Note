@@ -1736,7 +1736,24 @@ export default defineConfig({
 
 浏览器解析 HTML 文件，创建 DOM 节点，遇到 JS 文件，再次请求 `GET /src/main.jsx`
 
-但是此时是 JSX 文件，Vite 进行拦截
+但是此时是 JSX 文件，Vite 进行拦截，执行注册的插件，返回给浏览器的已经是编译完的 JS 文件
+
+---
+
+之后浏览器开始执行 `main.js` 文件
+
+``` js
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+ReactDOM.createRoot(
+    document.getElementById("root")
+).render(<App />);
+```
+
+**注意：** 此时 JSX 内容已经被编译为 JS 内容，这里的 `<App />` 其实就是一个对象 `{type:"App",props:{} }`
+
+之后浏览器开始执行，
 
 ## 组件挂载
 ### 编译阶段
