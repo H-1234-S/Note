@@ -1768,11 +1768,13 @@ Fiber Tree
 缓存
 ```
 
-但是此时 `<App />` 还没有开始渲染，之后开始执行 `render(<App />)` ，注意：此时 App 其实是个编译后的 js 对象
+但是此时 `<App />` 还没有开始渲染，之后开始执行 `render(<App />)` ，**注意：** 此时 App 其实是个编译后的 js 对象
 
+之后调用 `<App />` ，得到 return 的内容，其实也就是虚拟 DOM，JS 对象
 
+> React 开始构建 Fiber，每一个组件是一个 Fiber，每一个 DOM，也是一个 Fiber
 
-
+之后进行 Diff，再之后进行 Commit，插入页面
 
 
 
