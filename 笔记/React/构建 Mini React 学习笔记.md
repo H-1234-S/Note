@@ -1712,6 +1712,12 @@ function Demo({ n }) {
 
 Vite 先加载 `vite.config.js` 配置文件，之后启动 HTTP Server，对外暴露服务地址，使浏览器可以访问
 
+``` js
+export default defineConfig({
+  plugins: [react()]
+})
+```
+
 **注意：** Vite 会监听 `src` 等目录下的文件，被修改后立即知道，进行 HMR
 
 ---
