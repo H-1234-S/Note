@@ -1706,3 +1706,6 @@ function Demo({ n }) {
 
 # 全流程
 
+## 编译阶段
+
+函数组件 return 的内容，会被 swc 等编译工具编译为 React.
