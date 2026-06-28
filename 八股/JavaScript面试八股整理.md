@@ -2405,11 +2405,11 @@ class LRUCache {
 
 **模块化**是把代码拆成独立文件，每个文件有自己的作用域，并通过导入导出建立依赖关系。
 
-| 模块系统 | 运行环境 | 特点 |
-|---|---|---|
-| CommonJS | Node.js 传统模块 | 运行时加载，同步 require，导出值拷贝或引用 |
-| ESModule | 浏览器和现代 Node.js | 编译时静态分析，import/export，实时绑定 |
-| 动态 import | 浏览器和 Node.js | 返回 Promise，支持按需加载 |
+| 模块系统      | 运行环境           | 特点                         |
+| --------- | -------------- | -------------------------- |
+| CommonJS  | Node.js 传统模块   | 运行时加载，同步 require，导出值拷贝或引用  |
+| ESModule  | 浏览器和现代 Node.js | 编译时静态分析，import/export，实时绑定 |
+| 动态 import | 浏览器和 Node.js   | 返回 Promise，支持按需加载          |
 
 Tree Shaking 是构建工具基于 ESModule 静态结构删除未使用代码的优化。
 
