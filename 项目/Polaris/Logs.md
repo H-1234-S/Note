@@ -397,6 +397,10 @@ Your suggestion is inserted immediately after the cursor, so never suggest code 
 ```
 用户输入/光标移动后
 
+相当于产生一个 transaction，也就是本地操作的信息数据包
+
+所有插件根据 transaction 内容选择性的更新自身状态，状态更新后会驱动视图更新
+
 触发 createDebouncePlugin.update 函数
 
 调用 createDebouncePlugin.triggerSuggestion 函数
