@@ -173,7 +173,7 @@ console.log(getType(1n));        // bigint
 
 1. `typeof` 适合判断原始类型和函数。
 2. `null` 需要单独处理。
-3. `Object.prototype.toString` 读取对象内部 `[[Class]]` 标签，比 `instanceof` 更稳定。
+3. `Object.prototype.toString.call` 读取对象内部 `[[Class]]` 标签，比 `instanceof` 更稳定。
 
 ### 1.7 实际项目场景
 
