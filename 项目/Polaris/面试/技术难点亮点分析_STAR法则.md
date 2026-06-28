@@ -656,3 +656,7 @@ export const useEditor = (projectId: Id<"projects">) => {
 | **AI API 无缓存** | `suggestion/route.ts` | 相同上下文多次请求可能返回相似建议。可加 LRU 缓存 |
 | **重依赖 Tree-shaking** | `package.json` | `recharts`(~800KB)、`@rive-app/react-webgl2`(~500KB)、`embla-carousel-react` 等可能未使用或可按需加载。建议用 `next/dynamic` 懒加载大型组件 |
 | **xterm 日志无限增长** | `use-webcontainer.ts:84` | `setTerminalOutput((prev) => prev + data)` 持续拼接字符串，长时间运行后字符串可能到 MB 级。建议用环形缓冲区限制最大长度 |
+
+# 优化
+
+如果用户和ai并发写入同一文件怎么处理？
