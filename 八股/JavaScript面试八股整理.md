@@ -2432,7 +2432,7 @@ ESModule：
 
 1. import/export 是静态语法。
 2. 模块在执行前会先进行依赖解析和链接。
-3. 导入的是 live binding，不是普通值拷贝。
+3. 导入的是 live binding(实时绑定)，不是普通值拷贝。
 4. 顶层 `this` 是 `undefined`，默认严格模式。
 
 Tree Shaking 依赖 ESModule 的静态结构：
