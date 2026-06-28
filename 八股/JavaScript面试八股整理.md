@@ -550,6 +550,100 @@ setCount(prev => prev + 1);
 2. Node.js 中闭包保存连接、缓存、配置，能减少全局变量污染，但要避免闭包引用超大对象。
 3. 防抖、节流、缓存函数都依赖闭包保存状态。
 
+### 2.8 this指向判断
+
+``` js
+var name = "window";
+
+function Person(name) {
+  this.name = name;
+
+  this.say1 = function () {
+    console.log("say1:", this.name);
+  };
+
+  this.say2 = () => {
+    console.log("say2:", this.name);
+  };
+}
+
+Person.prototype.say3 = function () {
+  console.log("say3:", this.name);
+};
+
+// 原型箭头函数，指向 window
+// 箭头函数只会捕获定义它时所在作用域的 this。
+Person.prototype.say4 = () => {
+  console.log("say4:", this.name);
+};
+
+const p = new Person("Tom");
+
+const obj = {
+  name: "Jerry",
+  fn1: p.say1,
+  fn2: p.say2,
+  fn3: p.say3,
+  fn4: p.say4,
+};
+
+obj.fn1();
+obj.fn2();
+obj.fn3();
+obj.fn4();
+
+const a = obj.fn1;
+const b = obj.fn2;
+const c = obj.fn3;
+const d = obj.fn4;
+
+a();
+b();
+c();
+d();
+
+obj.fn1.call({ name: "Alice" });
+// 不会被改变 this 指向，但会立即执行
+// 因为 call 本质就是挂载到对象身上执行再删除
+obj.fn2.call({ name: "Alice" });
+obj.fn3.call({ name: "Alice" });
+obj.fn4.call({ name: "Alice" });
+
+// 箭头函数不能被 new 调用
+new obj.fn1();
+// new obj.fn2();
+new obj.fn3();
+// new obj.fn4(); // 是否报错？
+
+// 传入的是函数的引用
+// 相当于：callback = obj.fn1
+setTimeout(obj.fn1, 0);
+setTimeout(obj.fn2, 0);
+setTimeout(obj.fn3, 0);
+setTimeout(obj.fn4, 0);
+
+/**
+ *  箭头函数在创建时this就已固定，捕获外层词法环境的this
+ *  对于全局，严格模式下指向undefined，非严格模式下指向window
+ */
+// say1：Jerry
+// say2：Tom
+// say3：Jerry
+// say4：window
+
+// a：window
+// b：Tom
+// c：window
+// d：window
+
+// fn1.call：Alice
+// fn2.call：Tom
+// fn3.call：Alice
+// fn4.call：window
+
+// new obj.fn2：error
+```
+
 ---
 
 ## 3. 原型、原型链、new、instanceof、class 与继承
