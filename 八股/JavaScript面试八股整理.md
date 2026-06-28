@@ -2423,7 +2423,7 @@ TypeScript 和 JavaScript 的关系：
 
 CommonJS：
 
-1. `require` 是运行时执行。
+1. `require` 是运行时执行，同步执行。
 2. 模块第一次加载会执行并缓存。
 3. 后续 `require` 返回缓存的 `module.exports`。
 4. 可以写在条件语句中，因为它是普通函数调用。
