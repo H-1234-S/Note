@@ -2419,6 +2419,45 @@ TypeScript 和 JavaScript 的关系：
 
 > TypeScript 是 JavaScript 的超集，给 JS 增加静态类型系统和编译期检查。运行时仍然是 JavaScript，类型会在编译后擦除。
 
+#### 9.1.1 ESModule
+
+> 编译时期**静态分析**
+
+意思是：当浏览器加载一个 ESModule 文件，首先**不会执行**，而是会**扫描源码**，生成 AST，建立依赖关系
+
+> 模块记录（Module Record）
+
+意思是：浏览器内部给每个模块创建的对象；记录导入了什么？导出了什么？
+
+> 实例化（Instantiation）
+
+意思是：模块之间建立连接，也就是 live binding **实时绑定**，而不是复制拷贝。
+
+```
+main.count
+	↓
+   引用
+	↓
+math.count
+```
+
+> 运行
+
+
+
+> 声明周期
+
+```
+读取源码
+↓
+静态分析
+↓
+Module Record
+↓
+实例化（建立连接）
+↓
+求值（真正运行）
+```
 ### 9.2 底层原理
 
 CommonJS：
