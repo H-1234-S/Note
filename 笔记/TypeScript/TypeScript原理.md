@@ -60,9 +60,7 @@ const name = "Tom";
 
 SourceFile {
     fileName: "index.ts",
-
     text: 'const name = "Tom";',
-
     statements: [...]
 }
 ```
