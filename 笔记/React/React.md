@@ -2339,6 +2339,7 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 ## memo
 
 * `React.memo` 对props进行浅比较，仅当 props 发生变化时才会重新渲染,，否则跳过该次渲染
+* **浅比较的边界**是只比较第一层引用；函数、数组、对象每次新建都会被认为变了
 
 ### 语法
 
