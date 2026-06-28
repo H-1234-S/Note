@@ -405,15 +405,19 @@ Your suggestion is inserted immediately after the cursor, so never suggest code 
 
 调用 createDebouncePlugin.triggerSuggestion 函数
 
-如果用户 xxx 时间内没有操作，则发送请求
+先判断有没有定时器，如果有定时器关闭old，打开新的；同时abort old 请求
+
+如果用户 xxx 时间内没有操作，则发送新请求
 
 拿到响应后，dispatch 一个 effect ，也就是改变 setSuggestionEffect 的 value
 
-同时会调用 suggestionState.update 函数，更改 suggestionState 的 value
+之后 suggestionState.update 函数会被触发，更改 suggestionState 的 value
 
-这时才到 renderPlugin 发生作用，虽然 renderPlugin 在 view 变化时触发，但是做了一些信号操作
+这时才到 renderPlugin 发生作用，因为 suggestionState 存在
 
-当不在请求也就是拿到响应并且 suggestionState 存在时，才会在当前光标位置创建一个 widget decoration
+虽然 renderPlugin 在 view 变化时触发，但是做了一些信号操作
+
+当不在请求也就是拿到响应并且 suggestionState 存在时，才会在当前光标位置后创建一个 widget decoration
 
 真正的 DOM 由 SuggestionWidget 创建，SuggestionWidget 继承 WidgetType，这是在编辑器中创建 DOM 的标准方法
 
