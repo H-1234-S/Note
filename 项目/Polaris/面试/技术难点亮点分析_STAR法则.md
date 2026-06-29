@@ -631,20 +631,20 @@ export const useEditor = (projectId: Id<"projects">) => {
 
 ### ✅ 已实现的优化
 
-| 维度 | 位置 | 实现方式 |
-|---|---|---|
-| **乐观更新** | `use-files.ts:32-146` | Convex `.withOptimisticUpdate` — 创建/重命名/删除文件即时更新 UI，无需等待服务端确认 |
-| **懒加载** | `tree.tsx:50-54` | `useFolderContents({ enabled: isOpen })` — 目录展开时才查询子内容 |
-| **请求取消** | `suggestion/index.ts:122-130` | AbortController — 每次新请求 abort 旧请求，避免过期数据覆盖 |
-| **WebContainer 单例** | `use-webcontainer.ts:14-28` | 模块级变量 + Promise 缓存，防止重复 boot |
-| **AbortSignal 前置检查** | `suggestion/fetcher.ts:29-31` | `if (signal.aborted) return null` — 已 abort 的请求不发起网络调用 |
-| **Zustand 选择器** | `use-editor.ts:7-8` | `useEditorStore(selector)` 精准订阅，避免无关状态变更导致重渲染 |
-| **useCallback 稳定引用** | `use-editor.ts:10-34` | 6 个方法均用 useCallback 包裹，稳定传给子组件 |
-| **useMemo 缓存扩展** | `code-editor.tsx:31-33` | `getLanguageExtension(fileName)` 结果 memo 化，避免重复创建语法扩展 |
-| **Sort 在服务端** | `convex/files.ts:133-140` | 文件排序在 Convex query 中完成，前端无需二次排序 |
-| **Sentinel 值跳过查询** | `use-files.ts:17-18` | `useQuery(api.files.getFiles, projectId ? ... : "skip")` — projectId 为空时完全跳过 |
-| **Sentry 错误监控** | `next.config.ts` | Source map 上传 + 自动 Vercel Cron 监控 + debug log tree-shaking |
-| **Index 优化** | `convex/schema.ts:53-55` | `by_project_parent(projectId, parentId)` 复合索引，避免全表扫描 |
+| 维度                   | 位置                            | 实现方式                                                                         |
+| -------------------- | ----------------------------- | ---------------------------------------------------------------------------- |
+| **乐观更新**             | `use-files.ts:32-146`         | Convex `.withOptimisticUpdate` — 创建/重命名/删除文件即时更新 UI，无需等待服务端确认                |
+| **懒加载**              | `tree.tsx:50-54`              | `useFolderContents({ enabled: isOpen })` — 目录展开时才查询子内容                       |
+| **请求取消**             | `suggestion/index.ts:122-130` | AbortController — 每次新请求 abort 旧请求，避免过期数据覆盖                                   |
+| **WebContainer 单例**  | `use-webcontainer.ts:14-28`   | 模块级变量 + Promise 缓存，防止重复 boot                                                 |
+| **AbortSignal 前置检查** | `suggestion/fetcher.ts:29-31` | `if (signal.aborted) return null` — 已 abort 的请求不发起网络调用                       |
+| **Zustand 选择器**      | `use-editor.ts:7-8`           | `useEditorStore(selector)` 精准订阅，避免无关状态变更导致重渲染                                |
+| **useCallback 稳定引用** | `use-editor.ts:10-34`         | 6 个方法均用 useCallback 包裹，稳定传给子组件                                               |
+| **useMemo 缓存扩展**     | `code-editor.tsx:31-33`       | `getLanguageExtension(fileName)` 结果 memo 化，避免重复创建语法扩展                        |
+| **Sort 在服务端**        | `convex/files.ts:133-140`     | 文件排序在 Convex query 中完成，前端无需二次排序                                              |
+| **Sentinel 值跳过查询**   | `use-files.ts:17-18`          | `useQuery(api.files.getFiles, projectId ? ... : "skip")` — projectId 为空时完全跳过 |
+| **Sentry 错误监控**      | `next.config.ts`              | Source map 上传 + 自动 Vercel Cron 监控 + debug log tree-shaking                   |
+| **Index 优化**         | `convex/schema.ts:53-55`      | `by_project_parent(projectId, parentId)` 复合索引，避免全表扫描                         |
 
 ### ⚠️ 可优化但尚未实现
 
