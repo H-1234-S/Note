@@ -648,14 +648,14 @@ export const useEditor = (projectId: Id<"projects">) => {
 
 ### ⚠️ 可优化但尚未实现
 
-| 问题 | 位置 | 建议方案 |
-|---|---|---|
-| **CodeMirror Extension 重复创建** | `code-editor.tsx:38-59` | `useEffect` 依赖 `[languageExtension]`，但内部 extensions 数组每次渲染都重建。建议用 `useMemo` 包裹整个 extensions 数组 |
-| **WebContainer 全量覆盖** | `use-webcontainer.ts:161-168` | 每次 files 变化都遍历所有文件执行 `writeFile`。可维护上一版本快照做 diff，只写变更的文件 |
-| **文件树递归渲染** | `tree.tsx:161-168` | 大量文件时整个 Tree 节点都会重渲染（父节点状态变化导致子节点全量 re-render）。建议对子 Tree 使用 `React.memo` + 虚拟滚动 |
-| **AI API 无缓存** | `suggestion/route.ts` | 相同上下文多次请求可能返回相似建议。可加 LRU 缓存 |
-| **重依赖 Tree-shaking** | `package.json` | `recharts`(~800KB)、`@rive-app/react-webgl2`(~500KB)、`embla-carousel-react` 等可能未使用或可按需加载。建议用 `next/dynamic` 懒加载大型组件 |
-| **xterm 日志无限增长** | `use-webcontainer.ts:84` | `setTerminalOutput((prev) => prev + data)` 持续拼接字符串，长时间运行后字符串可能到 MB 级。建议用环形缓冲区限制最大长度 |
+| 问题                            | 位置                            | 建议方案                                                                                                               |
+| ----------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **CodeMirror Extension 重复创建** | `code-editor.tsx:38-59`       | `useEffect` 依赖 `[languageExtension]`，但内部 extensions 数组每次渲染都重建。建议用 `useMemo` 包裹整个 extensions 数组                     |
+| **WebContainer 全量覆盖**         | `use-webcontainer.ts:161-168` | 每次 files 变化都遍历所有文件执行 `writeFile`。可维护上一版本快照做 diff，只写变更的文件                                                           |
+| **文件树递归渲染**                   | `tree.tsx:161-168`            | 大量文件时整个 Tree 节点都会重渲染（父节点状态变化导致子节点全量 re-render）。建议对子 Tree 使用 `React.memo` + 虚拟滚动                                    |
+| **AI API 无缓存**                | `suggestion/route.ts`         | 相同上下文多次请求可能返回相似建议。可加 LRU 缓存                                                                                        |
+| **重依赖 Tree-shaking**          | `package.json`                | `recharts`(~800KB)、`@rive-app/react-webgl2`(~500KB)、`embla-carousel-react` 等可能未使用或可按需加载。建议用 `next/dynamic` 懒加载大型组件 |
+| **xterm 日志无限增长**              | `use-webcontainer.ts:84`      | `setTerminalOutput((prev) => prev + data)` 持续拼接字符串，长时间运行后字符串可能到 MB 级。建议用环形缓冲区限制最大长度                                |
 
 # 优化
 
