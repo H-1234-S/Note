@@ -631,25 +631,25 @@ Tailwind 内置了一套精心设计的设计系统：
 
 #### 4.9.1 父容器
 
-| 类名 | 解释 | 作用 |
-|------|------|------|
-| `grid` | 块级网格容器 | display: grid |
-| `inline-grid` | 行内网格容器 | display: inline-grid |
-| `grid-cols-1` | 1列网格 | grid-template-columns: repeat(1, minmax(0, 1fr)) |
-| `grid-cols-2` | 2列网格 | grid-template-columns: repeat(2, minmax(0, 1fr)) |
-| `grid-cols-3` | 3列网格 | grid-template-columns: repeat(3, minmax(0, 1fr)) |
-| `grid-cols-4` | 4列网格 | grid-template-columns: repeat(4, minmax(0, 1fr)) |
-| `grid-cols-5` | 5列网格 | grid-template-columns: repeat(5, minmax(0, 1fr)) |
-| `grid-cols-6` | 6列网格 | grid-template-columns: repeat(6, minmax(0, 1fr)) |
-| `grid-cols-7` | 7列网格 | grid-template-columns: repeat(7, minmax(0, 1fr)) |
-| `grid-cols-8` | 8列网格 | grid-template-columns: repeat(8, minmax(0, 1fr)) |
-| `grid-cols-9` | 9列网格 | grid-template-columns: repeat(9, minmax(0, 1fr)) |
-| `grid-cols-10` | 10列网格 | grid-template-columns: repeat(10, minmax(0, 1fr)) |
-| `grid-cols-11` | 11列网格 | grid-template-columns: repeat(11, minmax(0, 1fr)) |
-| `grid-cols-12` | 12列网格 | grid-template-columns: repeat(12, minmax(0, 1fr)) |
-| `grid-cols-none` | 不定义列轨道 | grid-template-columns: none |
-| `grid-rows-1` | 1行网格 | grid-template-rows: repeat(1, minmax(0, 1fr)) |
-| `grid-rows-none` | 不定义行轨道 | grid-template-rows: none |
+| 类名               | 解释     | 作用                                                |
+| ---------------- | ------ | ------------------------------------------------- |
+| `grid`           | 块级网格容器 | display: grid                                     |
+| `inline-grid`    | 行内网格容器 | display: inline-grid                              |
+| `grid-cols-1`    | 1列网格   | grid-template-columns: repeat(1, minmax(0, 1fr))  |
+| `grid-cols-2`    | 2列网格   | grid-template-columns: repeat(2, minmax(0, 1fr))  |
+| `grid-cols-3`    | 3列网格   | grid-template-columns: repeat(3, minmax(0, 1fr))  |
+| `grid-cols-4`    | 4列网格   | grid-template-columns: repeat(4, minmax(0, 1fr))  |
+| `grid-cols-5`    | 5列网格   | grid-template-columns: repeat(5, minmax(0, 1fr))  |
+| `grid-cols-6`    | 6列网格   | grid-template-columns: repeat(6, minmax(0, 1fr))  |
+| `grid-cols-7`    | 7列网格   | grid-template-columns: repeat(7, minmax(0, 1fr))  |
+| `grid-cols-8`    | 8列网格   | grid-template-columns: repeat(8, minmax(0, 1fr))  |
+| `grid-cols-9`    | 9列网格   | grid-template-columns: repeat(9, minmax(0, 1fr))  |
+| `grid-cols-10`   | 10列网格  | grid-template-columns: repeat(10, minmax(0, 1fr)) |
+| `grid-cols-11`   | 11列网格  | grid-template-columns: repeat(11, minmax(0, 1fr)) |
+| `grid-cols-12`   | 12列网格  | grid-template-columns: repeat(12, minmax(0, 1fr)) |
+| `grid-cols-none` | 不定义列轨道 | grid-template-columns: none                       |
+| `grid-rows-1`    | 1行网格   | grid-template-rows: repeat(1, minmax(0, 1fr))     |
+| `grid-rows-none` | 不定义行轨道 | grid-template-rows: none                          |
 
 #### 4.9.2 网格间隙
 
