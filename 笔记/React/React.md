@@ -1382,6 +1382,8 @@ export const useStorage = (key: string, initialvalue: any) => {
   * 日志记录
   * 操作第三方库
 
+> 在浏览器绘制屏幕之后执行，也就时 paint 阶段之后
+
 ### 语法
 
 ~~~typescript
@@ -1966,6 +1968,8 @@ export default App;
 ## useMemo
 
 * `useMemo` 是 React 提供的一个性能优化 Hook。它的主要功能是**避免在每次渲染时执行复杂的计算和对象重建。** 通过记忆上一次的计算结果，仅当依赖项变化时才会重新计算，提高了性能
+
+> 在 react 运行函数组件时执行，也就是 render 阶段
 
 ### 语法
 
