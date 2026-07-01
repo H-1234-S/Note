@@ -138,7 +138,7 @@ Render Tree
 
 注意：
 
-- `display: none` 的元素不会进入 Render Tree。
+- `display: none` 的元素不会进入 Render Tree；后续 layout、paint 不会计算它
 - `visibility: hidden` 的元素会进入 Render Tree，占位置，只是不绘制可见内容。
 - `opacity: 0` 的元素也占位置，甚至还能响应事件，除非额外设置 `pointer-events`。
 
