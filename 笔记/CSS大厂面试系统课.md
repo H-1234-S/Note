@@ -719,7 +719,8 @@ DOM 是文档结构树，包含页面节点；Render Tree 是渲染树，只包�
 
 回答：
 
-`top/left` 改变布局位置，可能触发 Layout；`transform` 改变的是视觉变换，通常不影响文档流和兄弟元素布局，可以在合成阶段完成，所以更适合动画。
+`top/left` 改变布局位置，可能触发 Layout；
+`transform` 改变的是视觉变换，通常不影响文档流和兄弟元素布局，可以在合成阶段完成，所以更适合动画。
 
 面试官为什么问：
 
@@ -958,3 +959,1719 @@ CSS 从加载到渲染，浏览器大致经历了哪些步骤？
 ---
 
 本节结束。你回复“继续”，我再进入第 2 节：CSS 选择器。你回复“复习”，我会先提问帮你回忆这一节，再针对薄弱点讲解。
+
+---
+
+# 第 2 节：CSS 选择器
+
+## 第一部分：这个知识解决什么问题
+
+CSS 选择器解决的问题是：
+
+```txt
+页面里有很多元素
+    ↓
+我到底要把这条样式应用到哪些元素上？
+```
+
+HTML 是结构：
+
+```html
+<div class="card">
+  <h3 class="title">商品标题</h3>
+  <p class="desc">商品描述</p>
+  <button class="btn primary">购买</button>
+</div>
+```
+
+CSS 需要一种“定位元素”的语言：
+
+```css
+.card .title {
+  font-size: 18px;
+}
+
+.btn.primary {
+  background: #1677ff;
+}
+```
+
+所以选择器本质不是“语法糖”，而是 CSS 系统里的查询语言：
+
+```txt
+选择器 = 从 DOM 树中匹配元素的规则
+```
+
+业务开发里，选择器决定了：
+
+- 样式能不能命中。
+- 样式影响范围大不大。
+- 样式是否容易被覆盖。
+- 组件样式是否会污染外部。
+- 代码是否容易阅读和维护。
+
+面试里问选择器，不只是问你会不会写 `.box > p`，而是在考：
+
+- 你是否理解 DOM 树关系。
+- 你是否理解匹配规则。
+- 你是否知道复杂选择器的性能和维护成本。
+- 你是否能解释 `:is()`、`:where()`、`:has()` 这类现代选择器的设计意义。
+
+---
+
+## 第二部分：完整知识体系
+
+选择器体系可以分成 7 类：
+
+```txt
+CSS 选择器
+├── 基础选择器
+│   ├── 通配选择器 *
+│   ├── 类型选择器 div
+│   ├── 类选择器 .card
+│   ├── ID 选择器 #app
+│   └── 属性选择器 [type="text"]
+│
+├── 组合选择器
+│   ├── 后代选择器 A B
+│   ├── 子代选择器 A > B
+│   ├── 相邻兄弟选择器 A + B
+│   └── 通用兄弟选择器 A ~ B
+│
+├── 分组选择器
+│   └── A, B, C
+│
+├── 伪类选择器
+│   ├── :hover
+│   ├── :focus
+│   ├── :checked
+│   ├── :disabled
+│   ├── :first-child
+│   ├── :nth-child()
+│   ├── :not()
+│   ├── :is()
+│   ├── :where()
+│   └── :has()
+│
+├── 伪元素选择器
+│   ├── ::before
+│   ├── ::after
+│   ├── ::first-line
+│   ├── ::first-letter
+│   ├── ::selection
+│   └── ::placeholder
+│
+├── 作用域和层级相关
+│   ├── :root
+│   ├── :scope
+│   └── @scope
+│
+└── 工程化选择器策略
+    ├── BEM
+    ├── CSS Modules
+    ├── scoped CSS
+    ├── utility class
+    └── CSS-in-JS
+```
+
+### 1. 浏览器如何理解选择器
+
+选择器写法看起来是从左到右：
+
+```css
+.card .title span {
+  color: red;
+}
+```
+
+人类读法：
+
+```txt
+找到 .card 里面的 .title 里面的 span
+```
+
+但浏览器匹配时，通常会从右往左找：
+
+```txt
+先找所有 span
+    ↓
+判断它的祖先里有没有 .title
+    ↓
+再判断 .title 的祖先里有没有 .card
+```
+
+为什么？
+
+因为最终要决定“某个元素是否应用这条规则”。从目标元素出发向祖先验证，通常更高效。
+
+图示：
+
+```txt
+.card .title span
+
+DOM:
+
+div.card
+└── h3.title
+    └── span
+
+匹配方向：
+
+span  →  h3.title  →  div.card
+  ^          ^             ^
+目标       父/祖先        祖先
+```
+
+### 2. 选择器设计的核心：命中范围
+
+选择器太宽：
+
+```css
+button {
+  color: red;
+}
+```
+
+可能全站按钮都变红。
+
+选择器太深：
+
+```css
+.page .content .left .list .item .title span {
+  color: red;
+}
+```
+
+结构稍微一改，样式就失效。
+
+好的业务选择器通常是：
+
+```css
+.product-card__title {
+  font-size: 16px;
+}
+
+.product-card__buy-button {
+  width: 100%;
+}
+```
+
+也就是：
+
+```txt
+范围足够明确
+结构依赖不要过深
+语义和组件边界清楚
+```
+
+---
+
+## 第三部分：所有常用属性和选择器
+
+严格说，选择器不是 CSS 属性；它是样式规则的“前半部分”。这一节按常用选择器逐个整理。
+
+### 1. 通配选择器 `*`
+
+作用：
+
+匹配所有元素。
+
+写法：
+
+```css
+* {
+  box-sizing: border-box;
+}
+```
+
+可选形式：
+
+```css
+*          /* 所有元素 */
+.card *   /* .card 里面所有后代元素 */
+```
+
+默认值：
+
+选择器本身没有默认值，但 `*` 的匹配范围默认是所有元素。
+
+浏览器最终效果：
+
+所有匹配元素都会应用声明。
+
+常见使用场景：
+
+```css
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+```
+
+面试容易问：
+
+`* { margin: 0; padding: 0; }` 有什么问题？
+
+参考回答：
+
+它会影响所有元素，包括表单、列表、标题等，可能破坏浏览器默认可用性。大型项目更常用 normalize 或更精细的 reset。
+
+容易混淆：
+
+`*` 不会直接选中伪元素，所以常见 reset 会额外写 `*::before`、`*::after`。
+
+### 2. 类型选择器 `div`、`p`、`button`
+
+作用：
+
+根据 HTML 标签名匹配元素。
+
+写法：
+
+```css
+p {
+  line-height: 1.6;
+}
+```
+
+可选值：
+
+任意 HTML/SVG 标签名，例如：
+
+```txt
+div
+span
+button
+input
+svg
+path
+```
+
+默认效果：
+
+匹配页面中所有该标签元素。
+
+业务场景：
+
+- 设置文章内容区默认排版。
+- 设置 `button` 的基础样式。
+
+```css
+.article p {
+  margin-bottom: 12px;
+}
+```
+
+面试容易问：
+
+为什么组件样式里不建议大量使用裸标签选择器？
+
+回答：
+
+裸标签选择器影响范围大，容易误伤组件内部或外部同名元素。业务组件更推荐类选择器表达边界。
+
+容易混淆：
+
+```css
+.article p
+```
+
+不是只选直接子元素 `p`，而是选 `.article` 里面任意层级的 `p`。
+
+### 3. 类选择器 `.class`
+
+作用：
+
+根据元素的 `class` 匹配。
+
+写法：
+
+```css
+.card {
+  padding: 16px;
+}
+```
+
+可选形式：
+
+```css
+.card
+.card.active
+button.primary
+```
+
+默认效果：
+
+匹配所有包含该 class 的元素。
+
+业务场景：
+
+类选择器是业务 CSS 的主力，因为它：
+
+- 语义清晰。
+- 复用方便。
+- 优先级适中。
+- 比 ID 更适合组件化。
+
+```css
+.user-card {
+  display: flex;
+  gap: 12px;
+}
+```
+
+面试容易问：
+
+为什么业务开发更推荐 class，而不是 ID 或标签？
+
+回答：
+
+class 可复用、优先级适中、表达组件语义，既不会像标签选择器那样范围过大，也不会像 ID 那样优先级过高导致难覆盖。
+
+容易混淆：
+
+```css
+.btn.primary
+```
+
+表示同一个元素同时有 `btn` 和 `primary` 两个类：
+
+```html
+<button class="btn primary">按钮</button>
+```
+
+不是 `.btn` 里面的 `.primary`。后代选择器中间必须有空格：
+
+```css
+.btn .primary
+```
+
+### 4. ID 选择器 `#id`
+
+作用：
+
+根据元素的 `id` 匹配。
+
+写法：
+
+```css
+#app {
+  min-height: 100vh;
+}
+```
+
+可选形式：
+
+```css
+#app
+div#app
+```
+
+默认效果：
+
+匹配指定 ID 的元素。HTML 规范里，同一个页面中 ID 应该唯一。
+
+业务场景：
+
+- 应用挂载点：`#root`、`#app`。
+- 页面锚点。
+- 少量全局容器。
+
+面试容易问：
+
+为什么不建议用 ID 写组件样式？
+
+回答：
+
+ID 优先级高，不易覆盖；同时 ID 理论上唯一，不适合复用组件。
+
+容易混淆：
+
+ID 唯一是 HTML 规范约束，不代表浏览器遇到重复 ID 就完全不能匹配。重复 ID 会让 JS 查询、锚点、样式维护都变得混乱。
+
+### 5. 属性选择器 `[attr]`
+
+作用：
+
+根据元素属性匹配。
+
+常用写法：
+
+```css
+[disabled] {
+  cursor: not-allowed;
+}
+
+input[type="text"] {
+  border: 1px solid #ddd;
+}
+```
+
+可选值：
+
+```css
+[attr]              /* 有这个属性 */
+[attr="value"]      /* 属性值等于 value */
+[attr~="value"]     /* 空格分隔列表中包含 value */
+[attr|="zh"]        /* 等于 zh 或以 zh- 开头 */
+[attr^="https"]     /* 以 https 开头 */
+[attr$=".png"]      /* 以 .png 结尾 */
+[attr*="sale"]      /* 包含 sale */
+[attr="value" i]    /* 忽略大小写匹配 */
+```
+
+默认效果：
+
+匹配符合属性条件的元素。
+
+业务场景：
+
+```css
+input[aria-invalid="true"] {
+  border-color: #e5484d;
+}
+
+a[target="_blank"]::after {
+  content: "↗";
+}
+```
+
+面试容易问：
+
+属性选择器适合什么场景？
+
+回答：
+
+适合根据状态属性、语义属性、表单类型、可访问性属性选择元素，尤其是 `disabled`、`checked`、`aria-*`、`data-*`。
+
+容易混淆：
+
+`[class="btn"]` 只匹配 class 属性值完全等于 `btn` 的元素，不等同于 `.btn`。如果元素是：
+
+```html
+<button class="btn primary"></button>
+```
+
+`.btn` 能匹配，`[class="btn"]` 不能匹配。
+
+### 6. 后代选择器 `A B`
+
+作用：
+
+选择 A 元素内部任意层级的 B 元素。
+
+写法：
+
+```css
+.card .title {
+  font-weight: 600;
+}
+```
+
+默认效果：
+
+只要 B 的祖先中有 A，就匹配。
+
+图示：
+
+```txt
+.card .title
+
+div.card
+├── h3.title       选中
+└── div
+    └── p.title    也选中
+```
+
+业务场景：
+
+- 限制文章区域内的元素样式。
+- 给组件内部子元素加样式。
+
+面试容易问：
+
+后代选择器和子代选择器区别？
+
+回答：
+
+后代选择器匹配任意层级；子代选择器只匹配直接子元素。
+
+容易混淆：
+
+后代选择器范围可能比你想象的大，尤其在嵌套组件里容易误伤。
+
+### 7. 子代选择器 `A > B`
+
+作用：
+
+只选择 A 的直接子元素 B。
+
+写法：
+
+```css
+.menu > .menu-item {
+  padding: 8px 12px;
+}
+```
+
+默认效果：
+
+只匹配父子关系，不匹配隔代。
+
+图示：
+
+```txt
+.menu > .item
+
+ul.menu
+├── li.item         选中
+└── li
+    └── span.item   不选中
+```
+
+业务场景：
+
+- 导航菜单。
+- 列表项。
+- 避免样式影响嵌套子组件。
+
+面试容易问：
+
+什么时候用 `>`？
+
+回答：
+
+当你只想约束当前组件的直接结构，避免影响更深层嵌套元素时。
+
+容易混淆：
+
+`A > B` 依赖 DOM 层级，HTML 结构一变就可能失效。
+
+### 8. 相邻兄弟选择器 `A + B`
+
+作用：
+
+选择紧跟在 A 后面的第一个兄弟 B。
+
+写法：
+
+```css
+label + input {
+  margin-top: 4px;
+}
+```
+
+默认效果：
+
+只匹配紧挨着的下一个兄弟元素。
+
+图示：
+
+```txt
+h2 + p
+
+h2
+p     选中
+p     不选中
+```
+
+业务场景：
+
+- 标题后第一段特殊样式。
+- 表单 label 后的 input。
+- 相邻块之间加间距。
+
+面试容易问：
+
+`+` 和 `~` 区别？
+
+回答：
+
+`+` 只匹配紧邻的下一个兄弟；`~` 匹配后面所有符合条件的兄弟。
+
+容易混淆：
+
+只能选后面的兄弟，不能选前面的兄弟。以前 CSS 没有父选择器和前向选择能力，现代 `:has()` 可以解决一部分问题。
+
+### 9. 通用兄弟选择器 `A ~ B`
+
+作用：
+
+选择 A 后面所有同级的 B。
+
+写法：
+
+```css
+h2 ~ p {
+  color: #666;
+}
+```
+
+默认效果：
+
+匹配 A 之后的所有兄弟 B，不要求紧邻。
+
+图示：
+
+```txt
+h2 ~ p
+
+h2
+div   不选中
+p     选中
+p     选中
+```
+
+业务场景：
+
+- 某个开关选中后，影响后续面板。
+- 标题后面的内容统一样式。
+
+面试容易问：
+
+纯 CSS 如何用 checkbox 控制面板显示？
+
+```css
+.toggle:checked ~ .panel {
+  display: block;
+}
+```
+
+容易混淆：
+
+`~` 也只能选后面的兄弟，不能倒着选。
+
+### 10. 分组选择器 `A, B`
+
+作用：
+
+多个选择器共享同一组声明。
+
+写法：
+
+```css
+h1,
+h2,
+h3 {
+  font-weight: 600;
+}
+```
+
+默认效果：
+
+分别匹配每个选择器命中的元素。
+
+业务场景：
+
+- 统一标题样式。
+- reset。
+- 多个状态共享样式。
+
+面试容易问：
+
+分组选择器里的某个选择器无效会怎样？
+
+现代选择器列表里，如果普通选择器列表包含浏览器完全不认识的选择器，可能导致整条规则失效。`:is()`、`:where()` 的容错选择器列表可以改善这类问题。
+
+容易混淆：
+
+逗号是分组，不是层级关系。
+
+### 11. 伪类选择器 `:hover`、`:focus` 等
+
+作用：
+
+匹配元素的某种状态、位置或关系。
+
+常用状态伪类：
+
+```css
+a:hover
+input:focus
+input:checked
+button:disabled
+input:required
+input:invalid
+```
+
+默认效果：
+
+当元素处于指定状态时匹配。
+
+业务场景：
+
+```css
+.btn:hover {
+  background: #0958d9;
+}
+
+.field:focus {
+  border-color: #1677ff;
+}
+```
+
+面试容易问：
+
+`:focus` 和 `:focus-visible` 区别？
+
+回答：
+
+`:focus` 只要元素获得焦点就匹配；`:focus-visible` 更偏向键盘导航等需要可见焦点提示的场景，能减少鼠标点击时出现不必要的焦点样式。
+
+容易混淆：
+
+移动端没有稳定的 hover 心智，不能把关键交互只依赖 `:hover`。
+
+### 12. 结构伪类 `:first-child`、`:nth-child()`
+
+作用：
+
+根据元素在兄弟节点中的位置匹配。
+
+常用写法：
+
+```css
+li:first-child
+li:last-child
+li:nth-child(2)
+li:nth-child(odd)
+li:nth-child(even)
+li:nth-child(3n)
+li:nth-child(3n + 1)
+```
+
+默认效果：
+
+匹配符合兄弟顺序的元素。
+
+图示：
+
+```txt
+li:nth-child(odd)
+
+1  2  3  4  5
+□  □  □  □  □
+↑     ↑     ↑
+选中  选中  选中
+```
+
+业务场景：
+
+- 表格斑马纹。
+- 网格中每隔几个元素加样式。
+- 列表首尾去掉边距或边框。
+
+```css
+.table-row:nth-child(even) {
+  background: #f7f8fa;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+```
+
+面试容易问：
+
+`:nth-child()` 和 `:nth-of-type()` 区别？
+
+回答：
+
+`:nth-child()` 看的是所有兄弟中的位置，同时要求元素本身匹配前面的选择器；`:nth-of-type()` 看的是同标签类型兄弟中的位置。
+
+容易混淆：
+
+```css
+p:first-child
+```
+
+不是“第一个 p”，而是“这个 p 必须是父元素的第一个子元素”。
+
+### 13. 否定伪类 `:not()`
+
+作用：
+
+排除某些元素。
+
+写法：
+
+```css
+.btn:not(.disabled) {
+  cursor: pointer;
+}
+```
+
+默认效果：
+
+匹配 `.btn` 中不符合 `.disabled` 的元素。
+
+业务场景：
+
+```css
+.nav-item:not(:last-child) {
+  margin-right: 16px;
+}
+```
+
+面试容易问：
+
+`:not()` 会不会影响优先级？
+
+回答：
+
+`:not()` 本身不额外增加伪类权重，里面参数的选择器会参与优先级计算。
+
+容易混淆：
+
+`:not(.a, .b)` 是现代写法，旧浏览器兼容性要注意。
+
+### 14. 匹配伪类 `:is()`
+
+作用：
+
+把多个选择器合并，减少重复。
+
+写法：
+
+```css
+.article :is(h1, h2, h3) {
+  line-height: 1.3;
+}
+```
+
+等价于：
+
+```css
+.article h1,
+.article h2,
+.article h3 {
+  line-height: 1.3;
+}
+```
+
+默认效果：
+
+匹配参数列表中任意一个选择器。
+
+业务场景：
+
+- 文章内容排版。
+- 复杂组件中多个元素共享样式。
+
+面试容易问：
+
+`:is()` 的优先级怎么算？
+
+回答：
+
+`:is()` 的优先级取参数列表中优先级最高的那个选择器。
+
+容易混淆：
+
+`:is()` 是压缩选择器重复，不是降低优先级。要降低优先级用 `:where()`。
+
+### 15. 零权重伪类 `:where()`
+
+作用：
+
+像 `:is()` 一样合并选择器，但自身和参数都不增加优先级。
+
+写法：
+
+```css
+:where(.article h1, .article h2, .article h3) {
+  margin: 0;
+}
+```
+
+默认效果：
+
+匹配参数列表中任意选择器，但选择器权重为 0。
+
+业务场景：
+
+- 写基础样式。
+- 写组件库默认样式，方便业务覆盖。
+
+面试容易问：
+
+`:is()` 和 `:where()` 区别？
+
+回答：
+
+匹配能力相似，但优先级不同。`:is()` 取参数里最高优先级；`:where()` 永远是 0 权重。
+
+容易混淆：
+
+`:where()` 不是“不生效”，而是很容易被其他样式覆盖。
+
+### 16. 关系伪类 `:has()`
+
+作用：
+
+根据元素内部或后续关系是否存在某个匹配项，选择当前元素。它常被称为“父选择器”的能力，但其实更准确地说是关系选择器。
+
+写法：
+
+```css
+.field:has(input:focus) {
+  border-color: #1677ff;
+}
+
+.card:has(.error) {
+  border-color: #e5484d;
+}
+```
+
+默认效果：
+
+如果 `.field` 里面有聚焦的 input，就匹配 `.field`。
+
+图示：
+
+```txt
+.field:has(input:focus)
+
+div.field             选中
+└── input:focus
+```
+
+业务场景：
+
+- 表单项内部 input 聚焦时，高亮外层容器。
+- 卡片内部有错误状态时，高亮卡片。
+- 根据是否有图片、按钮调整布局。
+
+面试容易问：
+
+`:has()` 为什么重要？
+
+回答：
+
+过去 CSS 主要从父到子、从前到后匹配，很难根据子元素状态影响父元素。`:has()` 让很多以前需要 JS 加 class 的交互可以用 CSS 表达。
+
+容易混淆：
+
+`:has()` 很强，但不要滥用在大范围复杂选择器上。它会增加匹配关系的复杂度，也可能让样式依赖 DOM 结构过重。
+
+### 17. 伪元素 `::before`、`::after`
+
+作用：
+
+创建元素的某个虚拟部分，用于装饰或插入生成内容。
+
+写法：
+
+```css
+.tag::before {
+  content: "#";
+}
+```
+
+可选值：
+
+常见伪元素：
+
+```css
+::before
+::after
+::first-line
+::first-letter
+::selection
+::placeholder
+::marker
+```
+
+默认效果：
+
+`::before` 和 `::after` 必须设置 `content` 才会生成。
+
+业务场景：
+
+- 必填星号。
+- 分隔符。
+- 装饰线。
+- 自定义 placeholder 样式。
+
+面试容易问：
+
+伪类和伪元素区别？
+
+回答：
+
+伪类匹配元素的状态或关系，例如 `:hover`；伪元素匹配或创建元素的一部分，例如 `::before`、`::first-line`。
+
+容易混淆：
+
+`::before` 不是 DOM 节点，JS 不能像普通元素一样直接选中它。
+
+---
+
+## 第四部分：画图解释
+
+### 1. 后代和子代
+
+```txt
+HTML:
+
+div.card
+├── h3.title
+└── div.body
+    └── h3.title
+
+.card .title
+
+div.card
+├── h3.title       选中
+└── div.body
+    └── h3.title   选中
+
+.card > .title
+
+div.card
+├── h3.title       选中
+└── div.body
+    └── h3.title   不选中
+```
+
+### 2. 相邻兄弟和通用兄弟
+
+```txt
+HTML:
+
+h2
+p.intro
+div.ad
+p.content
+p.content
+
+h2 + p
+
+h2
+p.intro     选中
+div.ad      不选中
+p.content   不选中
+p.content   不选中
+
+h2 ~ p
+
+h2
+p.intro     选中
+div.ad      不选中
+p.content   选中
+p.content   选中
+```
+
+### 3. `:nth-child()`
+
+```txt
+li:nth-child(3n + 1)
+
+序号： 1   2   3   4   5   6   7
+元素： □   □   □   □   □   □   □
+      ↑           ↑           ↑
+     选中        选中        选中
+
+公式：3n + 1
+n=0 → 1
+n=1 → 4
+n=2 → 7
+```
+
+### 4. `:has()`
+
+```txt
+想选中“内部有错误的表单项”
+
+div.form-item
+├── label
+└── input.error
+
+.form-item:has(.error)
+
+匹配结果：
+
++---------------------------+
+| form-item 被选中           |
+|  label                    |
+|  input.error              |
++---------------------------+
+```
+
+---
+
+## 第五部分：浏览器底层原理
+
+### 1. 选择器匹配发生在什么时候
+
+CSS 被解析成 CSSOM 后，浏览器需要把 CSS 规则应用到 DOM 元素上，得到每个元素的最终样式。
+
+```txt
+DOM 元素
+    +
+CSS 规则列表
+    ↓
+选择器匹配
+    ↓
+得到该元素命中的声明
+    ↓
+层叠、继承、计算
+    ↓
+Computed Style
+```
+
+### 2. 为什么浏览器常从右往左匹配
+
+假设：
+
+```css
+.app .page .list .item span {
+  color: red;
+}
+```
+
+如果从左往右：
+
+```txt
+找 .app
+再找 .page
+再找 .list
+再找 .item
+再找 span
+```
+
+中间可能产生大量候选节点。
+
+从右往左：
+
+```txt
+先找 span
+再验证祖先链是否满足 .item → .list → .page → .app
+```
+
+这更符合“判断当前元素是否命中规则”的工作方式。
+
+所以选择器右侧部分叫关键选择器：
+
+```css
+.app .page .list .item span
+                         ^^^^
+                         关键选择器
+```
+
+### 3. 选择器性能要不要极度关注
+
+现代浏览器选择器匹配已经很快。业务开发中，选择器性能通常不是第一瓶颈。
+
+真正更值得关注的是：
+
+- 选择器是否过深，导致维护困难。
+- 是否使用全局选择器污染组件。
+- 是否让样式依赖脆弱 DOM 结构。
+- 是否导致优先级越来越高，后续难覆盖。
+
+也就是说：
+
+```txt
+大多数业务场景：
+可维护性 > 微小选择器性能差异
+```
+
+### 4. 选择器和优先级的关系
+
+选择器不仅决定“选谁”，还决定“谁更强”。
+
+```css
+.btn {
+  color: red;
+}
+
+button.btn {
+  color: blue;
+}
+```
+
+第二条更具体，优先级更高。
+
+下一节会专门讲优先级；现在先记住：
+
+```txt
+选择器越具体，通常越难覆盖。
+```
+
+这也是为什么大型项目要控制选择器复杂度。
+
+---
+
+## 第六部分：真实业务案例
+
+### 案例 1：导航栏
+
+HTML：
+
+```html
+<nav class="nav">
+  <a class="nav__item nav__item--active" href="/">首页</a>
+  <a class="nav__item" href="/products">商品</a>
+  <a class="nav__item" href="/orders">订单</a>
+</nav>
+```
+
+CSS：
+
+```css
+.nav {
+  display: flex;
+  gap: 16px;
+}
+
+.nav__item {
+  color: #333;
+  text-decoration: none;
+}
+
+.nav__item:hover {
+  color: #1677ff;
+}
+
+.nav__item--active {
+  color: #1677ff;
+  font-weight: 600;
+}
+```
+
+为什么这样写：
+
+- `.nav` 表达组件根节点。
+- `.nav__item` 表达组件内部元素。
+- `.nav__item--active` 表达状态。
+- 避免写成 `.nav a`，因为未来导航里可能出现按钮、图标、下拉组件。
+
+### 案例 2：表单项聚焦高亮
+
+HTML：
+
+```html
+<div class="form-item">
+  <label>手机号</label>
+  <input type="tel">
+</div>
+```
+
+CSS：
+
+```css
+.form-item {
+  border: 1px solid #dcdfe6;
+}
+
+.form-item:has(input:focus) {
+  border-color: #1677ff;
+}
+```
+
+以前可能要用 JS：
+
+```js
+input.addEventListener('focus', () => {
+  item.classList.add('is-focus');
+});
+```
+
+现在部分场景可以用 `:has()` 表达。
+
+### 案例 3：评论列表最后一项去掉分割线
+
+HTML：
+
+```html
+<ul class="comment-list">
+  <li class="comment-item">评论 A</li>
+  <li class="comment-item">评论 B</li>
+  <li class="comment-item">评论 C</li>
+</ul>
+```
+
+CSS：
+
+```css
+.comment-item {
+  border-bottom: 1px solid #eee;
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+}
+```
+
+这是结构伪类的典型业务用途。
+
+---
+
+## 第七部分：面试高频问题
+
+### 1. CSS 选择器有哪些？
+
+回答：
+
+常见选择器包括通配选择器、标签选择器、类选择器、ID 选择器、属性选择器、后代选择器、子代选择器、兄弟选择器、分组选择器、伪类选择器和伪元素选择器。现代 CSS 还包括 `:is()`、`:where()`、`:has()` 等关系和匹配能力更强的选择器。
+
+面试官为什么问：
+
+先看基础是否完整，再看你是否了解现代 CSS。
+
+### 2. 后代选择器和子代选择器区别？
+
+回答：
+
+`A B` 匹配 A 内部任意层级的 B；`A > B` 只匹配 A 的直接子元素 B。前者范围更大，后者结构约束更强。
+
+面试官为什么问：
+
+这题考 DOM 树关系，也考你写组件样式时是否会控制影响范围。
+
+### 3. `.btn.primary` 和 `.btn .primary` 区别？
+
+回答：
+
+`.btn.primary` 匹配同一个元素同时拥有 `btn` 和 `primary` 两个 class；`.btn .primary` 匹配 `.btn` 后代中的 `.primary` 元素。
+
+面试官为什么问：
+
+这是 CSS 选择器阅读能力的基础题，业务里非常常见。
+
+### 4. 伪类和伪元素区别？
+
+回答：
+
+伪类描述元素状态、位置或关系，例如 `:hover`、`:first-child`；伪元素描述或创建元素的一部分，例如 `::before`、`::after`、`::first-line`。
+
+面试官为什么问：
+
+看你是否理解它们的语义，而不是只记冒号数量。
+
+### 5. `:nth-child()` 和 `:nth-of-type()` 区别？
+
+回答：
+
+`:nth-child()` 按所有兄弟元素排序，再判断当前元素是否匹配；`:nth-of-type()` 只在同标签类型兄弟中排序。
+
+面试官为什么问：
+
+这是列表、表格、动态内容样式里非常容易写错的点。
+
+### 6. `:is()` 和 `:where()` 区别？
+
+回答：
+
+两者都能把多个选择器合并，区别在优先级。`:is()` 的优先级取参数中最高的选择器，`:where()` 的优先级永远是 0，适合写容易被覆盖的基础样式。
+
+面试官为什么问：
+
+现代 CSS 题，能区分只是“听过”和真正理解。
+
+### 7. `:has()` 能解决什么问题？
+
+回答：
+
+`:has()` 可以根据子元素、后代元素或相邻关系来匹配当前元素，让 CSS 具备一定“向上选择”或“关系判断”能力。比如外层表单项根据内部 input 的 focus 或 error 状态改变样式。
+
+面试官为什么问：
+
+看你是否了解现代 CSS 能力，以及是否知道过去需要 JS 的一部分场景现在可以用 CSS 实现。
+
+---
+
+## 第八部分：容易踩坑
+
+### 坑 1：`.a.b` 和 `.a .b` 写混
+
+```css
+.a.b {
+  color: red;
+}
+```
+
+匹配：
+
+```html
+<div class="a b"></div>
+```
+
+```css
+.a .b {
+  color: red;
+}
+```
+
+匹配：
+
+```html
+<div class="a">
+  <div class="b"></div>
+</div>
+```
+
+一个空格，语义完全不同。
+
+### 坑 2：`:first-child` 当成“第一个某类元素”
+
+```css
+.item:first-child {
+  color: red;
+}
+```
+
+意思不是“第一个 `.item`”，而是：
+
+```txt
+这个元素是 .item
+并且它是父元素的第一个子元素
+```
+
+如果结构是：
+
+```html
+<div>
+  <h3>标题</h3>
+  <p class="item">第一段</p>
+</div>
+```
+
+这个 `p.item` 不是 first-child，因为第一个子元素是 `h3`。
+
+### 坑 3：选择器写太深
+
+```css
+.page .main .section .list .item .info .title {
+  color: red;
+}
+```
+
+问题：
+
+- 结构依赖太强。
+- 优先级越来越高。
+- 复用困难。
+- 后续覆盖困难。
+
+更推荐：
+
+```css
+.product-title {
+  color: red;
+}
+```
+
+或者在 BEM 里：
+
+```css
+.product-card__title {
+  color: red;
+}
+```
+
+### 坑 4：滥用 ID 选择器
+
+```css
+#submitButton {
+  color: red;
+}
+```
+
+后续想覆盖：
+
+```css
+.btn {
+  color: blue;
+}
+```
+
+可能覆盖不了，因为 ID 优先级更高。
+
+大型项目中，组件样式尽量用 class，ID 留给挂载点、锚点、少量全局结构。
+
+### 坑 5：把 `:hover` 当成所有设备都可靠
+
+PC 鼠标有 hover，移动端触摸没有稳定 hover 行为。
+
+如果关键信息只在 hover 时出现，移动端用户可能无法操作。
+
+---
+
+## 第九部分：知识关联
+
+```txt
+选择器
+├── DOM Tree
+│   ├── 父子关系 → A > B
+│   ├── 祖先后代 → A B
+│   └── 兄弟关系 → A + B / A ~ B
+│
+├── 状态
+│   ├── :hover
+│   ├── :focus
+│   ├── :checked
+│   └── :disabled
+│
+├── 结构
+│   ├── :first-child
+│   ├── :last-child
+│   ├── :nth-child()
+│   └── :nth-of-type()
+│
+├── 生成内容
+│   ├── ::before
+│   └── ::after
+│
+├── 优先级
+│   ├── ID
+│   ├── class/属性/伪类
+│   └── 标签/伪元素
+│
+└── 工程化
+    ├── BEM
+    ├── CSS Modules
+    ├── scoped CSS
+    └── utility class
+```
+
+选择器是后面“优先级”的入口，也是你阅读别人 CSS 的第一步：
+
+```txt
+先看选择器选中了谁
+再看声明写了什么
+最后看有没有被覆盖
+```
+
+---
+
+## 第十部分：总结
+
+选择器的本质：
+
+```txt
+选择器 = 在 DOM 树中定位元素的规则
+```
+
+本节脑图：
+
+```txt
+CSS 选择器
+├── 基础
+│   ├── *
+│   ├── div
+│   ├── .class
+│   ├── #id
+│   └── [attr=value]
+│
+├── 关系
+│   ├── A B：后代
+│   ├── A > B：子代
+│   ├── A + B：相邻兄弟
+│   └── A ~ B：后续兄弟
+│
+├── 状态伪类
+│   ├── :hover
+│   ├── :focus
+│   ├── :checked
+│   └── :disabled
+│
+├── 结构伪类
+│   ├── :first-child
+│   ├── :last-child
+│   ├── :nth-child()
+│   └── :nth-of-type()
+│
+├── 现代伪类
+│   ├── :not()
+│   ├── :is()
+│   ├── :where()
+│   └── :has()
+│
+├── 伪元素
+│   ├── ::before
+│   ├── ::after
+│   ├── ::placeholder
+│   └── ::selection
+│
+└── 工程实践
+    ├── class 为主
+    ├── 少用 ID 写样式
+    ├── 避免选择器过深
+    ├── 控制影响范围
+    └── 让样式跟组件边界一致
+```
+
+核心记忆：
+
+```txt
+.a.b      同一个元素同时有 a 和 b
+.a .b     a 里面的 b
+.a > .b   a 的直接子元素 b
+.a + .b   a 后面紧挨着的 b
+.a ~ .b   a 后面所有同级 b
+```
+
+---
+
+## 练习题
+
+### 练习 1：选择器阅读题
+
+下面选择器分别选中什么？
+
+```css
+.card.active
+.card .active
+.menu > .item
+h2 + p
+h2 ~ p
+input[type="checkbox"]:checked
+.form-item:has(input:focus)
+```
+
+### 练习 2：业务改造题
+
+下面选择器有什么问题？请改成更适合组件维护的写法。
+
+```css
+.page .content .left .product-list .item .info .title {
+  font-size: 16px;
+}
+```
+
+### 练习 3：结构伪类题
+
+下面 HTML 中，哪些元素会被选中？
+
+```html
+<div class="box">
+  <h3>标题</h3>
+  <p class="text">第一段</p>
+  <p class="text">第二段</p>
+</div>
+```
+
+```css
+.text:first-child {
+  color: red;
+}
+
+.text:nth-child(2) {
+  color: blue;
+}
+```
+
+### 练习 4：面试题
+
+请用自己的话回答：
+
+```txt
+:is()、:where()、:has() 分别解决什么问题？
+```
+
+---
+
+本节结束。你回复“继续”，我再进入第 3 节：优先级。你回复“复习”，我会先通过提问帮你回忆选择器，再讲解薄弱点。
