@@ -587,6 +587,8 @@ footer 位置变化
 
 `transform: translateX(100px)` 改的是元素视觉变换，不改变它在文档流中的原始占位。
 
+只是在 Composite 阶段，合并图层的时候把已经画好的图层移动 
+
 ```txt
 Layout 里的位置：还在原处
 视觉合成的位置：被移动了
