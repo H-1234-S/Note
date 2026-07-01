@@ -815,3 +815,748 @@ function mystery(nums) {
 如果你回复“继续”，我会进入下一个知识点：
 
 > 如何一步一步分析一段代码的复杂度？
+
+---
+
+### 知识点 3：如何一步一步分析一段代码的复杂度？
+
+前面我们已经知道：
+
+> Big O 描述的是输入规模变大时，程序操作次数和额外空间的增长趋势。
+
+但真正刷题时，你不会只看到一个孤立的 `for` 循环。
+
+你会看到一整段代码：
+
+```js
+function demo(nums) {
+  let sum = 0;
+
+  for (let i = 0; i < nums.length; i++) {
+    sum += nums[i];
+  }
+
+  const result = [];
+
+  for (let i = 0; i < nums.length; i++) {
+    result.push(nums[i] * 2);
+  }
+
+  return result;
+}
+```
+
+这时就需要一套稳定的分析方法。
+
+不要靠感觉猜。
+
+我们用四步：
+
+```text
+1. 找输入规模 n
+2. 看循环执行多少次
+3. 合并不同代码块
+4. 分析额外空间
+```
+
+---
+
+#### 1. 第一步：先确定 n 是什么
+
+复杂度一定是相对于某个输入规模来说的。
+
+所以第一步不是看循环，而是先问：
+
+> 这道题的数据量由谁决定？
+
+例如：
+
+```js
+function sum(nums) {
+  let total = 0;
+
+  for (let i = 0; i < nums.length; i++) {
+    total += nums[i];
+  }
+
+  return total;
+}
+```
+
+这里的输入是 `nums`。
+
+所以：
+
+```text
+n = nums.length
+```
+
+再比如：
+
+```js
+function containsChar(s, target) {
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === target) {
+      return true;
+    }
+  }
+
+  return false;
+}
+```
+
+这里的输入是字符串 `s`。
+
+所以：
+
+```text
+n = s.length
+```
+
+有时候会有两个输入：
+
+```js
+function printPairs(a, b) {
+  for (let i = 0; i < a.length; i++) {
+    for (let j = 0; j < b.length; j++) {
+      console.log(a[i], b[j]);
+    }
+  }
+}
+```
+
+这时不要硬写成一个 `n`。
+
+更准确的写法是：
+
+```text
+m = a.length
+n = b.length
+```
+
+外层循环 `m` 次，内层循环 `n` 次，所以时间复杂度是：
+
+```text
+O(m * n)
+```
+
+这很重要。
+
+因为 `a` 和 `b` 的长度不一定相等。
+
+面试里你能主动说出 `O(m * n)`，比含糊地说 `O(n^2)` 更严谨。
+
+---
+
+#### 2. 第二步：看循环到底执行多少次
+
+循环是复杂度分析里最常见的来源。
+
+但不是所有循环都是 `O(n)`，也不是所有双重循环都是 `O(n^2)`。
+
+我们要看它实际执行次数。
+
+##### 2.1 普通单层循环
+
+```js
+for (let i = 0; i < nums.length; i++) {
+  console.log(nums[i]);
+}
+```
+
+如果 `nums.length = n`，那么：
+
+```text
+i = 0, 1, 2, ..., n - 1
+```
+
+一共执行 `n` 次。
+
+所以是：
+
+```text
+O(n)
+```
+
+##### 2.2 循环步长不是 1
+
+```js
+for (let i = 0; i < nums.length; i += 2) {
+  console.log(nums[i]);
+}
+```
+
+这次 `i` 每次加 2。
+
+如果 `n = 10`，访问的是：
+
+```text
+i = 0, 2, 4, 6, 8
+```
+
+大约执行 `n / 2` 次。
+
+复杂度仍然是：
+
+```text
+O(n)
+```
+
+为什么？
+
+因为 Big O 忽略常数。
+
+`n / 2` 和 `n` 都是线性增长。
+
+##### 2.3 循环每次翻倍
+
+```js
+for (let i = 1; i < nums.length; i *= 2) {
+  console.log(nums[i]);
+}
+```
+
+这次 `i` 的变化是：
+
+```text
+1, 2, 4, 8, 16, 32, ...
+```
+
+如果 `n = 32`：
+
+```text
+1 -> 2 -> 4 -> 8 -> 16
+```
+
+循环次数不是 32 次，而是大约 5 次。
+
+这个增长速度叫：
+
+```text
+O(log n)
+```
+
+先不用深究数学细节。
+
+你现在先建立直觉：
+
+> 如果循环变量每次乘 2 或除 2，通常就是 O(log n)。
+
+二分查找就是这种思想。
+
+我们会在二分章节深入讲。
+
+---
+
+#### 3. 第三步：看嵌套循环是相乘，不是相加
+
+看这个：
+
+```js
+function printPairs(nums) {
+  for (let i = 0; i < nums.length; i++) {
+    for (let j = 0; j < nums.length; j++) {
+      console.log(nums[i], nums[j]);
+    }
+  }
+}
+```
+
+如果 `nums.length = n`：
+
+```text
+外层 i 执行 n 次
+每一次 i，内层 j 又执行 n 次
+```
+
+所以总次数：
+
+```text
+n * n = n^2
+```
+
+图像上可以理解成一个 `n * n` 的方格：
+
+```text
+n = 4
+
+      j0  j1  j2  j3
+i0    *   *   *   *
+i1    *   *   *   *
+i2    *   *   *   *
+i3    *   *   *   *
+```
+
+一共有 16 个格子。
+
+当 `n = 4`，是 `4 * 4`。
+
+当 `n = 1000`，就是 `1000 * 1000`。
+
+所以是：
+
+```text
+O(n^2)
+```
+
+---
+
+#### 4. 第四步：顺序代码块是相加，最后保留最高阶
+
+再看这段：
+
+```js
+function example(nums) {
+  for (let i = 0; i < nums.length; i++) {
+    console.log(nums[i]);
+  }
+
+  for (let i = 0; i < nums.length; i++) {
+    for (let j = 0; j < nums.length; j++) {
+      console.log(nums[i], nums[j]);
+    }
+  }
+}
+```
+
+第一段循环：
+
+```text
+O(n)
+```
+
+第二段双重循环：
+
+```text
+O(n^2)
+```
+
+顺序执行时，总复杂度先写成：
+
+```text
+O(n + n^2)
+```
+
+然后只保留增长最快的项：
+
+```text
+O(n^2)
+```
+
+为什么是相加？
+
+因为两段代码是先后执行：
+
+```text
+先做 n 次
+再做 n^2 次
+总共就是 n + n^2 次
+```
+
+为什么最后去掉 `n`？
+
+因为当 `n` 很大时，`n^2` 才是主导因素。
+
+---
+
+#### 5. 第五步：条件分支取最坏情况
+
+面试和 LeetCode 一般默认分析最坏情况。
+
+看这个：
+
+```js
+function find(nums, target) {
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] === target) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+```
+
+如果目标在第一个位置：
+
+```text
+只查 1 次
+```
+
+这是最好情况：
+
+```text
+O(1)
+```
+
+如果目标在最后，或者不存在：
+
+```text
+要查 n 次
+```
+
+这是最坏情况：
+
+```text
+O(n)
+```
+
+通常我们说这个函数时间复杂度是：
+
+```text
+O(n)
+```
+
+因为算法设计时，我们要保证最糟糕的输入下也能接受。
+
+面试时如果你想更完整，可以这样说：
+
+```text
+最好情况 O(1)，最坏情况 O(n)，通常按最坏情况分析，所以是 O(n)。
+```
+
+---
+
+#### 6. 第六步：空间复杂度看额外创建了什么
+
+时间复杂度看执行次数。
+
+空间复杂度看额外内存。
+
+重点是“额外”。
+
+##### 6.1 只用几个变量：O(1)
+
+```js
+function sum(nums) {
+  let total = 0;
+
+  for (const num of nums) {
+    total += num;
+  }
+
+  return total;
+}
+```
+
+额外变量只有：
+
+```text
+total
+num
+```
+
+它们不会随着 `nums.length` 增长而变多。
+
+所以空间复杂度是：
+
+```text
+O(1)
+```
+
+##### 6.2 新建一个和输入一样大的数组：O(n)
+
+```js
+function copy(nums) {
+  const result = [];
+
+  for (const num of nums) {
+    result.push(num);
+  }
+
+  return result;
+}
+```
+
+如果输入有 `n` 个元素，`result` 最后也有 `n` 个元素。
+
+所以额外空间是：
+
+```text
+O(n)
+```
+
+##### 6.3 新建二维数组：O(n^2)
+
+```js
+function createTable(n) {
+  const table = [];
+
+  for (let i = 0; i < n; i++) {
+    table[i] = [];
+
+    for (let j = 0; j < n; j++) {
+      table[i][j] = 0;
+    }
+  }
+
+  return table;
+}
+```
+
+这个 `table` 是 `n * n` 的二维表。
+
+可以想成：
+
+```text
+n = 3
+
+0 0 0
+0 0 0
+0 0 0
+```
+
+一共存了 `n^2` 个值。
+
+所以空间复杂度是：
+
+```text
+O(n^2)
+```
+
+---
+
+#### 7. 一个完整分析示范
+
+我们来分析这段代码：
+
+```js
+function analyze(nums) {
+  const result = [];
+
+  for (let i = 0; i < nums.length; i++) {
+    result.push(nums[i] * 2);
+  }
+
+  let count = 0;
+
+  for (let i = 0; i < nums.length; i++) {
+    for (let j = i + 1; j < nums.length; j++) {
+      count++;
+    }
+  }
+
+  return { result, count };
+}
+```
+
+一步一步来。
+
+第一步，确定输入规模：
+
+```text
+n = nums.length
+```
+
+第二步，分析第一段循环：
+
+```js
+for (let i = 0; i < nums.length; i++) {
+  result.push(nums[i] * 2);
+}
+```
+
+循环 `n` 次，所以：
+
+```text
+O(n)
+```
+
+第三步，分析第二段嵌套循环：
+
+```js
+for (let i = 0; i < nums.length; i++) {
+  for (let j = i + 1; j < nums.length; j++) {
+    count++;
+  }
+}
+```
+
+注意内层不是每次都跑 `n` 次。
+
+它的次数大概是：
+
+```text
+i = 0，j 跑 n - 1 次
+i = 1，j 跑 n - 2 次
+i = 2，j 跑 n - 3 次
+...
+i = n - 1，j 跑 0 次
+```
+
+总次数是：
+
+```text
+(n - 1) + (n - 2) + ... + 1 + 0
+```
+
+这个结果大约是：
+
+```text
+n * (n - 1) / 2
+```
+
+Big O 忽略常数和低阶项，所以是：
+
+```text
+O(n^2)
+```
+
+第四步，合并时间复杂度：
+
+```text
+O(n) + O(n^2) = O(n^2)
+```
+
+第五步，分析空间复杂度：
+
+```js
+const result = [];
+```
+
+`result` 最终存了 `n` 个元素。
+
+`count`、`i`、`j` 都只是常数个变量。
+
+所以额外空间复杂度是：
+
+```text
+O(n)
+```
+
+最终答案：
+
+```text
+时间复杂度：O(n^2)
+空间复杂度：O(n)
+```
+
+---
+
+#### 8. 初学者最容易犯的错
+
+##### 8.1 看到两段循环就以为是 O(n^2)
+
+错误判断：
+
+```js
+for (let i = 0; i < n; i++) {}
+for (let j = 0; j < n; j++) {}
+```
+
+这不是 `O(n^2)`。
+
+因为它们不是嵌套关系，而是顺序关系。
+
+正确分析：
+
+```text
+O(n) + O(n) = O(2n) = O(n)
+```
+
+##### 8.2 看到双重循环就机械写 O(n^2)
+
+比如：
+
+```js
+for (let i = 1; i < n; i *= 2) {
+  for (let j = 0; j < n; j++) {
+    console.log(i, j);
+  }
+}
+```
+
+外层不是 `n` 次，而是 `log n` 次。
+
+内层是 `n` 次。
+
+所以整体是：
+
+```text
+O(n log n)
+```
+
+##### 8.3 忘记分析额外空间
+
+很多同学只看时间，不看空间。
+
+但面试官经常追问：
+
+> 你这个解法用了多少额外空间？
+
+比如：
+
+```js
+function unique(nums) {
+  const set = new Set(nums);
+  return [...set];
+}
+```
+
+`Set` 会额外存元素。
+
+最坏情况下，所有元素都不重复。
+
+所以额外空间是：
+
+```text
+O(n)
+```
+
+---
+
+#### 9. 本小节小结
+
+以后你分析复杂度，可以固定按这个顺序：
+
+```text
+1. n 是什么？
+2. 每个循环执行多少次？
+3. 嵌套循环相乘，顺序代码相加。
+4. 条件分支通常看最坏情况。
+5. 最后忽略常数，保留最高阶。
+6. 空间复杂度看额外创建的数据结构。
+```
+
+这套方法比背结论可靠得多。
+
+因为你以后遇到陌生代码，也能自己拆。
+
+---
+
+#### 10. 给你一个小练习
+
+请你分析下面代码：
+
+```js
+function practice(nums) {
+  const seen = new Set();
+
+  for (let i = 0; i < nums.length; i++) {
+    seen.add(nums[i]);
+  }
+
+  for (let i = 1; i < nums.length; i *= 2) {
+    console.log(nums[i]);
+  }
+
+  return seen.size;
+}
+```
+
+你可以按这个格式回答：
+
+```text
+n = ?
+
+第一段循环：?
+第二段循环：?
+
+时间复杂度：?
+空间复杂度：?
+原因：?
+```
+
+如果你回复“继续”，我会进入下一个知识点：
+
+> 最好情况、最坏情况、平均情况到底有什么区别？
