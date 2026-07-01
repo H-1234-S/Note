@@ -140,7 +140,7 @@ Render Tree
 
 - `display: none` 的元素不会进入 Render Tree；后续 layout、paint 不会计算它
 - `visibility: hidden` 的元素会进入 Render Tree，后续 layout 占位置，只是 paint 阶段不绘制。
-- `opacity: 0` 的元素也占位置，甚至还能响应事件，除非额外设置 `pointer-events`。
+- `opacity: 0` 的元素也占位置，layout、paint 阶段都参与，但是是透明的、不显示，甚至还能响应事件，除非额外设置 `pointer-events`。
 
 这就是为什么三者表现不同：
 
