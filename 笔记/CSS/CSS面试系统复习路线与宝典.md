@@ -6,7 +6,7 @@
 
 ---
 
-## 0. 复习总路线
+# 0. 复习总路线
 
 1. 先理解 CSS 在浏览器中的位置：HTML 生成 DOM，CSS 生成 CSSOM，二者合成 Render Tree，再进入 Style、Layout、Paint、Composite。
 2. 再掌握规则系统：选择器、层叠、继承、优先级、初始值、计算值、使用值、实际值。
