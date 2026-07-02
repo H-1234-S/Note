@@ -1641,6 +1641,15 @@ async function concurrency(tasks, limit) {
   
     return result;
 }
+//---------------------------
+const tasks = [
+    () => delay(1000, "A"),
+    () => delay(3000, "B"),
+    () => delay(500, "C"),
+    () => delay(800, "D"),
+];
+
+concurrency(tasks, 2);
 ```
 ### 5.7 实际项目场景
 
