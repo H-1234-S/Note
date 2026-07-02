@@ -1612,6 +1612,36 @@ function limitConcurrency(tasks, limit) {
   });
 } 
 ```
+
+> async 版本的并发控制器
+
+``` js
+async function concurrency(tasks, limit) {
+    const result = [];
+    let nextIndex = 0;
+  
+    async function worker() {
+        while (true) {
+            const current = nextIndex++;
+  
+            if (current >= tasks.length) {
+                return;
+            }
+  
+            result[current] = await tasks[current]();
+        }
+    }
+  
+    const workers = Array.from(
+        { length: Math.min(limit, tasks.length) },
+        () => worker()
+    );
+  
+    await Promise.all(workers);
+  
+    return result;
+}
+```
 ### 5.7 实际项目场景
 
 1. 首页多个接口必须全部成功：使用 `Promise.all`。
