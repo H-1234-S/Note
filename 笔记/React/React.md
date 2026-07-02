@@ -1381,9 +1381,6 @@ export const useStorage = (key: string, initialvalue: any) => {
 	* 设置定时器
 	* 日志记录
 	* 操作第三方库
-
-> 在浏览器绘制屏幕之后执行，也就时 paint 阶段之后
-
 ### 语法
 
 ~~~typescript
@@ -1394,6 +1391,8 @@ useEffect(setup, dependencies?)
 * dependencies(可选)：setup中使用到的响应式值列表(props、state等)。必须以数组形式编写如[dep1, dep2]。不传则每次重渲染都执行Effect。
 
 ### 执行时机
+
+> useEffect 会在 React 完成 Commit 之后，在浏览器有机会完成一次绘制（Paint）之后异步执行，因此它不会阻塞页面首次渲染。
 
 * 每次渲染时都执行
 
