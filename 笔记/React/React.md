@@ -1375,12 +1375,12 @@ export const useStorage = (key: string, initialvalue: any) => {
 * 用于在函数组件中执行副作用操作
 
 * **副作用（Side Effects）** 是指那些与组件渲染结果无关的操作
-  * 数据获取（API 调用）
-  * 手动操作 DOM
-  * 订阅事件
-  * 设置定时器
-  * 日志记录
-  * 操作第三方库
+	* 数据获取（API 调用）
+	* 手动操作 DOM
+	* 订阅事件
+	* 设置定时器
+	* 日志记录
+	* 操作第三方库
 
 > 在浏览器绘制屏幕之后执行，也就时 paint 阶段之后
 
@@ -1426,7 +1426,7 @@ useEffect(() => {
 ~~~
 
 * 组件卸载时执行清理函数
-  * 组件在页面中由**存在变为不存在状态**
+* 组件在页面中由**存在变为不存在状态**
 * `useEffect`的副作用函数可以返回一个清理函数，当组件卸载时，`useEffect`的副作用函数就会执行清理函数。
 
 ~~~typescript
@@ -1465,8 +1465,7 @@ export default App
 ### 注意事项
 
 * **异步操作**：`useEffect` 的回调函数不能是 async 函数，但可以在内部定义 async 函数
-* `useEffect` 期望其回调函数返回 **清理函数** 或 **不返回任何值**（`undefined`）。
-  而 `async` 函数总是返回一个 `Promise` 对象，这与 `useEffect` 的期望不符。
+* `useEffect` 期望其回调函数返回 **清理函数** 或 **不返回任何值**（`undefined`）。而 `async` 函数总是返回一个 `Promise` 对象，这与 `useEffect` 的期望不符。
 
 ~~~javascript
 useEffect(() => {
