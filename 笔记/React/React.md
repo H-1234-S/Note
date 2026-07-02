@@ -1392,7 +1392,7 @@ useEffect(setup, dependencies?)
 
 ### 执行时机
 
-> useEffect 会在 React 完成 Commit 之后，在浏览器有机会完成一次绘制（Paint）之后异步执行，因此它不会阻塞页面首次渲染。
+> React 通常会让浏览器先完成绘制（Paint），然后再执行 Effect；但对于某些交互（interaction）触发的更新，React 可能会在 Paint 之前执行 Effect。
 
 * 每次渲染时都执行
 
