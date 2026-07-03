@@ -895,6 +895,11 @@ await writer.close();
 
 `write()` 会把 chunk 交给底层 sink 处理，并返回一个 Promise；`close()` 会在把前面的 chunk 都处理完之后关闭流；`abort()` 则会直接把流切到错误状态，并丢弃队列里还没处理的写入。
 
+## iframe
+
+
+
+
 ## 功能
 
 ### 文件树格式转换怎么实现的？
