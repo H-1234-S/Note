@@ -934,6 +934,21 @@ allow-modals允许 alert()confirm()prompt()
 allow-top-navigation允许修改父页面
 ```
 
+项目中：
+``` html
+<iframe
+    src="http://127.0.0.1:3000"
+    sandbox="
+        allow-scripts
+        allow-forms
+        allow-modals
+        allow-downloads
+    "
+></iframe>
+```
+
+不给 iframe 超出运行前端所需要的权限。
+
 > `allow` 控制 iframe 可以使用哪些浏览器能力
 
 
