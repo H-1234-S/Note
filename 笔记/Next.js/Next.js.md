@@ -125,7 +125,7 @@ error,
   reset: () => void;
   }) {}
 ```
-### not-found
+### not-found.tsx
 
 `not-found.tsx` 在路由未匹配或调用 `notFound()` 展示的页面
 
