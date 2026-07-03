@@ -1560,7 +1560,7 @@ export default App
 
 它引入了**并发渲染（Concurrent Rendering），将渲染分为**高优先级**和**低优先级，让高优先级先响应，低优先级后响应并且**可中断**
 
-> startTransition 是同步执行的，只是给打了一个标签，为低优先级渲染
+> startTransition 是同步执行的，只是给打了一个标签，为低优先级渲染，告诉 react 空闲时再进行渲染
 ### 语法
 
 ~~~typescript
