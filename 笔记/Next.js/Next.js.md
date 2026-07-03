@@ -220,7 +220,7 @@ export default function MyComponent() {
 
 ### redirect 函数
 
-- redirect 函数用于服务端跳转
+- redirect 函数通常用于服务端跳转，但是不止在服务端可用，客户端也可用
 	
 - 原理：当它被调用时，它会抛出一个内部错误，Next.js 会捕获这个错误并告诉浏览器：“别加载这个页面了，直接去另一个 URL”。
 	
