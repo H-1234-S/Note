@@ -949,11 +949,19 @@ allow-top-navigation允许修改父页面
 
 不给 iframe 超出运行前端所需要的权限。
 
+---
+
 > `allow` 控制 iframe 可以使用哪些浏览器能力
 
+``` html
+<iframe
+allow="camera; microphone">
+```
+
+允许摄像头、麦克风
 
 
-
+---
 ## 功能
 
 ### 文件树格式转换怎么实现的？
