@@ -900,6 +900,44 @@ await writer.close();
 > `iframe` 标签允许在当前网页中嵌入另一个网页
 
 执行流程：浏览器会向 src 发送 Get 请求，获取 html 文件；iframe 不一定非得加载网址，还可以直接写 HTML 通过 srcdoc 属性
+### 属性
+
+> `sandbox` 是 iframe 最关键的安全属性
+
+常见权限：
+
+```
+allow-scripts允许 JS
+```
+
+```
+allow-forms允许 Form
+```
+
+```
+allow-popups允许 window.open
+```
+
+```
+allow-downloads允许下载
+```
+
+```
+allow-pointer-lock允许 Pointer Lock
+```
+
+```
+allow-modals允许 alert()confirm()prompt()
+```
+
+```
+allow-top-navigation允许修改父页面
+```
+
+> `allow` 控制 iframe 可以使用哪些浏览器能力
+
+
+
 
 ## 功能
 
