@@ -899,6 +899,7 @@ await writer.close();
 
 > `iframe` 标签允许在当前网页中嵌入另一个网页
 
+执行流程：浏览器会向 src 发送 Get 请求，获取 html 文件
 
 ## 功能
 
