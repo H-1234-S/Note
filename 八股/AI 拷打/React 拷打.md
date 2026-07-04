@@ -20,16 +20,16 @@
 
 ## Client Components 组件
 
-但是对于 Client Components 组件，现在也可以使用 async 声明组件，但是需要用 Suspense 包裹组件，不然 ；因为 React 在客户端要求组件必须同步返回 JSX
+但是对于 Client Components 组件，现在也可以使用 async 声明组件，但是需要用 Suspense 包裹组件，不然 React 无法理解组件；因为 React 在客户端要求组件必须同步返回 JSX，也就是不能卡住后续阶段执行。
 
 原因：
 1. React 希望组件是纯函数，在 Render 阶段可以重复、中断、暂停、放弃，而不会产生任何后果；
 2. Fiber 是同步计算遍历组件树的，如果有一个组件暂停，那么下面所有组件都会被卡住
 3. 对于 Commit 后续阶段也会被卡住，因为 Fiber 阶段工作没有结束
 
-其实还是 React 不知道何时 Promise 结束，什么时候 Promise.resolve；因为 Promise.resolve 浏览器是在异步操作完成后，调用 Promise 的 `resolve()`，不受 React 调度器控制
+其实还是 React 不知道何时 Promise 结束，什么时候 Promise.resolve；因为 Promise.resolve 浏览器是在异步操作完成后，调用 Promise 的 `resolve()`，不受 React 调度器控制。
 
-但是现在可以用 Suspense 包裹
+但是现在可以用 Suspense 包裹，在 Fiber 计算过程中，
 
 
 # 首屏加载慢怎么优化
