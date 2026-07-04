@@ -35,7 +35,7 @@
 
 > 客户端使用 async、await
 
-可以在**事件处理函数**中使用，这是因为这个函数是
+可以在**事件处理函数**中使用；这是因为这个函数 React 不会调用，其实就是普通的 JS 函数，浏览器调用
 ``` js
 "use client";
 
@@ -56,7 +56,6 @@ export default function Page() {
 ```
 
 也可以在useEffect使用
-
 ``` js
 useEffect(() => {
     (async () => {
