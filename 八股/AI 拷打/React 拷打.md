@@ -9,7 +9,7 @@
 ```
 在 render 阶段，执行异步组件，得到的是 pending 状态的 Promise
 
-需要
+需要等待 Promise.resolve，得到 JSX 再进行 commit、paint
 ```
 
 # 首屏加载慢怎么优化
