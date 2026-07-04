@@ -20,7 +20,7 @@
 
 ## Client Components 组件
 
-但是对于 Client Components 组件，不可以使用 async 声明组件但是需要用 Suspense 包裹组件，不然 React 无法理解组件；因为 React 在客户端要求组件必须同步返回 JSX，也就是不能卡住后续阶段执行。
+但是对于 Client Components 组件，不可以使用 async 声明组件(虽然可以使用 Suspense 包裹组件，被 async 包裹的组件也可以展示，但是控制台还会报错)；因为 React 在客户端要求组件必须同步返回 JSX，也就是不能卡住后续阶段执行。
 
 原因：
 1. React 希望组件是纯函数，在 Render 阶段可以重复、中断、暂停、放弃，而不会产生任何后果；
