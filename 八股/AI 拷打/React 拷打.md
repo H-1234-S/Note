@@ -1,6 +1,6 @@
 # 同步组件和异步组件
 
-> 同步组件执行时不会暂停，也就是不会 await 等待数据返回的组件，而是直接返回 JSX
+> 同步组件执行时不会暂停，也就是不会 await 等待数据返回z，而是直接返回 JSX
 
 > 异步组件指的是组件被 async 标记并且进行异步操作的组件，可以 await 等待数据，之后再返回 JSX
 
@@ -27,7 +27,7 @@
 2. Fiber 是同步计算遍历组件树的，如果有一个组件暂停，那么下面所有组件都会被卡住
 3. 对于 Commit 后续阶段也会被卡住，因为 Fiber 阶段工作没有结束
 
-其实还是 React 不知道何时 Promise 结束，什么时候 Promise.resolve；因为 Promise.resolve 浏览器是在异步操作完成后，调用 Promise 的 `resolve()`，不受 React Sche
+其实还是 React 不知道何时 Promise 结束，什么时候 Promise.resolve；因为 Promise.resolve 浏览器是在异步操作完成后，调用 Promise 的 `resolve()`，不受 React 调度器控制
 
 但是现在可以用 Suspense 包裹
 
