@@ -11,7 +11,17 @@
 需要等待 Promise.resolve，得到 JSX 再进行 reconcile、commit、paint
 ```
 
-与同步组件最大的区别在于：**组件函数会因为 `await` 暂停执行，React 需要等待 Promise 完成后才能拿到 JSX**。
+与同步组件最大的区别在于：**异步组件函数会因为 `await` 暂停执行，React 需要等待 Promise 完成后才能拿到 JSX**。
+
+---
+## Server Components 组件
+
+对于 Server Components 组件，可以使用 async 声明组件；因为 Server Components 组件运行在服务端，不需要立刻更新 DOM
+
+## Client Components 组件
+
+但是对于 Client Components 组件，不可以使用 async 声明组件；因为 React 在客户端要求组件必须同步返回 JSX
+
 
 # 首屏加载慢怎么优化
 
