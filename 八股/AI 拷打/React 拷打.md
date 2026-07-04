@@ -31,6 +31,9 @@
 
 但是现在可以用 Suspense 包裹，在 Fiber 计算过程中，执行组件发现得到的是 pending 状态的 Promise，不会等组件数据返回，而是去渲染 Suspense 提供的 fallback。(虽然可以使用 Suspense 包裹组件，被 async 包裹的组件也可以展示，但是控制台还会报错)
 
+---
+
+
 
 # 首屏加载慢怎么优化
 
