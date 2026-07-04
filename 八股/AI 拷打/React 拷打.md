@@ -16,7 +16,7 @@
 ---
 ## Server Components 组件
 
-对于 Server Components 组件，可以使用 async 声明组件；因为 Server Components 组件运行在服务端，不需要立刻更新 DOM
+对于 Server Components 组件，可以使用 async 声明组件；因为 Server Components 组件运行在服务端，本来就是调接口，查数据库，返回HTML，不需要立刻更新 DOM
 
 ## Client Components 组件
 
