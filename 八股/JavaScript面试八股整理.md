@@ -2825,6 +2825,7 @@ Web API 与 JS 引擎关系：
 
 AbortController 通过 `signal` 建立取消通知通道。fetch 监听 signal 的 abort 事件，一旦触发，浏览器终止请求并让 Promise reject 一个 `AbortError`。
 
+`controller.signal.aborted` 只读属性返回一个值，该值指示与信号通信的异步操作是否中止 (true) 或未中止 (false)。
 ### 11.3 执行流程
 
 ```javascript
