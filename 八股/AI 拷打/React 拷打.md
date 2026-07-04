@@ -35,7 +35,38 @@
 
 > 客户端使用 async、await
 
-可以在`事件处理函数`中使用、也可以`在useEffect使用`，
+可以在**事件处理函数**中使用，这是因为这个函数是
+``` js
+"use client";
+
+export default function Page() {
+    async function handleClick() {
+        const res = await fetch("/api/user");
+        const data = await res.json();
+
+        console.log(data);
+    }
+
+    return (
+        <button onClick={handleClick}>
+            获取数据
+        </button>
+    );
+}
+```
+
+也可以在useEffect使用
+
+``` js
+useEffect(() => {
+    (async () => {
+        const res = await fetch("/api/user");
+        const data = await res.json();
+
+        setData(data);
+    })();
+}, []);
+```
 
 
 # 首屏加载慢怎么优化
