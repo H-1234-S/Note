@@ -29,7 +29,7 @@
 
 其实还是 React 不知道何时 Promise 结束，什么时候 Promise.resolve；因为 Promise.resolve 浏览器是在异步操作完成后，调用 Promise 的 `resolve()`，不受 React 调度器控制。
 
-但是现在可以用 Suspense 包裹，在 Fiber 计算过程中，
+但是现在可以用 Suspense 包裹，在 Fiber 计算过程中，执行组件发现得到的是 pending 状态的 Promise，不会等组件数据返回，而是去渲染 Suspense 提供的 fallback
 
 
 # 首屏加载慢怎么优化
