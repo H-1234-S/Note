@@ -9,8 +9,15 @@
 ```
 在 render 阶段，执行异步组件，得到的是 pending 状态的 Promise
 
-需要等待 Promise.resolve，得到 JSX 再进行 commit、paint
+需要等待 Promise.resolve，得到 JSX 再进行 reconcile、commit、paint
+
+//------------------------------
+
+
 ```
+
+**组件函数会因为 `await` 暂停执行，React 需要等待 Promise 完成后才能拿到 JSX**
+
 
 # 首屏加载慢怎么优化
 
