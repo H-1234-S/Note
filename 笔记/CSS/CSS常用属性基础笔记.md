@@ -907,13 +907,13 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 
 常见值：
 
-| 值 | 效果 |
-| --- | --- |
-| `static` | 默认值，不定位 |
-| `relative` | 相对定位，不脱离文档流 |
-| `absolute` | 绝对定位，脱离文档流 |
-| `fixed` | 固定定位，相对浏览器窗口 |
-| `sticky` | 粘性定位，滚动到指定位置后固定 |
+| 值          | 效果              |
+| ---------- | --------------- |
+| `static`   | 默认值，不定位         |
+| `relative` | 相对定位，不脱离文档流     |
+| `absolute` | 绝对定位，脱离文档流      |
+| `fixed`    | 固定定位，相对浏览器窗口    |
+| `sticky`   | 粘性定位，滚动到指定位置后固定 |
 
 ## `top` / `right` / `bottom` / `left`
 
