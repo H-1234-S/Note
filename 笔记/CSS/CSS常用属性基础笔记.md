@@ -748,7 +748,7 @@ space-between:
 
 ## `flex`
 
-作用：控制子元素如何分配剩余空间。
+作用：控制子元素如何分配剩余空间；`flex:1` 是 `flex-grow:1` `flex-shrink:1` `flex-basis:0%` 缩写
 
 ```css
 .item {
@@ -788,7 +788,7 @@ flex: none;   /* 不伸缩 */
 
 ## `flex-shrink`
 
-作用：控制空间不够时是否缩小。
+作用：控制空间不够时是否缩小；`flex-shrink:1` 表示可以缩小
 
 ```css
 .item {
