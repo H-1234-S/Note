@@ -657,14 +657,14 @@ column:
 
 常见值：
 
-| 值 | 效果 |
-| --- | --- |
-| `flex-start` | 靠主轴起点 |
-| `flex-end` | 靠主轴终点 |
-| `center` | 居中 |
+| 值               | 效果         |
+| --------------- | ---------- |
+| `flex-start`    | 靠主轴起点      |
+| `flex-end`      | 靠主轴终点      |
+| `center`        | 居中         |
 | `space-between` | 两端对齐，中间平均分 |
-| `space-around` | 每个元素两侧都有间距 |
-| `space-evenly` | 所有间距完全相等 |
+| `space-around`  | 每个元素两侧都有间距 |
+| `space-evenly`  | 所有间距完全相等   |
 
 示意：
 
