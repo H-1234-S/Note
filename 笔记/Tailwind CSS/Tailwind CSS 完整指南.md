@@ -185,20 +185,20 @@ Tailwind 内置了一套精心设计的设计系统：
 
 #### 4.1.1 外边距 (Margin)
 
-| 类名 | 作用 |
-|------|------|
-| `m-0` | margin: 0 |
-| `m-1` | margin: 0.25rem (4px) |
-| `m-2` | margin: 0.5rem (8px) |
-| `m-4` | margin: 1rem (16px) |
-| `m-auto` | margin: auto |
+| 类名        | 作用                                          |
+| --------- | ------------------------------------------- |
+| `m-0`     | margin: 0                                   |
+| `m-1`     | margin: 0.25rem (4px)                       |
+| `m-2`     | margin: 0.5rem (8px)                        |
+| `m-4`     | margin: 1rem (16px)                         |
+| `m-auto`  | margin: auto                                |
 | `mx-auto` | 水平居中（margin-left: auto; margin-right: auto） |
-| `my-auto` | 垂直居中 |
-| `-m-2` | 负外边距（margin: -0.5rem） |
-| `mt-4` | margin-top: 1rem |
-| `mr-2` | margin-right: 0.5rem |
-| `mb-4` | margin-bottom: 1rem |
-| `ml-2` | margin-left: 0.5rem |
+| `my-auto` | 垂直居中                                        |
+| `-m-2`    | 负外边距（margin: -0.5rem）                       |
+| `mt-4`    | margin-top: 1rem                            |
+| `mr-2`    | margin-right: 0.5rem                        |
+| `mb-4`    | margin-bottom: 1rem                         |
+| `ml-2`    | margin-left: 0.5rem                         |
 
 **空格数值对照：**
 - `0` = 0px
@@ -234,18 +234,18 @@ Tailwind 内置了一套精心设计的设计系统：
 
 ### 4.2 盒模型 (Box Model)
 
-| 类名 | 作用 |
-|------|------|
-| `box-border` | box-sizing: border-box |
-| `box-content` | box-sizing: content-box |
-| `block` | display: block |
-| `inline-block` | display: inline-block |
-| `inline` | display: inline |
-| `hidden` | display: none |
-| `overflow-auto` | overflow: auto |
-| `overflow-hidden` | overflow: hidden |
-| `overflow-scroll` | overflow: scroll |
-| `overflow-visible` | overflow: visible |
+| 类名                 | 作用                      |
+| ------------------ | ----------------------- |
+| `box-border`       | box-sizing: border-box  |
+| `box-content`      | box-sizing: content-box |
+| `block`            | display: block          |
+| `inline-block`     | display: inline-block   |
+| `inline`           | display: inline         |
+| `hidden`           | display: none           |
+| `overflow-auto`    | overflow: auto          |
+| `overflow-hidden`  | overflow: hidden        |
+| `overflow-scroll`  | overflow: scroll        |
+| `overflow-visible` | overflow: visible       |
 
 ---
 
@@ -360,21 +360,21 @@ Tailwind 内置了一套精心设计的设计系统：
 
 #### 4.5.1 字体大小
 
-| 类名 | 作用 |
-|------|------|
-| `text-xs` | font-size: 0.75rem (12px) |
-| `text-sm` | font-size: 0.875rem (14px) |
-| `text-base` | font-size: 1rem (16px) |
-| `text-lg` | font-size: 1.125rem (18px) |
-| `text-xl` | font-size: 1.25rem (20px) |
-| `text-2xl` | font-size: 1.5rem (24px) |
-| `text-3xl` | font-size: 1.875rem (30px) |
-| `text-4xl` | font-size: 2.25rem (36px) |
-| `text-5xl` | font-size: 3rem (48px) |
-| `text-6xl` | font-size: 3.75rem (60px) |
-| `text-7xl` | font-size: 4.5rem (72px) |
-| `text-8xl` | font-size: 6rem (96px) |
-| `text-9xl` | font-size: 8rem (128px) |
+| 类名          | 作用                         |
+| ----------- | -------------------------- |
+| `text-xs`   | font-size: 0.75rem (12px)  |
+| `text-sm`   | font-size: 0.875rem (14px) |
+| `text-base` | font-size: 1rem (16px)     |
+| `text-lg`   | font-size: 1.125rem (18px) |
+| `text-xl`   | font-size: 1.25rem (20px)  |
+| `text-2xl`  | font-size: 1.5rem (24px)   |
+| `text-3xl`  | font-size: 1.875rem (30px) |
+| `text-4xl`  | font-size: 2.25rem (36px)  |
+| `text-5xl`  | font-size: 3rem (48px)     |
+| `text-6xl`  | font-size: 3.75rem (60px)  |
+| `text-7xl`  | font-size: 4.5rem (72px)   |
+| `text-8xl`  | font-size: 6rem (96px)     |
+| `text-9xl`  | font-size: 8rem (128px)    |
 
 #### 4.5.2 字体粗细
 
