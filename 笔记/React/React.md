@@ -2344,7 +2344,13 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 
 >本质上是 React 维护两种状态，一个是真实状态，一个是乐观状态；服务器成功响应则更改真实状态为乐观状态；若响应失败则自动回滚为真实状态。
 
-> React 其实不知道请求是成功还是失败。但是在下一次渲染时(此时成功请求已经返回)，如果真实状态和乐观状态一致，则不需要乐观状态了；如果状态不一致，那么以真实状态为准。
+`useOptimistic` **不会监听请求是否成功，也不会主动执行回滚**。它只是**临时覆盖 UI**。
+
+当下一次渲染发生时，如果真实状态已经更新，乐观状态根据真实状态计算则自然变成真实状态；
+
+如果真实状态没有更新，乐观状态就会被丢弃，因此看起来像是“自动回滚”。但是是根据之前状态计算。
+
+这也是为什么官方说它是**基于真实状态重新计算**，而不是维护一份需要手动恢复的副本。
 
 ``` js
 const [optimisticState, setOptimistic] = useOptimistic(value, reducer?);
@@ -2362,7 +2368,8 @@ const [optimisticState, setOptimistic] = useOptimistic(value, reducer?);
 ### 返回值
 
 - `optimisticState` 供 UI 渲染使用的乐观状态。
-- `setOptimistic` 触发乐观更新的触发器。
+
+- `setOptimistic` 触发乐观更新的触发器。**注意：** 必须在 React 的 Action（或者 `startTransition`）内部调用！
 
 --- 
 # API
