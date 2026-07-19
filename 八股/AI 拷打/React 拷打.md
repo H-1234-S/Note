@@ -27,7 +27,7 @@
 2. Fiber 是同步计算遍历组件树的，如果有一个组件暂停，那么下面所有组件都会被卡住
 3. 对于 Commit 后续阶段也会被卡住，因为 Fiber 阶段工作没有结束
 
-其实还是 React 不知道何时 Promise 结束，什么时候 Promise.resolve；因为 Promise.resolve 浏览器是在异步操作完成后，调用 Promise 的 `resolve()`，不受 React 调度器控制。
+其实还是 React 不知道何时 Promise 结束，什么时候 Promise.resolve；因为 Promise.resolve **浏览器**是在异步操作完成后，调用 Promise 的 `resolve()`，不受 React 调度器控制。
 
 但是现在可以用 Suspense 包裹，在 Fiber 计算过程中，执行组件发现得到的是 pending 状态的 Promise，不会等组件数据返回，而是去渲染 Suspense 提供的 fallback。(虽然可以使用 Suspense 包裹组件，被 async 包裹的组件也可以展示，但是控制台还会报错)
 
