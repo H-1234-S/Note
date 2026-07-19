@@ -2338,6 +2338,11 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 
 - `reducerAction` 的返回类型必须与 `initialState` 的类型相匹配。如果 TypeScript 推断出不匹配，您可能需要显式地标注您的状态类型。
 
+## useOptimistic
+
+`useOptimistic` 是一个 React Hook，它可以帮助你更乐观地更新用户界面。
+
+
 
 --- 
 # API
