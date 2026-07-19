@@ -1364,6 +1364,259 @@ transform: rotate(45deg);
 | 阴影 | `box-shadow`、`text-shadow` |
 | 动画 | `transition`、`transform`、`animation` |
 | 鼠标 | `cursor`、`pointer-events` |
+| 文本补充 | `font-style`、`text-indent`、`letter-spacing`、`word-break`、`overflow-wrap`、`vertical-align`、`list-style` |
+| 表格 | `table-layout`、`border-collapse`、`border-spacing` |
+| 其他常用 | `outline`、`resize`、`user-select`、`aspect-ratio`、`object-fit` |
+
+---
+
+# 21. 常用补充属性
+
+这一部分补一些前面没单独列出来，但实际很常见的属性。
+
+## `font-style`
+
+作用：设置字体样式。
+
+```css
+.text {
+  font-style: italic;
+}
+```
+
+常见值：
+
+```css
+font-style: normal;
+font-style: italic;
+```
+
+## `text-indent`
+
+作用：设置首行缩进。
+
+```css
+.p {
+  text-indent: 2em;
+}
+```
+
+## `letter-spacing` / `word-spacing`
+
+作用：控制字间距和词间距。
+
+```css
+.title {
+  letter-spacing: 1px;
+}
+```
+
+## `word-break` / `overflow-wrap`
+
+作用：控制长单词或长英文是否换行。
+
+```css
+.text {
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+```
+
+## `vertical-align`
+
+作用：控制行内元素、图片、表单控件的垂直对齐。
+
+```css
+img {
+  vertical-align: middle;
+}
+```
+
+## `list-style`
+
+作用：控制列表样式。
+
+```css
+ul {
+  list-style: none;
+}
+```
+
+常见值：
+
+```css
+list-style: none;
+list-style: disc;
+list-style: decimal;
+```
+
+## `outline`
+
+作用：设置轮廓线，常用于焦点态。
+
+```css
+.input:focus {
+  outline: 2px solid #1677ff;
+}
+```
+
+## `resize`
+
+作用：控制文本域是否可拖拽缩放。
+
+```css
+textarea {
+  resize: vertical;
+}
+```
+
+常见值：
+
+```css
+resize: none;
+resize: both;
+resize: horizontal;
+resize: vertical;
+```
+
+## `user-select`
+
+作用：控制文本是否可选中。
+
+```css
+.no-select {
+  user-select: none;
+}
+```
+
+## `aspect-ratio`
+
+作用：设置宽高比。
+
+```css
+.thumb {
+  aspect-ratio: 16 / 9;
+}
+```
+
+## `table-layout`
+
+作用：控制表格布局方式。
+
+```css
+table {
+  table-layout: fixed;
+}
+```
+
+## `border-collapse`
+
+作用：控制表格边框是否合并。
+
+```css
+table {
+  border-collapse: collapse;
+}
+```
+
+## `border-spacing`
+
+作用：控制表格单元格间距。
+
+```css
+table {
+  border-spacing: 8px;
+}
+```
+
+---
+
+# 22. 常用单位和媒体查询
+
+## 常用单位补充
+
+### 长度单位
+
+| 单位 | 含义 | 常见场景 |
+| --- | --- | --- |
+| `px` | 像素 | 最常用的固定长度 |
+| `%` | 相对父元素 | 自适应宽高 |
+| `em` | 相对当前元素字体大小 | 跟随当前字体缩放 |
+| `rem` | 相对根元素字体大小 | 全局字号、响应式布局 |
+| `vw` | 视口宽度的 1% | 全屏宽度、响应式 |
+| `vh` | 视口高度的 1% | 首屏高度 |
+| `vmin` | 视口较小边的 1% | 等比适配 |
+| `vmax` | 视口较大边的 1% | 少量场景 |
+| `ch` | 0 字符宽度 | 限制文本宽度 |
+| `fr` | Grid 的剩余空间单位 | 网格列宽 |
+
+### 时间和角度单位
+
+| 单位 | 含义 | 常见场景 |
+| --- | --- | --- |
+| `s` | 秒 | `transition`、`animation` |
+| `ms` | 毫秒 | `transition`、`animation` |
+| `deg` | 角度 | `rotate()` |
+
+### 其他常见单位
+
+| 单位 | 含义 |
+| --- | --- |
+| `auto` | 自动计算 |
+| `inherit` | 继承父元素 |
+| `initial` | 重置为默认初始值 |
+| `unset` | 视情况继承或重置 |
+
+## 媒体查询 `@media`
+
+作用：根据屏幕宽度、设备特性、显示条件应用不同样式。
+
+### 基本写法
+
+```css
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+}
+```
+
+### 常见断点
+
+```css
+@media (max-width: 1200px) { }
+@media (max-width: 992px) { }
+@media (max-width: 768px) { }
+@media (max-width: 576px) { }
+```
+
+### 常见条件
+
+```css
+@media screen and (max-width: 768px) { }
+@media print { }
+@media (orientation: landscape) { }
+@media (prefers-color-scheme: dark) { }
+@media (hover: hover) { }
+```
+
+### 常见写法示例
+
+```css
+.container {
+  width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    padding: 0 16px;
+  }
+}
+```
+
+---
 
 ---
 
@@ -1993,4 +2246,3 @@ transition: transform 0.3s ease-out;
 ```
 
 ---
-
