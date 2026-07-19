@@ -1569,7 +1569,10 @@ const [isPending, startTransition] = useTransition()
 ### 返回值
 
 * `isPending`(boolean)，告诉你是否存在待处理的 transition。
+	
 * `startTransition`(function) 函数，你可以使用此方法将状态更新标记为 transition。(低优先级)
+	
+	* `startTransition` 里的函数会立即执行，只有里面产生的 React 状态更新（setState）会被标记为 Transition（低优先级更新）
 
 ### 问题
 
