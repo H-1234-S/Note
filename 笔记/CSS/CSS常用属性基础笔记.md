@@ -515,6 +515,75 @@ text-decoration: line-through;
 }
 ```
 
+## `font-style`
+
+作用：设置字体样式。
+
+```css
+.text {
+  font-style: italic;
+}
+```
+
+## `text-indent`
+
+作用：设置首行缩进。
+
+```css
+.p {
+  text-indent: 2em;
+}
+```
+
+## `letter-spacing` / `word-spacing`
+
+作用：控制字间距和词间距。
+
+```css
+.title {
+  letter-spacing: 1px;
+}
+```
+
+## `word-break` / `overflow-wrap`
+
+作用：控制长单词或长英文是否换行。
+
+```css
+.text {
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+```
+
+## `vertical-align`
+
+作用：控制行内元素、图片、表单控件的垂直对齐。
+
+```css
+img {
+  vertical-align: middle;
+}
+```
+
+## `list-style`
+
+作用：控制列表样式。
+
+```css
+ul {
+  list-style: none;
+}
+```
+
+常见值：
+
+```css
+list-style: none;
+list-style: disc;
+list-style: decimal;
+```
+
 ---
 
 # 8. 显示方式属性
@@ -860,6 +929,24 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 ```
 
+## `grid-template-areas`
+
+作用：用名字划分网格区域。
+
+```css
+.grid {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+}
+
+.header {
+  grid-area: header;
+}
+```
+
 ## `gap`
 
 作用：设置网格间距。
@@ -870,6 +957,99 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 ```
+
+也可以单独设置行间距和列间距：
+
+```css
+.grid {
+  row-gap: 16px;
+  column-gap: 24px;
+}
+```
+
+## `grid-auto-flow`
+
+作用：控制没有手动指定位置的项目如何自动排列。
+
+```css
+.grid {
+  grid-auto-flow: row;
+}
+```
+
+常见值：
+
+```css
+grid-auto-flow: row;
+grid-auto-flow: column;
+grid-auto-flow: dense;
+```
+
+## `grid-auto-columns` / `grid-auto-rows`
+
+作用：设置自动生成的列或行的尺寸。
+
+```css
+.grid {
+  grid-auto-rows: 120px;
+}
+```
+
+## `justify-items` / `align-items`
+
+作用：控制每个网格项目在自己格子里的对齐方式。
+
+```css
+.grid {
+  justify-items: center;
+  align-items: center;
+}
+```
+
+常见值：
+
+```css
+justify-items: start;
+justify-items: center;
+justify-items: end;
+justify-items: stretch;
+```
+
+## `place-items`
+
+作用：`align-items` 和 `justify-items` 的简写。
+
+```css
+.grid {
+  place-items: center;
+}
+```
+
+## `justify-content` / `align-content`
+
+作用：当网格整体小于容器时，控制整个网格在容器里的对齐。
+
+```css
+.grid {
+  justify-content: center;
+  align-content: center;
+}
+```
+
+常见值：
+
+```css
+justify-content: start;
+justify-content: center;
+justify-content: end;
+justify-content: space-between;
+justify-content: space-around;
+justify-content: space-evenly;
+```
+
+## Grid 子元素属性
+
+下面这些属性写在每一个 Grid item 上。
 
 ## `grid-column`
 
@@ -888,6 +1068,67 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 ```css
 .item {
   grid-row: span 2;
+}
+```
+
+常见写法：
+
+```css
+grid-row: 1 / 3;
+grid-row: span 2;
+```
+
+## `grid-area`
+
+作用：设置某个元素放到指定区域，也可以作为行列位置的简写。
+
+```css
+.header {
+  grid-area: header;
+}
+```
+
+位置简写：
+
+```css
+.item {
+  grid-area: 1 / 1 / 3 / 3;
+}
+```
+
+含义：
+
+```txt
+grid-area: 行开始 / 列开始 / 行结束 / 列结束;
+```
+
+## `justify-self` / `align-self`
+
+作用：单独控制某一个 Grid item 在自己格子里的对齐。
+
+```css
+.item {
+  justify-self: end;
+  align-self: center;
+}
+```
+
+常见值：
+
+```css
+justify-self: start;
+justify-self: center;
+justify-self: end;
+justify-self: stretch;
+```
+
+## `place-self`
+
+作用：`align-self` 和 `justify-self` 的简写。
+
+```css
+.item {
+  place-self: center;
 }
 ```
 

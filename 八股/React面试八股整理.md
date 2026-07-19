@@ -4,34 +4,34 @@
 
 ## 目录
 
-- [一、React 架构总览](#一react-架构总览)
-- [二、JSX 与元素对象](#二jsx-与元素对象)
-- [三、Virtual DOM 与 Diff 算法](#三virtual-dom-与-diff-算法)
-- [四、Fiber 架构](#四fiber-架构)
-- [五、React 渲染机制](#五react-渲染机制)
-- [六、调度机制、Scheduler 与 Lane 模型](#六调度机制scheduler-与-lane-模型)
-- [七、Concurrent Rendering 与 React 18](#七concurrent-rendering-与-react-18)
-- [八、Hooks 原理与高频考点](#八hooks-原理与高频考点)
-- [九、状态更新机制与批量更新](#九状态更新机制与批量更新)
-- [十、生命周期、函数组件与类组件](#十生命周期函数组件与类组件)
-- [十一、事件系统与合成事件](#十一事件系统与合成事件)
-- [十二、Suspense、lazy 与 Error Boundary](#十二suspenselazy-与-error-boundary)
-- [十三、状态管理：Context、Redux、Zustand](#十三状态管理contextreduxzustand)
-- [十四、React Router 与页面架构](#十四react-router-与页面架构)
-- [十五、SSR、CSR、SSG、ISR 与 Hydration](#十五ssrcsrssgisr-与-hydration)
-- [十六、RSC、Server Action 与 Next.js App Router](#十六rscserver-action-与-nextjs-app-router)
-- [十七、React 与浏览器 Event Loop](#十七react-与浏览器-event-loop)
-- [十八、性能优化专题](#十八性能优化专题)
-- [十九、React 与 TypeScript](#十九react-与-typescript)
-- [二十、表单、数据请求与缓存](#二十表单数据请求与缓存)
-- [二十一、AI Web / 流式输出场景](#二十一ai-web--流式输出场景)
-- [二十二、高频面试题标准回答](#二十二高频面试题标准回答)
-- [二十三、项目场景题](#二十三项目场景题)
-- [二十四、复习路线](#二十四复习路线)
+- [1. React 架构总览](#1-react-架构总览)
+- [2. JSX 与元素对象](#2-jsx-与元素对象)
+- [3. Virtual DOM 与 Diff 算法](#3-virtual-dom-与-diff-算法)
+- [4. Fiber 架构](#4-fiber-架构)
+- [5. React 渲染机制](#5-react-渲染机制)
+- [6. 调度机制、Scheduler 与 Lane 模型](#6-调度机制scheduler-与-lane-模型)
+- [7. Concurrent Rendering 与 React 18](#7-concurrent-rendering-与-react-18)
+- [8. Hooks 原理与高频考点](#8-hooks-原理与高频考点)
+- [9. 状态更新机制与批量更新](#9-状态更新机制与批量更新)
+- [10. 生命周期、函数组件与类组件](#10-生命周期函数组件与类组件)
+- [11. 事件系统与合成事件](#11-事件系统与合成事件)
+- [12. Suspense、lazy 与 Error Boundary](#12-suspenselazy-与-error-boundary)
+- [13. 状态管理：Context、Redux、Zustand](#13-状态管理contextreduxzustand)
+- [14. React Router 与页面架构](#14-react-router-与页面架构)
+- [15. SSR、CSR、SSG、ISR 与 Hydration](#15-ssrcsrssgisr-与-hydration)
+- [16. RSC、Server Action 与 Next.js App Router](#16-rscserver-action-与-nextjs-app-router)
+- [17. React 与浏览器 Event Loop](#17-react-与浏览器-event-loop)
+- [18. 性能优化专题](#18-性能优化专题)
+- [19. React 与 TypeScript](#19-react-与-typescript)
+- [20. 表单、数据请求与缓存](#20-表单数据请求与缓存)
+- [21. AI Web / 流式输出场景](#21-ai-web--流式输出场景)
+- [22. 高频面试题标准回答](#22-高频面试题标准回答)
+- [23. 项目场景题](#23-项目场景题)
+- [24. 复习路线](#24-复习路线)
 
 ---
 
-## 一、React 架构总览
+## 1. React 架构总览
 
 ### 1. 概念解释
 
@@ -107,7 +107,7 @@ React 本身更像 UI 库，只负责视图层。但配合 Next.js、React Route
 
 ---
 
-## 二、JSX 与元素对象
+## 2. JSX 与元素对象
 
 ### 1. 概念解释
 
@@ -191,7 +191,7 @@ Element 是 UI 的静态描述，轻量、不可变；Fiber 是 React 内部的�
 
 ---
 
-## 三、Virtual DOM 与 Diff 算法
+## 3. Virtual DOM 与 Diff 算法
 
 ### 1. 概念解释
 
@@ -297,7 +297,7 @@ index 表示位置，不表示数据身份。列表插入、删除、排序后�
 
 ---
 
-## 四、Fiber 架构
+## 4. Fiber 架构
 
 ### 1. 概念解释
 
@@ -374,7 +374,7 @@ commit 阶段会真实修改 DOM。如果中断，屏幕可能处于半更新状
 
 ---
 
-## 五、React 渲染机制
+## 5. React 渲染机制
 
 ### 1. 概念解释
 
@@ -462,7 +462,7 @@ sequenceDiagram
 
 ---
 
-## 六、调度机制、Scheduler 与 Lane 模型
+## 6. 调度机制、Scheduler 与 Lane 模型
 
 ### 1. 概念解释
 
@@ -542,7 +542,7 @@ React 早期实验过类似思路，但生产 Scheduler 不直接依赖 `request
 
 ---
 
-## 七、Concurrent Rendering 与 React 18
+## 7. Concurrent Rendering 与 React 18
 
 ### 1. 概念解释
 
@@ -634,7 +634,7 @@ function onChange(e: ChangeEvent<HTMLInputElement>) {
 
 ---
 
-## 八、Hooks 原理与高频考点
+## 8. Hooks 原理与高频考点
 
 ### 1. 概念解释
 
@@ -703,7 +703,7 @@ Hooks 把状态逻辑从类生命周期里解耦出来，让逻辑可以按业�
 
 ---
 
-## 九、状态更新机制与批量更新
+## 9. 状态更新机制与批量更新
 
 ### 1. 概念解释
 
@@ -794,7 +794,7 @@ setCount(c => c + 1);
 
 ---
 
-## 十、生命周期、函数组件与类组件
+## 10. 生命周期、函数组件与类组件
 
 ### 1. 概念解释
 
@@ -842,7 +842,7 @@ setCount(c => c + 1);
 
 ---
 
-## 十一、事件系统与合成事件
+## 11. 事件系统与合成事件
 
 ### 1. 概念解释
 
@@ -906,7 +906,7 @@ flowchart TD
 
 ---
 
-## 十二、Suspense、lazy 与 Error Boundary
+## 12. Suspense、lazy 与 Error Boundary
 
 ### 1. 概念解释
 
@@ -973,7 +973,7 @@ flowchart TD
 
 ---
 
-## 十三、状态管理：Context、Redux、Zustand
+## 13. 状态管理：Context、Redux、Zustand
 
 ### 1. 概念解释
 
@@ -1061,7 +1061,7 @@ AI 聊天应用中：
 
 ---
 
-## 十四、React Router 与页面架构
+## 14. React Router 与页面架构
 
 ### 1. 概念解释
 
@@ -1109,7 +1109,7 @@ flowchart TD
 
 ---
 
-## 十五、SSR、CSR、SSG、ISR 与 Hydration
+## 15. SSR、CSR、SSG、ISR 与 Hydration
 
 ### 1. 概念解释
 
@@ -1188,7 +1188,7 @@ React 可以优先 hydrate 用户正在交互或更高优先级的区域，而�
 
 ---
 
-## 十六、RSC、Server Action 与 Next.js App Router
+## 16. RSC、Server Action 与 Next.js App Router
 
 ### 1. 概念解释
 
@@ -1277,7 +1277,7 @@ Next.js 有多层缓存：请求记忆化、Data Cache、Full Route Cache、Rout
 
 ---
 
-## 十七、React 与浏览器 Event Loop
+## 17. React 与浏览器 Event Loop
 
 ### 1. 概念解释
 
@@ -1330,7 +1330,7 @@ flowchart TD
 
 ---
 
-## 十八、性能优化专题
+## 18. 性能优化专题
 
 ### 1. 性能问题总览
 
@@ -1462,7 +1462,7 @@ Profiler 重点看：
 
 ---
 
-## 十九、React 与 TypeScript
+## 19. React 与 TypeScript
 
 ### 1. 概念解释
 
@@ -1516,7 +1516,7 @@ type SelectProps<T> = {
 
 ---
 
-## 二十、表单、数据请求与缓存
+## 20. 表单、数据请求与缓存
 
 ### 1. React 表单方案
 
@@ -1575,7 +1575,7 @@ flowchart TD
 
 ---
 
-## 二十一、AI Web / 流式输出场景
+## 21. AI Web / 流式输出场景
 
 ### 1. 场景特点
 
@@ -1634,7 +1634,7 @@ flowchart TD
 
 ---
 
-## 二十二、高频面试题标准回答
+## 22. 高频面试题标准回答
 
 ### 1. React 为什么使用 Virtual DOM？
 
@@ -1738,7 +1738,7 @@ SSR 是在服务端生成 HTML，帮助首屏和 SEO，但客户端组件仍需�
 
 ---
 
-## 二十三、项目场景题
+## 23. 项目场景题
 
 ### 1. 页面卡顿如何排查？
 
@@ -1809,7 +1809,7 @@ useEffect(() => {
 
 ---
 
-## 二十四、复习路线
+## 24. 复习路线
 
 ### 第一层：能讲清基础
 
