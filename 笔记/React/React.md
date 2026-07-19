@@ -2650,10 +2650,80 @@ import { createPortal } from 'react-dom';
 * 可以解决`position: fixed`不稳定问题，在默认的情况下是根据浏览器视口进行定位的，但是如果父级设置了`transform、perspective、filter 或 backdrop-filter` 属性非 none 时，他就会相对于父级进行定位，
 ## use
 
-`use` 这个 api 用于
+`use` 这个 api 用于**在组件渲染时，直接读取 Promise 或 Context 的值**。**`use` 可以在 `if` 条件语句或 `for` 循环中使用**。
+
+### 语法
+
+``` js
+const value = use(resource);
+```
+### 参数
+
+- 传入一个代表异步操作的 Promise 对象。
+	
+	- 传入的 Promise **必须在组件外部创建，或者通过缓存机制（如 Framework 数据层、`cache` 函数）进行包裹**。
+	
+- 传入一个 Context；通过 `createContext` 创建的 React 上下文对象。
+
+	- `use(MyContext)`：**可以**写在 `if (showTheme) { const theme = use(MyContext); }` 内部
+		
+	- `useContext(MyContext)`：必须写在组件顶部，不能套在 `if` 或循环里。
+
+### 原理
+
+> 如果传入的是 Promise
+
+- **返回值**：**该 Promise 成功解析后（Resolved）的真实数据。**
+    
+- **背后的黑魔法（Suspense）**：
+    
+    - 如果 Promise 还在 **Pending（加载中）**，`use` 会直接“挂起”（Suspend）当前组件的渲染，并向上寻找最近的 `<Suspense fallback="{<Loading"/>}>` 边界，展示加载动画。
+        
+    - 一旦 Promise 变成 **Fulfilled（成功）**，`use` 会让**组件重新渲染**，并将解析出的**具体数据**作为返回值赋给变量。
+        
+    - 如果 Promise 变成 **Rejected（失败）**，它会把错误抛给最近的 **Error Boundary（错误边界）**。
+
+> 如果传入的是 Context
+
+- **返回值**：**该 Context 当前最新的 `value` 值。**
+    
+- React 会在组件树中向上查找最近的 `<MyContext.Provider>`，并返回其绑定的 `value`。
+### 示例
+
+``` js
+import { Suspense, use } from "react";
+
+function User() {
+  const user = use(fetch("/api/user").then((r) => r.json()));
+
+  return <h1>{user.name}</h1>;
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <User />
+    </Suspense>
+  );
+}
+```
 
 
+**在条件语句中读取 Context：**
+``` js
+import { use } from 'react';
+import { ThemeContext } from './ThemeContext';
 
+function Button({ useGlobalTheme }) {
+  if (useGlobalTheme) {
+    // 允许！use 可以写在 if 条件句内部
+    const theme = use(ThemeContext); 
+    return <button className={theme.color}>Styled Button</button>;
+  }
+
+  return <button>Default Button</button>;
+}
+```
 # CSS方案
 
 ## css modules
