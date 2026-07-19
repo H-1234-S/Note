@@ -1878,13 +1878,20 @@ export default App;
 ### 语法
 
 * createContext创建了一个context对象
-  * createContext接收一个默认值，这个值在没有Provider时候生效
-  * 当Provider存在时候，value中的值和createContext的默认值类型应该一致
+
+	- createContext接收一个默认值，这个值在没有Provider时候生效
+	
+	- 当Provider存在时候，value中的值和createContext的默认值类型应该一致
+
 * context对象的Provider属性
-  * 是一个 React 组件
-  * 接受 `value` 属性，可以是任何类型的值
-  * 所有子组件都可以访问这个值
-  * 当 `value` 改变时，所有使用该 Context 的组件都会重新渲染
+	
+	- 是一个 React 组件
+	
+	- 接受 `value` 属性，可以是任何类型的值
+	
+	- 所有子组件都可以访问这个值
+	
+	- 当 `value` 改变时，所有使用该 Context 的组件都会重新渲染
 
 ~~~typescript
 // React.createContex创建一个context对象
