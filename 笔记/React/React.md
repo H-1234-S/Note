@@ -2349,7 +2349,18 @@ const [optimisticState, setOptimistic] = useOptimistic(value, reducer?);
 ```
 ### 参数
 
+- `value` 当前的真实状态；通常是来自组件的 `state` 或 `props`；初始时`useOptimistic` 返回的 `optimisticState` 就等于这个 `value`。
+	
+- `reducer` 状态更新函数(可选)
+	
+	- `(currentState, optimisticValue) => newOptimisticState` 接收两个值；`currentState`：当前的临时乐观状态；`optimisticValue`：在调用 `setOptimistic` 时传进去的**临时改动值**。
+		
+	- **注意**：如果不传这个参数，React 默认的行为是：调用 `setOptimistic(newValue)` 时传什么，`optimisticState` 就直接变成什么
 
+### 返回值
+
+- `optimisticState` 供 UI 渲染使用的乐观状态。
+- `setOptimistic` 触发乐观更新的触发器。
 
 --- 
 # API
