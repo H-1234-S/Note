@@ -2344,6 +2344,10 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 
 本质上是 React 维护两种状态，一个是真实状态，一个是乐观状态；服务器成功响应则更改真实状态为乐观状态；若响应失败则自动回滚为真实状态
 
+``` js
+const [optimisticState, setOptimistic] = useOptimistic(value, reducer?);
+```
+
 
 
 --- 
