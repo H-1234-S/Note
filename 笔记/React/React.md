@@ -2340,7 +2340,9 @@ const [state, dispatchAction, isPending] = useActionState(reducerAction, initial
 
 ## useOptimistic
 
-`useOptimistic` 是一个 React Hook，它可以帮助你更乐观地更新用户界面。
+`useOptimistic` 是一个 React Hook，它可以帮助你更乐观地更新用户界面。适用于“先操作ui，再等服务器确认”操作
+
+
 
 
 
