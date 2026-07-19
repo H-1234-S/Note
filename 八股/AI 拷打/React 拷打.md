@@ -71,6 +71,18 @@ useEffect(() => {
 
 从浏览器输入 URL 到页面展示有很多阶段，优化思路主要围绕着每一阶段进行的
 
+## 网络阶段
+
+> DNS 查询可以使用 DNS 预解析，link 的 dns-prefetch
+
+``` js
+<link rel="dns-prefetch" href="xxx">
+```
+
+> CND 内容分发网络
+
+可以将静态资源提前缓存到距离用户较近的边缘节点
+
 
 
 # 渲染时卡顿怎么排查
