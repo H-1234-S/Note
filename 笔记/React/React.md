@@ -2374,6 +2374,54 @@ const [optimisticState, setOptimistic] = useOptimistic(value, reducer?);
 
 - `setOptimistic` 触发乐观更新的触发器。**注意：** 必须在 React 的 Action（或者 `startTransition`）内部调用！
 
+### 示例
+
+``` js
+import { useOptimistic, useState, startTransition } from 'react';
+
+function LikeButton({ initialLikes }) {
+  // 1. 真实的底层状态
+  const [realLikes, setRealLikes] = useState(initialLikes);
+
+  // 2. 定义 useOptimistic
+  // value = realLikes (真实值)
+  // reducer = 把当前赞数 + 1 或者 - 1
+  const [optimisticLikes, setOptimisticLikes] = useOptimistic(
+    realLikes,
+    (currentLikes, actionType) => {
+      return actionType === 'LIKE' ? currentLikes + 1 : currentLikes - 1;
+    }
+  );
+
+  const handleLike = () => {
+    // 必须在 Transition 或 Action 中使用
+    startTransition(async () => {
+      // 3. 立即触发乐观更新！界面上的数字瞬间 +1
+      setOptimisticLikes('LIKE'); 
+
+      try {
+        // 4. 发送真正的网络请求
+        const updatedLikes = await sendLikeToServer(); 
+        
+        // 5. 请求成功，更新真实状态
+        setRealLikes(updatedLikes); 
+      } catch (error) {
+        console.error("点赞失败了！");
+        // 如果报错了，这里什么都不用做！
+        // 因为 startTransition 结束了，React 会自动把 optimisticLikes 回滚为 realLikes
+      }
+    });
+  };
+
+  return (
+    // 6. UI 绑定乐观状态 optimisticLikes
+    <button onClick={handleLike}>
+      👍 {optimisticLikes} 个赞
+    </button>
+  );
+}
+```
+
 --- 
 # API
 
