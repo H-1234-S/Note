@@ -2385,44 +2385,70 @@ const [optimisticState, setOptimistic] = useOptimistic(value, reducer?);
 ### 示例
 
 ``` js
-import { useOptimistic, useState, startTransition } from 'react';
+import { startTransition, useOptimistic, useState } from "react";
 
-function LikeButton({ initialLikes }) {
-  // 1. 真实的底层状态
+type LikeResponse = {
+  likes: number;
+};
+
+// 模拟请求
+async function sendLikeToServer(
+  currentLikes: number
+): Promise<LikeResponse> {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // 模拟 20% 请求失败
+      if (Math.random() < 0.2) {
+        reject(new Error("点赞失败"));
+        return;
+      }
+
+      resolve({
+        likes: currentLikes + 1,
+      });
+    }, 1000);
+  });
+}
+
+export function LikeButton({
+  initialLikes,
+}: {
+  initialLikes: number;
+}) {
+  // 真实状态
   const [realLikes, setRealLikes] = useState(initialLikes);
 
-  // 2. 定义 useOptimistic
-  // value = realLikes (真实值)
-  // reducer = 把当前赞数 + 1 或者 - 1
-  const [optimisticLikes, setOptimisticLikes] = useOptimistic(
+  // 乐观状态
+  const [optimisticLikes, addOptimisticLike] = useOptimistic(
     realLikes,
-    (currentLikes, actionType) => {
-      return actionType === 'LIKE' ? currentLikes + 1 : currentLikes - 1;
+    (currentLikes, action: "LIKE") => {
+      switch (action) {
+        case "LIKE":
+          return currentLikes + 1;
+      }
     }
   );
 
-  const handleLike = () => {
-    // 必须在 Transition 或 Action 中使用
+  async function handleLike() {
     startTransition(async () => {
-      // 3. 立即触发乐观更新！界面上的数字瞬间 +1
-      setOptimisticLikes('LIKE'); 
+      // ① 立即更新 UI
+      addOptimisticLike("LIKE");
 
       try {
-        // 4. 发送真正的网络请求
-        const updatedLikes = await sendLikeToServer(); 
-        
-        // 5. 请求成功，更新真实状态
-        setRealLikes(updatedLikes); 
-      } catch (error) {
-        console.error("点赞失败了！");
-        // 如果报错了，这里什么都不用做！
-        // 因为 startTransition 结束了，React 会自动把 optimisticLikes 回滚为 realLikes
+        // ② 请求服务器
+        const result = await sendLikeToServer(realLikes);
+
+        // ③ 成功以后更新真实状态
+        setRealLikes(result.likes);
+      } catch (err) {
+        console.error(err);
+        // 什么都不用做
+        // React 会自动回滚 optimistic 状态
       }
     });
-  };
+  }
 
   return (
-    // 6. UI 绑定乐观状态 optimisticLikes
     <button onClick={handleLike}>
       👍 {optimisticLikes} 个赞
     </button>
