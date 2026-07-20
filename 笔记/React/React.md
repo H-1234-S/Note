@@ -2706,7 +2706,7 @@ const value = use(resource);
     
     - 如果 Promise 还在 **Pending（加载中）**，`use` 会直接“挂起”（Suspend）当前组件的渲染，并向上寻找最近的 `<Suspense fallback="{<Loading"/>}>` 边界，展示加载动画。
         
-    - 一旦 Promise 变成 **Fulfilled（成功）**，`use` 会让**组件重新渲染**，并将解析出的**具体数据**作为返回值赋给变量。
+    - 一旦 Promise 变成 **Fulfilled（成功）**，React 会尝试让**组件重新渲染**，并将解析出的**具体数据**作为返回值赋给变量。
         
     - 如果 Promise 变成 **Rejected（失败）**，它会把错误抛给最近的 **Error Boundary（错误边界）**。
 
