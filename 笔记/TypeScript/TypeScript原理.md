@@ -670,7 +670,7 @@ export declare function add(a: number, b: number): number;
 
 第三方库能被 TS 识别，通常就是因为它自带 `.d.ts`，或者安装了对应的 `@types/xxx`
 
-## 2. 模块解析
+# 2. 模块解析
 
 当代码中出现：
 
@@ -738,7 +738,7 @@ src/components/Button
 
 也就是说，打包器或运行环境也要配置同样的别名，否则 TS 检查通过，运行时仍然可能找不到模块
 
-## 3. 增量编译与 watch 模式
+# 3. 增量编译与 watch 模式
 
 在开发环境中，TypeScript 不会每次都从零开始
 
@@ -804,7 +804,7 @@ tsc -b --watch
 
 `-b` 是 build mode，会按引用关系先构建被依赖的项目
 
-## 4. Language Service
+# 4. Language Service
 
 平时编辑器里的智能提示、跳转定义、重命名、自动导入，并不是简单运行一次 `tsc`
 
@@ -844,7 +844,7 @@ user.
 
 所以 Binder 不只服务编译，也服务编辑器能力
 
-## 5. 常见错误来自哪个阶段
+# 5. 常见错误来自哪个阶段
 
 ### 5.1 Parser 错误
 
@@ -903,7 +903,7 @@ import { foo } from "@/foo";
 - `moduleResolution` 与项目运行方式不匹配
 - 打包器配置和 tsconfig 配置不一致
 
-## 6. TypeScript 原理总览图
+# 6. TypeScript 原理总览图
 
 ``` text
 tsconfig.json
@@ -948,7 +948,7 @@ Emitter 把类型擦掉并输出运行时代码
 Language Service 把这些能力提供给编辑器
 ```
 
-## 7. 学习 TypeScript 原理时的关键结论
+# 7. 学习 TypeScript 原理时的关键结论
 
 1. TypeScript 的类型系统主要发生在开发期，编译后大部分类型都会消失
 2. AST 只表示代码结构，不表示语义
