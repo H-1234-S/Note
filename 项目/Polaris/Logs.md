@@ -15,7 +15,10 @@ canvex最重要的功能是同步，意思是如果表中的数据发生了改�
 每个 query 运行时，**Convex 会记录**它读取过哪些数据。当 mutation 修改数据时，系统拿修改范围和依赖记录一比对，就知道哪些 query 结果可能变了，需要重跑。
 ## useQuery
 
+convex 有一套订阅机制；也就是 useQuery 不会一直运行
+	首次运行同步数据、查询范围内的字段发生变化时再次运行、qeury 参数发生变化时运行
 
+首次运行 useQuery 会将查询后的结果同步到浏览器缓存中；
 
 # background jobs
 ## Inngest
