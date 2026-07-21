@@ -1699,6 +1699,15 @@ export const DeferredValue = () => {
 export default DeferredValue
 ~~~
 
+### 和useTransition对比
+
+`useTransition` 和 `useDeferredValue` 设计目的都是一样，将渲染分为低优先级和高优先级，避免大量计算渲染把页面卡死
+
+`useTransition` 是从源头控制，标记哪个 `state` 是不紧急的；`useDeferredValue` 控制的是接收端，意思是传进来的 Props/State 太频繁，自己延迟消费
+
+`useTransition` 适用于拥有完整状态控制权，并且明确知道哪一个 `setState` 比较重
+
+`useDeferredValue` 适用于第三方 state 或者父组件传来的 props
 ## useRef
 
 * 当你在React中需要`处理DOM元素`或需要在组件渲染之间保持`持久性数据`时，便可以使用useRef。
