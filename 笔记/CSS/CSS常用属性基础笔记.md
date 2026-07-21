@@ -1051,7 +1051,7 @@ justify-content: space-evenly;
 
 下面这些属性写在每一个 Grid item 上。
 
-## `grid-column`
+### `grid-column`
 
 作用：控制某个元素占几列。
 
@@ -1061,7 +1061,7 @@ justify-content: space-evenly;
 }
 ```
 
-## `grid-row`
+### `grid-row`
 
 作用：控制某个元素占几行。
 
@@ -1078,7 +1078,7 @@ grid-row: 1 / 3;
 grid-row: span 2;
 ```
 
-## `grid-area`
+### `grid-area`
 
 作用：设置某个元素放到指定区域，也可以作为行列位置的简写。
 
@@ -1102,7 +1102,7 @@ grid-row: span 2;
 grid-area: 行开始 / 列开始 / 行结束 / 列结束;
 ```
 
-## `justify-self` / `align-self`
+### `justify-self` / `align-self`
 
 作用：单独控制某一个 Grid item 在自己格子里的对齐。
 
@@ -1122,7 +1122,7 @@ justify-self: end;
 justify-self: stretch;
 ```
 
-## `place-self`
+### `place-self`
 
 作用：`align-self` 和 `justify-self` 的简写。
 
