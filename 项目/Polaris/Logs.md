@@ -18,7 +18,7 @@ canvex最重要的功能是同步，意思是如果表中的数据发生了改�
 convex 有一套订阅机制；也就是 useQuery 不会一直运行
 	首次运行同步数据、查询范围内的字段发生变化时再次运行、qeury 参数发生变化时运行
 
-首次运行 useQuery 会将查询后的结果同步到浏览器缓存中；
+首次运行 useQuery 会将查询后的结果同步到浏览器缓存中；之后 useQuery 订阅的是缓存，这就是使用 withOptimisticUpdate 修改缓存后数据自动变化
 
 # background jobs
 ## Inngest
