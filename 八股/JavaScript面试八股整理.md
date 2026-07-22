@@ -2949,7 +2949,7 @@ function delay(ms, signal) {
 
 ---
 
-## 12. 补充
+## 12. 大厂面试回答模板与复习路线
 
 ### 12.1 面试回答结构
 
@@ -3158,29 +3158,5 @@ function createSearchService() {
 
 ---
 
-## 13. 高频知识点速记表
-
-| 知识点 | 一句话本质 | 面试关键词 |
-|---|---|---|
-| 数据类型 | 值有类型，变量无固定类型 | 原始值、引用、堆栈、不可变 |
-| 类型转换 | 运算符触发抽象转换 | ToPrimitive、valueOf、toString |
-| `==` | 抽象相等比较 | 隐式转换、慎用 |
-| `Object.is` | SameValue 比较 | NaN、+0/-0 |
-| 执行上下文 | 代码运行时环境 | 变量环境、词法环境、this |
-| 作用域链 | 变量查找路径 | 词法作用域、外部环境引用 |
-| 闭包 | 函数保留定义时环境 | 可达性、私有变量、React 陷阱 |
-| this | 调用时绑定 | 默认、隐式、显式、new、箭头函数 |
-| 原型链 | 对象属性委托查找链 | `[[Prototype]]`、共享方法 |
-| new | 构造调用协议 | 创建对象、绑定原型、绑定 this |
-| class | 原型继承语法糖 | 函数、本质、严格模式 |
-| Promise | 异步状态机 | pending、then 返回新 Promise |
-| async/await | Promise 语法糖 | 微任务、暂停恢复 |
-| Event Loop | 调度同步、异步和渲染 | 宏任务、微任务、Node 阶段 |
-| WeakMap | 弱引用对象 key | GC、不可遍历、私有数据 |
-| Proxy | 拦截对象内部操作 | trap、Reflect、不可 polyfill |
-| 深拷贝 | 复制对象图 | WeakMap、循环引用、特殊对象 |
-| V8 | 解释执行 + JIT 优化 | Ignition、TurboFan、隐藏类 |
-| 模块化 | 文件作用域和依赖管理 | CJS、ESM、Tree Shaking |
-| Stream | 分块处理数据 | 背压、大文件、pipe |
-| AbortController | 取消异步任务 | signal、abort、fetch |
+## 13. 补充
 
