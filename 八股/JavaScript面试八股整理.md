@@ -3162,4 +3162,4 @@ function createSearchService() {
 
 ### 13.1 for...in与for...of的区别
 
-for...in 遍历的是对象可枚举属性的属性值；for...of 遍历的是
+for...in 遍历的是对象可枚举属性的属性名；for...of 遍历的是可迭代对象的属性值
