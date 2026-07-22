@@ -4,5 +4,5 @@
 
 `dependencies` 可以理解为生成环境依赖；`devDependencies` 可以理解为开发环境的依赖
 
-`npm config list` 命令可以查看 `npm` 的配置项
+`npm config list` 命令可以查看 `npm` 的配置项，包括源、代理、位置
 
