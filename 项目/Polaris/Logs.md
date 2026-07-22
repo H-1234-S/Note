@@ -944,7 +944,7 @@ allow-top-navigation允许修改父页面
 ``` html
 <iframe
     src="http://127.0.0.1:3000"
-    sandbox="
+    sandbox="[[]]
         allow-scripts
         allow-forms
         allow-modals
