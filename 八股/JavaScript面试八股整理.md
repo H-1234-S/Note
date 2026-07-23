@@ -3167,3 +3167,30 @@ function createSearchService() {
 只有实现了 `Symbol.iterator` 才可以被 `for...of` 遍历
 
 遍历对象时优先使用 `Object.keys()`、`Object.entries()` 或 `for...in` 配合 `Object.hasOwn()`
+
+## 13.2 map 和 forEach 有什么区别
+
+`map` 有返回值并生成新数组；而 `forEach` 只做纯粹的遍历，没有返回值。
+
+``` js
+const numbers = [1, 2, 3, 4];
+
+// 把每个数字翻倍
+const doubled = numbers.map(num => num * 2);
+
+console.log(doubled); // [2, 4, 6, 8]  <- 得到了新数组
+console.log(numbers); // [1, 2, 3, 4]  <- 原数组保持不变
+```
+
+``` js
+const numbers = [1, 2, 3, 4];
+
+// 只做打印操作
+numbers.forEach(num => {
+  console.log(`当前数字是: ${num}`);
+});
+
+// 如果尝试把 forEach 赋值给变量：
+const result = numbers.forEach(num => num * 2);
+console.log(result); // undefined  <- 没有返回值！
+```
