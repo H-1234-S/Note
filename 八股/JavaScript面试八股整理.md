@@ -3162,13 +3162,13 @@ function createSearchService() {
 
 ### 13.1 for...in与for...of的区别
 
-`for...in` 遍历的是对象可枚举属性的属性名；`for...of` 遍历的是可迭代对象的属性值
+`for...in` 遍历的是对象可枚举属性的属性名；`for...of` 遍历的是**可迭代对象**的属性值
 
 只有实现了 `Symbol.iterator` 才可以被 `for...of` 遍历
 
 遍历对象时优先使用 `Object.keys()`、`Object.entries()` 或 `for...in` 配合 `Object.hasOwn()`
 
-## 13.2 map 和 forEach 有什么区别
+### 13.2 map 和 forEach 有什么区别
 
 `map` 有返回值并生成新数组；而 `forEach` 只做纯粹的遍历，没有返回值。
 
