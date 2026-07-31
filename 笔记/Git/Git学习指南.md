@@ -1180,5 +1180,3 @@ chore: update dependencies
 1. 工作区、暂存区、本地仓库之间如何流动
 2. 分支、HEAD、commit 之间如何指向
 3. blob、tree、commit、tag 如何组成 Git 的对象数据库
-
-掌握这三层之后，Git 的大多数命令都不再是零散口诀，而是在操作一套清晰的数据结构。
