@@ -1078,8 +1078,14 @@ git status
 git add .
 git add file.txt
 git commit -m "message"
-git commit --amend
+git commit --amend   
 ```
+
+`git commit --amend` 把当前暂存区内容合并到**上一次 commit** 中；**修改原来的 commit**。
+	commit message 写错了
+	漏提交了一个文件
+	想修改刚刚提交的内容
+
 
 ### 17.3 查看信息
 
