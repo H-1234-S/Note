@@ -370,5 +370,545 @@ pnpm build-all
 Turborepo 会自动去重，没有变化的部分不会重复构建。
 
 ---
+继续：
 
-（未完，下一部分继续从 **Bundler Selection（打包器选择）** 开始）
+---
+
+# 打包器选择（Bundler Selection）
+
+Turbopack 是以下命令的默认打包器：
+
+- `next dev`
+    
+- `next build`
+    
+
+如果需要强制使用 webpack：
+
+```bash
+next build --webpack
+```
+
+表示：
+
+```text
+生产环境构建 + webpack
+```
+
+---
+
+开发服务器使用 webpack：
+
+```bash
+next dev --webpack
+```
+
+表示：
+
+```text
+开发服务器 + webpack
+```
+
+---
+
+不存在：
+
+```bash
+--no-turbopack
+```
+
+参数。
+
+---
+
+# 测试（Testing）
+
+## 运行指定测试文件
+
+开发模式 + Turbopack：
+
+```bash
+pnpm test-dev-turbo test/path/to/test.test.ts
+```
+
+---
+
+## 运行匹配指定模式的测试
+
+```bash
+pnpm test-dev-turbo -t "pattern"
+```
+
+---
+
+## 运行开发测试
+
+```bash
+pnpm test-dev-turbo test/development/
+```
+
+---
+
+# 不同模式下的测试命令
+
+- `pnpm test-dev-turbo`
+    
+    - 开发模式
+        
+    - 使用 Turbopack
+        
+    - 默认模式
+        
+
+---
+
+- `pnpm test-dev-webpack`
+    
+    - 开发模式
+        
+    - 使用 Webpack
+        
+
+---
+
+- `pnpm test-start-turbo`
+    
+    - 生产构建 + 启动
+        
+    - 使用 Turbopack
+        
+
+---
+
+- `pnpm test-start-webpack`
+    
+    - 生产构建 + 启动
+        
+    - 使用 Webpack
+        
+
+---
+
+# 其他测试命令
+
+## 单元测试
+
+```bash
+pnpm test-unit
+```
+
+说明：
+
+- 只运行单元测试
+    
+- 速度快
+    
+- 不启动浏览器
+    
+
+---
+
+## 创建新的测试文件
+
+```bash
+pnpm new-test
+```
+
+说明：
+
+- 根据模板生成新的测试文件
+    
+- 交互式操作
+    
+
+---
+
+# 非交互模式生成测试（用于 AI Agent）
+
+生成测试必须使用：
+
+```bash
+pnpm new-test
+```
+
+---
+
+使用：
+
+```bash
+--args
+```
+
+参数可以关闭交互模式：
+
+格式：
+
+```bash
+pnpm new-test -- --args <appDir> <name> <type>
+```
+
+参数说明：
+
+|参数|含义|
+|---|---|
+|`appDir`|是否用于 App Router 目录|
+|`name`|测试名称|
+|`type`|测试类型|
+
+---
+
+测试类型：
+
+```text
+e2e
+production
+development
+unit
+```
+
+---
+
+示例：
+
+```bash
+pnpm new-test -- --args true my-feature e2e
+```
+
+表示：
+
+创建一个：
+
+- App Router 测试
+    
+- 名称为 `my-feature`
+    
+- 类型为 e2e
+    
+
+的测试。
+
+---
+
+# 高效分析测试输出
+
+不要：
+
+重复运行同一个测试套件，然后使用不同 grep 参数过滤。
+
+应该：
+
+第一次运行时保存完整输出。
+
+---
+
+示例：
+
+```bash
+HEADLESS=true pnpm test-dev-turbo test/path/to/test.ts > /tmp/test-output.log 2>&1
+```
+
+---
+
+然后直接分析：
+
+查看失败测试：
+
+```bash
+grep "●" /tmp/test-output.log
+```
+
+---
+
+查看错误详情：
+
+```bash
+grep -A5 "Error:" /tmp/test-output.log
+```
+
+---
+
+查看最后总结：
+
+```bash
+tail -5 /tmp/test-output.log
+```
+
+---
+
+# 编写测试（Writing Tests）
+
+## 测试编写规范
+
+---
+
+## 使用 `pnpm new-test` 创建新的测试套件
+
+它会：
+
+- 创建正确目录结构
+    
+- 创建 fixture 文件
+    
+
+---
+
+## 等待操作使用 `retry()`
+
+不要使用：
+
+```typescript
+setTimeout
+```
+
+---
+
+推荐：
+
+```typescript
+import { retry } from 'next-test-utils'
+
+await retry(async () => {
+  const text = await browser.elementByCss('p').text()
+
+  expect(text).toBe('expected value')
+})
+```
+
+---
+
+不要：
+
+```typescript
+await new Promise((resolve) =>
+  setTimeout(resolve, 1000)
+)
+```
+
+---
+
+原因：
+
+`retry()` 会持续轮询直到满足条件。
+
+比固定等待时间更加稳定。
+
+---
+
+# 不要使用 `check()`
+
+`check()` 已经废弃。
+
+不要：
+
+```typescript
+await check(
+  () => browser.elementByCss('p').text(),
+  /expected/
+)
+```
+
+---
+
+应该：
+
+```typescript
+await retry(async () => {
+  const text = await browser.elementByCss('p').text()
+
+  expect(text).toMatch(/expected/)
+})
+```
+
+---
+
+# 优先使用真实 fixture 目录
+
+推荐：
+
+使用真实目录保存测试文件。
+
+例如：
+
+```typescript
+const { next } = nextTestSetup({
+  files: __dirname,
+})
+```
+
+---
+
+不要：
+
+直接内联：
+
+```typescript
+const { next } = nextTestSetup({
+  files: {
+    'app/page.tsx': `
+      export default function Page() {}
+    `,
+  },
+})
+```
+
+---
+
+原因：
+
+真实目录：
+
+- 更容易维护
+    
+- 更符合项目结构
+    
+
+---
+
+# Lint 和类型检查（Linting and Types）
+
+完整检查：
+
+```bash
+pnpm lint
+```
+
+包含：
+
+- 类型检查
+    
+- prettier
+    
+- eslint
+    
+- ast-grep
+    
+
+---
+
+自动修复：
+
+```bash
+pnpm lint-fix
+```
+
+---
+
+只修复格式：
+
+```bash
+pnpm prettier-fix
+```
+
+---
+
+TypeScript 类型检查：
+
+```bash
+pnpm types
+```
+
+---
+
+# PR 状态（CI 失败和代码 Review）
+
+当用户询问：
+
+- CI 失败
+    
+- PR review
+    
+- PR 状态
+    
+
+需要运行：
+
+```bash
+node scripts/pr-status.js
+```
+
+---
+
+自动检测当前分支对应的 PR：
+
+```bash
+node scripts/pr-status.js
+```
+
+---
+
+分析指定 PR：
+
+```bash
+node scripts/pr-status.js <number>
+```
+
+---
+
+该脚本会生成分析文件：
+
+```text
+scripts/pr-status/
+```
+
+---
+
+# 通用排查规则
+
+始终遵循：
+
+## 优先处理阻塞失败
+
+顺序：
+
+1. build
+    
+2. lint
+    
+3. types
+    
+4. tests
+    
+
+---
+
+## 默认认为失败是真实问题
+
+除非确认，否则不要认为：
+
+- 测试 flaky
+    
+- CI 环境问题
+    
+
+---
+
+## 使用相同 CI 模式复现
+
+尤其注意：
+
+```bash
+IS_WEBPACK_TEST=1
+```
+
+该环境变量会影响：
+
+- 打包器选择
+    
+- 测试结果
+    
+
+---
+
+## 模块解析 / 构建图修复
+
+必须使用：
+
+正常模式对应的测试命令。
+
+确保：
+
+package resolution（包解析）流程被真实执行。
+
+---
+
+（下一部分继续：**PR 状态分析技巧、GitHub Pull Requests、Issue、核心目录、开发技巧**）
