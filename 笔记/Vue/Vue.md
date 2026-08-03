@@ -18,7 +18,7 @@
 
 ## ref()
 
-### 类型标注
+#### 类型标注
 
 ``` js
 import type { Ref } form 'vue'
@@ -29,15 +29,17 @@ import type { Ref } form 'vue'
 ``` js
 
 ```
-## script setup
+### script setup
 
-## 为什么要使用 ref？
+### 为什么要使用 ref？
 
 当组件首次渲染时，会追踪组件中使用的 ref，当 ref发生变化时，会触发一次组件的重新渲染
 
-## 深层响应式
+### 深层响应式
 
 `shallowRef` 监听 `value`
-## DOM 更新时机
+### DOM 更新时机
 
 Vue 种 DOM 更新不是同步更新的，做了**批处理**
+
+## reactive
