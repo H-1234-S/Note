@@ -18,6 +18,10 @@
 
 ## ref()
 
+
+### 类型标注
+
+
 ## script setup
 
 ## 为什么要使用 ref？
@@ -29,3 +33,4 @@
 `shallowRef` 监听 `value`
 ## DOM 更新时机
 
+Vue 种 DOM 更新不是同步更新的，做了**批处理**
