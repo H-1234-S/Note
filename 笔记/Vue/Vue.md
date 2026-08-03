@@ -24,7 +24,11 @@
 import type { Ref } form 'vue'
 ```
 
+或者
 
+``` js
+
+```
 ## script setup
 
 ## 为什么要使用 ref？
