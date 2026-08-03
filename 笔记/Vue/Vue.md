@@ -18,10 +18,11 @@
 
 ## ref()
 
-
 ### 类型标注
 
-
+``` js
+import type { Ref } form 'vue'
+```
 ## script setup
 
 ## 为什么要使用 ref？
