@@ -59,3 +59,28 @@ Vue 种 DOM 更新不是同步更新的，做了**批处理**
 ## 可写计算属性
 
 computed 接收一个对象，抛出 get 和 set 方法
+
+``` vue
+<script setup>
+import { ref, computed } from 'vue'
+
+const firstName = ref('John')
+const lastName = ref('Doe')
+
+const fullName = computed({
+  // getter
+  get() {
+    return firstName.value + ' ' + lastName.value
+  },
+  // setter
+  set(newValue) {
+    // 注意：我们这里使用的是解构赋值语法
+    [firstName.value, lastName.value] = newValue.split(' ')
+  }
+})
+</script>
+```
+
+`fullName.value` 会触发 `get()` 函数
+
+为 `fullName.value` 赋值则是调用 `set()` 函数；之后运行 `newValue.split(' ')` 解构赋值
