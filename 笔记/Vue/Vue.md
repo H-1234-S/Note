@@ -90,3 +90,7 @@ const fullName = computed({
 可以绑定对象
 
 可以绑定计算属性
+
+# 表单输入绑定
+
+v-model 在表单输入元素或组件上创建双向绑定。
