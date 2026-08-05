@@ -93,4 +93,6 @@ const fullName = computed({
 
 # 表单输入绑定
 
+v-bind 动态的绑定属性
+
 v-model 在表单输入元素或组件上创建双向绑定。
