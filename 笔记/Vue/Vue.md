@@ -84,3 +84,9 @@ const fullName = computed({
 `fullName.value` 会触发 `get()` 函数
 
 为 `fullName.value` 赋值则是调用 `set()` 函数；之后运行 `newValue.split(' ')` 解构赋值
+
+# 类与样式绑定
+
+可以绑定对象
+
+可以绑定计算属性
