@@ -639,7 +639,14 @@ const fullName = computed({
 
 # 类与样式的绑定
 
-绑定对象
+绑定对象：相当于动态的切换类；active 类只有在 isActive 为 true 时才显示
+
+``` jsx
+<div v-bind:class="{ active: isActive }">isActive</div>
+
+// vue
+const isActive = ref(false);
+```
 
 绑定计算属性
 
@@ -648,6 +655,12 @@ const fullName = computed({
 ``` vue
 <div :class="[activeClass, errorClass]"></div>
 ```
+
+---
+
+> 对于**只有一个根节点**的子组件，直接在子节点上设置class会作用于子组件根节点的class上
+
+> 对于有多个节点的子组件，需要借助 `$attrs` 属性来指定接收的元素
 # 侦听器
 
 watch 当依赖发生变化时执行副作用
