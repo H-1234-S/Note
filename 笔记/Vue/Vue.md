@@ -528,38 +528,6 @@ function triggerRef(ref: ShallowRef): void
 
 ## customRef
 
-# 模板语法
-
-  
-
-## 文本插值
-
-  
-
-## HTML
-
-  
-
-## 属性绑定
-
-  
-
-## 使用 JavaScript 表达式
-
-  
-
-## 指令
-
-  
-
-### 动态参数
-
-  
-
-### 修饰符
-
-  
-
 # 响应式基础
 ## ref()
 
@@ -667,6 +635,57 @@ watch 当依赖发生变化时执行副作用
 
 侦听的内容可以是一个ref对象(计算属性)、一个函数/返回值、多个数据源组成的数组
 
+**注意：** 不能直接侦听响应式对象的属性值
+
+``` js
+const obj = reactive({ count: 0 })
+
+// 错误，因为 watch() 得到的参数是一个 number
+watch(obj.count, (count) => {
+  console.log(`Count is: ${count}`)
+})
+```
+
+这里需要用一个返回该属性的 getter 函数：
+
+``` js
+// 提供一个 getter 函数
+watch(
+  () => obj.count,
+  (count) => {
+    console.log(`Count is: ${count}`)
+  }
+)
+```
+
+如果传递一个**响应式对象**，那么会创建一个**深层侦听器**；可以用 `getter` 函数依赖具体一属性
+
+只有在返回不同的对象时，才会触发回调：
+
+``` js
+watch(
+  () => state.someObject,
+  () => {
+    // 仅当 state.someObject 被替换时触发
+  }
+)
+```
+
+你也可以给上面这个例子显式地加上 `deep` 选项，强制转成深层侦听器：
+
+``` js
+watch(
+  () => state.someObject,
+  (newValue, oldValue) => {
+    // 注意：`newValue` 此处和 `oldValue` 是相等的
+    // *除非* state.someObject 被整个替换了
+  },
+  { deep: true }  // 还可以接收一个数字，表示最大遍历深度
+)
+```
+
+---
+
 `watch` 默认是懒执行的：仅当数据源变化时，才会执行回调
 
 ``` js
@@ -683,7 +702,7 @@ watch(
 
 ## `watchEffect()`
 
-watchEffect 会自动跟踪回调中的响应式依赖
+`watchEffect` 会自动跟踪回调中的响应式依赖
 
 ``` js
 const todoId = ref(1)
@@ -710,10 +729,61 @@ watchEffect(async () => {
 })
 ```
 
-对于嵌套结构中的数据，watchEffect 只跟踪回调中被使用到的属性，而不是递归地跟踪所有的属性。
+对于嵌套结构中的数据，watchEffect 只跟踪**回调中被使用到的属性**，而不是递归地跟踪所有的属性。
 
 ## onWatcherCleanup
 
 相当于 useEffect 中的清理函数
 
-必须在 `watchEffect` 效果函数或 `watch` 回调函数的同步执行期间调用：你不能在异步函数的 `await` 语句之后调用它。
+必须在 `watchEffect` 效果函数或 `watch` 回调函数的**同步执行期间调用**：你不能在异步函数的 `await` 语句之后调用它。
+
+> 作为替代，`onCleanup` 函数还作为第三个参数传递给侦听器回调，以及 `watchEffect` 作用函数的第一个参数：
+
+``` js
+watch(id, (newId, oldId, onCleanup) => {
+  // ...
+  onCleanup(() => {
+    // 清理逻辑
+  })
+})
+
+watchEffect((onCleanup) => {
+  // ...
+  onCleanup(() => {
+    // 清理逻辑
+  })
+})
+```
+
+## 回调的触发时机
+
+默认情况下，侦听器回调会在父组件更新 (如有) **之后**、所属组件的 DOM 更新**之前**被调用
+
+> 类似于组件更新，用户创建的侦听器回调函数也会被批量处理以避免重复调用
+
+如果想在侦听器回调中能访问被 Vue 更新**之后**的所属组件的 DOM，需要指明 `flush: 'post'` 选项
+
+# 模板引用
+
+## 组件上的 ref
+
+模板引用也可以被用在一个子组件上。这种情况下引用中获得的值是**组件实例**：
+
+``` vue
+<script setup>
+import { useTemplateRef, onMounted } from 'vue'
+import Child from './Child.vue'
+
+const childRef = useTemplateRef('child')
+
+onMounted(() => {
+  // childRef.value 将持有 <Child /> 的实例
+})
+</script>
+
+<template>
+  <Child ref="child" />
+</template>
+```
+
+> **注意：** 使用了 `<script setup>` 的组件是**默认私有**的；子组件需要通过 `defineExpose` 宏显示暴露
