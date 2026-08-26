@@ -1,0 +1,79 @@
+项目功能说明-导出数据功能所使用的一些微信官方api说明
+导出数据页面功能介绍
+生成excel下载链接或附件下载链接后，用户可复制链接地址到本地；可下载文件到本地；可转发文件至聊天对话框（微信端）；可直接查看excel文件内容
+涉及到的api介绍
+1.wx.downloadFile下载文件到本地
+2.wx.shareFileMessage转发文件到聊天
+3.wx.setClipboardData设置系统剪贴板的内容
+4.wx.openDocument新开页面打开文档
+项目中的使用场景及注意事项
+1.wx.downloadFile
+    wx.downloadFile({
+        url: 'https://example.com/audio/123', 
+        success (res) {
+          if (res.statusCode === 200) {
+            
+          } else {
+            wx.showToast({ title: '下载失败', icon: 'none' })
+          }
+        }
+    })
+此处注意：url必须为https开头的路径；若为http开头路径，会导致功能失效；使用该api时要注意和后端确认，此时的url为https开头
+2.wx.shareFileMessage
+    wx.downloadFile({
+        url: 'url',
+        success: res => {
+            wx.shareFileMessage({
+              // @ts-ignore
+              fileName: subject + '.xlsx',
+              filePath: res.tempFilePath,
+              fail: console.error
+            })
+        },
+        fail: console.error
+    })
+此处注意：
+1.fileName为自定义文件名，需是完整名称，包含文件扩展名
+2.该api仅支持微信小程序，所以使用时需做判断，在QQ小程序中单独处理，功能从转发文件至对话框改为仅复制文件链接到手机剪贴板
+3.wx.setClipboardData
+    wx.setClipboardData({
+        data: '内容',
+        success() {
+          wx.showModal({
+            title: '复制成功',
+            content:
+              '将链接发送到微信文件传输助手，在电脑端微信点击链接即可下载到电脑，也可在手机端打开。',
+            confirmText: '复制',
+            showCancel: false
+          })
+        },
+        fail() {
+          wx.showToast({
+            title: '复制失败',
+            icon: 'none'
+          })
+        }
+      })
+4.wx.openDocument
+wx.downloadFile({
+    url: '下载地址',
+    success: res => {
+        if (res.statusCode === 200) {
+            wx.openDocument({
+              filePath: res.tempFilePath,
+              fail() {
+                wx.showToast({ title: '打开文档失败', icon: 'none' })
+              }
+            })
+          } else {
+            wx.showToast({ title: '下载失败', icon: 'none' })
+          }
+    },
+    fail() {
+        wx.showToast({ title: '下载失败', icon: 'none' })
+    },
+    complete() {
+        wx.hideLoading()
+    }
+})
+此处注意：filePath为本地路径，可通过wx.downloadFile获取，所以wx.openDocument一般配合wx.downloadFile使用
