@@ -1,7 +1,7 @@
 # 模块化
 ## common.js
 
-### require 的五种引入方式
+### require
 
 引入自己编写的文件
 
@@ -28,4 +28,6 @@ const http = require('node:http')
 ``` js
 const data = require('./data.json')
 ```
+
+### module.exports
 
