@@ -54,4 +54,14 @@ const data = require('./data.json')
 
 `globalThis` API 会自动**检测当前的运行环境**，然后**返回对应的全局变量**
 
-# Path Windows & posix
+# Path
+
+## **posix（Portable Operating System Interface of UNIX）**
+
+`posix` 表示**可移植操作系统接口**，也就是定义了一套标准
+
+遵守这套标准的操作系统有(unix,like unix,linux,macOs,windows wsl)
+
+为什么要定义这套标准，比如在Linux系统启动一个进程需要调用`fork`函数,在windows启动一个进程需要调用`creatprocess`函数
+
+这样就会有问题，比如我在linux写好了代码，需要移植到windows发现函数不统一，posix标准的出现就是为了解决这个问题。
