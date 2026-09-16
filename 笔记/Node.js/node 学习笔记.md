@@ -54,10 +54,19 @@ const data = require('./data.json')
 
 `globalThis` API 会自动**检测当前的运行环境**，然后**返回对应的全局变量**
 
-# Path
+# Path API
 
 ## basename
 
+返回给定路径的最后一部分
+
+``` node
+const path = require("node:path");
+
+console.log(path.basename("E:\\A\\Note\\AI\\jo.js"));
+
+console.log(path.basename("/a/note/ai/jo.js"));
+```
 
 
 ## posix（Portable Operating System Interface of UNIX）
