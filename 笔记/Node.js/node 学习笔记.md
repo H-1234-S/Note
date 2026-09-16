@@ -56,6 +56,8 @@ const data = require('./data.json')
 
 # Path
 
+
+
 ## **posix（Portable Operating System Interface of UNIX）**
 
 `posix` 表示**可移植操作系统接口**，也就是定义了一套标准
