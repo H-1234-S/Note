@@ -53,3 +53,5 @@ const data = require('./data.json')
 在 `node` 环境下，全局变量挂载到 `global` 下，任何模块都可以访问到
 
 `globalThis` API 会自动**检测当前的运行环境**，然后**返回对应的全局变量**
+
+# Path Windows & posix
