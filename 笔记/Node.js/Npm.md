@@ -63,6 +63,23 @@ npm 会尽可能扁平化，但遇到版本冲突时，仍然可能嵌套安装�
 
 - 如果没有，就去**构建依赖树、同时扁平化**；之后就是检查缓存，内容同上。
 
+---
+# npm run xxx原理
+
+运行 `npm run dev` 命令后，会去读取 `package.json` 文件中 `script` 对应脚本命令
+
+> **查找规则**
+
+会在当前项目的 `node_moduels` 的 `.bin` 去查找可执行命令
+
+当前 `node_moduels` 下没有的话，再去查找全局的 `node_moduels`
+
+如果hai
+
+
+
+
+---
 # package-lock.json 的作用
 
 `package.json` 只有大致的版本号，运行 `npm install` 时由 `npm` 决定下具体哪一个，这个具体的信息就会同步到 `package_lock.json`中。
