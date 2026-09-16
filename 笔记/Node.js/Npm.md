@@ -54,3 +54,14 @@ npm 会尽可能扁平化，但遇到版本冲突时，仍然可能嵌套安装�
 之后会按照 `项目级.npmrc` 、`用户级.npmrc` 、`全局级.npmrc` 、`npm内置的.npmrc` 查找配置文件`(作用同 config )`
 
 查找完之后，去检查有没有 `package-lock.json` 
+
+- 如果有，比较 `package.json` 和 `package_lock.json` 中依赖的版本号
+
+	- 如果不一致，会根据 `package.json` 中版本号以及语义去下载包，之后更新`package_lock.json` 文件。
+		
+	- 如果一致，会检查缓存，如果缓存中有，就解压到 `node_moduels`；如果没有就去源下载、添加到缓存中、更新 `lock` 文件、解压到 `node_moduels`
+
+- 如果没有，就去**构建依赖树、同时扁平化**；之后就是检查缓存，内容同上。
+
+# package-lock.json 的作用
+
