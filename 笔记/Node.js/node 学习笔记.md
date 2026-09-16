@@ -102,6 +102,22 @@ console.log(path.extname("E:\\A\\Note\\AI\\jo.js"));
 ```
 
 > **注意：** 如果没有点返回空值；如果有多个点返回最后一个
+
+## join
+
+`path.join` 用于拼接路径
+
+``` node
+const path = require("node:path");
+
+console.log(path.join("/a", "/b", "/c", "../"));
+// output \a\b\
+```
+
+## resolve
+
+
+
 ## posix
 
 `posix（Portable Operating System Interface of UNIX）` 表示**可移植操作系统接口**，也就是定义了一套标准
