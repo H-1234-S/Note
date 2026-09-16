@@ -38,3 +38,7 @@ const data = require('./data.json')
 
 ## Common.js和ESModule区别
 
+- Cjs是基于运行时的同步加载，esm是基于编译时的异步加载
+- Cjs是可以修改值的，esm值并且不可修改（可读的）
+- Cjs不可以tree shaking，esm支持tree shaking
+- commonjs中顶层的this指向这个模块本身，而ES6中顶层this指向undefined
