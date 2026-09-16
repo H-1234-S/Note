@@ -74,10 +74,26 @@ npm 会尽可能扁平化，但遇到版本冲突时，仍然可能嵌套安装�
 
 当前 `node_moduels` 下没有的话，再去查找全局的 `node_moduels`
 
-如果hai
+如果还没找到就去环境变量查找
 
+再找不到就进行报错
 
+---
+# npm 生命周期
 
+``` json
+    "predev": "node prev.js",
+    "dev": "node index.js",
+    "postdev": "node post.js"
+```
+
+执行 npm run dev 命令的时候 predev 会自动执行，他的生命周期是在dev之前执行
+
+然后执行dev命令，再然后执行postdev，也就是dev之后执行
+
+运用场景例如npm run build 可以在打包之后删除dist目录等等
+
+post例如你编写完一个工具发布npm，那就可以在之后写一个ci脚本顺便帮你推送到git等等
 
 ---
 # package-lock.json 的作用
