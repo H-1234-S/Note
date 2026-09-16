@@ -34,7 +34,11 @@ const data = require('./data.json')
 ## ESModule
 
 ### import
+
+函数式 `import` 返回的是一个 `Promise`
 ### export
+
+导出有两种方式，一种是默认导出，一种是普通导出；默认导出可以和普通导出共存，但是一个文件中只能有一个默认导出
 
 ## Common.js和ESModule区别
 
@@ -42,3 +46,6 @@ const data = require('./data.json')
 - Cjs是可以修改值的，esm值并且不可修改（可读的）
 - Cjs不可以tree shaking，esm支持tree shaking
 - commonjs中顶层的this指向这个模块本身，而ES6中顶层this指向undefined
+# 全局变量
+
+在browres
