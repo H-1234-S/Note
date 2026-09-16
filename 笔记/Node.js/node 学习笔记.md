@@ -58,7 +58,7 @@ const data = require('./data.json')
 
 ## basename
 
-返回给定路径的最后一部分
+`path.basename` 返回给定路径的最后一部分
 
 ``` node
 const path = require("node:path");
@@ -66,9 +66,20 @@ const path = require("node:path");
 console.log(path.basename("E:\\A\\Note\\AI\\jo.js"));
 
 console.log(path.basename("/a/note/ai/jo.js"));
+// all output jo.js
 ```
 
+在 `windows` 中，默认是使用 `\` 作为分隔符；但是也兼容了 `/` 作为分隔符
 
+> 但是 `posix` 是处理不了 `\`
+
+``` node
+const path = require("node:path");
+
+// 在 windows 环境下模拟 posix 处理路径
+console.log(path.posix.basename("E:\\A\\Note\\AI\\jo.js"));
+// output E:\\A\\Note\\AI\\jo.js
+```
 ## posix（Portable Operating System Interface of UNIX）
 
 `posix` 表示**可移植操作系统接口**，也就是定义了一套标准
