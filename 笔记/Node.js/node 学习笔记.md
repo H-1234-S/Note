@@ -80,9 +80,19 @@ const path = require("node:path");
 console.log(path.posix.basename("E:\\A\\Note\\AI\\jo.js"));
 // output E:\\A\\Note\\AI\\jo.js
 ```
-## posix（Portable Operating System Interface of UNIX）
 
-`posix` 表示**可移植操作系统接口**，也就是定义了一套标准
+## dirname
+
+`path.dirname` 返回除了**最后一部分**的**前面全部内容**；与 `basename` 互补
+
+``` node
+const path = require("node:path");
+
+console.log(path.dirname("E:\\A\\Note\\AI\\jo.js"));
+```
+## posix
+
+`posix（Portable Operating System Interface of UNIX）` 表示**可移植操作系统接口**，也就是定义了一套标准
 
 遵守这套标准的操作系统有(unix,like unix,linux,macOs,windows wsl)
 
