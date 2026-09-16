@@ -50,4 +50,6 @@ const data = require('./data.json')
 
 在 `browser` 环境下，全局变量可以使用 `var` 定义，会自动挂载到 `window` 下
 
-在 `node` 环境下，全局变量挂载到 `glob`
+在 `node` 环境下，全局变量挂载到 `global` 下，任何模块都可以访问到
+
+`global`
