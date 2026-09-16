@@ -62,6 +62,6 @@ const data = require('./data.json')
 
 遵守这套标准的操作系统有(unix,like unix,linux,macOs,windows wsl)
 
-为什么要定义这套标准，比如在Linux系统启动一个进程需要调用`fork`函数,在windows启动一个进程需要调用`creatprocess`函数
+为什么要定义这套标准，比如在Linux系统启动一个进程需要调用 `fork` 函数,在 `windows` 启动一个进程需要调用 `creatprocess` 函数
 
-这样就会有问题，比如我在linux写好了代码，需要移植到windows发现函数不统一，posix标准的出现就是为了解决这个问题。
+这样就会有问题，比如我在 `linux` 写好了代码，需要移植到 `windows` 发现函数不统一，`posix` 标准的出现就是为了解决这个问题。
