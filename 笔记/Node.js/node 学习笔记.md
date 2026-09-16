@@ -90,6 +90,18 @@ const path = require("node:path");
 
 console.log(path.dirname("E:\\A\\Note\\AI\\jo.js"));
 ```
+
+## extname
+
+`path.extname` 返回带 `.` 的后缀名；例如返回 `.html`
+
+``` node
+const path = require("node:path");
+
+console.log(path.extname("E:\\A\\Note\\AI\\jo.js"));
+```
+
+> **注意：** 如果没有点返回空值；如果有多个点返回最后一个
 ## posix
 
 `posix（Portable Operating System Interface of UNIX）` 表示**可移植操作系统接口**，也就是定义了一套标准
