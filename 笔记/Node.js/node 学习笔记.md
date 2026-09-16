@@ -34,7 +34,7 @@ const data = require('./data.json')
 ## ESModule
 
 ### import
-
-
-
 ### export
+
+## Common.js和ESModule区别
+
