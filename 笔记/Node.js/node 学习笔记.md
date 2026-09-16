@@ -1,5 +1,5 @@
 # 模块化
-## common.js
+## Common.js
 
 ### require
 
@@ -31,3 +31,10 @@ const data = require('./data.json')
 
 ### module.exports
 
+## ESModule
+
+### import
+
+
+
+### export
