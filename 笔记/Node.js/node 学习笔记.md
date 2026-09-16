@@ -48,4 +48,6 @@ const data = require('./data.json')
 - commonjs中顶层的this指向这个模块本身，而ES6中顶层this指向undefined
 # 全局变量
 
-在browres
+在 `browser` 环境下，全局变量可以使用 `var` 定义，会自动挂载到 `window` 下
+
+在 `node` 环境下，全局变量挂载到 `glob`
