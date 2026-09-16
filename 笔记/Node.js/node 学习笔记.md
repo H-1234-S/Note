@@ -118,7 +118,14 @@ console.log(path.join("/a", "/b", "/c", "../"));
 
 `path.resolve` 用于解析路径
 
+``` node
+const path = require("node:path");
 
+// 如果只有相对路径，则返回基于当前工作目录的绝对路径
+console.log(path.resolve("./index.html");
+// 输入内容同上
+console.log(path.resolve(__dirname,"./index.html"));
+```
 
 ## posix
 
