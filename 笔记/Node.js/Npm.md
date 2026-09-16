@@ -65,3 +65,15 @@ npm 会尽可能扁平化，但遇到版本冲突时，仍然可能嵌套安装�
 
 # package-lock.json 的作用
 
+`package.json` 只有大致的版本号，运行 `npm install` 时由 `npm` 决定下具体哪一个，这个具体的信息就会同步到 `package_lock.json`中。
+
+`package_lock.json` 锁定版本、记录依赖树详细信息
+
+## 字段
+
+- version 该参数指定了当前包的版本号
+- resolved 该参数指定了当前包的下载地址
+- integrity 用于验证包的完整性
+- dev 该参数指定了当前包是一个开发依赖包
+- bin 该参数指定了当前包中可执行文件的路径和名称
+- engines 该参数指定了当前包所依赖的Node.js版本范围
