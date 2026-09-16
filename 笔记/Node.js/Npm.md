@@ -6,3 +6,5 @@
 
 `npm config list` 命令可以查看 `npm` 的配置项，包括源、代理、位置
 
+# npm install 原理
+
