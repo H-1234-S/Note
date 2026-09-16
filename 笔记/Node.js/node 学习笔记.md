@@ -160,9 +160,9 @@ console.log(path.parse("/home/abort/users/jo.js"));
 
 ## sep
 
-`path.sep` 是一个变量，用于跨平台；根据不同的操作系统返回不同的分隔符
+`path.sep` 是一个变量，**用于跨平台**；根据不同的操作系统返回不同的分隔符
 
-`windows` 返回的是 `\`；
+`windows` 返回的是 `\`；`posix` 返回的是 `/`
 
 ## posix
 
