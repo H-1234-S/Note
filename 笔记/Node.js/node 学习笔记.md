@@ -116,7 +116,9 @@ console.log(path.join("/a", "/b", "/c", "../"));
 
 ## resolve
 
-`path.resolve` 
+`path.resolve` 用于解析路径
+
+
 
 ## posix
 
