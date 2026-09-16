@@ -49,5 +49,6 @@ npm 会尽可能扁平化，但遇到版本冲突时，仍然可能嵌套安装�
 
 ## npm install 安装依赖前的流程
 
-运行 `npm  install` 命令，查找 `config` 配置(npm config list)可以查看。
+运行 `npm  install` 命令，查找 `config` 配置 `(npm config list)`。
 
+之后会按照 `项目级.npmrc` 、`用户级.npmrc` 、`全局级.npmrc` 、`npm内置的.npmrc` 查找配置文件。
