@@ -158,6 +158,12 @@ console.log(path.parse("/home/abort/users/jo.js"));
 
 `path.format` 用于将 `path.parse` 的对象转化为路径
 
+## sep
+
+`path.sep` 是一个变量，用于跨平台；根据不同的操作系统返回不同的分隔符
+
+`windows` 返回的是 `\`；
+
 ## posix
 
 `posix（Portable Operating System Interface of UNIX）` 表示**可移植操作系统接口**，也就是定义了一套标准
