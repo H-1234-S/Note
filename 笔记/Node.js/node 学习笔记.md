@@ -116,7 +116,7 @@ console.log(path.join("/a", "/b", "/c", "../"));
 
 ## resolve
 
-
+`path.resolve` 
 
 ## posix
 
