@@ -127,6 +127,37 @@ console.log(path.resolve("./index.html");
 console.log(path.resolve(__dirname,"./index.html"));
 ```
 
+## parse
+
+`path.parse` 将路径解析为一个对象
+
+``` node
+const path = require("node:path");
+
+console.log(path.parse("/home/abort/users/jo.js"));
+```
+
+> **返回值**
+
+``` js
+{
+  // 根目录
+  root: '/',
+  // 文件所在路径
+  dir: '/home/abort/users',
+  // 文件名 + 后缀名
+  base: 'jo.js',
+  // 后缀名
+  ext: '.js',
+  // 文件名
+  name: 'jo'
+}
+```
+
+## format
+
+`path.format` 用于将 `path.parse` 的对象转化为路径
+
 ## posix
 
 `posix（Portable Operating System Interface of UNIX）` 表示**可移植操作系统接口**，也就是定义了一套标准
