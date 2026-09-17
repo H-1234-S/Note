@@ -320,16 +320,25 @@ console.log(process.argv);
 
 ## memoryUsage
 
-`process.memoryUsage()` 用于获取 **Node.js 进程当前的内存使用情况**，返回一个包含多个字段的对象。它是排查内存泄漏、优化性能时最常用的工具之一。组
+`process.memoryUsage()` 用于获取 **Node.js 进程当前的内存使用情况**，返回一个包含多个字段的对象。
+
+用于排查内存泄漏、优化性能时最常用的工具之一。
 
 ``` node
 console.log(process.memoryUsage());
-
-{ 
-	rss: 30932992, // 常驻集大小 这是进程当前占用的物理内存量，不包括共享内存和页面缓存。它反映了进程实际占用的物理内存大小 
-	heapTotal: 6438912, //堆区总大小 这是 V8 引擎为 JavaScript 对象分配的内存量。它包括了已用和未用的堆内存 
-	heapUsed: 5678624, //已用堆大小 
-	external: 423221, //外部内存使用量 这部分内存不是由 Node.js 进程直接分配的，而是由其他 C/C++ 对象或系统分配
-	arrayBuffers: 17606 //是用于处理二进制数据的对象类型，它使用了 JavaScript 中的 ArrayBuffer 接口。这个属性显示了当前进程中 ArrayBuffers 的数量
-}
+// {
+//   rss: 30801920,
+//   heapTotal: 5472256,
+//   heapUsed: 3290440,
+//   external: 1092712,
+//   arrayBuffers: 10508
+// }
 ```
+
+|字段|含义|
+|---|---|
+|`rss`|Resident Set Size，进程实际占用的**物理内存**总量（包括代码、堆、栈、C++ 对象等）|
+|`heapTotal`|V8 已申请的**堆内存总量**（已分配给 JS 堆的大小）|
+|`heapUsed`|V8 堆中**实际使用**的内存量（真正存活的 JS 对象）|
+|`external`|绑定到 V8 的 **C++ 对象**占用的内存（如 Buffer、原生模块）|
+|`arrayBuffers`|所有 `ArrayBuffer` 和 `SharedArrayBuffer` 占用的内存（Buffer 底层也是 ArrayBuffer）|
