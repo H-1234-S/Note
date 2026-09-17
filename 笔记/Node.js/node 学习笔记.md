@@ -788,3 +788,11 @@ stream.on('error', (err) => {
   console.error('出错了:', err);
 });
 ```
+
+## mkdir
+
+`fs.mkdir` 创建文件夹；如果开启 `recursive` 可以递归创建多个文件夹
+
+```
+
+```
