@@ -407,19 +407,25 @@ child_process.exec(command, [options], callback)
  })
 ```
 
-> **options**
+> **options** 配置项
 
-``` 
-cwd <string> 子进程的当前工作目录。
-env <Object> 环境变量键值对。
-encoding <string> 默认为 'utf8'。
-shell <string> 用于执行命令的 shell。 在 UNIX 上默认为 '/bin/sh'，在 Windows 上默认为 process.env.ComSpec。 详见 Shell Requirements 与 Default Windows Shell。
-timeout <number> 默认为 0。
-maxBuffer <number> stdout 或 stderr 允许的最大字节数。 默认为 200*1024。 如果超过限制，则子进程会被终止。 查看警告： maxBuffer and Unicode。
-killSignal <string> | <integer> 默认为 'SIGTERM'。
-uid <number> 设置该进程的用户标识。（详见 setuid(2)）
-gid <number> 设置该进程的组标识。（详见 setgid(2)）
-```
+- **`cwd`** `<string>`：子进程的当前工作目录。
+    
+- **`env`** `<Object>`：环境变量键值对。
+    
+- **`encoding`** `<string>`：默认为 `'utf8'`。若设为 `'buffer'`，则 `stdout`/`stderr` 为 Buffer 对象。
+    
+- **`shell`** `<boolean> | <string>`：用于执行命令的 shell。设为 `true` 时使用系统默认 shell（UNIX 上为 `/bin/sh`，Windows 上为 `process.env.ComSpec`）；也可传入字符串指定自定义 shell。默认值为 `false`（不启用 shell）。详见 Shell Requirements 与 Default Windows Shell。
+    
+- **`timeout`** `<number>`：默认为 `0`。
+    
+- **`maxBuffer`** `<number>`：stdout 或 stderr 允许的最大字节数。默认为 `1024 * 1024`（1 MB）。如果超过限制，则子进程会被终止。查看警告：maxBuffer and Unicode。
+    
+- **`killSignal`** `<string> | <integer>`：默认为 `'SIGTERM'`。
+    
+- **`uid`** `<number>`：设置该进程的用户标识。（详见 setuid(2)）
+    
+- **`gid`** `<number>`：设置该进程的组标识。（详见 setgid(2)）
 ## execSync
 
 `execSync` 也是用于执行命令，是同步执行的。
@@ -442,6 +448,15 @@ execSync("start chrome http://www.baidu.com --incognito")
 ```
 ## spawn
 
+`spawn` 用于执行一些实时获取的信息，因为 `spawn` 返回的是流，边执行边返回，`exec` 是返回一个完整的 `buffer`。
 
+`spawn` 在执行完成后会抛出 `close` 事件监听，并返回状态码，通过状态码可以知道子进程是否顺利执行。
 
+`exec` 只能通过返回的 `buffer` 去识别完成状态，识别起来较为麻烦
+
+```
+
+```
 ## spawnSync
+
+`spawn` 的同步版本
