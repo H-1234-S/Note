@@ -697,3 +697,7 @@ util.format('%s 的得分是 %d', '李四', 95);
 |`%o`|对象|用 `util.inspect()` 显示对象，包含不可枚举属性[](https://beta.docs.nodejs.org/util/format)|
 |`%O`|对象|用 `util.inspect()` 显示对象，**不包含**不可枚举属性[](https://beta.docs.nodejs.org/util/format)|
 |`%%`|百分号|输出一个 `%`，不消耗参数|
+# fs
+
+在 Node.js 中，`fs` 模块是文件系统模块（File System module）的缩写，它提供了与文件系统进行交互的各种功能。
+
