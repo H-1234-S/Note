@@ -278,3 +278,10 @@ if (fs.existsSync(configPath)) {
 
 `os.networkInterfaces` 获取用户的网路信息
 
+## arch
+
+`os.arch()` 获取 cpu 的一个架构
+
+# process api
+
+`process` 是挂载到 `globalThis` 全局下的一个 api，不需要导入
