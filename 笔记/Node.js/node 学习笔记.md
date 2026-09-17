@@ -488,3 +488,6 @@ execFile(
 
 > **node.js 出于安全考虑，不再允许 `execFile` 直接执行 `.cmd` 批处理文件，除非显式启用 shell**
 
+## fork
+
+`fork` 用于执行 `javascript` 模块；适用于大量的计算，或者容易阻塞主进程操作的一些代码
