@@ -517,3 +517,74 @@ process.send("我是子进程");
 
 # events
 
+Node.js 核心 API 都是采用异步事件驱动架构
+
+Nodejs 事件模型采用了**发布订阅设计模式**
+
+``` node
+const EventEmitter = require('events');
+
+const event = new EventEmitter()
+//监听test
+event.on('test',(data)=>{
+    console.log(data)
+})
+
+event.emit('test','xmxmxmxmx') //派发事件
+```
+
+监听的消息数量默认是 10 个
+
+``` node
+const EventEmitter = require('events');
+
+const event = new EventEmitter()
+
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test',(data)=>{
+    console.log(data)
+})
+event.on('test',(data)=>{
+    console.log(data)
+})
+
+event.emit('test', 'xmxmxmxmx')
+
+```
+
+setMaxListeners 传入数量，用于解除限制
+
+```node
+event.setMaxListeners(20)
+```
+
