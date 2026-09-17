@@ -186,8 +186,24 @@ console.log(path.parse("/home/abort/users/jo.js"));
 
 值为 `aix`、`darwin`、`freebsd`、`linux`、`openbsd`、`sunos`、以及 `win32`
 
-``` node
+> 示例：根据不同的操作系统运行 shell 命令打开浏览器
 
+``` node
+// exec 用于执行 shell 命令
+const { exec } = require('child_process'); 
+const os = require('os');
+
+const platform = os.platform();
+
+const open = (url) => {
+  if (platform === "win32") {
+    exec(`start ${url}`);
+  } else if (platform === "darwin") {
+    exec(`open ${url}`);
+  }
+};
+
+open("www.github.com");
 ```
 ## release
 
@@ -236,4 +252,29 @@ if (fs.existsSync(configPath)) {
 `os.tmpdir()` 获取系统临时目录；也就是 `temp` 目录
 ## cups
 
+`os.cpus()` 获取CPU的线程以及详细信息
+
+``` json
+{
+    model: '13th Gen Intel(R) Core(TM) i9-13900HX',
+    speed: 2419,
+    times: { user: 191015, nice: 0, sys: 159828, idle: 3395093, irq: 6609 }
+  }
+```
+
+- `model`: 表示CPU的型号信息，其中 "13th Gen Intel(R) Core(TM) i9-13900HX" 是一种具体的型号描述。
+    
+- `speed`: 表示CPU的时钟速度，以MHz或GHz为单位。在这种情况下，速度为 2926 MHz 或 2.926 GHz。
+    
+- `times`: 是一个包含CPU使用时间的对象，其中包含以下属性：
+    
+    - `user`: 表示CPU被用户程序使用的时间（以毫秒为单位）。
+    - `nice`: 表示CPU被优先级较低的用户程序使用的时间（以毫秒为单位）。
+    - `sys`: 表示CPU被系统内核使用的时间（以毫秒为单位）。
+    - `idle`: 表示CPU处于空闲状态的时间（以毫秒为单位）。
+    - `irq`: 表示CPU被硬件中断处理程序使用的时间（以毫秒为单位）。
+
 ## networkInterfaces
+
+`os.networkInterfaces` 获取用户的网路信息
+
