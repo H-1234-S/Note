@@ -805,3 +805,9 @@ fs.mkdir("../node/demo/users", { recursive: true }, () => {});
 ``` node
 fs.rm("../node", { recursive: true }, () => {});
 ```
+
+> `rm` 的常用选项：
+
+- **`recursive: true`**：递归删除目录及其内容（删目录时必须加，否则报错）。
+    
+- **`force: true`**：路径不存在时**不报错**（类似 `rm -f`）。
