@@ -666,3 +666,34 @@ callback(1, (error, value) => {
   console.log(error, value);
 });
 ```
+
+## format
+
+`util.format` 的核心作用是**把各种类型的值拼接成一个格式化的字符串**
+
+``` node
+const util = require('util');
+
+// %s 替换为字符串
+util.format('你好 %s，欢迎回来', '张三');
+// 输出: '你好 张三，欢迎回来'
+
+// %d 替换为数字
+util.format('你的年龄是 %d 岁', 25);
+// 输出: '你的年龄是 25 岁'
+
+// 多个占位符按顺序替换
+util.format('%s 的得分是 %d', '李四', 95);
+// 输出: '李四 的得分是 95'
+```
+
+|占位符|作用|说明|
+|---|---|---|
+|`%s`|字符串|转换所有值（BigInt、Object 除外），Object 会用 `util.inspect()` 检查[](https://beta.docs.nodejs.org/util/format)|
+|`%d`|数字|转换为数字（BigInt、Symbol 除外）[](https://beta.docs.nodejs.org/util/format)|
+|`%i`|整数|用 `parseInt(value, 10)` 转换[](https://beta.docs.nodejs.org/util/format)|
+|`%f`|浮点数|用 `parseFloat(value)` 转换[](https://beta.docs.nodejs.org/util/format)|
+|`%j`|JSON|如果参数包含循环引用，会替换为 `[Circular]`[](https://beta.docs.nodejs.org/util/format)|
+|`%o`|对象|用 `util.inspect()` 显示对象，包含不可枚举属性[](https://beta.docs.nodejs.org/util/format)|
+|`%O`|对象|用 `util.inspect()` 显示对象，**不包含**不可枚举属性[](https://beta.docs.nodejs.org/util/format)|
+|`%%`|百分号|输出一个 `%`，不消耗参数|
