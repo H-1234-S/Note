@@ -650,7 +650,7 @@ const myPromisify = (fn) => {
 
 ## callbackify
 
-`callback` 将 `promise` 类型的 `API` 变成 回调函数。
+`callbackify` 把一个返回 `Promise` 的 `async` 函数转换成遵循 Node.js 回调风格 `(err, result)` 的函数。
 
 ``` node
 const fn = (status) => {
