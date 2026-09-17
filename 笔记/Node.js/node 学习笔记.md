@@ -282,6 +282,7 @@ if (fs.existsSync(configPath)) {
 
 `os.arch()` 获取 cpu 的一个架构
 
+---
 # process api
 
-`process` 是挂载到 `globalThis` 全局下的一个 api，不需要导入
+`process` 是 `Nodejs` **操作当前进程**和**控制当前进程**的 `API`，并且是挂载到 `globalThis` 下面的全局 `API`。
