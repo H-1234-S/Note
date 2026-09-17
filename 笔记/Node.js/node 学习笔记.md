@@ -335,10 +335,28 @@ console.log(process.memoryUsage());
 // }
 ```
 
-|字段|含义|
-|---|---|
-|`rss`|Resident Set Size，进程实际占用的**物理内存**总量（包括代码、堆、栈、C++ 对象等）|
-|`heapTotal`|V8 已申请的**堆内存总量**（已分配给 JS 堆的大小）|
-|`heapUsed`|V8 堆中**实际使用**的内存量（真正存活的 JS 对象）|
-|`external`|绑定到 V8 的 **C++ 对象**占用的内存（如 Buffer、原生模块）|
-|`arrayBuffers`|所有 `ArrayBuffer` 和 `SharedArrayBuffer` 占用的内存（Buffer 底层也是 ArrayBuffer）|
+| 字段             | 含义                                                                    |
+| -------------- | --------------------------------------------------------------------- |
+| `rss`          | Resident Set Size，进程实际占用的**物理内存**总量（包括代码、堆、栈、C++ 对象等）                 |
+| `heapTotal`    | V8 已申请的**堆内存总量**（已分配给 JS 堆的大小）                                        |
+| `heapUsed`     | V8 堆中**实际使用**的内存量（真正存活的 JS 对象）                                        |
+| `external`     | 绑定到 V8 的 **C++ 对象**占用的内存（如 Buffer、原生模块）                               |
+| `arrayBuffers` | 所有 `ArrayBuffer` 和 `SharedArrayBuffer` 占用的内存（Buffer 底层也是 ArrayBuffer） |
+
+## exit
+
+`process.exit()` 用于**退出/杀死一个进程**
+
+``` node
+setTimeout(() => {
+  console.log("end");
+}, 5000);
+  
+process.on("exit", () => {
+  console.log("exit");
+});
+  
+setTimeout(() => {
+  process.exit();
+}, 2000);
+```
