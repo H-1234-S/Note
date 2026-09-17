@@ -588,3 +588,10 @@ setMaxListeners 传入数量，用于解除限制
 event.setMaxListeners(20)
 ```
 
+# util
+
+## promisify
+
+`util.promisify` 用于将遵循 Node.js 回调风格的函数转换为返回 Promise 的函数。
+
+Node.js 的传统回调风格是 `(err, result) => {}`：
