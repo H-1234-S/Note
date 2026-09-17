@@ -386,7 +386,7 @@ kill 实际功能是向指定 PID 的进程**发送一个信号**；目标进程
 
 > **注意：** 修改并不会真正影响操作系统的变量，而是只在当前线程生效，线程结束便释放。
 
-# child_process
+# child_process api
 
 ## exec
 
@@ -588,7 +588,7 @@ setMaxListeners 传入数量，用于解除限制
 event.setMaxListeners(20)
 ```
 
-# util
+# util api
 
 ## promisify
 
@@ -697,7 +697,7 @@ util.format('%s 的得分是 %d', '李四', 95);
 |`%o`|对象|用 `util.inspect()` 显示对象，包含不可枚举属性[](https://beta.docs.nodejs.org/util/format)|
 |`%O`|对象|用 `util.inspect()` 显示对象，**不包含**不可枚举属性[](https://beta.docs.nodejs.org/util/format)|
 |`%%`|百分号|输出一个 `%`，不消耗参数|
-# fs
+# fs api
 
 在 Node.js 中，`fs` 模块是文件系统模块（File System module）的缩写，它提供了与文件系统进行交互的各种功能。
 
@@ -709,3 +709,18 @@ util.format('%s 的得分是 %d', '李四', 95);
     
 - fs 返回的是一个 buffer 二进制数据，每两个十六进制数字表示一个字节
     
+
+## readFile
+
+`fs.readFile` 读取文件内容；第一个参数是文件地址，
+
+``` node
+const fs = require("node:fs");
+
+fs.readFile("../index.txt", (error, data) => {
+  if (error) {
+    return error;
+  }
+  console.log(data.toString());
+});
+```
