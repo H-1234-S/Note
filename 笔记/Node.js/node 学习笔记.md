@@ -429,6 +429,8 @@ gid <number> 设置该进程的组标识。（详见 setgid(2)）
 ``` node
 const nodeVersion  = execSync('node -v')
 console.log(nodeVersion.toString("utf-8"))
+
+execSync("mkdir test");
 ```
 
 使用 `exec` 可以打开一些软件，例如：谷歌
@@ -439,5 +441,7 @@ console.log(nodeVersion.toString("utf-8"))
 execSync("start chrome http://www.baidu.com --incognito")
 ```
 ## spawn
+
+
 
 ## spawnSync
