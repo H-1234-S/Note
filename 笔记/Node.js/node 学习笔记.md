@@ -345,13 +345,14 @@ console.log(process.memoryUsage());
 
 ## exit
 
-`process.exit()` 用于**退出/杀死一个进程**
+`process.exit()` 用于**退出一个进程**
 
 ``` node
 setTimeout(() => {
   console.log("end");
 }, 5000);
-  
+
+// 监听进程退出事件
 process.on("exit", () => {
   console.log("exit");
 });
