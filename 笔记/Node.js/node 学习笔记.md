@@ -375,3 +375,9 @@ setTimeout(() => {
   process.kill(process.pid);
 }, 2000);
 ```
+
+> kill 和 exit 区别
+
+exit 作用是**立即终止当前 Node.js 进程**
+
+kill 实际功能是向指定 PID 的进程**发送一个信号**；目标进程收到信号后不一定真的会“死”
