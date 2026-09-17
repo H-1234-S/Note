@@ -390,10 +390,54 @@ kill 实际功能是向指定 PID 的进程**发送一个信号**；目标进程
 
 ## exec
 
-`exec` 用于执行 `shell` 命令
+`exec` 用于执行 `shell` 命令；返回一个完整的 `buffer`，`buffer` 的大小是 `200k`，如果超出会报错
 
+``` node
+child_process.exec(command, [options], callback)
+```
+
+> **示例：**
+
+``` node
+ exec('node -v',(err,stdout,stderr)=>{
+    if(err){
+        return  err
+    }
+    console.log(stdout.toString())
+ })
+```
+
+> **options**
+
+``` 
+cwd <string> 子进程的当前工作目录。
+env <Object> 环境变量键值对。
+encoding <string> 默认为 'utf8'。
+shell <string> 用于执行命令的 shell。 在 UNIX 上默认为 '/bin/sh'，在 Windows 上默认为 process.env.ComSpec。 详见 Shell Requirements 与 Default Windows Shell。
+timeout <number> 默认为 0。
+maxBuffer <number> stdout 或 stderr 允许的最大字节数。 默认为 200*1024。 如果超过限制，则子进程会被终止。 查看警告： maxBuffer and Unicode。
+killSignal <string> | <integer> 默认为 'SIGTERM'。
+uid <number> 设置该进程的用户标识。（详见 setuid(2)）
+gid <number> 设置该进程的组标识。（详见 setgid(2)）
+```
 ## execSync
 
+`execSync` 也是用于执行命令，是同步执行的。
+
+如果要执行单次`shell`命令 `execSync` 方便一些，`options` 同上
+
+``` node
+const nodeVersion  = execSync('node -v')
+console.log(nodeVersion.toString("utf-8"))
+```
+
+使用 `exec` 可以打开一些软件，例如：谷歌
+
+> **示例：**
+
+``` node
+execSync("start chrome http://www.baidu.com --incognito")
+```
 ## spawn
 
 ## spawnSync
