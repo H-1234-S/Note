@@ -514,3 +514,6 @@ process.send("我是子进程");
 ```
 
 `fork` 底层使用的是 `IPC` 通道进行通讯的，`IPC` 是基于 `libuv` 实现的
+
+# events
+
