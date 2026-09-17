@@ -54,7 +54,7 @@ const data = require('./data.json')
 
 `globalThis` API 会自动**检测当前的运行环境**，然后**返回对应的全局变量**
 
-# Path API
+# path api
 
 ## basename
 
@@ -177,3 +177,27 @@ console.log(path.parse("/home/abort/users/jo.js"));
 > **注意**
 
 在 Windows 系统中，路径使用反斜杠（`\`）作为路径分隔符；这与 POSIX 系统使用的正斜杠（`/`）是不同的。
+
+# os api
+
+## platform
+
+`os.platform` 返回操作系统的平台
+
+值为 `'aix'`、`'darwin'`、`'freebsd'`、`'linux'`、`'openbsd'`、`'sunos'`、以及 `'win32'`
+## release
+
+`os.release` 返回操作系统的版本号
+
+## type
+
+`os.type()` 也是返回当前所处的操作系统
+
+在 Linux 上返回 `'Linux'`，在 macOS 上返回 `'Darwin'`，在 Windows 上返回 `'Windows_NT'`
+## version
+
+## homedir
+
+## cups
+
+## networkInterfaces
