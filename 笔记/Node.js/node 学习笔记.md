@@ -467,6 +467,7 @@ stdout.on("close", () => {
 });
 ```
 
+> **数组用于接收参数**
 ## spawnSync
 
 `spawn` 的同步版本
