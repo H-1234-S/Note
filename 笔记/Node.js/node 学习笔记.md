@@ -320,7 +320,7 @@ console.log(process.argv);
 
 ## memoryUsage
 
-`process.memoryUsage()` 获取当前进程的内存使用情况；返回值是一个数组
+`process.memoryUsage()` 用于获取 **Node.js 进程当前的内存使用情况**，返回一个包含多个字段的对象。它是排查内存泄漏、优化性能时最常用的工具之一。组
 
 ``` node
 console.log(process.memoryUsage());
