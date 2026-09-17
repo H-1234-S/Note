@@ -215,7 +215,22 @@ console.log(os.homedir());
 // Windows: C:\Users\alice
 ```
 
+> 示例：读取用户配置文件
 
+``` node
+const os = require('os');
+const path = require('path');
+const fs = require('fs');
+
+const configPath = path.join(os.homedir(), '.myapprc');
+
+if (fs.existsSync(configPath)) {
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  console.log('配置:', config);
+} else {
+  console.log('未找到配置文件:', configPath);
+}
+```
 ## tmpdir
 
 `os.tmpdir()` 获取系统临时目录；也就是 `temp` 目录
