@@ -595,3 +595,26 @@ event.setMaxListeners(20)
 `util.promisify` 用于将遵循 Node.js 回调风格的函数转换为返回 Promise 的函数。
 
 Node.js 的传统回调风格是 `(err, result) => {}`：
+
+``` node
+const { promisify } = require("node:util");
+const { exec } = require("child_process");
+  
+// exec("node -v", (error, stdout) => {
+//   if (error) {
+//     return error;
+//   }
+//   console.log(stdout.toString());
+// });
+  
+const execPromise = promisify(exec);
+  
+execPromise("node -v")
+  .then((res) => {
+    console.log("res", res);
+  })
+  .catch((err) => {
+    console.log("err", err);
+  });
+// res { stdout: 'v24.12.0\r\n', stderr: '' }
+```
