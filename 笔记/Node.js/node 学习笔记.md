@@ -618,3 +618,32 @@ execPromise("node -v")
   });
 // res { stdout: 'v24.12.0\r\n', stderr: '' }
 ```
+
+> **promisify实现**
+
+``` node
+// 接收一个function,返回一个function
+// new function return promise
+const myPromisify = (fn) => {
+  return (...args) => {
+    return new Promise((resolve, reject) => {
+      fn(...args, (err, ...values) => {
+        if (err) {
+          reject(err);
+        }
+  
+        if (values && values.length > 1) {
+          const obj = {};
+  
+          for (let key in values) {
+            obj[key] = values[key];
+          }
+          resolve(obj);
+        } else {
+          resolve(values);
+        }
+      });
+    });
+  };
+};
+```
