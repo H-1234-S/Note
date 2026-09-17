@@ -318,3 +318,13 @@ console.log(process.argv);
 
 `__dirname` 不能在 ESModule 模式下使用，`process.cwd()` 可以
 
+## memoryUsage
+
+`process.memoryUsage()` 获取当前进程的内存使用情况；返回值是一个数组
+
+``` node
+console.log(process.memoryUsage());
+// output
+
+
+```
