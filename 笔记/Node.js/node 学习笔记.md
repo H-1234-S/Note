@@ -361,3 +361,17 @@ setTimeout(() => {
   process.exit();
 }, 2000);
 ```
+
+## kill
+
+`process.kill` **杀死一个进程**；需要接收一个 `pid`，也就是档进程 `id`
+
+``` node
+setTimeout(() => {
+  console.log("end");
+}, 5000);
+  
+setTimeout(() => {
+  process.kill(process.pid);
+}, 2000);
+```
