@@ -647,3 +647,22 @@ const myPromisify = (fn) => {
   };
 };
 ```
+
+## callbackify
+
+`callback` 将 `promise` 类型的 `API` 变成 回调函数。
+
+``` node
+const fn = (status) => {
+  if (status === 1) {
+    return Promise.resolve("success");
+  }
+  return Promise.reject("error");
+};
+  
+const callback = callbackify(fn);
+  
+callback(1, (error, value) => {
+  console.log(error, value);
+});
+```
