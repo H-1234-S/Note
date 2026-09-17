@@ -793,6 +793,15 @@ stream.on('error', (err) => {
 
 `fs.mkdir` 创建文件夹；如果开启 `recursive` 可以递归创建多个文件夹
 
+``` node
+fs.mkdir("../node/demo/users", { recursive: true }, () => {});
 ```
 
+> **注意：** 最后一个参数要传递一个函数
+## rm
+
+`fs.rm` 删除文件夹；如果开启 `recursive` 可以递归删除多个文件夹
+
+``` node
+fs.rm("../node", { recursive: true }, () => {});
 ```
