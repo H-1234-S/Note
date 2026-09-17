@@ -286,3 +286,35 @@ if (fs.existsSync(configPath)) {
 # process api
 
 `process` 是 `Nodejs` **操作当前进程**和**控制当前进程**的 `API`，并且是挂载到 `globalThis` 下面的全局 `API`。
+
+## arch
+
+`process.arch` 作用同 `os.arch()` ，获取 cpu 的一个架构
+
+## platform
+
+`process.platform` 作用同 `os.platform`，返回当前编译 `node` 时的平台
+
+## argv
+
+`process.argv` 获取执行进程后面的**参数**，返回是一个数组
+
+``` node
+// PS E:\A\练习\nodejs\api> node process.js --version --open
+console.log(process.argv);
+// output
+[
+  'E:\\A\\NodeJs\\node.exe',
+  'E:\\A\\练习\\nodejs\\api\\process.js',
+  '--version',
+  '--open'
+]
+```
+
+第一项是编译脚本的程序；第二项是脚本所在的目录；第三项及以后项是执行进程后面的参数
+## cwd
+
+`process.cwd()` 获取当前的工作目录
+
+`__dirname` 不能在 ESModule 模式下使用，`process.cwd()` 可以
+
