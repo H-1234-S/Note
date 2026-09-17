@@ -214,6 +214,11 @@ console.log(os.homedir());
 // macOS: /Users/alice
 // Windows: C:\Users\alice
 ```
+
+
+## tmpdir
+
+`os.tmpdir()` 获取系统临时目录；也就是 `temp` 目录
 ## cups
 
 ## networkInterfaces
