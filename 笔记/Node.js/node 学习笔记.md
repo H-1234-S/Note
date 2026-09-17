@@ -490,4 +490,25 @@ execFile(
 
 ## fork
 
-`fork` 用于执行 `javascript` 模块；适用于大量的计算，或者容易阻塞主进程操作的一些代码
+`fork` 用于执行 `javascript` 模块；适用于**大量的计算**，或者容易阻塞主进程操作的一些代码
+
+``` node
+// 用于执行 js 模块
+const testProcess = fork("../test.js");
+  
+// testProcess.send("主进程");
+  
+testProcess.on("message", (response) => {
+  console.log(response);
+});
+```
+
+> **test.js** 文件
+
+``` node
+process.on("message", (message) => {
+  console.log(message);
+});
+
+process.send("我是子进程");
+```
