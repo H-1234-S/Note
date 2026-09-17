@@ -712,15 +712,79 @@ util.format('%s 的得分是 %d', '李四', 95);
 
 ## readFile
 
-`fs.readFile` 读取文件内容；第一个参数是文件地址，
+`fs.readFile` 读取文件内容
 
 ``` node
-const fs = require("node:fs");
+const fs = require('fs');
 
-fs.readFile("../index.txt", (error, data) => {
-  if (error) {
-    return error;
-  }
-  console.log(data.toString());
+fs.readFile('/path/to/file.txt', 'utf8', (err, data) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
+  console.log(data); // 文件内容
+});
+```
+
+> 参数说明：
+
+- **第一个参数**：文件路径。
+    
+- **第二个参数**：编码方式。**如果不传这个参数，得到的是 `Buffer`（二进制数据），而不是可读的字符串
+    
+- **第三个参数**：回调函数，遵循“错误优先”风格，第一个参数是 `err`，第二个是 `data`。
+
+> 现在更推荐使用 `fs/promises` 或 `util.promisify` 来配合 `async/await
+
+``` node
+const { readFile } = require('fs/promises');
+
+async function main() {
+  try {
+    const data = await readFile('/path/to/file.txt', 'utf8');
+    console.log(data);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+//--------------------
+
+const newFn = promisify(fs.readFile);
+
+newFn("../index.txt")
+  .then((resolve) => {
+    console.log(resolve.toString());
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+```
+
+## createReadStream
+
+`fs.createReadStream` 是 Node.js 中**流式读取文件**的方法。
+
+它和 `readFile` 最大的区别是：
+
+- `readFile` 一次性把整个文件读进内存
+
+- 而 `createReadStream` 是**一块一块（chunk）地读**，每次只把一部分数据放进内存。
+
+``` node
+const fs = require('fs');
+
+const stream = fs.createReadStream('/path/to/file.txt', 'utf8');
+
+stream.on('data', (chunk) => {
+  console.log('收到一块数据:', chunk);
+});
+
+stream.on('end', () => {
+  console.log('读取完成');
+});
+
+stream.on('error', (err) => {
+  console.error('出错了:', err);
 });
 ```
