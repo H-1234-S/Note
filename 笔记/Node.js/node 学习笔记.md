@@ -182,22 +182,38 @@ console.log(path.parse("/home/abort/users/jo.js"));
 
 ## platform
 
-`os.platform` 返回操作系统的平台
+`os.platform` 返回当前编译 `node` 时的平台
 
-值为 `'aix'`、`'darwin'`、`'freebsd'`、`'linux'`、`'openbsd'`、`'sunos'`、以及 `'win32'`
+值为 `aix`、`darwin`、`freebsd`、`linux`、`openbsd`、`sunos`、以及 `win32`
+
+``` node
+
+```
 ## release
 
-`os.release` 返回操作系统的版本号
+`os.release` 返回操作系统的发行版本号
 
 ## type
 
-`os.type()` 也是返回当前所处的操作系统
+`os.type()` 也是返回当前所处的**操作系统的类型**
 
 在 Linux 上返回 `'Linux'`，在 macOS 上返回 `'Darwin'`，在 Windows 上返回 `'Windows_NT'`
 ## version
 
+`os.version()` 是一个用于获取**操作系统版本信息**的方法。
+
 ## homedir
 
+`os.homedir()` **获取用户主目录**
+
+``` node
+const os = require('os');
+
+console.log(os.homedir());
+// Linux: /home/alice
+// macOS: /Users/alice
+// Windows: C:\Users\alice
+```
 ## cups
 
 ## networkInterfaces
