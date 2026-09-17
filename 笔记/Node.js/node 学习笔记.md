@@ -448,15 +448,42 @@ execSync("start chrome http://www.baidu.com --incognito")
 ```
 ## spawn
 
-`spawn` 用于执行一些实时获取的信息，因为 `spawn` 返回的是流，边执行边返回，`exec` 是返回一个完整的 `buffer`。
+`spawn` 用于执行一些**实时获取的信息**，因为 `spawn` 返回的是**流**，**边执行边返回**，`exec` 是返回一个完整的 `buffer`。
 
 `spawn` 在执行完成后会抛出 `close` 事件监听，并返回状态码，通过状态码可以知道子进程是否顺利执行。
 
 `exec` 只能通过返回的 `buffer` 去识别完成状态，识别起来较为麻烦
 
+``` node
+const { stdout } = spawn("netstat", [], {});
+
+//返回的数据用data事件接受
+stdout.on("data", (steram) => {
+  console.log(steram.toString());
+});
+  
+stdout.on("close", () => {
+  console.log("end");
+});
 ```
 
-```
 ## spawnSync
 
 `spawn` 的同步版本
+
+## execFile
+
+`xecFile` 适合执行可执行文件，例如执行一个 `node` 脚本，或者 `shell` 文件。`windows` 可以编写 `cmd` 脚本，`posix` 可以编写 `shell` 脚本
+
+``` node
+execFile(
+  path.resolve(__dirname, "../", "demo.cmd"),
+  { shell: true },
+  (err, stdout) => {
+    console.log(stdout.toString());
+  },
+);
+```
+
+> **node.js 出于安全考虑，不再允许 `execFile` 直接执行 `.cmd` 批处理文件，除非显式启用 shell**
+
