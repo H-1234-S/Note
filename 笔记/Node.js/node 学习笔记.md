@@ -888,7 +888,6 @@ writeStream.on('finish',()=>{
 ``` node
 fs.linkSync("../index.txt", "../index2.txt");
 ```
-
 ## symLinkSync
 
 `fs.symlinkSync` 软链接；
@@ -896,6 +895,10 @@ fs.linkSync("../index.txt", "../index2.txt");
 ``` node
 fs.symlinkSync("../index.txt", "../index2.txt");
 ```
+
+创建一个独立文件，**内容是一个路径**，指向目标文件；如果目标文件删了会报错
+
+> 相当于一个**路牌**，指向目的地，目的地拆了但是路牌还在；类似于 windows 快捷方式
 ## 注意
 
 ``` node
@@ -924,3 +927,4 @@ Node.js 读取文件的时候是使用 libuv 进行调度的
 而 setImmediate 是由 V8 进行调度的
 
 文件读取完成后 libuv 才会将 fs 的结果推入 V8 的队列
+
