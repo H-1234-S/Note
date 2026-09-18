@@ -1342,6 +1342,51 @@ const server = http.createServer((req, res) => {
 });
 ```
 
+## 处理不同的 HTTP 请求方法
+
+``` node
+const http = require('http');
+const url = require('url');
+
+const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+    const pathname = parsedUrl.pathname;
+    const query = parsedUrl.query;
+    
+    if (req.method === 'GET') {
+        if (pathname === '/') {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end('<h1>首页</h1>');
+        } else if (pathname === '/api/data') {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                message: 'success', 
+                query: query 
+            }));
+        } else {
+            res.writeHead(404);
+            res.end('Not Found');
+        }
+    } 
+    else if (req.method === 'POST') {
+        let body = [];
+        req.on('data', chunk => body.push(chunk));
+        req.on('end', () => {
+            const data = Buffer.concat(body).toString();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                received: data 
+            }));
+        });
+    }
+    else {
+        res.writeHead(405);
+        res.end('Method Not Allowed');
+    }
+});
+
+server.listen(3000);
+```
 # url
 
 Node.js 中的 `url` 模块，核心作用就是：
