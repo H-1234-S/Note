@@ -1280,7 +1280,7 @@ server.listen(3000, '127.0.0.1', () => {
 });
 ```
 
-## 请求对象
+## 请求对象 request
 
 ``` node
 const server = http.createServer((req, res) => {
@@ -1306,6 +1306,38 @@ const server = http.createServer((req, res) => {
     req.on('end', () => {
         console.log('请求体:', body);
         res.end('收到数据');
+    });
+});
+```
+
+## 响应对象 response
+
+``` node
+const server = http.createServer((req, res) => {
+    // 设置状态码
+    res.statusCode = 200;
+    // 或使用 res.writeHead()
+    
+    // 设置响应头
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('X-Custom-Header', 'value');
+    
+    // 一次性设置状态码和响应头
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'X-Custom-Header': 'value'
+    });
+    
+    // 写入响应体（可多次）
+    res.write('Hello ');
+    res.write('World');
+    
+    // 结束响应
+    res.end('!');
+    
+    // 响应事件
+    res.on('finish', () => {
+        console.log('响应已发送');
     });
 });
 ```
