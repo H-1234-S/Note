@@ -890,7 +890,7 @@ fs.linkSync("../index.txt", "../index2.txt");
 ```
 ## symLinkSync
 
-`fs.symlinkSync` 软链接；
+`fs.symlinkSync` 软链接；软链接需要管理员权限才可以运行。
 
 ``` node
 fs.symlinkSync("../index.txt", "../index2.txt");
