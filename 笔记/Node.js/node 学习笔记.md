@@ -1031,3 +1031,34 @@ console.log(decipher.toString());
 `crypto.privateDecrypt()` 根据私钥去解密
 
 ## 哈希函数
+
+``` node
+const crypto = require('node:crypto');
+
+// 要计算哈希的数据
+let text = '123456';
+
+// 创建哈希对象，并使用 MD5 算法
+const hash = crypto.createHash('md5');
+
+// 更新哈希对象的数据
+hash.update(text);
+
+// 计算哈希值，并以十六进制字符串形式输出
+const hashValue = hash.digest('hex');
+
+console.log('Text:', text);
+console.log('Hash:', hashValue);
+```
+
+> 哈希函数具有以下特点：
+
+1. 固定长度输出：不论输入数据的大小，哈希函数的输出长度是固定的。例如，常见的哈希函数如 MD5 和 SHA-256 生成的哈希值长度分别为 128 位和 256 位。
+2. 不可逆性：哈希函数是单向的，意味着从哈希值推导出原始输入数据是非常困难的，几乎不可能。即使输入数据发生微小的变化，其哈希值也会完全不同。
+3. 唯一性：哈希函数应该具有较低的碰撞概率，即不同的输入数据生成相同的哈希值的可能性应该非常小。这有助于确保哈希值能够唯一地标识输入数据。
+
+> 使用场景
+
+1. 我们可以避免密码明文传输，使用 md5 加密或者 sha256
+2. 验证文件完整性。读取文件内容生成 md5 如果前端上传的 md5 和后端的读取文件内部的 md5 匹配说明文件是完整的
+
