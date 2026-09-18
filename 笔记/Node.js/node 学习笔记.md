@@ -1133,7 +1133,7 @@ console.log('Hash:', hashValue);
 
 # zlib
 
-
+`zlib` 是 Node.js 内置的**压缩/解压模块**，底层基于 zlib 库，提供数据压缩、解压、流式处理等能力。
 
 ## gzip
 
