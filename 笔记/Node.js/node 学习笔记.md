@@ -1223,3 +1223,9 @@ readStream.pipe(zlib.createInflate()).pipe(writeStream);
     - **zlib / Deflate**：常用于需要和其他系统或协议对接的场景，比如 HTTP 的 `Content-Encoding: deflate`、PNG 图片内部、部分网络协议。
         
     - **raw deflate**：用于自定义格式、需要极致省空间的场景。
+
+## http请求压缩
+
+HTTP 请求压缩，指的是在客户端和服务器之间传输数据时，对**请求体**或**响应体**进行压缩，以减少网络传输量、加快速度。
+
+
