@@ -913,9 +913,59 @@ fs.existsSync("./demo")
 > **注意：**
 
 只能**判断路径是否存在**，不能判断是 `file` 还是 `folder`
+## statsSync
 
-## 
+`fs.statSync` 用来**同步获取一个路径的详细信息（元数据）**
 
+它不读文件内容，只读"文件的属性"：类型、大小、权限、时间戳等。返回一个 `fs.Stats` 对象。
+
+``` node
+const fs = require('fs');
+
+const stat = fs.statSync('./test.txt');
+
+console.log(stat);
+// Stats {
+//   dev: 16777220,
+//   mode: 33188,
+//   nlink: 1,
+//   uid: 501,
+//   gid: 20,
+//   rdev: 0,
+//   blksize: 4096,
+//   ino: 12345678,
+//   size: 1024,
+//   blocks: 8,
+//   atimeMs: 1690000000000,
+//   mtimeMs: 1690000000000,
+//   ctimeMs: 1690000000000,
+//   birthtimeMs: 1690000000000,
+//   atime: 2023-07-22T...,
+//   mtime: 2023-07-22T...,
+//   ctime: 2023-07-22T...,
+//   birthtime: 2023-07-22T...,
+// }
+```
+
+> **注意：**
+
+`statSync` 和 `existsSync` 最大的区别是：**路径不存在时，`statSync` 直接抛异常**，而不是返回 false。
+
+因此需要用 `try/catch` 包裹起来
+
+> `Stats` 对象上有一组 `isXxx()` 方法，用来判断**文件类型**：
+
+``` node
+const stat = fs.statSync('./something');
+
+stat.isFile();            // 普通文件
+stat.isDirectory();       // 目录
+stat.isSymbolicLink();    // 软链接（注意：statSync 会追踪链接，通常返回 false）
+stat.isFIFO();            // 命名管道（FIFO）
+stat.isSocket();          // Unix socket
+stat.isBlockDevice();     // 块设备
+stat.isCharacterDevice(); // 字符设备
+```
 
 ---
 ## 注意
