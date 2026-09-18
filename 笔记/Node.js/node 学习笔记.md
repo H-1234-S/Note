@@ -899,6 +899,25 @@ fs.symlinkSync("../index.txt", "../index2.txt");
 创建一个独立文件，**内容是一个路径**，指向目标文件；如果目标文件删了会报错
 
 > 相当于一个**路牌**，指向目的地，目的地拆了但是路牌还在；类似于 windows 快捷方式
+
+## existsSync
+
+`fs.existsSync()` 判断路径是否存在
+
+``` node
+const fs = require('node:fs')
+
+fs.existsSync("./demo")
+```
+
+> **注意：**
+
+只能**判断路径是否存在**，不能判断是 `file` 还是 `folder`
+
+## 
+
+
+---
 ## 注意
 
 ``` node
