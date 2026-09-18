@@ -1342,6 +1342,41 @@ const server = http.createServer((req, res) => {
 });
 ```
 
+## 服务器事件
+
+``` node
+const server = http.createServer();
+
+// 新连接建立
+server.on('connection', (socket) => {
+    console.log('新连接建立');
+});
+
+// 收到请求
+server.on('request', (req, res) => {
+    res.end('Hello');
+});
+
+// 客户端错误
+server.on('clientError', (err, socket) => {
+    socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+});
+
+// 服务器关闭
+server.on('close', () => {
+    console.log('服务器已关闭');
+});
+
+// 监听配置
+server.listen(3000, () => {
+    console.log('监听中');
+});
+
+// 超时设置
+server.setTimeout(60000); // 60秒超时
+server.timeout = 30000;   // 30秒超时
+```
+
 ## 处理不同的 HTTP 请求方法
 
 ``` node
