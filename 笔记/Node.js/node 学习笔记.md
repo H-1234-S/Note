@@ -972,6 +972,8 @@ console.log(enc);
 console.log(decrypt(enc)); // '机密内容'
 ```
 
+
+
 ## 非对称加密
 
 ## 哈希函数
