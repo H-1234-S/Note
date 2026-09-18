@@ -1135,6 +1135,51 @@ console.log('Hash:', hashValue);
 
 `zlib` 是 Node.js 内置的**压缩/解压模块**，底层基于 zlib 库，提供数据压缩、解压、流式处理等能力。
 
+支持**压缩/解压缩**、**流式压缩/流式解压缩**
+
+> **流式处理的价值：**
+
+**内存效率**：1GB 文件压缩，`gzipSync` 要占约 1GB 内存；流式处理始终只占几十 KB。
+
+**边读边压边传**：在 HTTP 服务里，可以一边读文件一边压缩一边发给客户端，不用等整个文件压完。
+
+> 其实用 `cpu` 换**带宽**
 ## gzip
+
+> **一次性压缩：**
+
+``` node
+const zlib = require('zlib');
+
+zlib.gzip('hello world', (err, compressed) => {
+  if (err) throw err;
+  console.log(compressed.length);
+
+  zlib.gunzip(compressed, (err, decompressed) => {
+    if (err) throw err;
+    console.log(decompressed.toString()); // 'hello world'
+  });
+});
+// 也可以使用 util 中的 promisify 转一下使用
+```
+
+> **流式压缩：**
+
+``` node
+const zlib = require("node:zlib");
+const fs = require("node:fs");
+  
+const readStream = fs.createReadStream("../index.txt");
+const writeStream = fs.createWriteStream("../index.txt.gz");
+readStream.pipe(zlib.createGzip()).pipe(writeStream);
+```
+
+> **流式解压缩：**
+
+``` node
+const readStream = fs.createReadStream("../index.txt.gz");
+const writeStream = fs.createWriteStream("../index2.txt");
+readStream.pipe(zlib.createGunzip()).pipe(writeStream);
+```
 
 ## deflate
