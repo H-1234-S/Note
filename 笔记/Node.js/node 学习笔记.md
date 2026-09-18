@@ -474,7 +474,7 @@ stdout.on("close", () => {
 
 ## execFile
 
-`xecFile` 适合执行可执行文件，例如执行一个 `node` 脚本，或者 `shell` 文件。`windows` 可以编写 `cmd` 脚本，`posix` 可以编写 `shell` 脚本
+`xecFile` 适合**执行可执行文件**，例如执行一个 `node` 脚本，或者 `shell` 文件。`windows` 可以编写 `cmd` 脚本，`posix` 可以编写 `shell` 脚本
 
 ``` node
 execFile(
