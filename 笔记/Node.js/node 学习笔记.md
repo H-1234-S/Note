@@ -1380,51 +1380,69 @@ server.timeout = 30000;   // 30秒超时
 ## 处理不同的 HTTP 请求方法
 
 ``` node
-const http = require('http');
-const url = require('url');
+const http = require("node:http");
 
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-    const pathname = parsedUrl.pathname;
-    const query = parsedUrl.query;
-    
-    if (req.method === 'GET') {
-        if (pathname === '/') {
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end('<h1>首页</h1>');
-        } else if (pathname === '/api/data') {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ 
-                message: 'success', 
-                query: query 
-            }));
-        } else {
-            res.writeHead(404);
-            res.end('Not Found');
-        }
-    } 
-    else if (req.method === 'POST') {
-        let body = [];
-        req.on('data', chunk => body.push(chunk));
-        req.on('end', () => {
-            const data = Buffer.concat(body).toString();
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ 
-                received: data 
-            }));
-        });
-    }
-    else {
-        res.writeHead(405);
-        res.end('Method Not Allowed');
-    }
+const prot = 3000;
+const hostname = "127.0.0.1";
+  
+const server = http.createServer((request, response) => {
+  response.setHeader("content-type", "application/json");
+  
+  // 用标准的 URL 解析，不使用 node 的 url 模块
+  const { pathname, query } = new URL(
+    request.url,
+    `http://${request.headers.host}`,
+  );
+  
+  if (request.method === "GET") {
+    console.log("GET");
+  
+    if (pathname === "/login/user") {
+      console.log("/login/user");
+    } else {
+      response.statusCode = 404;
+      response.end("path not found");
+    }
+  } else if (request.method === "POST") {
+    response.statusCode = 200;
+    console.log("POST");
+  
+    let data = "";
+    request.on("data", (chunk) => {
+      data += chunk;
+    });
+  
+    request.on("end", () => {
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(data);
+    });
+  } else {
+    response.statusCode(405);
+    response.end("method not allowed");
+  }
+});
+  
+server.listen(prot, hostname, () => {
+  console.log("HTTP Server 已启动");
 });
 
-server.listen(3000);
+server.on("request", () => {
+  console.log("收到请求");
+});
+  
+server.on("close", () => {
+  console.log("请求已关闭");
+});
 ```
+
+使用 `request.method` 区分是哪种请求，根据不同的请求方法执行对应的逻辑
+
+使用 `new URL` 解析路径和参数，根据不同的路径执行不同的逻辑
 # url
 
 Node.js 中的 `url` 模块，核心作用就是：
 
 > **解析 URL、构造 URL、修改 URL，以及处理 URL 的查询参数。**
+
+Node 的 `url` 模块实际上提供了两套 API。现在开发 Node.js，**重点学习 `URL` 和 `URLSearchParams`**
 
