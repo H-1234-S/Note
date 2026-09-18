@@ -881,6 +881,21 @@ writeStream.on('finish',()=>{
 })
 ```
 
+## linkSync
+
+`fs.linkSync` 硬链接；两个文件共享一块内存空间；删除一个另一个不影响使用
+
+``` node
+fs.linkSync("../index.txt", "../index2.txt");
+```
+
+## symLinkSync
+
+`fs.symlinkSync` 软链接；
+
+``` node
+fs.symlinkSync("../index.txt", "../index2.txt");
+```
 ## 注意
 
 ``` node
