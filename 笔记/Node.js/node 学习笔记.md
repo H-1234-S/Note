@@ -834,6 +834,53 @@ fs.watch('./test2.txt',(event,filename)=>{
 // change test2.txt
 ```
 
+## writeFileSync
+
+`fs.writeFileSync` 用于写入文件；第一个参数是文件路径、第二个是写入内容、第三个是配置项
+
+``` node
+fs.writeFileSync("../index.txt", "append", {
+  flag: "a",  // 不带参数会直接覆盖旧内容
+});
+```
+
+`fs.writeFile` 用法同 `fs.writeFileSync`；都没有返回值
+
+## appendFileSync
+
+`fs.appendFileSync` 用于追加添加
+
+``` node
+fs.appendFileSync("../index.txt", "append");
+```
+
+## createWriteStream
+
+`fs.createWriteStream` 适用于大文件写入；**创建一个写入管道**，写入完成后记得关闭
+
+``` node
+const fs = require('node:fs')
+
+let verse = [
+    '待到秋来九月八',
+    '我花开后百花杀',
+    '冲天香阵透长安',
+    '满城尽带黄金甲'
+]
+
+let writeStream = fs.createWriteStream('index.txt')
+
+verse.forEach(item => {
+    writeStream.write(item + '\n')
+})
+
+writeStream.end()  // 关闭管道
+
+writeStream.on('finish',()=>{
+    console.log('写入完成')
+})
+```
+
 ## 注意
 
 ``` node
