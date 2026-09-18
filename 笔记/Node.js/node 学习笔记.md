@@ -811,3 +811,26 @@ fs.rm("../node", { recursive: true }, () => {});
 - **`recursive: true`**：递归删除目录及其内容（删目录时必须加，否则报错）。
     
 - **`force: true`**：路径不存在时**不报错**（类似 `rm -f`）。
+
+## renameSync
+
+`fs.renameSync` 用于将文件重命名
+
+``` node
+const fs = require('node:fs')
+
+fs.renameSync('./test.txt','./test2.txt')
+```
+
+## watch
+
+`fs.watch` 用于侦听一个文件是否发生变化；返回监听的事件如 `change` ，和监听的内容 `filename`
+
+``` node
+fs.watch('./test2.txt',(event,filename)=>{
+    
+    console.log(event,filename)
+})
+// change test2.txt
+```
+
