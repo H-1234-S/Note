@@ -1200,12 +1200,26 @@ const writeStream = fs.createWriteStream("../index3.txt");
 readStream.pipe(zlib.createInflate()).pipe(writeStream);
 ```
 
-## zip 和 deflate 区别
+## gzip 和 deflate 区别
 
-1. 压缩算法：Gzip 使用的是 Deflate 压缩算法，该算法结合了 LZ77 算法和哈夫曼编码。LZ77 算法用于数据的重复字符串的替换和引用，而哈夫曼编码用于进一步压缩数据。
-
-2. 压缩效率：Gzip 压缩通常具有更高的压缩率，因为它使用了哈夫曼编码来进一步压缩数据。哈夫曼编码根据字符的出现频率，将较常见的字符用较短的编码表示，从而减小数据的大小。
-
-3. 压缩速度：相比于仅使用 Deflate 的方式，Gzip 压缩需要更多的计算和处理时间，因为它还要进行哈夫曼编码的步骤。因此，在压缩速度方面，Deflate 可能比 Gzip 更快。
-
-4. 应用场景：Gzip 压缩常用于文件压缩、网络传输和 HTTP 响应的内容编码。它广泛应用于 Web 服务器和浏览器之间的数据传输，以减小文件大小和提高网络传输效率。
+1. **压缩算法**：Gzip 使用的就是 Deflate 压缩算法，而 Deflate 本身由 LZ77 算法和哈夫曼编码组成。LZ77 负责把重复出现的字符串替换成引用，哈夫曼编码再根据字符出现频率，用较短的编码表示高频字符，从而进一步压缩数据。所以**哈夫曼编码是 Deflate 的固有组成部分，不是 Gzip 额外叠加的一层**。
+    
+2. **格式与算法**：Gzip 和 zlib 都是**容器格式**，它们内部的压缩主体都是 Deflate。三者的核心压缩数据完全相同，区别只在头尾：
+    
+    - Gzip = gzip 头 + Deflate 数据 + CRC32 校验尾
+        
+    - zlib = zlib 头 + Deflate 数据 + Adler-32 校验尾
+        
+    - raw deflate = 裸的 Deflate 数据，没有头尾
+        
+3. **压缩效率**：由于压缩算法相同，Gzip 和 Deflate 的压缩率**基本一致**，差异仅来自头尾开销（gzip 头比 zlib 头略大一点），并不存在"Gzip 因为多用了哈夫曼所以压缩率更高"这回事。真正影响压缩率的是**压缩级别**（0–9），级别越高压缩率越好。
+    
+4. **压缩速度**：Gzip 和 Deflate 的计算量也基本一样，因为核心都是同一套 Deflate 算法。Gzip 只是多了一步 CRC32 校验计算，开销很小，不构成明显的速度差异。同样，速度主要取决于**压缩级别**，而不是格式。
+    
+5. **应用场景**：
+    
+    - **Gzip**：常用于 `.gz` 文件、HTTP 响应的 `Content-Encoding: gzip`，是 Web 传输中最常见的压缩格式。
+        
+    - **zlib / Deflate**：常用于需要和其他系统或协议对接的场景，比如 HTTP 的 `Content-Encoding: deflate`、PNG 图片内部、部分网络协议。
+        
+    - **raw deflate**：用于自定义格式、需要极致省空间的场景。
