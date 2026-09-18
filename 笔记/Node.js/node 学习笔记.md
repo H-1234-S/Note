@@ -1446,3 +1446,28 @@ Node.js 中的 `url` 模块，核心作用就是：
 
 Node 的 `url` 模块实际上提供了两套 API。现在开发 Node.js，**重点学习 `URL` 和 `URLSearchParams`**
 
+``` node
+const myUrl = new URL(
+  "https://www.example.com:8080/user/profile?id=1001&name=zhangsan#info",
+);
+
+console.log(myUrl);
+
+/*
+URL {
+  href: 'https://www.example.com:8080/user/profile?id=1001&name=zhangsan#info',
+  origin: 'https://www.example.com:8080',
+  protocol: 'https:',
+  username: '',
+  password: '',
+  host: 'www.example.com:8080',
+  hostname: 'www.example.com',
+  port: '8080',
+  pathname: '/user/profile',
+  search: '?id=1001&name=zhangsan',
+  searchParams: URLSearchParams { 'id' => '1001', 'name' => 'zhangsan' },
+  hash: '#info'
+}
+*/
+```
+
