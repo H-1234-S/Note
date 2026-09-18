@@ -1249,3 +1249,63 @@ server.listen(port, hostname, () => {
 
 # http
 
+HTTP 模块是 Node.js 的核心模块之一，它提供了创建 HTTP 服务器和客户端的能力。
+
+**创建 Web 服务器：** 你可以使用 "http" 模块创建一个 HTTP 服务器，用于提供 Web 应用程序或网站。通过监听特定的端口，服务器可以接收客户端的请求，并生成响应。你可以处理不同的路由、请求方法和参数，实现自定义的业务逻辑。
+ 
+**构建 RESTful API：** "http" 模块使得构建 RESTful API 变得简单。你可以使用 HTTP 请求方法（如 GET、POST、PUT、DELETE 等）和路径来定义 API 的不同端点。通过解析请求参数、验证身份和权限，以及生成相应的 JSON 或其他数据格式，你可以构建强大的 API 服务。
+
+**代理服务器：** "http" 模块还可以用于创建代理服务器，用于转发客户端的请求到其他服务器。代理服务器可以用于负载均衡、缓存、安全过滤或跨域请求等场景。通过在代理服务器上添加逻辑，你可以对请求和响应进行修改、记录或过滤。
+
+**文件服务器：** "http" 模块可以用于创建一个简单的文件服务器，用于提供静态文件（如 HTML、CSS、JavaScript、图像等）。通过读取文件并将其作为响应发送给客户端，你可以轻松地构建一个基本的文件服务器。
+
+## 创建 HTTP 服务器
+
+``` node
+const http = require('http');
+
+// 创建服务器
+const server = http.createServer((req, res) => {
+    // req: 请求对象 (IncomingMessage)
+    // res: 响应对象 (ServerResponse)
+    
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('Hello World\n');
+});
+
+// 监听端口
+server.listen(3000, '127.0.0.1', () => {
+    console.log('服务器运行在 http://127.0.0.1:3000/');
+});
+```
+
+## 请求对象
+
+``` node
+const server = http.createServer((req, res) => {
+    // 请求方法
+    console.log(req.method);      // GET, POST, PUT, DELETE 等
+    
+    // 请求 URL
+    console.log(req.url);         // /path?query=value
+    
+    // HTTP 版本
+    console.log(req.httpVersion); // 1.1
+    
+    // 请求头
+    console.log(req.headers);     // { host: 'localhost:3000', ... }
+    console.log(req.headers['user-agent']);
+    
+    // 请求体数据（流式）
+    let body = '';
+    req.on('data', chunk => {
+        body += chunk.toString();
+    });
+    
+    req.on('end', () => {
+        console.log('请求体:', body);
+        res.end('收到数据');
+    });
+});
+```
