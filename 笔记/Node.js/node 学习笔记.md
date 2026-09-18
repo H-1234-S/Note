@@ -1341,3 +1341,10 @@ const server = http.createServer((req, res) => {
     });
 });
 ```
+
+# url
+
+Node.js 中的 `url` 模块，核心作用就是：
+
+> **解析 URL、构造 URL、修改 URL，以及处理 URL 的查询参数。**
+
