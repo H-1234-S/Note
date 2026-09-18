@@ -946,7 +946,31 @@ Node.js 读取文件的时候是使用 libuv 进行调度的
 
 非对称加密适用于需要**加密大量数据**的场景；加密和解密速度都比较快
 
+``` node
+const crypto = require('crypto');
 
+const key = crypto.randomBytes(32);   // AES-256 需要 32 字节密钥
+const iv = crypto.randomBytes(16);    // 初始向量，16 字节
+
+function encrypt(text) {
+  // 创建加密实例，使用 AES-256-CBC 算法，提供密钥和初始化向量
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
+}
+
+function decrypt(encrypted) {
+  const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
+}
+
+const enc = encrypt('机密内容');
+console.log(enc);
+console.log(decrypt(enc)); // '机密内容'
+```
 
 ## 非对称加密
 
