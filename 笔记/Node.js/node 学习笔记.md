@@ -834,3 +834,31 @@ fs.watch('./test2.txt',(event,filename)=>{
 // change test2.txt
 ```
 
+## 注意
+
+``` node
+fs.readFile(
+  "../index.txt",
+  {
+    encoding: "utf-8",
+    flag: "r",
+  },
+  (err, dataStr) => {
+    if (err) throw err;
+    console.log("fs");
+  },
+);
+  
+// 在本轮事件循环结束后执行
+setImmediate(() => {
+  console.log("setImmediate");
+});
+```
+
+> 为什么先走 setImmediate 呢，而不是 fs？
+
+Node.js 读取文件的时候是使用 libuv 进行调度的
+
+而 setImmediate 是由 V8 进行调度的
+
+文件读取完成后 libuv 才会将 fs 的结果推入 V8 的队列
