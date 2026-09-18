@@ -1471,3 +1471,6 @@ URL {
 */
 ```
 
+> **注意：**
+
+`searchParams` 是一个标准的 `URLSearchParams` 对象
