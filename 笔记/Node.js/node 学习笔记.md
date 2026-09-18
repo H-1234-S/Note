@@ -1131,3 +1131,10 @@ console.log('Hash:', hashValue);
 1. 我们可以避免密码明文传输，使用 md5 加密或者 sha256
 2. 验证文件完整性。读取文件内容生成 md5 如果前端上传的 md5 和后端的读取文件内部的 md5 匹配说明文件是完整的
 
+# zlib
+
+
+
+## gzip
+
+## deflate
