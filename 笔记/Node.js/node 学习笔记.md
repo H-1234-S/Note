@@ -1183,3 +1183,29 @@ readStream.pipe(zlib.createGunzip()).pipe(writeStream);
 ```
 
 ## deflate
+
+> **流式压缩：**
+
+``` node
+const readStream = fs.createReadStream("../index.txt");
+const writeStream = fs.createWriteStream("../index.txt.deflate");
+readStream.pipe(zlib.createDeflate()).pipe(writeStream);
+```
+
+> **流式解压缩：**
+
+``` node
+const readStream = fs.createReadStream("../index.txt.deflate");
+const writeStream = fs.createWriteStream("../index3.txt");
+readStream.pipe(zlib.createInflate()).pipe(writeStream);
+```
+
+## zip 和 deflate 区别
+
+1. 压缩算法：Gzip 使用的是 Deflate 压缩算法，该算法结合了 LZ77 算法和哈夫曼编码。LZ77 算法用于数据的重复字符串的替换和引用，而哈夫曼编码用于进一步压缩数据。
+
+2. 压缩效率：Gzip 压缩通常具有更高的压缩率，因为它使用了哈夫曼编码来进一步压缩数据。哈夫曼编码根据字符的出现频率，将较常见的字符用较短的编码表示，从而减小数据的大小。
+
+3. 压缩速度：相比于仅使用 Deflate 的方式，Gzip 压缩需要更多的计算和处理时间，因为它还要进行哈夫曼编码的步骤。因此，在压缩速度方面，Deflate 可能比 Gzip 更快。
+
+4. 应用场景：Gzip 压缩常用于文件压缩、网络传输和 HTTP 响应的内容编码。它广泛应用于 Web 服务器和浏览器之间的数据传输，以减小文件大小和提高网络传输效率。
