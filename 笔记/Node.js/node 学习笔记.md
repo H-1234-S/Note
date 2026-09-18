@@ -1010,5 +1010,24 @@ encrypted += cipher.final('hex');
 
 非对称加密，生成两个密钥；用公钥去加密，私钥去解密
 
+``` node
+const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+  modulusLength: 2048,
+});
+  
+const result = crypto.publicEncrypt(publicKey, Buffer.from("xiaomanzs"));
+  
+console.log(result.toString("hex"));
+  
+const decipher = crypto.privateDecrypt(privateKey, Buffer.from(result));
+  
+console.log(decipher.toString());
+```
+
+`crypto.generateKeyPairSync()` 生成公钥和私钥
+
+`crypto.publicEncrypt()` 根据公钥去加密
+
+`crypto.privateDecrypt()` 根据私钥去解密
 
 ## 哈希函数
