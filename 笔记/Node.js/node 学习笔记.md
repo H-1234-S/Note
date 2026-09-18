@@ -1228,4 +1228,22 @@ readStream.pipe(zlib.createInflate()).pipe(writeStream);
 
 HTTP 请求压缩，指的是在客户端和服务器之间传输数据时，对**请求体**或**响应体**进行压缩，以减少网络传输量、加快速度。
 
+``` node
+const text = "Hushaoqiong".repeat(1000);
+
+const server = http.createServer((request, response) => {
+  response.statusCode = 200;
+  response.setHeader("Content-Encoding", "deflate");
+  // response.setHeader("Content-Encoding", "gzip");
+  
+  response.setHeader("Content-type", "text/plan;charset=utf-8");
+  const result = zlib.deflateSync(text);
+  // const result = zlib.gzipSync(text);
+  response.end(result);
+});
+  
+server.listen(port, hostname, () => {
+  execSync(`start http://${hostname}:${port}/`);
+});
+```
 
