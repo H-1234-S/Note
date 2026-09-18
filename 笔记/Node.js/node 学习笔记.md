@@ -932,15 +932,15 @@ Node.js 读取文件的时候是使用 libuv 进行调度的
 
 `crypto` 是 Node.js 内置的**加密模块**，提供哈希、加密解密、签名验签、随机数等能力。
 
-|能力|代表 API|用途|
-|---|---|---|
-|哈希/摘要|`createHash`|校验完整性、指纹|
-|HMAC|`createHmac`|带密钥的哈希，防篡改|
-|对称加密|`createCipheriv` / `createDecipheriv`|加解密数据（AES 等）|
-|非对称加密|`publicEncrypt` / `privateDecrypt`|公钥加密、私钥解密|
-|签名/验签|`sign` / `verify`|证明身份、防伪造|
-|随机数|`randomBytes` / `randomUUID`|生成密钥、token、盐|
-|密钥派生|`pbkdf2` / `scrypt` / `hkdf`|从密码派生密钥
+| 能力    | 代表 API                                | 用途           |
+| ----- | ------------------------------------- | ------------ |
+| 哈希/摘要 | `createHash`                          | 校验完整性、指纹     |
+| HMAC  | `createHmac`                          | 带密钥的哈希，防篡改   |
+| 对称加密  | `createCipheriv` / `createDecipheriv` | 加解密数据（AES 等） |
+| 非对称加密 | `publicEncrypt` / `privateDecrypt`    | 公钥加密、私钥解密    |
+| 签名/验签 | `sign` / `verify`                     | 证明身份、防伪造     |
+| 随机数   | `randomBytes` / `randomUUID`          | 生成密钥、token、盐 |
+| 密钥派生  | `pbkdf2` / `scrypt` / `hkdf`          | 从密码派生密钥      |
 
 ## 对称加密
 
