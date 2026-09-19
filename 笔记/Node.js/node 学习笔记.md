@@ -1585,12 +1585,6 @@ server.listen(port, hostname, () => {
 
 - 使用专门的静态文件服务器（如Amazon S3、Google Cloud Storage）存储和提供静态资源，而将动态请求交给应用服务器处理。
 
-  
-
-作者：小满zs  
-链接：https://juejin.cn/post/7313499902453186575  
-来源：稀土掘金  
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 # url
 
 Node.js 中的 `url` 模块，核心作用就是：
@@ -1627,3 +1621,9 @@ URL {
 > **注意：**
 
 `searchParams` 是一个标准的 `URLSearchParams` 对象
+
+# express
+
+Express是一个流行的 Node.js Web应用程序框架，用于构建灵活且可扩展的Web应用程序和API。
+
+它是基于Node.js的HTTP模块而创建的，简化了处理HTTP请求、响应和中间件的过程。
