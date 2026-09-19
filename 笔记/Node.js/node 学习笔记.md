@@ -1521,6 +1521,9 @@ server.on("request", () => {
 });
 ```
 
+`http-proxy-middleware` 的核心作用，是**为 Node.js 服务器提供一个简洁的代理中间件**，让你能用几行配置就把特定路径的请求转发到另一台服务器上
+
+
 # url
 
 Node.js 中的 `url` 模块，核心作用就是：
