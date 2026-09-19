@@ -1818,3 +1818,50 @@ const loggerMiddleware = (req, res, next) => {
   
 export default loggerMiddleware;
 ```
+
+## 防盗链
+
+防盗链（Hotlinking）是指在网页或其他网络资源中，通过直接链接到其他网站上的图片、视频或其他媒体文件，从而显示在自己的网页上。
+
+> 使用 Referrer 检查：
+
+``` node
+import express from "express";
+import { execSync } from "child_process";
+
+const whiteList = ["localhost"];
+
+const preventHotLinking = (request, response, next) => {
+  const referer = request.get("referer");
+
+  if (referer) {
+    const { hostname } = new URL(referer);
+  
+    if (!whiteList.includes(hostname)) {
+      response.statusCode = 404;
+      response.send("无权访问");
+      return;
+    }
+  }
+  
+  next();
+};
+  
+const app = express();
+  
+app.use(preventHotLinking);
+  
+app.use(express.static("static"));
+  
+const port = 3000;
+  
+app.listen(port, () => {
+  execSync(`start http://localhost:${port}`);
+});
+```
+
+> 防盗链的判断策略：
+
+- **没有 referer**：通常是用户在地址栏直接访问、或从 HTTPS 页面跳转到 HTTP 页面（浏览器不发送 Referer）。一般应当**放行**。
+    
+- **有 referer 但不在白名单**：拒绝。
