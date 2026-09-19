@@ -1523,7 +1523,74 @@ server.on("request", () => {
 
 `http-proxy-middleware` 的核心作用，是**为 Node.js 服务器提供一个简洁的代理中间件**，让你能用几行配置就把特定路径的请求转发到另一台服务器上
 
+## 动静分离
 
+动静分离是一种在 Web 服务器架构中常用的优化技术，旨在提高网站的性能和可伸缩性。
+
+它基于一个简单的原则：将动态生成的内容（如动态网页、API请求）与静态资源（如HTML、CSS、JavaScript、图像文件）**分开处理和分发**。
+
+``` node
+import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import mime from "mime";
+  
+const port = 3000;
+const hostname = "127.0.0.1";
+  
+const server = http.createServer((request, response) => {
+  const { url, method } = request;
+  
+  if (method === "GET" && url.startsWith("/static")) {
+    const startsPath = path.join(process.cwd(), url);
+    const type = mime.getType(startsPath);
+  
+    fs.readFile(startsPath, (error, data) => {
+      if (error) {
+        response.statusCode = 404;
+        response.end("not found");
+        return;
+      }
+  
+      response.writeHead(200, {
+        "content-type": type,
+        "cache-control": "public,max-age=3600",
+      });
+
+      response.end(data);
+    });
+  } else if (method === "GET" || method === "POST") {
+    // TODO
+  }
+});
+  
+server.listen(port, hostname, () => {
+  console.log(`start server http://${hostname}:${port}`);
+});
+```
+
+> 为什么实现动静分离：
+
+1. **性能优化**：将静态资源与动态内容分离可以提高网站的加载速度。由于静态资源往往是不变的，可以使用缓存机制将其存储在CDN（内容分发网络）或浏览器缓存中，从而减少网络请求和数据传输的开销。
+
+2. **负载均衡**：通过将动态请求分发到不同的服务器或服务上，可以平衡服务器的负载，提高整个系统的可伸缩性和容错性。
+
+3. **安全性**：将动态请求与静态资源分开处理可以提高系统的安全性。静态资源通常是公开可访问的，而动态请求可能涉及敏感数据或需要特定的身份验证和授权。通过将静态资源与动态内容分离，可以更好地管理访问控制和安全策略。
+
+> 实现动静分离的方法：
+
+- 使用反向代理服务器（如Nginx、Apache）将静态请求和动态请求转发到不同的后端服务器或服务。
+
+- 将静态资源部署到 CDN 上，通过 CDN 分发静态资源，减轻源服务器的负载。
+
+- 使用专门的静态文件服务器（如Amazon S3、Google Cloud Storage）存储和提供静态资源，而将动态请求交给应用服务器处理。
+
+  
+
+作者：小满zs  
+链接：https://juejin.cn/post/7313499902453186575  
+来源：稀土掘金  
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 # url
 
 Node.js 中的 `url` 模块，核心作用就是：
