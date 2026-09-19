@@ -1441,7 +1441,85 @@ server.on("close", () => {
 
 ## 反向代理
 
+> **proxy.config.js**
 
+``` node
+module.exports = {
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:3001",  // 转发的地址
+        changeOrigin: true,  // 是否有跨域
+      },
+    },
+  },
+};
+```
+
+> **proxy.js**
+
+``` node
+const http = require("node:http");
+const fs = require("node:fs");
+const { createProxyMiddleware } = require("http-proxy-middleware");
+
+const hostname = "127.0.0.1";
+const port = 3000;
+  
+const html = fs.readFileSync("../index.html");
+  
+const proxyConfig = require("../proxy.config");
+  
+const server = http.createServer((request, response) => {
+  const { pathname } = new URL(request.url, `http://${request.headers.host}`);
+  
+  const proxyList = Object.keys(proxyConfig.server.proxy);
+  
+  if (proxyList.includes(pathname)) {
+    const proxy = createProxyMiddleware(proxyConfig.server.proxy[pathname]);
+    proxy(request, response);
+    return;
+  }
+  
+  response.writeHead(200, {
+    "Content-Type": "text/html",
+  });
+  response.end(html);
+});
+  
+server.listen(port, hostname, () => {
+  console.log(`http://${hostname}:${port}`);
+});
+```
+
+> **index.js**
+
+``` node
+const http = require("node:http");
+  
+const hostname = "127.0.0.1";
+const port = 3001;
+  
+const server = http.createServer((request, response) => {
+  const { pathname } = new URL(request.url, `http://${request.headers.host}`);
+  
+  if (pathname === "/api") {
+    response.writeHead(200, {
+      "Content-Type": "application/json",
+    });
+  
+    response.end("proxy success");
+  }
+});
+  
+server.listen(port, hostname, () => {
+  console.log(`http://${hostname}:${port}`);
+});
+  
+server.on("request", () => {
+  console.log("port 3001 收到请求");
+});
+```
 
 # url
 
