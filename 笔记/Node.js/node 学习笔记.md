@@ -1627,3 +1627,106 @@ URL {
 Express是一个流行的 Node.js Web应用程序框架，用于构建灵活且可扩展的Web应用程序和API。
 
 它是基于Node.js的HTTP模块而创建的，简化了处理HTTP请求、响应和中间件的过程。
+
+## 基本使用
+
+`GET` 请求使用 `request.query` 获取查询参数；如果是动态参数使用 `request.params` 获取
+
+`POST` 请求使用 `request.body` 获取参数；`JSON` 格式的参数要使用 `express.json()` 中间件解析
+
+``` node
+import express from "express";
+
+const app = express();
+
+app.use(express.json());
+
+const port = 3000;
+
+app.get("/get", (request, response) => {
+  console.log(request.query);
+  response.send("get");
+});
+
+app.post("/post", (request, response) => {
+  console.log(request.body);
+  response.send("post");
+});
+
+//如果是动态参数用 params 
+app.get('/:id', (req, res) => { 
+  console.log(req.params) res.send('get id') 
+});
+
+app.listen(port, (error) => {
+  if (error) {
+    throw error;
+  }
+  
+  console.log(`http://localhost:${port}`);
+});
+```
+
+## 模块化
+
+`Express` 支持将路由模块化，使得应用程序可以根据不同的功能或模块**进行分组**。
+
+在模块中使用 `express.Router()` 声明 `router` ；在 `app` 中使用 `use` 注册一下 
+
+``` node
+import express from "express";
+import User from "./src/user.js";
+import List from "./src/list.js";
+
+const app = express();
+
+app.use(express.json());
+
+// 模块化
+app.use("/user", User);
+app.use("/list", List);
+
+const port = 3000;
+
+app.get("/get", (request, response) => {
+  console.log(request.query);
+  response.send("get");
+});
+
+app.post("/post", (request, response) => {
+  console.log(request.body);
+  response.send("post");
+});
+
+app.listen(port, (error) => {
+  if (error) {
+    throw error;
+  }
+
+  console.log(`http://localhost:${port}`);
+});
+```
+
+> `/src/user.js`
+
+``` node
+import express from "express";
+
+const router = express.Router();
+
+router.use(express.json());
+
+router.get("/login", (request, response) => {
+  response.send("登录成功");
+});
+
+router.post("/register", (request, response) => {
+  console.log(request.body);
+  response.send("注册成功");
+});
+
+export default router;
+```
+
+## 中间件
+
