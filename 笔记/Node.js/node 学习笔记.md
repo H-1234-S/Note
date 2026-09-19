@@ -1683,6 +1683,7 @@ const app = express();
 app.use(express.json());
 
 // 模块化
+// 带上前缀，防止重名
 app.use("/user", User);
 app.use("/list", List);
 
@@ -1726,6 +1727,43 @@ router.post("/register", (request, response) => {
 });
 
 export default router;
+```
+
+> `/src/list.js`
+
+``` node
+import express from "express";
+
+const router = express.Router();
+
+router.get("/data", (request, response) => {
+  response.send([
+    {
+      name: "han",
+      age: 18,
+    },
+    {
+      name: "jo",
+      age: 21,
+    },
+  ]);
+});
+
+export default router;
+```
+
+> `express.http`
+
+``` http
+GET http://localhost:3000/list/data HTTP/1.1
+
+POST http://localhost:3000/user/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "name":"jo",
+    "id":123
+}
 ```
 
 ## 中间件
