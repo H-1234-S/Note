@@ -1876,5 +1876,55 @@ app.listen(port, () => {
 
 > 其实请求已经到浏览器了，只是浏览器禁止 JS 去读取；服务器设置一下白名单即可解决。
 
+## 响应头
+
+`ccess-Control-Allow-Origin`（必填）；指定允许访问该资源的外域 URI。
+
+``` node
+Access-Control-Allow-Origin: "https://example.com"
+Access-Control-Allow-Origin: *          // 允许所有源（但不能携带凭证）
+```
+
+> 注意：如果需要携带 Cookie，不能用 `*`，必须指定具体域名。
+
+ `Access-Control-Allow-Methods`（预检请求必填）；指定允许的 HTTP 方法。
+
+``` node
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+```
+
+`Access-Control-Allow-Headers`（预检请求必填）；指定允许的请求头字段。
+
+``` node
+Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With
+```
+
+`Access-Control-Allow-Credentials`（可选）；是否允许发送 Cookie 等凭证。
+
+``` node
+Access-Control-Allow-Credentials: true
+```
+
+使用时 `Allow-Origin` 必须是具体域名，前端 `xhr.withCredentials = true`。
+
+`Access-Control-Max-Age`（可选）；预检请求结果的缓存时间（秒），减少 OPTIONS 请求。
+
+``` node
+Access-Control-Max-Age: 86400
+```
+
+`Access-Control-Expose-Headers`（可选）；允许前端 JS 访问的响应头（默认只能拿到 6 个基础头）。
+
+``` node
+Access-Control-Expose-Headers: Content-Length, X-Custom-Header
+```
+## 简单请求
+
+
+
+## 复杂请求
+
+
+
 
 
