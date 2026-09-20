@@ -1921,6 +1921,8 @@ Access-Control-Expose-Headers: Content-Length, X-Custom-Header
 
 ## 预检请求
 
+预检请求就是浏览器在发送**真正的跨域请求之前**，先自动发一个 `OPTIONS` 请求去"问"服务器：_"我接下来想用 XX 方法、带 XX 头访问你，你允许吗？"_ 服务器同意了，浏览器才发真正的请求。
+
 
 
 
