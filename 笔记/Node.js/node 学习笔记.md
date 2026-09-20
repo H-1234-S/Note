@@ -1626,15 +1626,24 @@ URL {
 
 `fileURLToPath` 是 Node.js `node:url` 模块提供的一个工具函数，作用是**把 `file://` 协议的 URL 转换成操作系统本地路径**。
 
+因为 `import.meta.url` 返回的是 **URL**，但很多 API（`fs.readFileSync`、`path.join` 等）需要的是**本地路径字符串**；因此可以调函数转一下
+
 > **示例：**
-
-
 
 ``` node
 import { fileURLToPath } from "node:url";
 import path from "node:path";
   
 console.log(import.meta);
+/*
+{
+  dirname: 'E:\\A\\练习\\nodejs',
+  filename: 'E:\\A\\练习\\nodejs\\m.mjs',
+  main: true,
+  resolve: [Function: resolve],
+  url: 'file:///E:/A/%E7%BB%83%E4%B9%A0/nodejs/m.mjs'
+}
+*/
   
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1642,6 +1651,9 @@ const __dirname = path.dirname(__filename);
 console.log(__filename);
 console.log(__dirname);
 ```
+
+因为 ESM 中没有 `__filename` 和 `__dirname` 
+
 
 # libuv
 
