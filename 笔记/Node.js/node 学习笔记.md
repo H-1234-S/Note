@@ -1923,9 +1923,9 @@ Access-Control-Expose-Headers: Content-Length, X-Custom-Header
 
 预检请求就是浏览器在发送**真正的跨域请求之前**，先自动发一个 `OPTIONS` 请求去"问"服务器：_"我接下来想用 XX 方法、带 XX 头访问你，你允许吗？"_ 服务器同意了，浏览器才发真正的请求。**预检请求的主要目的是确保跨域请求的安全性。**
 
-> fa
+> 发送**预检请求**条件：
 
-- 自定义请求方法：当使用**非简单请求方法**（Simple Request Methods）时，例如 PUT、DELETE、CONNECT、OPTIONS、TRACE、PATCH 等，浏览器会发送预检请求。
+- 自定义请求方法：当使用**非简单请求方法**（Simple Request Methods）时，例如 PUT、DELETE、CONNECT、OPTIONS、TRACE、PATCH 等，浏览器会发送预检请求。简单请求方法：`GET`
 
 - 自定义**请求头**部字段：当请求包含自定义的头部字段时，浏览器会发送预检请求。自定义头部字段是指不属于简单请求头部字段列表的字段，例如 Content-Type 为 application/json、Authorization 等。
 
