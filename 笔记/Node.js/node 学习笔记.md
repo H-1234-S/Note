@@ -1918,11 +1918,8 @@ Access-Control-Max-Age: 86400
 ``` node
 Access-Control-Expose-Headers: Content-Length, X-Custom-Header
 ```
-## 简单请求
 
-
-
-## 复杂请求
+## 预检请求
 
 
 
