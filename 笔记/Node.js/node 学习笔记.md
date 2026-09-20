@@ -1925,9 +1925,15 @@ Access-Control-Expose-Headers: Content-Length, X-Custom-Header
 
 > 发送**预检请求**条件：
 
-- 自定义请求方法：当使用**非简单请求方法**（Simple Request Methods）时，例如 PUT、DELETE、CONNECT、OPTIONS、TRACE、PATCH 等，浏览器会发送预检请求。简单请求方法：`GET`
+- 自定义请求方法：当使用**非简单请求方法**（Simple Request Methods）时，例如 PUT、DELETE、CONNECT、OPTIONS、TRACE、PATCH 等，浏览器会发送预检请求。简单请求方法：`GET`、`HEAD`、`POST`。
 
 - 自定义**请求头**部字段：当请求包含自定义的头部字段时，浏览器会发送预检请求。自定义头部字段是指不属于简单请求头部字段列表的字段，例如 Content-Type 为 application/json、Authorization 等。
+
+	* `application/x-www-form-urlencoded`
+    
+	- `multipart/form-data`
+    
+	- `text/plain`
 
 - 带凭证的请求：当请求需要在跨域环境下发送和接收凭证（例如包含 cookies、HTTP 认证等凭证信息）时，浏览器会发送预检请求。
 
