@@ -1632,6 +1632,23 @@ URL {
 
 **用非阻塞的方式处理大量并发 I/O**，同时保持跨平台。
 
+> **跨平台：**
+
+因为不同操作系统的异步 I/O 机制完全不同：
+
+- **Unix/Linux/Mac**：使用 **libev**（基于 `epoll`/`kqueue` 等）[](https://docs.libuv.org/en/v1.x/_sources/guide/introduction.rst.txt)[](https://linuxsoft.cern.ch/cern/centos/7/cloud/x86_64/openstack-train/repoview/libuv.html)。
+    
+- **Windows**：使用 **IOCP**（I/O Completion Ports），这与 Unix 的机制截然不同[](https://docs.libuv.org/en/v1.x/_sources/guide/introduction.rst.txt)[](https://linuxsoft.cern.ch/cern/centos/7/cloud/x86_64/openstack-train/repoview/libuv.html)。
+    
+
+如果 Node.js 直接调用这些系统 API，代码里将充满 `#ifdef _WIN32` 之类的平台判断，维护成本极高。
+
+libuv 作为“平台抽象层”，**把所有平台差异封装在库内部**，对外暴露一套统一的 API（如 `uv_tcp_t`、`uv_fs_read`）。
+
+
+
+
+---
 # express
 
 Express是一个流行的 Node.js Web应用程序框架，用于构建灵活且可扩展的Web应用程序和API。
