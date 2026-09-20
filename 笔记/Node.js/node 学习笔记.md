@@ -1991,3 +1991,16 @@ server.listen(3000, "127.0.0.1", () => {
     
 2. **结尾必须有两个换行符 `\n\n`**（一个空行表示"一条消息结束"）
 
+> **自定义事件名：**
+
+``` node
+response.write("event: test\n");  // 自定义事件名
+response.write("data: " + new Date().getTime() + "\n\n");
+
+//---------
+// 前端监听即可
+const sse = new EventSource("http://localhost:3000/sse");
+      sse.addEventListener("test", (event) => {
+        console.log(event.data);
+      });
+```
