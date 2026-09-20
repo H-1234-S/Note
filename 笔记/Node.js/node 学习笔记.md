@@ -997,7 +997,7 @@ Node.js 读取文件的时候是使用 libuv 进行调度的
 
 文件读取完成后 libuv 才会将 fs 的结果推入 V8 的队列
 
-# crypto
+# crypto api
 
 `crypto` 是 Node.js 内置的**加密模块**，提供哈希、加密解密、签名验签、随机数等能力。
 
@@ -1131,7 +1131,7 @@ console.log('Hash:', hashValue);
 1. 我们可以避免密码明文传输，使用 md5 加密或者 sha256
 2. 验证文件完整性。读取文件内容生成 md5 如果前端上传的 md5 和后端的读取文件内部的 md5 匹配说明文件是完整的
 
-# zlib
+# zlib api
 
 `zlib` 是 Node.js 内置的**压缩/解压模块**，底层基于 zlib 库，提供数据压缩、解压、流式处理等能力。
 
@@ -1247,7 +1247,7 @@ server.listen(port, hostname, () => {
 });
 ```
 
-# http
+# http api
 
 HTTP 模块是 Node.js 的核心模块之一，它提供了创建 HTTP 服务器和客户端的能力。
 
@@ -1622,6 +1622,16 @@ URL {
 
 `searchParams` 是一个标准的 `URLSearchParams` 对象
 
+# libuv
+
+> **是什么？**
+
+`libuv` 是一个**跨平台**的 **C 语言异步 I/O 库**，它是 Node.js 实现非阻塞、事件驱动特性的底层基石。
+
+> **解决了什么问题？**
+
+**用非阻塞的方式处理大量并发 I/O**，同时保持跨平台。
+
 # express
 
 Express是一个流行的 Node.js Web应用程序框架，用于构建灵活且可扩展的Web应用程序和API。
@@ -1937,7 +1947,7 @@ Access-Control-Expose-Headers: Content-Length, X-Custom-Header
 
 - 带凭证的请求：当请求需要在跨域环境下发送和接收凭证（例如包含 cookies、HTTP 认证等凭证信息）时，浏览器会发送预检请求。
 
-# SSE
+# sse
 
 `SSE` 是服务端单向推送技术；允许服务器主动向客户端发送事件数据。
 
