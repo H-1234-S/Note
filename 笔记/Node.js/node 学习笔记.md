@@ -1622,6 +1622,27 @@ URL {
 
 `searchParams` 是一个标准的 `URLSearchParams` 对象
 
+## fileURLToPath
+
+`fileURLToPath` 是 Node.js `node:url` 模块提供的一个工具函数，作用是**把 `file://` 协议的 URL 转换成操作系统本地路径**。
+
+> **示例：**
+
+
+
+``` node
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+  
+console.log(import.meta);
+  
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+  
+console.log(__filename);
+console.log(__dirname);
+```
+
 # libuv
 
 > **是什么？**
