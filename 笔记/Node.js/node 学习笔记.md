@@ -1865,3 +1865,16 @@ app.listen(port, () => {
 - **没有 referer**：通常是用户在地址栏直接访问、或从 HTTPS 页面跳转到 HTTP 页面（浏览器不发送 Referer）。一般应当**放行**。
     
 - **有 referer 但不在白名单**：拒绝。
+
+# cors
+
+**跨域资源共享**（Cross-Origin Resource Sharing，CORS）是一种机制，用于在浏览器中实现跨域请求访问资源的权限控制。
+
+当一个网页通过 XMLHttpRequest 或 Fetch API 发起跨域请求时，浏览器会根据同源策略（Same-Origin Policy）进行限制。
+
+同源策略要求请求的源（协议、域名和端口）必须与资源的源相同，否则请求会被浏览器拒绝。
+
+> 其实请求已经到浏览器了，只是浏览器禁止 JS 去读取；服务器设置一下白名单即可解决。
+
+
+
