@@ -1941,7 +1941,53 @@ Access-Control-Expose-Headers: Content-Length, X-Custom-Header
 
 `SSE` 是服务端单向推送技术；允许服务器主动向客户端发送事件数据。
 
+> **注意：** **EventSource 只能发 GET 请求，且无法自定义请求头**
 
+``` node
+const http = require("node:http");
 
+const server = http.createServer((req, res) => {
+  if (req.url === "/sse") {
+    // 1. 关键响应头
+    res.writeHead(200, {
+      "Content-Type": "text/event-stream",      // 必须是这个
+      "Cache-Control": "no-cache",              // 禁止缓存
+      "Connection": "keep-alive",               // 保持长连接
+      "Access-Control-Allow-Origin": "http://127.0.0.1:5500",
+    });
 
+    // 2. 立刻先发一条，确认连接建立
+    res.write("data: connected\n\n");
+
+    // 3. 定时推送消息
+    let count = 0;
+    const timer = setInterval(() => {
+      count++;
+      // 格式：data: 内容 \n\n
+      res.write(`data: 消息 ${count}，时间 ${Date.now()}\n\n`);
+
+      if (count >= 10) {
+        clearInterval(timer);
+        res.end();
+      }
+    }, 1000);
+
+    // 4. 客户端断开时清理
+    req.on("close", () => {
+      clearInterval(timer);
+      console.log("客户端断开连接");
+    });
+  }
+});
+
+server.listen(3000, "127.0.0.1", () => {
+  console.log("start http://127.0.0.1:3000");
+});
+```
+
+> **SSE 数据格式：** 
+
+1. 每行以 `data:` 开头，后面跟内容
+    
+2. **结尾必须有两个换行符 `\n\n`**（一个空行表示"一条消息结束"）
 
