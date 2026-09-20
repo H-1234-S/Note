@@ -1937,6 +1937,10 @@ Access-Control-Expose-Headers: Content-Length, X-Custom-Header
 
 - 带凭证的请求：当请求需要在跨域环境下发送和接收凭证（例如包含 cookies、HTTP 认证等凭证信息）时，浏览器会发送预检请求。
 
+# SSE
+
+`SSE` 是服务端单向推送技术；允许服务器主动向客户端发送事件数据。
+
 
 
 
