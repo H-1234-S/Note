@@ -515,79 +515,6 @@ process.send("我是子进程");
 
 `fork` 底层使用的是 `IPC` 通道进行通讯的，`IPC` 是基于 `libuv` 实现的
 
-# events
-
-Node.js 核心 API 都是采用异步事件驱动架构
-
-Nodejs 事件模型采用了**发布订阅设计模式**
-
-``` node
-const EventEmitter = require('events');
-
-const event = new EventEmitter()
-//监听test
-event.on('test',(data)=>{
-    console.log(data)
-})
-
-event.emit('test','xmxmxmxmx') //派发事件
-```
-
-监听的消息数量默认是 10 个
-
-``` node
-const EventEmitter = require('events');
-
-const event = new EventEmitter()
-
-event.on('test', (data) => {
-    console.log(data)
-})
-event.on('test', (data) => {
-    console.log(data)
-})
-event.on('test', (data) => {
-    console.log(data)
-})
-event.on('test', (data) => {
-    console.log(data)
-})
-event.on('test', (data) => {
-    console.log(data)
-})
-event.on('test', (data) => {
-    console.log(data)
-})
-event.on('test', (data) => {
-    console.log(data)
-})
-event.on('test', (data) => {
-    console.log(data)
-})
-event.on('test', (data) => {
-    console.log(data)
-})
-
-event.on('test', (data) => {
-    console.log(data)
-})
-event.on('test',(data)=>{
-    console.log(data)
-})
-event.on('test',(data)=>{
-    console.log(data)
-})
-
-event.emit('test', 'xmxmxmxmx')
-
-```
-
-setMaxListeners 传入数量，用于解除限制
-
-```node
-event.setMaxListeners(20)
-```
-
 # util api
 
 ## promisify
@@ -1585,7 +1512,7 @@ server.listen(port, hostname, () => {
 
 - 使用专门的静态文件服务器（如Amazon S3、Google Cloud Storage）存储和提供静态资源，而将动态请求交给应用服务器处理。
 
-# url
+# url api
 
 Node.js 中的 `url` 模块，核心作用就是：
 
@@ -1655,37 +1582,6 @@ console.log(__dirname);
 因为 ESM 中没有 `__filename` 和 `__dirname` 
 
 
-# libuv
-
-> **是什么？**
-
-`libuv` 是一个**跨平台**的 **C 语言异步 I/O 库**，它是 Node.js 实现非阻塞、事件驱动特性的底层基石。
-
-> **解决了什么问题？**
-
-**用非阻塞的方式处理大量并发 I/O**，同时保持跨平台。
-
-> **异步 I/O：**
-
-
-
-> **跨平台：**
-
-因为不同操作系统的异步 I/O 机制完全不同：
-
-- **Unix/Linux/Mac**：使用 **libev**（基于 `epoll`/`kqueue` 等）[](https://docs.libuv.org/en/v1.x/_sources/guide/introduction.rst.txt)[](https://linuxsoft.cern.ch/cern/centos/7/cloud/x86_64/openstack-train/repoview/libuv.html)。
-    
-- **Windows**：使用 **IOCP**（I/O Completion Ports），这与 Unix 的机制截然不同[](https://docs.libuv.org/en/v1.x/_sources/guide/introduction.rst.txt)[](https://linuxsoft.cern.ch/cern/centos/7/cloud/x86_64/openstack-train/repoview/libuv.html)。
-    
-
-如果 Node.js 直接调用这些系统 API，代码里将充满 `#ifdef _WIN32` 之类的平台判断，维护成本极高。
-
-libuv 作为“平台抽象层”，**把所有平台差异封装在库内部**，对外暴露一套统一的 API（如 `uv_tcp_t`、`uv_fs_read`）。
-
-
-
-
----
 # express
 
 Express是一个流行的 Node.js Web应用程序框架，用于构建灵活且可扩展的Web应用程序和API。
@@ -2001,6 +1897,79 @@ Access-Control-Expose-Headers: Content-Length, X-Custom-Header
 
 - 带凭证的请求：当请求需要在跨域环境下发送和接收凭证（例如包含 cookies、HTTP 认证等凭证信息）时，浏览器会发送预检请求。
 
+# events
+
+Node.js 核心 API 都是采用异步事件驱动架构
+
+Nodejs 事件模型采用了**发布订阅设计模式**
+
+``` node
+const EventEmitter = require('events');
+
+const event = new EventEmitter()
+//监听test
+event.on('test',(data)=>{
+    console.log(data)
+})
+
+event.emit('test','xmxmxmxmx') //派发事件
+```
+
+监听的消息数量默认是 10 个
+
+``` node
+const EventEmitter = require('events');
+
+const event = new EventEmitter()
+
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test', (data) => {
+    console.log(data)
+})
+
+event.on('test', (data) => {
+    console.log(data)
+})
+event.on('test',(data)=>{
+    console.log(data)
+})
+event.on('test',(data)=>{
+    console.log(data)
+})
+
+event.emit('test', 'xmxmxmxmx')
+
+```
+
+setMaxListeners 传入数量，用于解除限制
+
+```node
+event.setMaxListeners(20)
+```
+
 # sse
 
 `SSE` 是服务端单向推送技术；允许服务器主动向客户端发送事件数据。
@@ -2068,3 +2037,36 @@ const sse = new EventSource("http://localhost:3000/sse");
         console.log(event.data);
       });
 ```
+
+# libuv
+
+> **是什么？**
+
+`libuv` 是一个**跨平台**的 **C 语言异步 I/O 库**，它是 Node.js 实现非阻塞、事件驱动特性的底层基石。
+
+> **解决了什么问题？**
+
+**用非阻塞的方式处理大量并发 I/O**，同时保持跨平台。
+
+> **异步 I/O：**
+
+
+
+> **跨平台：**
+
+因为不同操作系统的异步 I/O 机制完全不同：
+
+- **Unix/Linux/Mac**：使用 **libev**（基于 `epoll`/`kqueue` 等）[](https://docs.libuv.org/en/v1.x/_sources/guide/introduction.rst.txt)[](https://linuxsoft.cern.ch/cern/centos/7/cloud/x86_64/openstack-train/repoview/libuv.html)。
+    
+- **Windows**：使用 **IOCP**（I/O Completion Ports），这与 Unix 的机制截然不同[](https://docs.libuv.org/en/v1.x/_sources/guide/introduction.rst.txt)[](https://linuxsoft.cern.ch/cern/centos/7/cloud/x86_64/openstack-train/repoview/libuv.html)。
+    
+
+如果 Node.js 直接调用这些系统 API，代码里将充满 `#ifdef _WIN32` 之类的平台判断，维护成本极高。
+
+libuv 作为“平台抽象层”，**把所有平台差异封装在库内部**，对外暴露一套统一的 API（如 `uv_tcp_t`、`uv_fs_read`）。
+
+
+
+
+---
+
