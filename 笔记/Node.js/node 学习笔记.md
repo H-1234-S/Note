@@ -2048,23 +2048,53 @@ const sse = new EventSource("http://localhost:3000/sse");
 
 - libuv 实现了 Node.js 的`事件循环机制`，负责管理事件的调度和执行。
 
-- 事件循环是 Node.js 的核心机制，它使得 Node.js 能够以非阻塞的方式处理大量并发操作。
+	- 事件循环是 Node.js 的核心机制，它使得 Node.js 能够以非阻塞的方式处理大量并发操作。
 
-- 异步I/O操作：libuv 提供了一组异步 I/O 的 API，用于处理文件、网络和其他 I/O 操作。
+- 异步 I/O 操作：libuv 提供了一组异步 I/O 的 API，用于处理文件、网络和其他 I/O 操作。
 
 > **跨平台：**
 
 因为不同操作系统的异步 I/O 机制完全不同：
 
-- **Unix/Linux/Mac**：使用 **libev**（基于 `epoll`/`kqueue` 等）[](https://docs.libuv.org/en/v1.x/_sources/guide/introduction.rst.txt)[](https://linuxsoft.cern.ch/cern/centos/7/cloud/x86_64/openstack-train/repoview/libuv.html)。
+- **Unix/Linux/Mac**：使用 **libev**（基于 `epoll`/`kqueue` 等）
     
-- **Windows**：使用 **IOCP**（I/O Completion Ports），这与 Unix 的机制截然不同[](https://docs.libuv.org/en/v1.x/_sources/guide/introduction.rst.txt)[](https://linuxsoft.cern.ch/cern/centos/7/cloud/x86_64/openstack-train/repoview/libuv.html)。
+- **Windows**：使用 **IOCP**（I/O Completion Ports），这与 Unix 的机制截然不同
     
 
 如果 Node.js 直接调用这些系统 API，代码里将充满 `#ifdef _WIN32` 之类的平台判断，维护成本极高。
 
 libuv 作为“平台抽象层”，**把所有平台差异封装在库内部**，对外暴露一套统一的 API（如 `uv_tcp_t`、`uv_fs_read`）。
 
+## 事件循环
+
+
+> 事件循环的执行顺序：
+
+```text
+┌───────────────────────────┐
+│           timers          │
+└─────────────┬─────────────┘
+              │
+              v
+   ┌───────────────────────────┐
+┌─>│     pending callbacks     │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │       idle, prepare       │
+│  └─────────────┬─────────────┘      ┌───────────────┐
+│  ┌─────────────┴─────────────┐      │   incoming:   │
+│  │           poll            │<─────┤  connections, │
+│  └─────────────┬─────────────┘      │   data, etc.  │
+│  ┌─────────────┴─────────────┐      └───────────────┘
+│  │           check           │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │      close callbacks      │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+└──┤           timers          │
+   └───────────────────────────┘
+```
 
 
 
