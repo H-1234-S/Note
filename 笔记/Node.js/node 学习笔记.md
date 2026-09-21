@@ -2178,7 +2178,7 @@ socket.on('close', () => {
 socket.destroy();
 ```
 
-
+### promise
 
 ---
 
