@@ -2192,10 +2192,19 @@ socket.on('close', () => {
 socket.destroy();
 ```
 
-### process.nextTick 队列
+### 微任务
+
+`promise` 与 `process.nextTick()` 执行顺序
+
+在 ESM 最外层作用域中，`promise` 优先于 `process.nextTick()` 执行；
+
+在 CJS 或者计时器和 I/O 回调中，`process.nextTick()` 优先于 `promise` 执行；
+
+> **原因：**
+
+CommonJS (CJS) 模块是被当作一个同步函数来执行的。当这个函数执行完毕，调用栈清空后，Node.js 才开始依次清空 `nextTick` 队列和微任务队列。
 
 
-### promise 
 
 ---
 
