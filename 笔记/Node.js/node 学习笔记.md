@@ -2139,7 +2139,9 @@ Node.js **内部使用**，和 `pending callbacks` 一样，无需关心。
 
 ### check 阶段
 
+处理 `setImmediate()` 的回调。
 
+`setImmediate` 的设计目的是：**在 poll 阶段完成后立即执行**，而不是等到下一轮 timers。
 
 ---
 
