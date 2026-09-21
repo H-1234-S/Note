@@ -390,15 +390,15 @@ kill 实际功能是向指定 PID 的进程**发送一个信号**；目标进程
 
 `process.nextTick()` 用于**将回调函数延迟到当前操作完成后、下一个事件循环迭代之前执行**。
 
-
-
 > `process.nextTick` 和 Promise 的优先级并非绝对，它取决于运行环境：
 
 - 在 **CommonJS** 中，`nextTick` 优先级更高。
     
 - 在 **ES Module** 中，Promise 的微任务会插队到 `nextTick` 之前执行。
 
-> 注意：
+> **注意：**
+
+**不要递归调用 `process.nextTick`**；因为它会在进入事件循环之前被反复清空，导致 I/O、定时器等永远轮不到执行。
 
 # child_process api
 
@@ -2195,7 +2195,7 @@ socket.destroy();
 ### process.nextTick 队列
 
 
-### promise
+### promise 
 
 ---
 
