@@ -1,13 +1,68 @@
-## NestJS 学习指南
+## NestJS 12 学习指南
 
-> 基于 NestJS 11 系列整理；截至 2026-05-21 查询，`@nestjs/core` 的 npm latest 为 `11.1.6`。  
-> 参考资料以官方文档为主：  
+> 本文按 NestJS **12.0.4**（2026-09-21）编写。所有 `@nestjs/*` 依赖应保持在同一主版本；第三方官方集成包也应选与 Nest 12 匹配的版本。
+> 参考资料以官方文档与官方发布说明为主：
 > - https://nestjs.com/
 > - https://docs.nestjs.com/
+> - https://docs.nestjs.com/migration-guide
 > - https://docs.nestjs.com/controllers
 > - https://docs.nestjs.com/components
 > - https://docs.nestjs.com/modules
 > - https://docs.nestjs.com/faq/request-lifecycle
+
+## 阅读约定：如何循序学习本指南
+
+这不是 API 字典。每一章都遵循同一条学习链：**前置知识 → 概念与机制 → 可运行的最小示例 → 适用场景与边界 → 工程师自检**。读到一个陌生名词时，先回到本章的“前置”部分；不要只复制装饰器。
+
+文中用一个 `Articles`（文章）业务贯穿示例。先以内存数组实现，目的是让你把注意力放在 Nest 的职责划分；第 16 章再替换为真实数据库。示例默认采用 TypeScript 严格模式，并尽量避免依赖 Express 专有对象，便于后续切换 Fastify。
+
+### Nest 12 先知道的变化
+
+**前置：Node.js 模块系统。** CommonJS 使用 `require()` / `module.exports`；ESM 使用 `import` / `export`。Node 的 `package.json` 中 `"type": "module"` 会影响 `.js` 文件按哪种模块格式解释。
+
+Nest 12 的核心包是 ESM 包，但这**不等于**你的应用必须立即改成 ESM。Node.js 的 `require(esm)` 让合格版本的 Node 可以继续运行 CommonJS Nest 项目。运行 Nest 12 应用至少需要 Node `20.19+`，或 22.x 的 `22.12+`；而执行 `nest new`、`nest generate`、`nest upgrade` 的 schematics 需要更高版本：`22.22.3+`、`24.15+` 或 `26+`。实践中请选择最新活跃 LTS，并用 `node -v` 先确认。
+
+| 主题 | Nest 12 的要点 | 对学习和项目的影响 |
+| --- | --- | --- |
+| 模块格式 | 核心包 ESM；新项目可选 CJS 或 ESM | 旧项目可保留 CJS；自定义构建、测试和深层导入要检查 |
+| CLI | 新增 `nest upgrade` / `nest deploy`；单体默认仍可 `tsc`，monorepo 倾向 Rspack | 升级先预演，Webpack 配置逐步迁移 |
+| 工具链 | ESM 模板默认 Vitest；新模板默认 oxlint | `@nestjs/testing` 与测试运行器无关，旧 Jest 项目无需强迁 |
+| 输入/输出 | 支持 Standard Schema 校验和序列化 | DTO 项目仍可继续使用 `class-validator` / `class-transformer`；Zod 等项目有原生路径 |
+| 工程能力 | 路由冲突诊断、稳定错误码、结构化日志、`@nestjs/observe` | 生产项目可更早暴露隐患并建立可观测性 |
+
+**这有什么用：** 先建立这些边界，可以避免“框架升级了却按 v11 默认值新建项目”“把 ESM 当成强制迁移”“把 Jest 当成 Nest 必需品”三类常见误解。
+
+### 每章的资深工程师自检标准
+
+每一章完成后，请用下面四个问题审查自己；本文在写作时也以此逐章复核：
+
+1. 我能说清它解决的具体问题，而不是只会背装饰器吗？
+2. 它的输入、输出、作用范围和失败方式是什么？
+3. 有没有把本该属于另一层的职责塞进来？
+4. 示例在 Nest 12、TypeScript 严格模式和 HTTP 真实数据类型下是否成立？
+
+## 0. 从 Nest 11 升级到 Nest 12（已有项目先读）
+
+### 前置：升级是受控变更，不是改一个版本号
+
+主版本升级可能改变运行时行为、构建产物和依赖的 peer requirements。安全顺序是：**可回滚的提交 → 依赖统一升级 → 编译/测试 → 预发布验证 → 发布**。不要在业务功能开发分支上直接执行自动迁移。
+
+1. 使用符合前文要求的 Node，并更新全局或项目内 CLI/schematics。
+2. 在项目根目录执行 `nest upgrade --dry-run`，阅读报告；确认后执行 `nest upgrade`。它会把 Nest 依赖统一移动到 v12 兼容版本，并处理一部分机械性迁移。
+3. 检查 `package.json` 中所有 `@nestjs/*`、平台适配器、Swagger、GraphQL、TypeORM 等配套包的主版本是否匹配；随后执行干净安装、`npm run build`、单元测试和 E2E。
+4. 保持既有 CommonJS 项目为 CJS 是允许的。若另行选择 ESM，修改的是 `package.json` 的 `"type": "module"`，并检查自有相对 import 的 `.js` 后缀、测试/构建工具及动态导入；不要把 ESM 转换和框架升级绑成一次高风险改动。
+5. 若使用 Webpack，注意 CLI 已将它转为可选 peer，并逐步用 `--builder rspack` / `rspack` 配置替代；继续使用 Webpack 时显式安装所需 peer。新 monorepo 默认倾向 Rspack。
+6. 逐项审查本指南第 8、14、15、19、20、25、26、27、32 章：Standard Schema、生命周期顺序、配置验证、Swagger 空值、结构化日志、GraphQL `graphql-ws`、NATS v3、测试运行器和 Terminus 是常见升级漏项。
+
+### 发布前验收清单
+
+- [ ] `nest upgrade --dry-run` 的人工待办已处理，而不是只看命令成功。
+- [ ] 在目标 Node 版本上完成 build、lint、unit、e2e。
+- [ ] 启用或至少评估路由冲突诊断，检查动态路由不会遮蔽固定路由。
+- [ ] 做一次启动和优雅停止演练，确认连接、消费者和在途请求行为正确。
+- [ ] 对 OpenAPI 文档、异常响应、日志解析和健康端点执行兼容性回归。
+
+**这有什么用：** 升级步骤把 v12 的技术变化转化为可验证的发布动作；通过这关后，再按后续章节学习或重构业务代码，排障范围会小得多。
 
 ## 1. NestJS 是什么
 
@@ -58,6 +113,19 @@ NestJS 大量使用装饰器给类、方法、参数附加元数据，框架运�
 
 ## 3. 快速开始
 
+### 先修：进程、端口与包管理器
+
+Node.js 进程通过端口接收网络请求；同一台机器同一 IP:端口同一时间通常只能由一个进程监听。`package.json` 记录依赖和脚本，锁文件锁定一次可复现安装的精确依赖树。CLI 是“生成和编排代码的工具”，不是应用运行时本身。
+
+先确认运行时：
+
+```bash
+node -v
+npm -v
+```
+
+对于 Nest 12，推荐安装最新的活跃 LTS Node。若仅运行一个已有项目，最低版本要求见前文；若要执行 CLI 的新建、生成或升级命令，请满足更高的 schematics 版本要求。
+
 安装 CLI：
 
 ```bash
@@ -69,6 +137,13 @@ npm i -g @nestjs/cli
 ```bash
 nest new hello-nest
 ```
+
+Nest 12 创建时会询问 CommonJS 或 ESM：
+
+- **CommonJS**：适合已有 CJS 工具链或依赖大量旧脚本的团队；可以继续使用 Nest 12。
+- **ESM**：适合新项目和现代 Node 工具链；生成模板默认使用 Vitest。
+
+两者不是性能开关，也不会改变 Controller、Module、DI 的写法。选定后保持项目内模块格式一致。新项目还会使用 oxlint；如果团队已有 ESLint 规则，可评估后迁移，而非混用两套相互冲突的规则。
 
 启动开发服务：
 
@@ -87,6 +162,16 @@ nest g resource users
 ```
 
 `nest g resource users` 会交互式生成一个比较完整的 CRUD 资源，适合初学者观察 NestJS 如何组织模块、控制器、服务、DTO 和测试文件。
+
+升级已有 v11 项目时，先提交或备份工作区，再执行：
+
+```bash
+npm i -g @nestjs/cli@latest @nestjs/schematics@latest
+nest upgrade --dry-run
+nest upgrade
+```
+
+`--dry-run` 只报告将要进行的变更。`nest upgrade` 会统一升级 `@nestjs/*`、处理一部分配置/GraphQL/NATS 迁移，并报告仍须人工审查的行为变化；不要逐个随意把包升到不同主版本。
 
 典型目录：
 
@@ -137,6 +222,10 @@ export class AppModule {}
 6. 初始化生命周期钩子。
 7. 绑定到底层 HTTP 适配器，默认是 Express。
 8. `listen()` 开始接收请求。
+
+**这有什么用：** 你现在应能把“创建项目、启动服务、访问端口”连接为一条完整链路。下一章开始拆开其中的 Module、Controller 和 Provider；它们不是三个孤立概念，而是启动过程中被 Nest 扫描并装配的对象。
+
+**本章工程师自检：** `npm run start:dev` 能启动；你知道端口被占用时该检查什么；你没有把全局 CLI 版本误认为项目依赖版本；升级前已先运行 dry-run。
 
 ## 4. NestJS 的核心架构
 
@@ -560,6 +649,10 @@ export class AppModule {}
 
 ## 8. DTO、Pipe 与参数校验
 
+### 先修：运行时数据不等于 TypeScript 类型
+
+TypeScript 的类型在编译后会被擦除；浏览器发来的 JSON 仍可能缺字段、多字段或把数字传成字符串。因此“`id: number`”不能替代运行时校验。DTO 是传输层的输入契约，Pipe 是在控制器方法真正收到参数前执行转换或拒绝非法输入的关口。
+
 DTO 是 Data Transfer Object，用来描述请求或响应的数据形状。
 
 安装校验依赖：
@@ -668,6 +761,54 @@ findAll(@Query('keyword', TrimPipe) keyword: string) {
   return this.usersService.findAll(keyword);
 }
 ```
+
+### Nest 12：Standard Schema 路线（与 DTO 路线二选一）
+
+若团队已经用 Zod、Valibot 或 ArkType 维护 schema，可把 schema 直接挂在参数装饰器上。**前置：schema-first** 指同一个运行时 schema 同时描述、校验和推导类型；这能降低“DTO 类、校验规则、OpenAPI 三处不同步”的风险。
+
+```bash
+npm i zod
+```
+
+```ts
+import { Body, Controller, Param, Post } from '@nestjs/common';
+import { z } from 'zod';
+
+const createArticleSchema = z.object({
+  title: z.string().min(2).max(80),
+  content: z.string().min(1).max(5000),
+});
+type CreateArticleInput = z.infer<typeof createArticleSchema>;
+
+@Controller('articles')
+export class ArticlesController {
+  @Post()
+  create(
+    @Body({ schema: createArticleSchema }) body: CreateArticleInput,
+  ) {
+    return body;
+  }
+
+  // coerce 明确把 HTTP 路径中的字符串转换并校验为正整数
+  findOne(@Param('id', { schema: z.coerce.number().int().positive() }) id: number) {
+    return { id };
+  }
+}
+```
+
+装饰器只保存 schema 元数据，必须注册验证 Pipe 才会实际生效：
+
+```ts
+import { StandardSchemaValidationPipe } from '@nestjs/common';
+
+app.useGlobalPipes(new StandardSchemaValidationPipe());
+```
+
+不要在同一个输入对象上混用两条全局校验路线来“加倍保险”：选择 class DTO + `ValidationPipe`，或 schema + `StandardSchemaValidationPipe`，并在团队内统一。响应侧则可选择 `ClassSerializerInterceptor` 或 Nest 12 的 `StandardSchemaSerializerInterceptor` + `@SerializeOptions({ schema })`。
+
+**这有什么用：** 在入口就把不可信 HTTP 数据转为可信业务输入，能让 Service 只处理合法数据；而 Nest 12 的 schema 路线还能复用到 Swagger，减少重复描述。
+
+**本章工程师自检：** `whitelist`/schema 是否会拒绝意外字段；`id` 是否经真实转换而非 `Number()` 静默产生 `NaN`；DTO 是否为 class（不是 interface）；项目是否只采用一条主校验策略。
 
 ## 9. Middleware：中间件
 
@@ -888,6 +1029,10 @@ export class AppModule {}
 
 ## 12. Exception Filter：异常处理
 
+### 先修：异常、HTTP 状态码与面向机器的契约
+
+异常是中断当前正常控制流的信号；HTTP 状态码表达“这一请求整体发生了什么”。但前端不能可靠地从自然语言错误消息（可能翻译、改文案）判断业务分支。因此需要区分给人看的 `message` 与给程序看的稳定 `errorCode`。
+
 Nest 内置异常层会处理未捕获异常。业务中通常直接抛出内置 HTTP 异常：
 
 ```ts
@@ -901,6 +1046,16 @@ throw new BadRequestException('Invalid input');
 throw new ForbiddenException('No permission');
 throw new NotFoundException('User not found');
 ```
+
+Nest 12 可以直接为 HTTP 异常携带机器可读错误码：
+
+```ts
+throw new BadRequestException('密码强度不足', {
+  errorCode: 'WEAK_PASSWORD',
+});
+```
+
+客户端应依据 `errorCode` 决策，页面展示再使用本地化文案；不要解析 `message`。错误码应是有限、稳定且文档化的业务词汇，例如 `EMAIL_ALREADY_EXISTS`，而不是把数据库错误原样暴露出去。
 
 常用异常：
 
@@ -1005,6 +1160,10 @@ request
 
 ## 14. 生命周期
 
+### 先修：初始化顺序与资源所有权
+
+数据库连接、消息消费者和定时任务都不是普通内存对象：它们需要在应用就绪后启用，并在进程收到停止信号时关闭。资源由谁创建，谁就应负责在相应生命周期内释放；否则发布时可能丢消息或中断请求。
+
 Nest 应用本身和其中的模块、provider、controller 都由 Nest 管理生命周期。
 
 常用生命周期钩子：
@@ -1065,7 +1224,15 @@ await app.listen(3000);
 - 关闭数据库连接、队列连接、文件句柄。
 - 在容器化部署中响应 `SIGTERM`。
 
+> Nest 12 提醒：生命周期钩子按组件层级调用。不要依赖两个无显式依赖关系的 provider 恰好以某个注册顺序初始化；若 A 必须先于 B 完成，应该通过依赖关系或明确的初始化编排表达，并在升级后做集成测试。
+
+**这有什么用：** 生命周期让“能启动”提升为“能安全发布和停止”，是连接池、消费者和容器部署可靠性的基础。
+
 ## 15. 配置管理
+
+### 先修：十二要素配置与启动时失败
+
+配置是随环境变化、却不应写死进源码的值，例如端口、数据库地址和密钥。`.env` 便于本地开发，但生产密钥应由部署平台的密钥管理能力注入。配置校验应在启动时完成：宁可服务无法启动，也不要带着空密钥运行。
 
 安装：
 
@@ -1131,7 +1298,34 @@ ConfigModule.forRoot({
 const url = this.configService.get<string>('database.url');
 ```
 
-配置校验可以用 Joi 或自定义函数。生产项目建议启动时验证关键环境变量，否则错误会延迟到运行时才暴露。
+### Nest 12：用 Standard Schema 校验环境变量
+
+Nest 12 的 `validationSchema` 接受 Standard Schema。新项目推荐使用 Zod：`z.coerce.number()` 会把环境变量这种字符串安全地转换为数字；`default()` 只用于确有合理默认值的非敏感配置。
+
+```bash
+npm i zod
+```
+
+```ts
+import { ConfigModule } from '@nestjs/config';
+import { z } from 'zod';
+
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  DATABASE_URL: z.string().url(),
+  JWT_SECRET: z.string().min(32),
+});
+
+ConfigModule.forRoot({
+  isGlobal: true,
+  validationSchema: envSchema,
+});
+```
+
+原有 Joi schema 仍可用，但必须是 Joi v18+；其库专属选项在 v12 放进 `validationOptions.libraryOptions`。不要记录、打印或返回 `JWT_SECRET`、令牌和数据库密码。
+
+**这有什么用：** 将“某个请求才因 `undefined` 失败”提前为“部署时立即失败”，并让配置类型转换有明确规则。自检：所有生产必需密钥是否无默认值、`.env` 是否被忽略、配置是否只通过 `ConfigService` 或集中配置对象读取。
 
 ## 16. 数据库集成
 
@@ -1440,6 +1634,10 @@ uploadMany(@UploadedFiles() files: Express.Multer.File[]) {
 
 ## 19. Swagger / OpenAPI
 
+### 先修：OpenAPI 是契约，不是在线调试页面
+
+OpenAPI 是描述路径、输入、输出与错误响应的机器可读契约；Swagger UI 只是该契约的一种可视化界面。契约可生成客户端、做兼容性检查和让前后端并行开发，因此应跟随 API 评审与测试，而不是上线前临时补注释。
+
 安装：
 
 ```bash
@@ -1461,6 +1659,10 @@ const config = new DocumentBuilder()
 const document = SwaggerModule.createDocument(app, config);
 SwaggerModule.setup('api-docs', app, document);
 ```
+
+Nest 12 的 `@nestjs/swagger` 必须与 Nest 12 对齐，且它也是 ESM 包。升级后若项目提交了 OpenAPI 快照，要特别复查可空字段：OpenAPI 3.1 用类型联合/`anyOf` 表示 `null`，3.0.x 使用 `nullable`，不要依赖旧版本生成器的偶然结构。若第 8 章采用 Zod 等 Standard Schema，可配置 `standardSchemaConverter`，将同一份 schema 反射进文档，避免手写 DTO 注释与校验规则漂移。
+
+**这有什么用：** Swagger 从“接口说明页”变为可验证的跨团队协议；自检时要确认文档不在生产环境无认证暴露、错误响应也有 schema、以及升级后快照已重新确认。
 
 DTO 文档：
 
@@ -1495,6 +1697,10 @@ export class UsersController {
 
 ## 20. 日志
 
+### 先修：日志是事件记录，不是 `console.log` 堆栈
+
+一条可检索日志至少需要时间、级别、事件和上下文；应避免把密码、Authorization、Cookie 和完整敏感请求体写入日志。结构化字段让日志平台能按 `userId`、`requestId` 聚合，而不是依赖字符串正则。
+
 Nest 内置 `Logger`：
 
 ```ts
@@ -1518,6 +1724,14 @@ const app = await NestFactory.create(AppModule, {
   logger: ['error', 'warn', 'log', 'debug'],
 });
 ```
+
+Nest 12 的 `ConsoleLogger` 会把消息后的普通对象视为同一条日志的结构化参数：
+
+```ts
+logger.log('Article created', { articleId: 42, authorId: 7 });
+```
+
+JSON 日志默认将它们放在 `params` 下；需要扁平结构时开启 `flattenParams`。这是 v12 的默认行为变化，若必须保持旧输出格式可设置 `structuredParams: false`，但新项目更应利用结构化字段并制定脱敏策略。
 
 生产项目常用 pino 或 winston，并把 request id、user id、trace id 放入日志上下文。
 
@@ -1726,6 +1940,10 @@ export class EmailsProcessor extends WorkerHost {
 
 ## 24. WebSocket
 
+### 先修：长连接与无状态 HTTP 的差别
+
+HTTP 请求通常短暂且彼此独立；WebSocket 是持久双向连接，服务端必须处理连接、断线、房间、背压和每个 socket 的身份。不要因为“想实时”就替代全部 REST：资源 CRUD 通常仍适合 HTTP。
+
 安装：
 
 ```bash
@@ -1778,6 +1996,10 @@ export class ChatGateway {
 Gateway 也可以使用 pipe、guard、interceptor、filter。认证通常在握手阶段解析 token。
 
 ## 25. GraphQL
+
+### 先修：schema、resolver 与订阅协议
+
+GraphQL schema 是字段级契约，resolver 是字段的取数逻辑。订阅不是普通 HTTP 请求，需要独立的长连接协议；客户端与服务端必须使用同一传输协议，而不能只看查询语法相同。
 
 安装 Apollo 方案：
 
@@ -1847,7 +2069,23 @@ GraphQL 与 REST 的主要差异：
 - GraphQL 以 schema 和字段查询为中心。
 - GraphQL 需要重点处理 N+1 查询，常用 DataLoader。
 
+Nest 12 中 GraphiQL 是默认 IDE；若要自定义，传入对象而非仅写 `graphiql: true`。旧的 `subscriptions-transport-ws` 已移除，应使用 `graphql-ws`：
+
+```ts
+GraphQLModule.forRoot<ApolloDriverConfig>({
+  driver: ApolloDriver,
+  subscriptions: { 'graphql-ws': true },
+  graphiql: { shouldPersistHeaders: true },
+});
+```
+
+**这有什么用：** 这能避免升级后订阅看似启动却无法建立连接；自检 GraphQL 时要覆盖鉴权、N+1、字段授权以及生产环境 IDE 暴露策略。
+
 ## 26. 微服务
+
+### 先修：同步命令、事件与交付语义
+
+请求-响应（命令/查询）需要调用方等待结果；事件只说明“某事已发生”，发布方不应等待每个订阅方完成。网络会超时、重复投递和乱序，因此消费者必须幂等，消息契约必须版本化。
 
 Nest 微服务使用非 HTTP 的传输层通信，支持 TCP、Redis、NATS、MQTT、RabbitMQ、Kafka、gRPC 等。
 
@@ -1914,9 +2152,24 @@ const result$ = client.send<number>({ cmd: 'sum' }, [1, 2, 3]);
 - 处理超时、重试、幂等、死信队列。
 - 不要为了微服务而微服务，模块化单体通常是更稳的起点。
 
+Nest 12 的 NATS 传输升级到 NATS v3：使用 NATS 时移除旧 `nats` 包，安装 `@nats-io/transport-node`；自定义反序列化器收到完整 message，应从 `msg.json()` 读取 JSON 负载，而不是假定为 `Uint8Array`。这是实际破坏性迁移，务必与跨语言消费者一起做契约测试。
+
+**这有什么用：** 先分清通信语义，才不会把每个模块都拆成脆弱的远程调用；自检至少包括超时、重试上限、幂等键、死信与版本兼容。
+
 ## 27. 测试
 
-Nest 默认使用 Jest。
+### 先修：测试金字塔与可替换依赖
+
+单元测试验证一个类的业务规则，依赖通过 mock 替换；E2E 测试从 HTTP 入口验证真实模块装配。测试越靠近真实环境越慢、定位越难，因此关键业务规则以单元测试为主，注册、登录、支付回调等关键链路再用少量 E2E 兜底。
+
+`@nestjs/testing` 不绑定任何测试框架。Nest 12 新生成的 **ESM** 项目默认使用 Vitest，CommonJS 模板仍使用 Jest；下面原有的 Jest 示例依旧适用于 Jest 项目。不要为了升级 Nest 而无条件迁移测试运行器。
+
+Vitest 的核心结构相同，只需从 `vitest` 显式导入 API，避免依赖全局：
+
+```ts
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+// jest.fn() 对应 vi.fn()
+```
 
 Service 单元测试：
 
@@ -2006,6 +2259,8 @@ describe('Users', () => {
 - E2E：覆盖关键链路，如注册、登录、支付回调。
 - 数据库相关：使用测试数据库或 Testcontainers。
 
+**本章工程师自检：** 单元测试不连接真实生产服务；E2E 测试在 `afterAll` 关闭 app；每个测试自行准备数据而不依赖执行顺序；ESM 项目若使用 Vitest，`supertest` 的 import 形式已在 CI 中验证。
+
 ## 28. 项目结构建议
 
 中小型项目：
@@ -2066,6 +2321,10 @@ src/
 不要一开始就过度设计。多数项目从按 feature module 拆分最舒服，复杂度上来后再演进。
 
 ## 29. 常见工程配置
+
+### 先修：框架默认值是兼容性选择，不必然是安全选择
+
+全局配置会影响所有路由，适合放真正跨业务的规则，例如前缀、CORS 和版本策略；特性模块的业务规则不应塞进 `main.ts`。每加一项全局配置，都要明确它的作用对象、例外与测试方式。
 
 ### CORS
 
@@ -2144,6 +2403,21 @@ const app = await NestFactory.create<NestFastifyApplication>(
 ```
 
 Express 生态更广，Fastify 性能更强。项目初期用默认 Express 通常足够。
+
+### Nest 12：显式发现路由冲突
+
+路由注册顺序会影响 Express 等适配器：若先声明 `@Get(':id')`，后声明 `@Get('me')`，`me` 可能被当作 `id`。Nest 12 可在启动时暴露此类问题：
+
+```ts
+const app = await NestFactory.create(AppModule, {
+  routeConflictPolicy: { duplicate: 'error', shadow: 'warn' },
+  routeResolutionStrategy: 'specificity',
+});
+```
+
+这些选项默认保持旧行为，启用前应在测试/预发布环境检查告警；`specificity` 也不是替代清晰路由设计的理由。把固定路径放在参数路径之前，并为冲突策略写启动测试。
+
+**这有什么用：** 全局配置把跨模块的运行规则显式化；路由诊断尤其能把“某接口偶发 404/参数错误”前移为启动期警告或失败。
 
 ## 30. API 设计建议
 
@@ -2254,6 +2528,10 @@ export class AppModule {}
 
 ## 32. 性能与可观测性
 
+### 先修：日志、指标、追踪分别回答什么
+
+日志回答“发生过什么”；指标回答“系统整体是否变慢或出错”；追踪回答“这一请求跨过哪些服务、慢在哪里”。三者互补。性能优化必须先测量：没有基线就无法证明缓存、索引或 Fastify 真正改善了瓶颈。
+
 性能关注点：
 
 - 避免 request scoped provider 滥用。
@@ -2302,6 +2580,57 @@ export class HealthController {
   }
 }
 ```
+
+### Nest 12：Terminus 自定义健康指标迁移
+
+Nest 12 已移除旧式“继承 `HealthIndicator` 并抛出 `HealthCheckError` 表示不健康”的 API。新 API 的关键是：**健康检查无论 up 还是 down 都返回结果**；异常只表示检查过程意外失败。
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { HealthIndicatorService } from '@nestjs/terminus';
+
+@Injectable()
+export class DatabaseHealthIndicator {
+  constructor(
+    private readonly healthIndicator: HealthIndicatorService,
+    private readonly database: DatabaseService,
+  ) {}
+
+  async isHealthy(key: string) {
+    const indicator = this.healthIndicator.check(key);
+    const reachable = await this.database.ping();
+    return reachable ? indicator.up() : indicator.down({ reachable: false });
+  }
+}
+```
+
+对于“操作成功即可健康”的检查，可用 `check(key).attempt(() => operation()).withTimeout(1000)`；旧数据库/微服务/gRPC indicator 的 `timeout` 选项应改为链式 `withTimeout()`。
+
+### Nest 12：原生可观测性（可选）
+
+`@nestjs/observe` 是 Nest 12 新增的官方可观测 SDK。它通过 `NestFactory.create` 的 `instrument` 选项接入 Nest 请求生命周期，因此追踪能理解 Controller、Provider、Resolver 和队列消费者，而不只是底层 HTTP。
+
+```ts
+// app.module.ts
+import { Module } from '@nestjs/common';
+import { createObserveModule } from '@nestjs/observe';
+
+export const { ObserveModule, ObserveInstrument } = createObserveModule();
+
+@Module({
+  imports: [ObserveModule.forRoot({ serviceId: 'articles-api' })],
+})
+export class AppModule {}
+```
+
+```ts
+// main.ts
+const app = await NestFactory.create(AppModule, {
+  instrument: ObserveInstrument,
+});
+```
+
+它是可选能力，不应替代业务日志、报警阈值或健康端点。**本章工程师自检：** 健康端点不泄露凭据；慢查询和错误可关联 request/trace id；压测前后有同口径指标；自定义 Terminus 指标未继续使用已移除 API。
 
 ## 33. 部署
 
