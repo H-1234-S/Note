@@ -2112,23 +2112,23 @@ libuv 作为“平台抽象层”，**把所有平台差异封装在库内部**�
 
 每个阶段都有一个 **FIFO 回调队列**，Node 会执行该队列里的回调，直到队列空或达到系统限制，然后进入下一阶段。
 
-### timers 阶段
+## timers 阶段
 
 处理 `setTimeout()` 和 `setInterval()` 的回调。
 
 > **注意：** `setTimeout(fn, 0)` 并不是立即执行，而是**最早在下一轮 timers 阶段**执行。
 
-### pending callbacks 阶段
+## pending callbacks 阶段
 
 处理上一轮循环中被**推迟**的系统级回调。
 
 例如：TCP 连接错误。这些回调通常不是用户直接注册的，而是底层 I/O 操作完成后，操作系统报告的错误信息。
 
-### idle, prepare 阶段
+## idle, prepare 阶段
 
 Node.js **内部使用**，和 `pending callbacks` 一样，无需关心。
 
-### poll 阶段
+## poll 阶段
 
 `poll` 轮询阶段，用于处理 I/O 相关回调。例如：文件的读写、网络请求数据的到达、新连接建立。
 
@@ -2151,7 +2151,7 @@ Node.js **内部使用**，和 `pending callbacks` 一样，无需关心。
             
         - **没有** → **阻塞在这里等待**，直到有新的 I/O 事件到来
 
-### check 阶段
+## check 阶段
 
 处理 `setImmediate()` 的回调。
 
@@ -2180,7 +2180,7 @@ fs.readFile('a.txt', () => {
 
 所以就会造成顺序不稳定的一个原因
 
-### close callbacks 阶段
+## close callbacks 阶段
 
 处理突然关闭的资源的回调。
 
@@ -2192,7 +2192,7 @@ socket.on('close', () => {
 socket.destroy();
 ```
 
-### 微任务
+## 微任务
 
 `promise` 与 `process.nextTick()` 执行顺序
 
