@@ -1990,6 +1990,7 @@ fastify.get('/', opts, (request, reply) => {
 
 `fastify.patch(path, [options], handler)`
 
+## 插件
 
 
 
