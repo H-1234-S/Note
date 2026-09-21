@@ -1939,7 +1939,8 @@ fastify.route({
       properties: {
         name: { type: 'string' },
         excitement: { type: 'integer' }
-      }
+      },
+      required:["name","excitement"]
     },
     response: {
       200: {
