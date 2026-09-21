@@ -1924,6 +1924,8 @@ fastify.route(options)
 
 	- response：过滤、验证出参并生成响应模式
 
+- `handler(request, reply)`：处理此请求的函数。 当调用此处理程序时， [Fastify 服务器](https://fastify.dev/docs/latest/Reference/Server/)将绑定到该函数`this`。注意：使用箭头函数会破坏绑定`this`。
+
 
 > **Hapi 的风格：**
 
