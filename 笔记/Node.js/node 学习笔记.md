@@ -2015,6 +2015,12 @@ Fastify 按照声明的顺序加载插件，只有在当前插件加载完毕后
 └── 你的服务
 ```
 
+
+
+``` node
+fastify.register(plugin, [options])
+```
+
 ---
 # libuv
 
