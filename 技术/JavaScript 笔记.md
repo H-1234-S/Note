@@ -26,3 +26,28 @@ for await (const x of asyncSource) {
 ```
 
 它要求对象实现 **`Symbol.asyncIterator`** 方法，返回一个**异步迭代器**，其 `next()` 返回一个 **Promise**，resolve 成 `{ value, done }`。
+
+> **模拟实现**
+
+``` js
+const asyncSource = {
+  [Symbol.asyncIterator]() {
+    let i = 0;
+    return {
+      async next() {
+        if (i >= 3) return { value: undefined, done: true };
+        await new Promise(r => setTimeout(r, 500)); // 模拟异步等待
+        return { value: i++, done: false };
+      }
+    };
+  }
+};
+
+// 只能在 async 函数里用
+async function main() {
+  for await (const x of asyncSource) {
+    console.log(x);   // 每隔 500ms 输出 0, 1, 2
+  }
+}
+main();
+```
