@@ -2427,4 +2427,93 @@ npm install @fastify/rate-limit #限流
 npm install opossum #熔断技术
 ```
 
+> **server/index.js：**
 
+``` node
+import fastify from "fastify";
+import proxy from "@fastify/http-proxy"; //负载代理技术
+import rateLimit from "@fastify/rate-limit"; //限流技术
+import caching from "@fastify/caching"; //缓存技术
+import CircuitBreaker from "opossum"; //熔断技术
+import proxyConfig from "../proxy/index.js"; // 代理配置
+import {
+  reteLimitConfig,
+  cachingConfig,
+  breakerConfig,
+} from "../config/index.js";
+  
+const app = fastify();
+  
+// 限流技术
+app.register(rateLimit, reteLimitConfig);
+  
+// 缓存技术
+app.register(caching, cachingConfig);
+  
+// 熔断技术
+const breaker = new CircuitBreaker((url) => {
+  return fetch(url);
+}, breakerConfig);
+  
+// 代理
+proxyConfig.forEach((item) => {
+  app.register(proxy, {
+    preHandler: (request, reply, done) => {
+      //检测这个服务 如果服务挂掉立马熔断
+      breaker
+        .fire(item.upstream)
+        .then(() => done())
+        .catch(() => reply.code(503).send("Circuit breaker tripped"));
+    },
+    ...item,
+  });
+});
+
+app.listen({ port: 3000 }, function (error, address) {
+  if (error) {
+    console.log(error);
+    return error;
+  }
+  
+  console.log(`fastify ${address}`);
+});
+```
+
+> **proxy/index.js：**
+
+``` node
+export default [
+  {
+    upstream: "http://localhost:9001", //代理地址
+    prefix: "/pc", //前缀
+    rewritePrefix: "", //实际请求将pc 替换成 '' 因为后端服务器没有pc这个路由
+    httpMethods: ["GET", "POST"], //允许的请求方式
+  },
+  {
+    upstream: "http://localhost:9002",
+    prefix: "/mobile",
+    rewritePrefix: "",
+    httpMethods: ["GET", "POST"],
+  },
+];
+```
+
+> **config/index.js：**
+
+``` node
+export const reteLimitConfig = {
+  max: 5,
+  timeWindow: "1 minute",
+};
+  
+export const cachingConfig = {
+  privacy: "private", //缓存客户端服务器 禁止缓存代理服务器
+  expiresIn: 1000, //缓存1s
+};
+  
+export const breakerConfig = {
+  errorThresholdPercentage: 40, //超过 40% 会触发熔断
+  timeout: 1000, //超过 1s 会触发熔断
+  resetTimeout: 5000, //熔断后 5s 会重置
+};
+```
