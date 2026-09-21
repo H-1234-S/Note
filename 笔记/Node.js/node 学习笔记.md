@@ -1904,12 +1904,82 @@ fastify.get('/example/*', function (request, reply) {})
 
 ## 路由用法
 
+使用 Fastify 的 **`route()`** 方法注册一条路由
+
 ``` node
 fastify.route(options)
 ```
 
 
 
+
+> **Hapi 的风格：**
+
+``` node
+fastify.route({
+  method: 'GET',
+  url: '/',
+  schema: {
+    querystring: {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        excitement: { type: 'integer' }
+      }
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' }
+        }
+      }
+    }
+  },
+  handler: function (request, reply) {
+    reply.send({ hello: 'world' })
+  }
+})
+```
+
+> Express/Restify 的方式：
+
+``` node
+const opts = {
+  schema: {
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' }
+        }
+      }
+    }
+  }
+}
+fastify.get('/', opts, (request, reply) => {
+  reply.send({ hello: 'world' })
+})
+```
+
+`fastify.get(path, [options], handler)`
+
+`fastify.head(path, [options], handler)`
+
+`fastify.post(path, [options], handler)`
+
+`fastify.put(path, [options], handler)`
+
+`fastify.delete(path, [options], handler)`
+
+`fastify.options(path, [options], handler)`
+
+`fastify.patch(path, [options], handler)`
+
+
+
+
+---
 # libuv
 
 > **是什么？**
