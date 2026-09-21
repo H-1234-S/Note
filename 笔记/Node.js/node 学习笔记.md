@@ -386,6 +386,8 @@ kill 实际功能是向指定 PID 的进程**发送一个信号**；目标进程
 
 > **注意：** 修改并不会真正影响操作系统的变量，而是只在当前线程生效，线程结束便释放。
 
+## next
+
 # child_process api
 
 ## exec
@@ -2177,6 +2179,9 @@ socket.on('close', () => {
 });
 socket.destroy();
 ```
+
+### process.nextTick 队列
+
 
 ### promise
 
