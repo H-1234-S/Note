@@ -1845,7 +1845,40 @@ app.listen(port, () => {
 
 ## 基本用法
 
+``` node
+import fastify from "fastify";
 
+const app = fastify({
+  logger: true,
+});
+
+app.get("/get", (request, reply) => {
+  return { message: "get request" };
+});
+
+app.post("/post", (request, reply) => {
+  reply.send({ message: "post request" });
+});
+
+app.listen({ port: 3000 }, function (error, address) {
+  if (error) {
+    fastify.log.error(error);
+  }
+  console.log(`fastify is now ${address}`);
+});
+
+// app
+//   .listen({
+//     port: 3000,
+//   })
+//   .then((address) => {
+//     console.log("server start");
+//     console.log(`is now ${address}`);
+//   })
+//   .catch((error) => {
+//     fastify.log.error(error);
+//   });
+```
 
 # libuv
 
