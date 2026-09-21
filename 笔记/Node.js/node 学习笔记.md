@@ -2143,5 +2143,22 @@ Node.js **内部使用**，和 `pending callbacks` 一样，无需关心。
 
 `setImmediate` 的设计目的是：**在 poll 阶段完成后立即执行**，而不是等到下一轮 timers。
 
+> **和 `setTimeout(fn, 0)` 的区别**：
+
+- 在 I/O 回调内部：`setImmediate` **总是先于** `setTimeout(fn, 0)` 执行
+    
+- 在主模块中：两者顺序**不确定**，取决于进程启动时的耗时
+
+``` node
+const fs = require('fs');
+fs.readFile('a.txt', () => {
+  setTimeout(() => console.log('timeout'), 0);
+  setImmediate(() => console.log('immediate'));
+});
+// 输出：immediate → timeout
+```
+
+### close callbacks
+
 ---
 
