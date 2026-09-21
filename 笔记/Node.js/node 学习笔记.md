@@ -2204,7 +2204,11 @@ socket.destroy();
 
 CommonJS (CJS) 模块是被当作一个同步函数来执行的。当这个函数执行完毕，调用栈清空后，Node.js 才开始依次清空 `nextTick` 队列和微任务队列。
 
+而 ES Module (ESM) 的加载过程本身被设计为异步的。在 Node.js 内部，ESM 的**顶层代码被包裹在一个 Promise 的回调中执行**，这意味着代码本身就运行在微任务队列里。
 
+所以当你在 ESM 顶层调用 `Promise.resolve().then(...)` 时，这个新的回调被**追加到了当前正在清空的微任务队列中**。
+
+Node.js 会一直清空微任务队列，直到它为“空”，然后才回头去处理 `process.nextTick` 队列。这就是 `Promise` 插队到 `nextTick` 前面的原因。
 
 ---
 
