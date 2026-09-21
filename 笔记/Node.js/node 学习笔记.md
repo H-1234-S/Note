@@ -2158,7 +2158,19 @@ fs.readFile('a.txt', () => {
 // 输出：immediate → timeout
 ```
 
-### close callbacks
+### close callbacks 阶段
+
+处理突然关闭的资源的回调。
+
+``` node
+const socket = net.connect(3000);
+socket.on('close', () => {
+  console.log('连接关闭');  // 在 close callbacks 阶段执行
+});
+socket.destroy();
+```
+
+
 
 ---
 
