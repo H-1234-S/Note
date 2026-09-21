@@ -388,7 +388,9 @@ kill 实际功能是向指定 PID 的进程**发送一个信号**；目标进程
 
 ## nextTick
 
-`process.nextTick()` 是 Node.js 中一个特殊的函数，它用于**将回调函数延迟到当前操作完成后、下一个事件循环迭代之前执行**。
+`process.nextTick()` 用于**将回调函数延迟到当前操作完成后、下一个事件循环迭代之前执行**。
+
+
 
 # child_process api
 
