@@ -1904,6 +1904,10 @@ fastify.get('/example/*', function (request, reply) {})
 
 ## 路由用法
 
+``` node
+fastify.route(options)
+```
+
 
 
 # libuv
