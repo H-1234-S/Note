@@ -2402,7 +2402,7 @@ const sse = new EventSource("http://localhost:3000/sse");
 
 网关层在分布式系统和微服务架构中起到了关键的作用。
 
-> 网关层的主要功能和优势：
+## 主要功能和优势
 
 - **路由**：网关层可以根据请求的URL路径或其他条件将请求转发到不同的后端服务。它可以根据特定的路由规则来决定请求应该被发送到哪个服务处理。
 
@@ -2415,3 +2415,16 @@ const sse = new EventSource("http://localhost:3000/sse");
 - **熔断技术**：当后端服务出现故障或异常时，网关层可以使用熔断技术来防止请求继续发送到出现问题的服务上。通过监控后端服务的状态和性能指标，网关层可以自动切换到备用服务或返回错误响应，以提高系统的容错性和可靠性。
 
 - **限流**：网关层可以实施请求限制策略，以防止对后端服务的过度请求造成的负载过载。通过限制每个客户端的请求速率或总请求数量，网关层可以保护后端服务免受滥用或恶意攻击。
+
+## 示例
+
+``` shell
+npm install fastify
+npm install express
+npm install @fastify/caching #缓存
+npm install @fastify/http-proxy #代理/负载均衡
+npm install @fastify/rate-limit #限流
+npm install opossum #熔断技术
+```
+
+
