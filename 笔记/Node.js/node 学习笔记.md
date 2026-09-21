@@ -2158,6 +2158,8 @@ fs.readFile('a.txt', () => {
 // 输出：immediate → timeout
 ```
 
+
+
 ### close callbacks 阶段
 
 处理突然关闭的资源的回调。
