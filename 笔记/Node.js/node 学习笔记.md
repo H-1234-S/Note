@@ -2158,7 +2158,13 @@ fs.readFile('a.txt', () => {
 // 输出：immediate → timeout
 ```
 
+因为在事件循环的每个循环迭代中，libuv 会调用 `uv__update_time` 函数来更新当前的时间戳。
 
+这个时间戳通常用于计算定时器的超时时间和检查事件的发生时间
+
+而 `setImmediate`，则是把回调函数直接插入队列，所以执行效率比较高。
+
+所以就会造成顺序不稳定的一个原因
 
 ### close callbacks 阶段
 
