@@ -2098,11 +2098,15 @@ libuv 作为“平台抽象层”，**把所有平台差异封装在库内部**�
 
 每个阶段都有一个 **FIFO 回调队列**，Node 会执行该队列里的回调，直到队列空或达到系统限制，然后进入下一阶段。
 
-> timers 阶段
+### timers 阶段
 
 处理 `setTimeout()` 和 `setInterval()` 的回调。
 
 > **注意：** `setTimeout(fn, 0)` 并不是立即执行，而是**最早在下一轮 timers 阶段**执行。
+
+### pending callbacks 阶段
+
+
 
 
 
