@@ -1840,6 +1840,171 @@ app.listen(port, () => {
     
 - **有 referer 但不在白名单**：拒绝。
 
+---
+# fastify
+
+
+
+# libuv
+
+> **是什么？**
+
+`libuv` 是一个**跨平台**的 **C 语言异步 I/O 库**，**用非阻塞的方式处理大量并发 I/O**，同时保持跨平台。
+
+> **异步 I/O：**
+
+- libuv 实现了 Node.js 的`事件循环机制`，负责管理事件的调度和执行。
+
+	- 事件循环是 Node.js 的核心机制，它使得 Node.js 能够以非阻塞的方式处理大量并发操作。
+
+- 异步 I/O 操作：libuv 提供了一组异步 I/O 的 API，用于处理文件、网络和其他 I/O 操作。
+
+> **跨平台：**
+
+因为不同操作系统的异步 I/O 机制完全不同：
+
+- **Unix/Linux/Mac**：使用 **libev**（基于 `epoll`/`kqueue` 等）
+    
+- **Windows**：使用 **IOCP**（I/O Completion Ports），这与 Unix 的机制截然不同
+    
+
+如果 Node.js 直接调用这些系统 API，代码里将充满 `#ifdef _WIN32` 之类的平台判断，维护成本极高。
+
+libuv 作为“平台抽象层”，**把所有平台差异封装在库内部**，对外暴露一套统一的 API（如 `uv_tcp_t`、`uv_fs_read`）。
+
+## 事件循环
+
+
+> 事件循环的执行阶段：
+
+```text
+┌───────────────────────────┐
+│           timers          │
+└─────────────┬─────────────┘
+              │
+              v
+   ┌───────────────────────────┐
+┌─>│     pending callbacks     │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │       idle, prepare       │
+│  └─────────────┬─────────────┘      ┌───────────────┐
+│  ┌─────────────┴─────────────┐      │   incoming:   │
+│  │           poll            │<─────┤  connections, │
+│  └─────────────┬─────────────┘      │   data, etc.  │
+│  ┌─────────────┴─────────────┐      └───────────────┘
+│  │           check           │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │      close callbacks      │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+└──┤           timers          │
+   └───────────────────────────┘
+```
+
+每个阶段都有一个 **FIFO 回调队列**，Node 会执行该队列里的回调，直到队列空或达到系统限制，然后进入下一阶段。
+
+## timers 阶段
+
+处理 `setTimeout()` 和 `setInterval()` 的回调。
+
+> **注意：** `setTimeout(fn, 0)` 并不是立即执行，而是**最早在下一轮 timers 阶段**执行。
+
+## pending callbacks 阶段
+
+处理上一轮循环中被**推迟**的系统级回调。
+
+例如：TCP 连接错误。这些回调通常不是用户直接注册的，而是底层 I/O 操作完成后，操作系统报告的错误信息。
+
+## idle, prepare 阶段
+
+Node.js **内部使用**，和 `pending callbacks` 一样，无需关心。
+
+## poll 阶段
+
+`poll` 轮询阶段，用于处理 I/O 相关回调。例如：文件的读写、网络请求数据的到达、新连接建立。
+
+> **这个阶段的行为分两种情况**：
+
+**情况 A：poll 队列不为空**
+
+- 依次同步执行队列里的回调，直到队列清空或达到系统上限。
+    
+
+**情况 B：poll 队列为空**
+
+- 检查有没有 `setImmediate()` 待执行：
+    
+    - **有** → 结束 poll 阶段，进入 `check` 阶段
+        
+    - **没有** → 检查有没有到期的 timers：
+        
+        - **有** → 回到 `timers` 阶段
+            
+        - **没有** → **阻塞在这里等待**，直到有新的 I/O 事件到来
+
+## check 阶段
+
+处理 `setImmediate()` 的回调。
+
+`setImmediate` 的设计目的是：**在 poll 阶段完成后立即执行**，而不是等到下一轮 timers。
+
+> **和 `setTimeout(fn, 0)` 的区别**：
+
+- 在 I/O 回调内部：`setImmediate` **总是先于** `setTimeout(fn, 0)` 执行
+    
+- 在主模块中：两者顺序**不确定**，取决于进程启动时的耗时
+
+``` node
+const fs = require('fs');
+fs.readFile('a.txt', () => {
+  setTimeout(() => console.log('timeout'), 0);
+  setImmediate(() => console.log('immediate'));
+});
+// 输出：immediate → timeout
+```
+
+因为在事件循环的每个循环迭代中，libuv 会调用 `uv__update_time` 函数来更新当前的时间戳。
+
+这个时间戳通常用于计算定时器的超时时间和检查事件的发生时间
+
+而 `setImmediate`，则是把回调函数直接插入队列，所以执行效率比较高。
+
+所以就会造成顺序不稳定的一个原因
+
+## close callbacks 阶段
+
+处理突然关闭的资源的回调。
+
+``` node
+const socket = net.connect(3000);
+socket.on('close', () => {
+  console.log('连接关闭');  // 在 close callbacks 阶段执行
+});
+socket.destroy();
+```
+
+## 微任务
+
+`promise` 与 `process.nextTick()` 执行顺序
+
+在 ESM 最外层作用域中，`promise` 优先于 `process.nextTick()` 执行；
+
+在 CJS 或者计时器和 I/O 回调中，`process.nextTick()` 优先于 `promise` 执行；
+
+> **原因：**
+
+CommonJS (CJS) 模块是被当作一个同步函数来执行的。当这个函数执行完毕，调用栈清空后，Node.js 才开始依次清空 `nextTick` 队列和微任务队列。
+
+而 ES Module (ESM) 的加载过程本身被设计为异步的。在 Node.js 内部，ESM 的**顶层代码被包裹在一个 Promise 的回调中执行**，这意味着代码本身就运行在微任务队列里。
+
+所以当你在 ESM 顶层调用 `Promise.resolve().then(...)` 时，这个新的回调被**追加到了当前正在清空的微任务队列中**。
+
+Node.js 会一直清空微任务队列，直到它为“空”，然后才回头去处理 `process.nextTick` 队列。这就是 `Promise` 插队到 `nextTick` 前面的原因。
+
+---
+
 # cors
 
 **跨域资源共享**（Cross-Origin Resource Sharing，CORS）是一种机制，用于在浏览器中实现跨域请求访问资源的权限控制。
@@ -2051,164 +2216,4 @@ const sse = new EventSource("http://localhost:3000/sse");
         console.log(event.data);
       });
 ```
-
-# libuv
-
-> **是什么？**
-
-`libuv` 是一个**跨平台**的 **C 语言异步 I/O 库**，**用非阻塞的方式处理大量并发 I/O**，同时保持跨平台。
-
-> **异步 I/O：**
-
-- libuv 实现了 Node.js 的`事件循环机制`，负责管理事件的调度和执行。
-
-	- 事件循环是 Node.js 的核心机制，它使得 Node.js 能够以非阻塞的方式处理大量并发操作。
-
-- 异步 I/O 操作：libuv 提供了一组异步 I/O 的 API，用于处理文件、网络和其他 I/O 操作。
-
-> **跨平台：**
-
-因为不同操作系统的异步 I/O 机制完全不同：
-
-- **Unix/Linux/Mac**：使用 **libev**（基于 `epoll`/`kqueue` 等）
-    
-- **Windows**：使用 **IOCP**（I/O Completion Ports），这与 Unix 的机制截然不同
-    
-
-如果 Node.js 直接调用这些系统 API，代码里将充满 `#ifdef _WIN32` 之类的平台判断，维护成本极高。
-
-libuv 作为“平台抽象层”，**把所有平台差异封装在库内部**，对外暴露一套统一的 API（如 `uv_tcp_t`、`uv_fs_read`）。
-
-## 事件循环
-
-
-> 事件循环的执行阶段：
-
-```text
-┌───────────────────────────┐
-│           timers          │
-└─────────────┬─────────────┘
-              │
-              v
-   ┌───────────────────────────┐
-┌─>│     pending callbacks     │
-│  └─────────────┬─────────────┘
-│  ┌─────────────┴─────────────┐
-│  │       idle, prepare       │
-│  └─────────────┬─────────────┘      ┌───────────────┐
-│  ┌─────────────┴─────────────┐      │   incoming:   │
-│  │           poll            │<─────┤  connections, │
-│  └─────────────┬─────────────┘      │   data, etc.  │
-│  ┌─────────────┴─────────────┐      └───────────────┘
-│  │           check           │
-│  └─────────────┬─────────────┘
-│  ┌─────────────┴─────────────┐
-│  │      close callbacks      │
-│  └─────────────┬─────────────┘
-│  ┌─────────────┴─────────────┐
-└──┤           timers          │
-   └───────────────────────────┘
-```
-
-每个阶段都有一个 **FIFO 回调队列**，Node 会执行该队列里的回调，直到队列空或达到系统限制，然后进入下一阶段。
-
-## timers 阶段
-
-处理 `setTimeout()` 和 `setInterval()` 的回调。
-
-> **注意：** `setTimeout(fn, 0)` 并不是立即执行，而是**最早在下一轮 timers 阶段**执行。
-
-## pending callbacks 阶段
-
-处理上一轮循环中被**推迟**的系统级回调。
-
-例如：TCP 连接错误。这些回调通常不是用户直接注册的，而是底层 I/O 操作完成后，操作系统报告的错误信息。
-
-## idle, prepare 阶段
-
-Node.js **内部使用**，和 `pending callbacks` 一样，无需关心。
-
-## poll 阶段
-
-`poll` 轮询阶段，用于处理 I/O 相关回调。例如：文件的读写、网络请求数据的到达、新连接建立。
-
-> **这个阶段的行为分两种情况**：
-
-**情况 A：poll 队列不为空**
-
-- 依次同步执行队列里的回调，直到队列清空或达到系统上限。
-    
-
-**情况 B：poll 队列为空**
-
-- 检查有没有 `setImmediate()` 待执行：
-    
-    - **有** → 结束 poll 阶段，进入 `check` 阶段
-        
-    - **没有** → 检查有没有到期的 timers：
-        
-        - **有** → 回到 `timers` 阶段
-            
-        - **没有** → **阻塞在这里等待**，直到有新的 I/O 事件到来
-
-## check 阶段
-
-处理 `setImmediate()` 的回调。
-
-`setImmediate` 的设计目的是：**在 poll 阶段完成后立即执行**，而不是等到下一轮 timers。
-
-> **和 `setTimeout(fn, 0)` 的区别**：
-
-- 在 I/O 回调内部：`setImmediate` **总是先于** `setTimeout(fn, 0)` 执行
-    
-- 在主模块中：两者顺序**不确定**，取决于进程启动时的耗时
-
-``` node
-const fs = require('fs');
-fs.readFile('a.txt', () => {
-  setTimeout(() => console.log('timeout'), 0);
-  setImmediate(() => console.log('immediate'));
-});
-// 输出：immediate → timeout
-```
-
-因为在事件循环的每个循环迭代中，libuv 会调用 `uv__update_time` 函数来更新当前的时间戳。
-
-这个时间戳通常用于计算定时器的超时时间和检查事件的发生时间
-
-而 `setImmediate`，则是把回调函数直接插入队列，所以执行效率比较高。
-
-所以就会造成顺序不稳定的一个原因
-
-## close callbacks 阶段
-
-处理突然关闭的资源的回调。
-
-``` node
-const socket = net.connect(3000);
-socket.on('close', () => {
-  console.log('连接关闭');  // 在 close callbacks 阶段执行
-});
-socket.destroy();
-```
-
-## 微任务
-
-`promise` 与 `process.nextTick()` 执行顺序
-
-在 ESM 最外层作用域中，`promise` 优先于 `process.nextTick()` 执行；
-
-在 CJS 或者计时器和 I/O 回调中，`process.nextTick()` 优先于 `promise` 执行；
-
-> **原因：**
-
-CommonJS (CJS) 模块是被当作一个同步函数来执行的。当这个函数执行完毕，调用栈清空后，Node.js 才开始依次清空 `nextTick` 队列和微任务队列。
-
-而 ES Module (ESM) 的加载过程本身被设计为异步的。在 Node.js 内部，ESM 的**顶层代码被包裹在一个 Promise 的回调中执行**，这意味着代码本身就运行在微任务队列里。
-
-所以当你在 ESM 顶层调用 `Promise.resolve().then(...)` 时，这个新的回调被**追加到了当前正在清空的微任务队列中**。
-
-Node.js 会一直清空微任务队列，直到它为“空”，然后才回头去处理 `process.nextTick` 队列。这就是 `Promise` 插队到 `nextTick` 前面的原因。
-
----
 
