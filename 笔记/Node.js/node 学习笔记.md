@@ -392,6 +392,14 @@ kill 实际功能是向指定 PID 的进程**发送一个信号**；目标进程
 
 
 
+> `process.nextTick` 和 Promise 的优先级并非绝对，它取决于运行环境：
+
+- 在 **CommonJS** 中，`nextTick` 优先级更高。
+    
+- 在 **ES Module** 中，Promise 的微任务会插队到 `nextTick` 之前执行。
+
+> 注意：
+
 # child_process api
 
 ## exec
