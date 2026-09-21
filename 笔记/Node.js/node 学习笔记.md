@@ -1880,6 +1880,28 @@ app.listen({ port: 3000 }, function (error, address) {
 //   });
 ```
 
+> **支持动态参数：**
+
+``` node
+// parametric
+fastify.get('/example/:userId', function (request, reply) {
+  // curl ${app-url}/example/12345
+  // userId === '12345'
+  const { userId } = request.params;
+  // your code here
+})
+fastify.get('/example/:userId/:secretToken', function (request, reply) {
+  // curl ${app-url}/example/12345/abc.zHi
+  // userId === '12345'
+  // secretToken === 'abc.zHi'
+  const { userId, secretToken } = request.params;
+  // your code here
+})
+
+// wildcard
+fastify.get('/example/*', function (request, reply) {})
+```
+
 ## 路由用法
 
 
