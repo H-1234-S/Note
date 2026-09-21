@@ -1910,7 +1910,19 @@ fastify.get('/example/*', function (request, reply) {})
 fastify.route(options)
 ```
 
+- method：对应的请求方法，例如：GET、POST 等
 
+- url：与此路由对应的请求路径
+
+- schema：包含请求和响应模式的对象，用于定义**入参**和**出参**
+
+	- body：验证 POST 请求的入参
+
+	- querystring：验证 GET 请求的入参
+
+	- params：验证动态参数
+
+	- response：过滤、验证出参并生成响应模式
 
 
 > **Hapi 的风格：**
