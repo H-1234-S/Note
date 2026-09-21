@@ -938,6 +938,17 @@ Node.js 读取文件的时候是使用 libuv 进行调度的
 
 文件读取完成后 libuv 才会将 fs 的结果推入 V8 的队列
 
+---
+# buffer api
+
+## from
+
+## concat
+
+
+
+
+---
 # crypto api
 
 `crypto` 是 Node.js 内置的**加密模块**，提供哈希、加密解密、签名验签、随机数等能力。
