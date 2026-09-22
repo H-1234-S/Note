@@ -2203,7 +2203,7 @@ socket.destroy();
 
 ## 微任务
 
-`promise` 与 `process.nextTick()` 执行顺序
+> `promise` 与 `process.nextTick()` 执行顺序
 
 在 ESM 最外层作用域中，`promise` 优先于 `process.nextTick()` 执行；
 
