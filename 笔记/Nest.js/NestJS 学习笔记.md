@@ -107,6 +107,40 @@ userService.register("test@example.com")
 
 > 装饰器本质是一个**函数**，它接收被装饰的目标，对它进行包装、修改或添加元数据，然后返回（或就地修改）。
 
+``` js
+function decorator(value, context) {
+}
+```
+
+`value` 被装饰的东西；`context` 关于这个东西的上下文
+
+> **示例：**
+
+``` ts
+const Logs = (value: Function, context: ClassMethodDecoratorContext) => {
+  console.log(value, context);
+};
+
+class UserService {
+  constructor() {}
+  
+  @Logs
+  get(name: string) {
+    console.log("get");
+  }
+}
+
+// [Function: get] {
+//   kind: 'method',
+//   name: 'get',
+//   metadata: [Object: null prototype] {},
+//   addInitializer: [Function: addInitializer],
+//   static: false,
+//   private: false,
+//   access: { has: [Function (anonymous)], get: [Function (anonymous)] }
+// }
+```
+
 ## 类装饰器
 
 ## 属性装饰器
