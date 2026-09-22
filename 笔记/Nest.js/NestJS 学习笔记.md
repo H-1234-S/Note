@@ -227,11 +227,42 @@ function loggedMethod(target, context) {
     
 - **返回的包装函数体内的 `this`**：指的是**将来方法被调用时**的调用者（比如 `g.greet()` 里的 `g`）。
 
+
+
 ## 装饰器工厂
 
 装饰器工厂，就是**返回装饰器的函数**；为了解决装饰器无法传参数；本质上利用的函数柯里化。
 
+``` ts
+function logged(prefix: string) {          // ← 外层：接收自定义参数
+  return function (target, context) {       // ← 内层：真正的装饰器
+    return function (this: any, ...args) {
+      console.log(`[${prefix}] 进入`);
+      return target.call(this, ...args);
+    };
+  };
+}
 
+// 使用
+class Greeter {
+  @logged("GREET")
+  greet() {}
+
+  @logged("BYE")
+  bye() {}
+}
+```
+
+> **执行顺序：**
+
+``` js
+// 第 1 步：类定义时，调用工厂函数，拿到装饰器
+const decorator = logged("GREET");   // ← 外层函数执行，prefix = "GREET"
+
+// 第 2 步：类定义时，立刻用这个装饰器装饰方法
+const newGreet = decorator(Greeter.prototype.greet, { kind: "method", name: "greet" });
+Greeter.prototype.greet = newGreet;
+```
 
 
 
