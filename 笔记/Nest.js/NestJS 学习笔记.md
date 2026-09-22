@@ -101,5 +101,14 @@ userService.register("test@example.com")
 其实这就**依赖注入**：`EmailService` 依赖在外部创建并且注入到 `UserService`
 
 **控制反转：** `UserService` 不再负责创建依赖，控制权从内部转到外部
+# 装饰器
+
+## 类装饰器
+
+## 属性装饰器
+
+## 方法装饰器
+
+## 参数装饰器
 
 
