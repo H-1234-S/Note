@@ -140,9 +140,72 @@ class UserService {
 //   access: { has: [Function (anonymous)], get: [Function (anonymous)] }
 // }
 ```
+
+## 示例讲解
+
+为 `greet` 方法添加一个日志功能
+
+``` ts
+// loggedMethod 是一个装饰器
+function loggedMethod<This, Args extends any[], Return>(
+  target: (this: This, ...args: Args) => Return,
+  context: ClassMethodDecoratorContext<
+    This,
+    (this: This, ...args: Args) => Return
+  >,
+) {
+  const methodName = String(context.name);
+  
+  // 返回一个新的函数来替换原方法
+  return function (this: This, ...args: Args): Return {
+    console.log(`[LOG] 进入方法: ${methodName}`);
+    const result = target.call(this, ...args); // 执行原方法
+    console.log(`[LOG] 退出方法: ${methodName}`);
+    return result;
+  };
+}
+  
+class Greeter {
+  @loggedMethod
+  greet(name: string) {
+    console.log(`Hello, ${name}!`);
+    return "done";
+  }
+}
+  
+const g = new Greeter();
+g.greet("World");
+
+// 输出
+// [LOG] 进入方法: greet
+// Hello, World!
+// [LOG] 退出方法: gree
+```
 ## 执行时机
 
-装饰器**不是在方法被调用时执行**，而是在**类定义被求值时执行一次**。
+装饰器**不是在方法被调用时执行**，而是在**类定义被求值时执行一次**。也就是创建类时，装饰器已经执行完。
+
+``` ts
+class Greeter {
+  @loggedMethod
+  greet(name: string) { ... }
+}
+
+// 等价于
+class Greeter {
+  greet(name: string) { ... }
+}
+
+// 装饰器被调用，返回值被用来"覆盖"原来的 greet
+const newGreet = loggedMethod(Greeter.prototype.greet, { kind: "method", name: "greet", ... });
+
+// 如果返回了东西，就用返回值替换原来的方法
+Greeter.prototype.greet = newGreet;   // ← 替换就发生在这里
+```
+
+对于**方法装饰器**，如果 `return` 一个新函数，则用新函数替代原方法；如果**没有返回值**，则装饰器只做副作用
+
+> 因此之后的每次调用 `g.greet()` 都是执行的新函数
 
 
 
