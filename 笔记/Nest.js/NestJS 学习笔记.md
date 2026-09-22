@@ -140,16 +140,9 @@ class UserService {
 //   access: { has: [Function (anonymous)], get: [Function (anonymous)] }
 // }
 ```
+## 执行时机
 
-## 类装饰器
 
-## 属性装饰器
-
-## 方法装饰器
-
-## 参数装饰器
-
-## 装饰器工厂
 
 
 
