@@ -945,8 +945,36 @@ Node.js 读取文件的时候是使用 libuv 进行调度的
 
 ## concat
 
+`Buffer.concat` 是 Node.js 里用来**把多个 Buffer 合并成一个 Buffer** 的方法。
 
+``` node
+const buffer = Buffer.concat([buffer,buffer,...])
+```
 
+因为流式数据是**一块一块（chunk）** 来的，每个 `chunk` 是一个 `Buffer`，分散存储在数组中
+
+要拿到**完整的字符串**，就需要将 `Buffer` 拼接成一个整体，就可以使用 `Buffer.concat` 处理
+
+> **示例：**
+
+``` node
+const chunks = [];
+
+for await (const chunk of request) {        // request 是请求
+  chunks.push(chunk);        // 收集每一块 Buffer
+}
+
+const text = Buffer.concat(chunks).toString("utf-8");
+console.log(text);           // 请求体的完整字符串
+```
+
+流程是：
+
+1. 每来一块 chunk，塞进 `chunks` 数组
+    
+2. 流结束后，`Buffer.concat(chunks)` 合并成一个大 Buffer
+    
+3. `.toString("utf-8")` 转成字符串
 
 ---
 # crypto api
