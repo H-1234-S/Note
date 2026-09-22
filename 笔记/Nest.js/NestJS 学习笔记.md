@@ -25,6 +25,7 @@ class UserService {
 ```
 
 > `private` 关键字**省掉了声明 + 赋值两步**
+
 # 控制反转
 
 `IoC(Inversion of Control)` **控制反转**是一种**设计原则**
@@ -33,5 +34,72 @@ class UserService {
 
 ## 依赖注入
 
-DI 是**控制反转思想**的一种常见**实现方式**；把类需要的依赖，从外部传进去，而不是类自己创建
+`DI(Dependency Injection)` 是**控制反转思想**的一种常见**实现方式**；把类需要的依赖，从外部传进去，而不是类自己创建。
+
+## 示例讲解
+
+``` ts
+class EmailService {
+  send(email: string, message: string) {
+    console.log(`发送邮件给 ${email}: ${message}`)
+  }
+}
+
+class UserService {
+  private emailService: EmailService
+
+  constructor() {
+    this.emailService = new EmailService()
+  }
+
+  register(email: string) {
+    console.log("用户注册成功")
+
+    this.emailService.send(
+      email,
+      "欢迎注册"
+    )
+  }
+}
+
+// 使用
+const userService = new UserService()
+
+userService.register("test@example.com")
+```
+
+如果更改 `EmailService` 通常也需要更改 `UserService`；如果后续不想发邮件了，发送短信还需要更改 `EmailService`
+
+因为 `UserService` 和 `EmailService` 是强耦合的
+
+> 更改一下：不让 `UserService` 自己创建 `EmailService`
+
+``` ts
+class UserService {
+  constructor(
+    private emailService: EmailService
+  ) {}
+
+  register(email: string) {
+    console.log("用户注册成功")
+
+    this.emailService.send(
+      email,
+      "欢迎注册"
+    )
+  }
+}
+
+// 外部创建
+const emailService = new EmailService()
+
+const userService = new UserService(emailService)
+
+userService.register("test@example.com")
+```
+
+其实这就**依赖注入**：`EmailService` 依赖在外部创建并且注入到 `UserService`
+
+**控制反转：** `UserService` 不再负责创建依赖，控制权从内部转到外部
+
 
