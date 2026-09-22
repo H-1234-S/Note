@@ -181,6 +181,8 @@ g.greet("World");
 // Hello, World!
 // [LOG] 退出方法: gree
 ```
+
+这样在不改变原函数逻辑，使用装饰器添加了日志功能。
 ## 执行时机
 
 装饰器**不是在方法被调用时执行**，而是在**类定义被求值时执行一次**。也就是创建类时，装饰器已经执行完。
@@ -206,6 +208,25 @@ Greeter.prototype.greet = newGreet;   // ← 替换就发生在这里
 对于**方法装饰器**，如果 `return` 一个新函数，则用新函数替代原方法；如果**没有返回值**，则装饰器只做副作用
 
 > 因此之后的每次调用 `g.greet()` 都是执行的新函数
+
+## This 指向
+
+``` ts
+function loggedMethod(target, context) {
+  // 这里的 this 是什么？—— 装饰器函数自身的 this
+  
+  return function (this: any, ...args) {
+  
+    // 这里的 this 是什么？—— 方法被调用时的 this（调用者）
+    const result = target.call(this, ...args);
+  };
+}
+```
+
+- **装饰器函数体内的 `this`**：指的是装饰器**执行那一刻**的调用环境。
+    
+- **返回的包装函数体内的 `this`**：指的是**将来方法被调用时**的调用者（比如 `g.greet()` 里的 `g`）。
+
 
 
 
