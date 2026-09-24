@@ -504,6 +504,8 @@ export class UsersController {}
 app.useGlobalPipes(new ValidationPipe());
 ```
 
+## 显示转换
+
 |管道|作用|
 |---|---|
 |`ParseIntPipe`|把参数转成整数，失败抛 400|
@@ -515,6 +517,17 @@ app.useGlobalPipes(new ValidationPipe());
 |`DefaultValuePipe`|参数为空时提供默认值|
 |`ValidationPipe`|结合 class-validator 做 DTO 校验（最常用）|
 
+``` ts
+@Get(':id')
+findOne(
+  @Param('id', ParseIntPipe) id: number,
+  @Query('sort', ParseBoolPipe) sort: boolean,
+) {
+  console.log(typeof id === 'number'); // true
+  console.log(typeof sort === 'boolean'); // true
+  return 'This action returns a user';
+}
+```
 ## 类验证器
 
 Nest 与 [class-validator](https://github.com/typestack/class-validator) 库配合良好。这个库允许使用基于装饰器的验证。
@@ -559,4 +572,16 @@ app.useGlobalPipes(
 
 `whitelist: true` 过滤掉不应被方法处理器接收的属性。
 
-``
+> `transform: true` 自动将有效载荷转换为根据其 DTO 类类型的对象。
+
+``` ts
+@Get(':id')
+findOne(@Param('id') id: number) {
+  console.log(typeof id === 'number'); // true
+  return 'This action returns a user';
+}
+```
+
+默认情况下，每个路径参数和查询参数都会作为 `string` 通过网络传输。
+
+在方法签名中将 `id` 类型指定为 `number`。因此，`ValidationPipe` 会尝试自动将字符串标识符转换为数字。
