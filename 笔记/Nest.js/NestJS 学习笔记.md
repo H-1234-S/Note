@@ -289,6 +289,36 @@ Greeter.prototype.greet = newGreet;
 `@Controller()` 中传入路径参数，表示请求的路径
 ## 路由
 
+`@Get()`
+
+`@Post()`
+
+`@HttpCode()`
+## 请求
+
+`@Req()`
+
+`@Res()`
+
+> Nest 会检测处理程序是否使用了 `@Res()` 或 `@Next()`
+
+`@Res({ passthrough: true })` 装饰器中将 `passthrough` 选项设置为 `true`。
+
+``` js
+import { Controller, Get, Req } from '@nestjs/common';
+import type { Request } from 'express';
+
+@Controller('cats')
+export class CatsController {
+  @Get()
+  findAll(@Req() request: Request): string {
+    return 'This action returns all cats';
+  }
+}
+```
+
+> 要利用 `express` 的类型定义（如上面 `request: Request` 参数示例所示），请确保安装 `@types/express` 包。
+
 
 
 
