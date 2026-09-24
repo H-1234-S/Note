@@ -624,11 +624,18 @@ findOne(@Param('id') id: number) {
 
 中间件函数可以访问[请求](https://express.nodejs.cn/en/4x/api.html#req)和[响应](https://express.nodejs.cn/en/4x/api.html#res)对象，以及应用请求-响应周期中的`next()`中间件函数。
 
+> 中间件函数可以执行以下任务：
+
+- 执行任何代码。
+- 修改请求和响应对象。
+- 结束请求-响应周期。
+- 调用堆栈中的下一个中间件函数。
+- 如果当前的中间件函数没有结束请求-响应周期，它必须调用`next()`将控制权传递给下一个中间件函数。否则，请求将会挂起。
+## 声明中间件
+
 可以通过函数或带有 `@Injectable()` 装饰器的类来实现自定义的 Nest 中间件。
 
 类应实现 `NestMiddleware` 接口，而函数没有任何特殊要求。
-
-> **声明：**
 
 ``` ts
 // logger.middleware.ts
@@ -644,6 +651,29 @@ export class TodoMiddleware implements NestMiddleware {
   }
 }
 ```
+
+## 应用中间件
+
+包含中间件的模块必须实现 `NestModule` 接口。
+
+``` ts
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { TodoController } from './todo.controller.js';
+import { TodoService } from './todo.service.js';
+
+@Module({
+  controllers: [TodoController],
+  providers: [TodoService],
+})
+export class TodoModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(Logger).forRoutes('todo');
+    // forRoutes({ path: 'todo', method: RequestMethod.GET });
+  }
+}
+```
+
+在配置中间件时向 `forRoutes()` 方法传递包含路由 `path` 和请求 `method` 的对象
 
 
 
