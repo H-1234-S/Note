@@ -626,3 +626,5 @@ await bootstrap();
 
 这种方法有助于节省一些初始化时间，生成的文档是符合 [OpenAPI 文档](https://swagger.io/specification/#openapi-document) 规范的可序列化对象。
 
+> 访问地址 `http://localhost:3000/api` 即可看到生成的 api 文档
+
