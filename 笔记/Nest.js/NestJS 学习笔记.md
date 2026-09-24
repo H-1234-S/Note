@@ -717,7 +717,30 @@ const app = await NestFactory.create(AppModule);
 app.use(logger);
 await app.listen(process.env.PORT ?? 3000);
 ```
+## 错误处理
 
+当中间件抛出异常时，Nest 的 异常层 会捕获它并发送合适的响应，就像它处理路由处理器抛出的异常一样。
+
+推荐的做法是抛出一个 `HttpException`（或内置子类，如 `UnauthorizedException`）:
+
+``` ts
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+
+@Injectable()
+export class AuthMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    if (!req.headers.authorization) {
+      throw new UnauthorizedException();
+    }
+    next();
+  }
+}
+```
 # API 文档
 
 ```bash
