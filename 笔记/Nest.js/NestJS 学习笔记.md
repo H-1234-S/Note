@@ -517,6 +517,8 @@ app.useGlobalPipes(new ValidationPipe());
 |`DefaultValuePipe`|参数为空时提供默认值|
 |`ValidationPipe`|结合 class-validator 做 DTO 校验（最常用）|
 
+可以使用 `ParseIntPipe` 或 `ParseBoolPipe` 显式地转换值（注意不需要 `ParseStringPipe`，因为如前所述，每个路径参数和查询参数默认都是以 `string` 的形式通过网络传递的）。
+
 ``` ts
 @Get(':id')
 findOne(
@@ -528,6 +530,8 @@ findOne(
   return 'This action returns a user';
 }
 ```
+
+> 也可以使用隐式转换：
 ## 类验证器
 
 Nest 与 [class-validator](https://github.com/typestack/class-validator) 库配合良好。这个库允许使用基于装饰器的验证。
