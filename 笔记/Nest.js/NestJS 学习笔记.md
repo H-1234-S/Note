@@ -669,11 +669,14 @@ export class TodoModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(Logger).forRoutes('todo');
     // forRoutes({ path: 'todo', method: RequestMethod.GET });
+    // forRoutes(TodoController) 控制器
   }
 }
 ```
 
 在配置中间件时向 `forRoutes()` 方法传递包含路由 `path` 和请求 `method` 的对象
+
+`forRoutes()` 方法可以接受一个字符串、多个字符串、一个 `RouteInfo` 对象、一个**控制器类**，甚至多个控制器类。
 
 
 
