@@ -628,3 +628,21 @@ await bootstrap();
 
 > 访问地址 `http://localhost:3000/api` 即可看到生成的 api 文档
 
+## 命令行插件
+
+> **注意：** 文件名**必须**包含以下后缀之一：`['.dto.ts', '.entity.ts']`（例如，`create-user.dto.ts`），才能被插件分析。
+
+``` json
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "plugins": ["@nestjs/swagger"]  // 添加该行
+  }
+}
+```
+
+> 在 DTO 中使用 [映射类型实用工具](https://nest.nodejs.cn/openapi/mapped-types)（如 `PartialType`）时，应从 `@nestjs/swagger` 导入它们，而不是从 `@nestjs/mapped-types` 导入，以便插件能够识别模式。
+
