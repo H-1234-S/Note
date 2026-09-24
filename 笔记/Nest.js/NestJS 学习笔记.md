@@ -598,3 +598,31 @@ findOne(@Param('id') id: number) {
 pnpm add @nestjs/swagger
 ```
 
+打开 `main.ts` 文件，并使用 `SwaggerModule` 类初始化 Swagger：
+
+``` ts
+import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './app.module.js';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addTag('cats')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
+
+  await app.listen(process.env.PORT ?? 3000);
+}
+await bootstrap();
+```
+
+工厂方法 `SwaggerModule.createDocument()` 专门用于在请求时生成 Swagger 文档。
+
+这种方法有助于节省一些初始化时间，生成的文档是符合 [OpenAPI 文档](https://swagger.io/specification/#openapi-document) 规范的可序列化对象。
+
