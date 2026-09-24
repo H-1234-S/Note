@@ -34,6 +34,31 @@ class UserService {
 
 **TypeScript 里的 `class` 同时可以是“值”和“类型”**；并且**运行时不会被擦除**。
 
+## implements
+
+`implements` 是 **TypeScript** 中的一个关键字，用于表示一个类**实现**了某个接口（interface）。
+
+核心作用是**强制约束类的结构**，让编译器帮你检查这个类是否满足接口的要求。
+
+``` ts
+interface Animal {
+  name: string;
+  speak(): void;
+}
+
+class Dog implements Animal {
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  speak() {
+    console.log('Woof!');
+  }
+}
+```
+
 # 控制反转
 
 `IoC(Inversion of Control)` **控制反转**是一种**设计原则**
@@ -602,6 +627,23 @@ findOne(@Param('id') id: number) {
 可以通过函数或带有 `@Injectable()` 装饰器的类来实现自定义的 Nest 中间件。
 
 类应实现 `NestMiddleware` 接口，而函数没有任何特殊要求。
+
+> **声明：**
+
+``` ts
+// logger.middleware.ts
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+
+@Injectable()
+export class TodoMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    console.log('middleware');
+    console.log(req, res);
+    next();
+  }
+}
+```
 
 
 
