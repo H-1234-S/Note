@@ -531,7 +531,9 @@ findOne(
 }
 ```
 
-> 也可以使用隐式转换：
+> 也可以使用**隐式转换：**
+
+`ValidationPipe` 如何根据预期类型隐式转换查询和路径参数。此功能需要启用自动转换。
 ## 类验证器
 
 Nest 与 [class-validator](https://github.com/typestack/class-validator) 库配合良好。这个库允许使用基于装饰器的验证。
