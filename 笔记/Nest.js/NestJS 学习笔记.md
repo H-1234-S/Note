@@ -420,5 +420,18 @@ const app = await NestFactory.create(AppModule, {
 
 每个模块自动都是一个**共享模块**。一旦创建，它可以被任何模块重用。
 
+``` js
+import { Module } from '@nestjs/common';
+import { CatsController } from './cats.controller.js';
+import { CatsService } from './cats.service.js';
 
+@Module({
+  controllers: [CatsController],
+  providers: [CatsService],
+  exports: [CatsService]
+})
+export class CatsModule {}
+```
+
+任何导入 `CatsModule` 的模块都可以访问 `CatsService`，并且与导入它的所有其他模块共享同一个实例。
 
