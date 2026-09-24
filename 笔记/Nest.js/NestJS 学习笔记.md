@@ -58,7 +58,43 @@ class Dog implements Animal {
   }
 }
 ```
+## static
 
+被 `static` 修饰的属性或方法**属于类本身，而不属于类的实例**。
+
+``` js
+class User {
+  // 静态属性：属于类
+  static species = 'Human';
+
+  // 实例属性：属于每个实例
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  // 静态方法：通过类名调用
+  static create(name: string): User {
+    return new User(name);
+  }
+
+  // 实例方法：通过实例调用
+  greet() {
+    console.log(`Hi, I'm ${this.name}`);
+  }
+}
+
+// 访问静态成员：直接用类名，不需要 new
+console.log(User.species);        // 'Human'
+const u = User.create('Alice');   // 静态方法创建实例
+
+// 访问实例成员：必须先 new
+u.greet();                        // "Hi, I'm Alice"
+console.log(u.name);              // 'Alice'
+```
+
+> zh
 # 控制反转
 
 `IoC(Inversion of Control)` **控制反转**是一种**设计原则**
