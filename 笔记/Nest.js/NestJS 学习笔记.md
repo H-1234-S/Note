@@ -449,4 +449,28 @@ export class CatsModule {}
 
 这不仅减少了内存消耗，还带来了更可预测的行为，因为所有模块共享同一个实例，从而更容易管理共享状态或资源。
 
+## 全局模块
+
+当想提供一组应该开箱即用、在任何地方都可用的提供者（例如，助手、数据库连接等）时
+
+可以使用 `@Global()` 装饰器将模块设置为 **全局** 模块。
+
+``` js
+import { Module, Global } from '@nestjs/common';
+import { CatsController } from './cats.controller.js';
+import { CatsService } from './cats.service.js';
+
+@Global()
+@Module({
+  controllers: [CatsController],
+  providers: [CatsService],
+  exports: [CatsService],
+})
+export class CatsModule {}
+```
+
+`@Global()` 装饰器使模块具有全局作用域。全局模块应**只注册一次**，通常由根模块或核心模块注册。
+
+在上述示例中，`CatsService` 提供者将无处不在，而希望注入该服务的模块无需在其 imports 数组中导入 `CatsModule`
+
 
