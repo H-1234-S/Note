@@ -697,7 +697,24 @@ consumer
 
 ## 全局中间件
 
-使用全局中间件zhi's
+全局中间件只能使用**函数式中间件**；使用 `app.use()`注册
+
+``` ts
+import { Request, Response, NextFunction } from 'express';
+
+export function logger(req: Request, res: Response, next: NextFunction) {
+  console.log(`Request...`);
+  next();
+};
+```
+
+> **应用：**
+
+``` ts
+const app = await NestFactory.create(AppModule);
+app.use(logger);
+await app.listen(process.env.PORT ?? 3000);
+```
 
 # API 文档
 
