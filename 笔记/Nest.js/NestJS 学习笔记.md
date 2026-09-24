@@ -264,7 +264,13 @@ const newGreet = decorator(Greeter.prototype.greet, { kind: "method", name: "gre
 Greeter.prototype.greet = newGreet;
 ```
 
+# Nest CLI
 
+`nest g resource [name]` 
+
+`nest generate service --no-spec`
+
+`nest generate controller --no-spec`
 
 
 
