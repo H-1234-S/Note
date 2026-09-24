@@ -515,4 +515,31 @@ app.useGlobalPipes(new ValidationPipe());
 |`DefaultValuePipe`|参数为空时提供默认值|
 |`ValidationPipe`|结合 class-validator 做 DTO 校验（最常用）|
 
+## 类验证器
 
+Nest 与 [class-validator](https://github.com/typestack/class-validator) 库配合良好。这个库允许使用基于装饰器的验证。
+
+```bash
+npm i --save class-validator class-transformer
+```
+
+>  为 `CreateTodoDto` 类添加装饰器
+
+``` ts
+// create-todo.dto.ts
+import { IsString, IsInt, IsBoolean } from 'class-validator';
+
+export class CreateTodoDto {
+  @IsInt()
+  id: number;
+
+  @IsString()
+  title: string;
+
+  @IsString()
+  content: string;
+
+  @IsBoolean()
+  isCompleted: boolean;
+}
+```
