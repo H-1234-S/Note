@@ -34,8 +34,6 @@ class UserService {
 
 **TypeScript 里的 `class` 同时可以是“值”和“类型”**；并且**运行时不会被擦除**。
 
-因为 TS 是一种结构类型系统，
-
 # 控制反转
 
 `IoC(Inversion of Control)` **控制反转**是一种**设计原则**
