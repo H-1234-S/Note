@@ -420,6 +420,10 @@ const app = await NestFactory.create(AppModule, {
 
 每个模块自动都是一个**共享模块**。一旦创建，它可以被任何模块重用。
 
+> **假设**想在多个其他模块之间共享一个 `CatsService` 的实例：
+
+首先需要通过将 `CatsService` 提供者添加到模块的 `exports` 数组中来**导出**它
+
 ``` js
 import { Module } from '@nestjs/common';
 import { CatsController } from './cats.controller.js';
