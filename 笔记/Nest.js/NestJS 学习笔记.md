@@ -648,3 +648,18 @@ await bootstrap();
 
 > 在 DTO 中使用 [映射类型实用工具](https://nest.nodejs.cn/openapi/mapped-types)（如 `PartialType`）时，应从 `@nestjs/swagger` 导入它们，而不是从 `@nestjs/mapped-types` 导入，以便插件能够识别模式。
 
+## Swagger JSON 文件
+
+要生成并下载 Swagger JSON 文件，请导航到 `http://localhost:3000/api-json`（假设你的 Swagger 文档位于 `http://localhost:3000/api` 下）。
+
+也可以使用 `@nestjs/swagger` 的 setup 方法在你选择的路由上公开它，如下所示：
+
+```typescript
+
+SwaggerModule.setup('swagger', app, documentFactory, {
+  jsonDocumentUrl: 'swagger/json',
+});
+```
+
+`http://localhost:3000/swagger/json`
+
