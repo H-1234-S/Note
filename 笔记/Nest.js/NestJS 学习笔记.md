@@ -400,6 +400,8 @@ const app = await NestFactory.create(AppModule, {
 
 > 提供者的核心思想是它可以*作为依赖被**注入***，从而允许对象之间形成各种关系。
 
+## 依赖注入
+
 
 
 
