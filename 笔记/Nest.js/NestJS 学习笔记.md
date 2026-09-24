@@ -500,6 +500,10 @@ export class CatsModule {}
 
 在上述示例中，`CatsService` 提供者将无处不在，而希望注入该服务的模块无需在其 imports 数组中导入 `CatsModule`
 
+## 动态模块
+
+
+
 # 管道
 
 在 NestJS 中，**管道（Pipe）是一个实现了 `PipeTransform` 接口的类**
