@@ -475,6 +475,46 @@ export class CatsModule {}
 
 # 管道
 
+在 NestJS 中，**管道（Pipe）是一个实现了 `PipeTransform` 接口的类**
 
+它作用于路由处理函数接收参数之前，用来**对传入的参数进行转换（transform）或校验（validate）**。
+
+管道位于请求和控制器之间；请求进来，数据先过管道处理，再交给控制器。
+
+> 管道的作用：
+
+1. **转换（Transformation）**：把输入数据变成期望的类型或格式。比如把字符串 `"123"` 转成数字 `123`。
+    
+2. **校验（Validation）**：检查数据是否合法，不合法就抛出异常，直接拦截请求。
+    
+
+如果校验失败或转换出错，管道会抛出异常，NestJS 的异常层会返回相应的错误响应（通常是 400 Bad Request），控制器方法根本不会执行。
+
+## 示例讲解
+
+``` ts
+// 1. 参数级：只作用于某个参数
+@Get(':id')
+findOne(@Param('id', ParseIntPipe) id: number) {}
+
+// 2. 控制器级：作用于该控制器的所有路由
+@UsePipes(ValidationPipe)
+@Controller('users')
+export class UsersController {}
+
+// 3. 全局级：作用于整个应用
+app.useGlobalPipes(new ValidationPipe());
+```
+
+|管道|作用|
+|---|---|
+|`ParseIntPipe`|把参数转成整数，失败抛 400|
+|`ParseFloatPipe`|转成浮点数|
+|`ParseBoolPipe`|转成布尔值|
+|`ParseArrayPipe`|转成数组|
+|`ParseUUIDPipe`|校验是否为 UUID|
+|`ParseEnumPipe`|校验是否为某个枚举值|
+|`DefaultValuePipe`|参数为空时提供默认值|
+|`ValidationPipe`|结合 class-validator 做 DTO 校验（最常用）|
 
 
