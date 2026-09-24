@@ -594,3 +594,7 @@ findOne(@Param('id') id: number) {
 
 # API 文档
 
+```bash
+pnpm add @nestjs/swagger
+```
+
