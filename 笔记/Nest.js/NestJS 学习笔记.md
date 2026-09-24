@@ -294,15 +294,19 @@ Greeter.prototype.greet = newGreet;
 `@Post()`
 
 `@HttpCode()`
+
+Nest 提供了用于所有标准 HTTP 方法的装饰器：`@Get()`、`@Post()`、`@Put()`、`@Delete()`、`@Patch()`、`@Options()`、`@Head()` 和 `@QueryMethod()`（它对应 `QUERY` 方法，并且为了避免和 `@Query()` 参数装饰器冲突而这样命名）。另外，`@All()` 定义了一个可以处理所有这些方法的端点。
 ## 请求
 
 `@Req()`
 
 `@Res()`
 
-> Nest 会检测处理程序是否使用了 `@Res()` 或 `@Next()`
+当在方法处理器中注入 `@Res()` 或 `@Response()` 时，该处理器将进入 **特定库模式**，并且你需要自行管理响应。
 
-`@Res({ passthrough: true })` 装饰器中将 `passthrough` 选项设置为 `true`。
+在这种情况下，你必须通过调用 `response` 对象（例如 `res.json(...)` 或 `res.send(...)`）来发出某种响应，否则 HTTP 服务器将会挂起。
+
+> `@Res({ passthrough: true })` 装饰器中将 `passthrough` 选项设置为 `true`。
 
 ``` js
 import { Controller, Get, Req } from '@nestjs/common';
@@ -319,8 +323,34 @@ export class CatsController {
 
 > 要利用 `express` 的类型定义（如上面 `request: Request` 参数示例所示），请确保安装 `@types/express` 包。
 
+|                           |                                     |
+| ------------------------- | ----------------------------------- |
+| `@Request(), @Req()`      | `req`                               |
+| `@Response(), @Res()`*    | `res`                               |
+| `@Next()`                 | `next`                              |
+| `@Session()`              | `req.session`                       |
+| `@Param(key?: string)`    | `req.params` / `req.params[key]`    |
+| `@Body(key?: string)`     | `req.body` / `req.body[key]`        |
+| `@Query(key?: string)`    | `req.query` / `req.query[key]`      |
+| `@Headers(name?: string)` | `req.headers` / `req.headers[name]` |
+| `@Ip()`                   | `req.ip`                            |
+| `@HostParam()`            | `req.hosts`                         |
 
+`@Body()`、`@Query()`、`@Param()` 和 `@RawBody()` 也可以接收一个包含 `schema` 和 `pipes` 的选项对象。
 
+这样就可以直接把 [标准 Schema](https://standardschema.dev/) 兼容的 schema 附加到路由参数上，包括使用 Zod 等包创建的 schema。
+
+``` js
+@Post()
+create(@Body({ schema: createCatSchema }) createCatDto: CreateCatDto) {
+  return this.catsService.create(createCatDto);
+}
+
+@Get(':id')
+findOne(@Param('id', { schema: z.coerce.number().int().positive() }) id: number) {
+  return this.catsService.findOne(id);
+}
+```
 
 
 
