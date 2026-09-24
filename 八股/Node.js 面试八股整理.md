@@ -1,6 +1,23 @@
-# Node.js 面试八股整理
+## Node.js 面试八股整理
 
 > 目标：用「一次请求在机器上如何完成」这条主线理解 Node.js。面试时能说清定义，更能回答**为什么这样设计、在什么情况下失效、如何验证与取舍**。
+
+## 目录
+
+1. Node.js Runtime：V8、Node、libuv 与操作系统
+2. Event Loop：同步栈、微任务、`nextTick`、timer 与 I/O
+3. 异步 I/O 与 libuv Thread Pool
+4. Buffer、Stream 与背压
+5. fs：文件系统、原子性与文件描述符
+6. TCP、Socket、HTTP 与 HTTPS
+7. 模块化：CommonJS、ESM、缓存与循环依赖
+8. Process、Worker Threads、Cluster 与优雅退出
+9. 错误处理、超时、取消与可靠性
+10. V8 内存、GC、性能与泄漏定位
+11. Express、Koa、Nest 底层原理
+12. 一次真实请求的全链路与复习路线
+
+---
 
 ## 0. 知识地图与推荐顺序
 
@@ -36,13 +53,13 @@ OS（epoll/kqueue/IOCP、文件系统、TCP/IP、调度器）
 
 ---
 
-# 第一章：Node.js Runtime —— 一段 JS 如何变成系统调用
+## 1. Node.js Runtime：一段 JS 如何变成系统调用
 
-## 1.1 是什么
+### 1.1 是什么
 
 Node.js 是基于 V8 的 JavaScript 运行时，不是浏览器，也不是只有 V8。它提供模块加载、标准库、事件循环、异步 I/O、进程控制等宿主能力。JS 的语法与对象语义主要由 V8 执行；`fs.readFile`、网络监听等能力由 Node 的 C++ 绑定和 libuv 接到操作系统。
 
-## 1.2 为什么是这个组合
+### 1.2 为什么是这个组合
 
 服务器大量时间在等待磁盘、网络、数据库，而不是算 CPU。若每条连接都分配一个阻塞线程，线程栈、上下文切换和同步成本会迅速扩大。Node 选择：
 
@@ -53,7 +70,7 @@ Node.js 是基于 V8 的 JavaScript 运行时，不是浏览器，也不是只�
 
 这不等于 Node 是“单线程服务器”：JS 回调默认在单一主线程串行执行，但内核、libuv 线程池、子进程、Worker Threads 都可并行。
 
-## 1.3 启动与执行流程
+### 1.3 启动与执行流程
 
 ```text
 node app.js
@@ -68,7 +85,7 @@ node app.js
 
 `setTimeout`、监听中的 server、未完成的 `fs` 请求都会让事件循环保持存活；单纯一个未被任何活跃任务引用的 Promise 不会。
 
-## 1.4 V8、Node、libuv 的职责边界
+### 1.4 V8、Node、libuv 的职责边界
 
 | 层 | 核心职责 | 典型例子 |
 | --- | --- | --- |
@@ -77,13 +94,13 @@ node app.js
 | libuv | event loop、跨平台 socket watcher、timer、工作队列/线程池 | `uv_poll_t`、`uv_fs_*` |
 | OS | socket、页缓存、协议栈、文件系统、线程调度、I/O 多路复用 | Linux epoll、Windows IOCP |
 
-## 1.5 容易误解
+### 1.5 容易误解
 
 - **“Node 异步，所以不会阻塞”错误。** 同步 JS、同步 `fs`、巨量 JSON 序列化、正则灾难性回溯都会阻塞主线程，期间所有连接的 JS 回调都不能执行。
 - **“V8 就是 Node”错误。** V8 没有 `fs`、HTTP server 和 `process`；浏览器 API 也不是 V8 自带。
 - **“Node 只能用一个 CPU 核”不完整。** 单个 JS event loop 通常只能有效跑一个核，但可用 cluster、多进程或 Workers 横向利用多核。
 
-## 1.6 面试快速答
+### 1.6 高频面试题
 
 **问：Node.js 的单线程体现在哪里？**
 
@@ -95,9 +112,9 @@ node app.js
 
 ---
 
-# 第二章：Event Loop —— 回调为何不是“立刻”执行
+## 2. Event Loop：回调为何不是“立刻”执行
 
-## 2.1 核心：执行栈、队列与一次 tick
+### 2.1 核心：执行栈、队列与一次 tick
 
 同步代码先完整执行。异步 API 只负责注册未来工作；完成后回调才有资格在 event loop 的合适阶段执行。Node 的 loop 通常可理解为：
 
@@ -131,7 +148,7 @@ fs.readFile(__filename, () => {
 
 稳定部分是 `sync → nextTick → promise`。顶层 `timeout` 与 `immediate` 的先后不应作为业务假设，受启动时机影响；在 I/O 回调中，`I/O immediate` 通常先于下一轮 timers 的 `I/O timeout`，因为当前轮先经过 poll 再到 check。
 
-## 2.2 为什么 `nextTick` 要谨慎
+### 2.2 为什么 `nextTick` 要谨慎
 
 它设计给“当前操作结束后、让 I/O 有机会发生前”的兼容性与 API 时序需求。例如确保回调永远异步，避免 Zalgo（同一 API 有时同步有时异步）：
 
@@ -151,13 +168,13 @@ bad(); // event loop 无法到 poll
 
 大量可延后工作可考虑 `setImmediate`，将控制权还给 poll。
 
-## 2.3 “微任务在何时清空”为什么重要
+### 2.3 “微任务在何时清空”为什么重要
 
 浏览器通常在一个宏任务结束后清空微任务；Node 除此之外还在 JS 回调边界处理 `nextTick` 与微任务。因此一个 I/O 回调中创建的 Promise 不必等到下一轮 I/O。顺序优先级可记成：**当前同步栈 > nextTick > Promise 微任务 > 进入下一事件循环阶段**。
 
 Node 版本会优化 event loop 的具体 timer 行为，面试不要死背阶段细枝末节；不变的原理是：回调不能打断当前 JS 栈，微任务在回到事件循环前被耗尽，高优先级队列滥用会饿死 I/O。
 
-## 2.4 面试快速答
+### 2.4 高频面试题
 
 **问：`setImmediate` 和 `setTimeout(fn, 0)` 有何区别？**
 
@@ -169,9 +186,9 @@ Promise reaction 是 V8 微任务，当前 JS 回调返回后就在进入下一�
 
 ---
 
-# 第三章：异步 I/O 与 libuv Thread Pool
+## 3. 异步 I/O 与 libuv Thread Pool
 
-## 3.1 以 `fs.readFile` 为例的完整链路
+### 3.1 以 `fs.readFile` 为例的完整链路
 
 ```js
 import { readFile } from 'node:fs/promises';
@@ -190,7 +207,7 @@ JS 调用 fs/promises
 
 这里“异步”是调用方不等待，不意味着物理磁盘一定异步；Unix 上普通文件并不像 socket 那样可被 epoll 普遍通知完成，因此 libuv 用工作线程把阻塞隔离出去。
 
-## 3.2 哪些走内核事件，哪些占线程池
+### 3.2 哪些走内核事件，哪些占线程池
 
 | 常见工作 | 主要机制 | 是否会挤占 libuv 默认线程池 |
 | --- | --- | --- |
@@ -210,13 +227,13 @@ process.env.UV_THREADPOOL_SIZE = '8';
 
 生产中先用指标确认线程池排队才调参；CPU 已饱和时扩大池只会增加竞争。CPU 密集型业务宜 Worker Threads 或独立服务。
 
-## 3.3 I/O 多路复用为何能支撑高并发
+### 3.3 I/O 多路复用为何能支撑高并发
 
 以 Linux 为例：Node 将多个非阻塞 socket 的“可读/可写/错误”兴趣注册到 epoll。一个线程在 `epoll_wait` 处睡眠；任一 socket 就绪，内核返回事件列表。主线程对每个就绪 socket 做尽可能少的读写，再继续循环。它不是同时执行多个 JS 回调，而是用一个等待点管理很多连接。
 
 “就绪”不等于“完整业务消息到达”：TCP 是字节流，`data` 事件可能是半个 HTTP body，也可能合并多个片段，协议解析器必须分帧。
 
-## 3.4 同步 API 的危险
+### 3.4 同步 API 的危险
 
 ```js
 // 请求处理器内绝不能这样做：所有请求都会等待
@@ -225,7 +242,7 @@ const body = fs.readFileSync(file);
 
 同步 API 可用于启动期读取少量配置（尚未接客），不要用于运行中热路径。
 
-## 3.5 面试快速答
+### 3.5 高频面试题
 
 **问：异步 `fs` 会不会阻塞 Node？**
 
@@ -237,9 +254,9 @@ const body = fs.readFileSync(file);
 
 ---
 
-# 第四章：Buffer 与 Stream —— 性能和内存的交汇点
+## 4. Buffer 与 Stream：性能和内存的交汇点
 
-## 4.1 Buffer：是什么、为什么
+### 4.1 Buffer：是什么、为什么
 
 网络包、文件和加密算法处理的是字节，不是 JS UTF-16 字符串。`Buffer` 是 Node 提供的 `Uint8Array` 子类，代表固定长度的二进制内存，适合在 JS 与 native I/O 间传递字节。
 
@@ -255,7 +272,7 @@ console.log(b.toString('utf8'));    // 中
 
 `buf.subarray()`（以及 Node Buffer 的 `slice()`）通常创建对同一块底层内存的视图；修改一方会影响另一方。需要独立数据时用 `Buffer.from(view)`。这可减少拷贝，也可能让一个很小的切片意外长期引用一整块大 Buffer。
 
-## 4.2 Stream：把“全量数据”改成“逐块传输”
+### 4.2 Stream：把“全量数据”改成“逐块传输”
 
 流有 Readable、Writable、Duplex、Transform 四类。核心价值不是事件 API，而是**有界缓存 + 背压（backpressure）**：生产者比消费者快时暂停生产，防止内存无限堆积。
 
@@ -269,7 +286,7 @@ await pipeline(
 ); // 自动传递 error，结束时 resolve；比手写 pipe 更可靠
 ```
 
-## 4.3 背压的执行流程
+### 4.3 背压的执行流程
 
 ```text
 Readable 推送 chunk
@@ -296,11 +313,11 @@ destination.end();
 
 HTTP 响应 `res` 也是 Writable。向慢客户端持续 `res.write` 而忽略 `false`，是 Node 服务内存上涨的经典原因。
 
-## 4.4 `pipe`、`pipeline` 与错误
+### 4.4 `pipe`、`pipeline` 与错误
 
 `readable.pipe(writable)` 会建立数据和基本背压传递，但复杂链中错误、销毁与资源关闭容易遗漏。`pipeline` 将一条管道视为整体：任一环错误时销毁相关流并以 reject/callback 交付错误，推荐用于生产文件/压缩/代理链路。
 
-## 4.5 面试快速答
+### 4.5 高频面试题
 
 **问：为什么大文件不能用 `readFile` 后 `res.end`？**
 
@@ -312,15 +329,15 @@ HTTP 响应 `res` 也是 Writable。向慢客户端持续 `res.write` 而忽略 
 
 ---
 
-# 第五章：fs —— 文件系统不只是读写 API
+## 5. fs：文件系统不只是读写 API
 
-## 5.1 原子性与竞态
+### 5.1 原子性与竞态
 
 “先 `access` 判断存在，再 `writeFile`”是 TOCTOU（check 与 use 之间状态被其他进程改变）竞态。直接执行目标操作并处理 `ENOENT`、`EEXIST` 等错误更可靠。
 
 写入关键配置可采用：写临时文件 → `fsync`（视持久性需求）→ 同目录 `rename` 替换。许多文件系统中同文件系统、同目录的 rename 是原子可见切换；跨文件系统则不保证。不要把 `writeFile` 当作事务或断电持久性保证。
 
-## 5.2 文件描述符与资源释放
+### 5.2 文件描述符与资源释放
 
 每次 `open` 都消耗 OS 文件描述符；泄漏后会出现 `EMFILE`。尽量使用带自动关闭语义的 API/流，或在 `finally` 中关闭：
 
@@ -335,15 +352,33 @@ try {
 }
 ```
 
-## 5.3 `fs.watch` 的边界
+### 5.3 `fs.watch` 的边界
 
 它是对各 OS 通知机制的封装，事件可能合并、丢失或只给文件名；编辑器的“原子保存”常表现为替换 inode。开发热更新可用，审计/精确同步不能只依赖它，需要定期扫描或更强的日志机制。
 
+### 5.4 高频面试题
+
+**Q：为什么不建议先 `fs.access` 再读文件？**
+
+标准回答：
+
+> 两次操作之间文件可能被其他进程删除、替换或改权限，形成 TOCTOU 竞态。应直接执行 `readFile`、`open` 等目标操作，再根据 `ENOENT`、`EACCES` 等错误码处理；“检查”不能替代“操作时的校验”。
+
+**Q：如何安全更新一个配置文件？**
+
+标准回答：
+
+> 通常先在同一目录写临时文件，按持久化等级决定是否 fsync，再 rename 到正式路径。rename 在同一文件系统中通常让读者看到旧文件或新文件之一，避免读到半写入内容；跨盘 rename 不具备这个保证。
+
+### 5.5 实际项目场景
+
+上传、下载和日志归档优先选 Stream，避免每个并发请求都把完整文件读进内存。临时文件、用户路径必须校验目录穿越；资源耗尽时应关注 `EMFILE`，它往往意味着文件描述符或 socket 没有关闭，而不只是“文件太多”。
+
 ---
 
-# 第六章：TCP、Socket、HTTP 与 HTTPS
+## 6. TCP、Socket、HTTP 与 HTTPS
 
-## 6.1 TCP：可靠字节流，而不是消息队列
+### 6.1 TCP：可靠字节流，而不是消息队列
 
 TCP 三次握手建立双方初始序号与收发能力；四次挥手允许两个方向独立关闭。它提供有序、可靠的**字节流**，不保留应用层消息边界。
 
@@ -364,7 +399,7 @@ server.listen(9000);
 - `TIME_WAIT` 常出现在主动关闭方，用于处理网络中延迟报文并确保对方收到最终确认；盲目调内核参数不是首选，优先复用连接、正确关闭。
 - keep-alive 有两层：TCP keepalive 是内核探测死连接；HTTP keep-alive 是复用同一 TCP 连接，语义/配置不同。
 
-## 6.2 HTTP：在 TCP 字节流之上定义消息
+### 6.2 HTTP：在 TCP 字节流之上定义消息
 
 Node 的 `http.createServer` 在 `net.Server` 之上：接收字节 → 原生 HTTP parser 解析请求行/headers/body → 产生 `IncomingMessage`（Readable）和 `ServerResponse`（Writable）→ 应用写响应 → 序列化为 HTTP 字节交给 socket。
 
@@ -388,13 +423,13 @@ HTTP/1.1 默认可持久连接，避免反复握手；但同一连接上的响�
 - 不信任 `Content-Length`、`Host`、转发头；反向代理后需明确 `trust proxy` 策略。
 - 响应前判断 `req.aborted` / 响应 close，客户端取消后停止昂贵工作（可配合 `AbortSignal`）。
 
-## 6.3 HTTPS/TLS 做了什么
+### 6.3 HTTPS/TLS 做了什么
 
 HTTPS = HTTP over TLS。握手阶段协商协议/密码套件，服务端用证书证明身份；密钥交换得到会话密钥，之后 HTTP 数据用对称加密和完整性校验保护。证书的核心是客户端验证：域名匹配、有效期、信任链到本地信任的 CA；只“加密”但跳过证书验证会失去抗中间人能力。
 
 TLS 握手和加解密有 CPU 成本；连接复用、会话恢复、CDN/反向代理终止 TLS 是常见优化。不要在 Node 中设置 `rejectUnauthorized: false` 来“修复”证书问题。
 
-## 6.4 outbound HTTP：超时、连接池、取消
+### 6.4 outbound HTTP：超时、连接池、取消
 
 一次“超时”至少可能包括 DNS、建连、TLS、首字节、整体响应体几个阶段。`fetch` 没有魔法默认业务超时，应显式取消：
 
@@ -406,7 +441,7 @@ const response = await fetch('https://api.example.com/data', {
 
 高频短请求应复用 keep-alive 连接（Node 内置 fetch 基于 undici，有连接池语义），避免端口耗尽和握手成本；重试必须只对幂等或带幂等键的请求，并使用指数退避+jitter，不能把下游故障放大为重试风暴。
 
-## 6.5 面试快速答
+### 6.5 高频面试题
 
 **问：HTTP 为什么能跑在 TCP 上？如何知道 body 结束？**
 
@@ -418,9 +453,9 @@ const response = await fetch('https://api.example.com/data', {
 
 ---
 
-# 第七章：模块系统 —— CommonJS 与 ESM 的运行语义
+## 7. 模块化：CommonJS 与 ESM 的运行语义
 
-## 7.1 CommonJS（CJS）
+### 7.1 CommonJS（CJS）
 
 `require` 是运行时、同步的加载模型。Node 会解析路径、查找文件/目录、读取并包装模块，大意相当于：
 
@@ -434,7 +469,7 @@ const response = await fetch('https://api.example.com/data', {
 
 循环依赖时，Node 为了打破递归会先把尚未执行完的 `exports` 放进缓存，另一方拿到的可能是不完整对象。解决方式是减少循环、延迟访问，或抽取共同依赖；不要依赖某个偶然加载顺序。
 
-## 7.2 ESM
+### 7.2 ESM
 
 ESM 的 `import/export` 是静态声明：先构建、链接模块图，再执行；绑定是 live binding（导出变量更新后导入方看到更新），不是 CJS 那种导出对象快照语义。ESM 支持顶层 `await`，其模块图求值会异步。
 
@@ -449,7 +484,7 @@ setMode('prod'); console.log(mode); // prod
 
 互操作是现实成本：ESM 可通过 `createRequire` 加载 CJS；CJS 不能同步 `require()` 一般 ESM，常使用 `import()`。项目应尽早统一模块边界，不要因临时兼容混用所有扩展名与 `package.json` 的 `type`。
 
-## 7.3 面试快速答
+### 7.3 高频面试题
 
 **问：CJS 与 ESM 最关键差异？**
 
@@ -457,9 +492,9 @@ setMode('prod'); console.log(mode); // prod
 
 ---
 
-# 第八章：Process、Worker Threads 与 Cluster
+## 8. Process、Worker Threads 与 Cluster
 
-## 8.1 三种并行单元的选择
+### 8.1 三种并行单元的选择
 
 | 机制 | 内存/Isolate | 通信 | 适用场景 |
 | --- | --- | --- | --- |
@@ -468,7 +503,7 @@ setMode('prod'); console.log(mode); // prod
 | `child_process` | 独立进程和内存 | IPC/stdio/socket | 强隔离、运行外部命令 |
 | `cluster` | 多个 Node 进程 | 主进程调度连接/IPC | 多核扩展 HTTP（部署层常用多副本替代） |
 
-## 8.2 Worker Threads 的真实成本与通信
+### 8.2 Worker Threads 的真实成本与通信
 
 Worker 不是把任意函数“扔到后台”就免费：创建 Isolate 有启动/内存成本，消息默认结构化克隆也有复制成本。对可转移的 `ArrayBuffer` 可 transfer ownership，避免复制，但发送后原线程不再能使用该 buffer；`SharedArrayBuffer` 可共享内存，但必须通过 Atomics 处理同步，否则会引入竞态。
 
@@ -483,11 +518,11 @@ worker.once('error', console.error);
 
 生产中通常建 Worker pool：限制队列、复用 worker、超时/取消和错误后重建。单次小任务往返 Worker 往往不如本地执行快。
 
-## 8.3 Cluster 与负载均衡
+### 8.3 Cluster 与负载均衡
 
 Cluster 创建多个进程，各有自己的 event loop 与堆，以利用多核。它们**不共享 JS 内存**；session、WebSocket 路由、缓存都必须外置（Redis/数据库）或采用 sticky session。现代容器部署中，常由 Kubernetes/进程管理器启动多个单进程副本并由 LB 分流；Cluster 仍是理解 Node 多进程模型的面试高频点，但不是唯一部署答案。
 
-## 8.4 `process` 与优雅退出
+### 8.4 `process` 与优雅退出
 
 收到 `SIGTERM` 时，停止接收新连接，等待在途请求完成，设置超时兜底，关闭数据库/队列，再退出：
 
@@ -503,7 +538,7 @@ process.on('SIGTERM', () => {
 
 实际还需针对 keep-alive 空闲连接、WebSocket、任务消费者和 readiness probe 设计；`server.close()` 不会替你终止所有业务资源。
 
-## 8.5 面试快速答
+### 8.5 高频面试题
 
 **问：CPU 密集任务为什么要 Worker，而不是 Promise？**
 
@@ -511,9 +546,9 @@ process.on('SIGTERM', () => {
 
 ---
 
-# 第九章：错误处理、取消与可靠性
+## 9. 错误处理、取消与可靠性
 
-## 9.1 错误的四个入口
+### 9.1 错误的四个入口
 
 1. 同步 throw：用 `try/catch` 捕获。
 2. Promise rejection：`await` 周围 `try/catch`，或链尾 `.catch`。
@@ -531,7 +566,7 @@ try {
 
 `uncaughtException` 与 `unhandledRejection` 适合记录、触发退出流程，不适合“吞掉后继续服务”：进程可能已经处于部分更新、资源不一致的未知状态。交给 supervisor 重启，才是更可靠的边界。
 
-## 9.2 超时和取消是资源管理
+### 9.2 超时和取消是资源管理
 
 Promise 没有内建取消；“不再 await”不会停止底层 fetch、DB 操作或 timer。应把 `AbortSignal` 沿调用链传下去，在底层关闭 socket、停止 stream/任务：
 
@@ -544,15 +579,33 @@ async function loadProfile(id, { signal }) {
 
 在 HTTP 入站请求断开时中止下游请求，避免“用户已走、服务器还占着连接和 CPU”。超时要有分层预算：上游总 deadline 大于各下游阶段的合理预算，而不是每层各等 5 秒导致尾延迟叠加。
 
-## 9.3 HTTP 错误边界
+### 9.3 HTTP 错误边界
 
 错误中间件必须在响应尚未写出时设置状态码；headers 已发送后只能结束/销毁连接。区分可预期的 4xx（参数、权限、冲突）与 5xx（依赖失败、bug），日志带请求 ID、错误栈、依赖耗时，不要把内部栈和密钥回显给客户端。
 
+### 9.4 高频面试题
+
+**Q：为什么不能用 `uncaughtException` 捕获后继续运行？**
+
+标准回答：
+
+> 它只能作为最后一道告警和退出钩子。未捕获异常发生时，当前请求、内存状态、连接和事务可能只完成了一半；继续接流量会把未知状态扩散。正确做法是记录日志、停止接收新请求、尽力释放资源并退出，再由进程管理器重启。
+
+**Q：Promise 超时后，底层请求一定停止了吗？**
+
+标准回答：
+
+> 不一定。`Promise.race` 只让调用方不再等待，底层 fetch、定时器或数据库操作仍可能占用资源。需要将 `AbortSignal` 或驱动的取消能力传入底层，才能真正终止相应工作。
+
+### 9.5 实际项目场景
+
+网关调用多个下游时，需要把入口 deadline 切成 DNS、连接、首字节、整体响应等预算；只在最外层设置一个超时，常造成线程、连接和重试在后台继续堆积。重试只适合可安全重放的请求，配合指数退避、抖动、熔断和幂等键，避免下游故障时产生雪崩。
+
 ---
 
-# 第十章：V8 内存、GC 与性能诊断
+## 10. V8 内存、GC 与性能诊断
 
-## 10.1 V8 堆不是全部内存
+### 10.1 V8 堆不是全部内存
 
 `process.memoryUsage()` 中：
 
@@ -563,13 +616,13 @@ async function loadProfile(id, { signal }) {
 
 因此“heap 很稳但 RSS 涨”不必然不是泄漏，可能是 Buffer、native 内存、分配器保留的页；反过来只盯 RSS 也无法定位 JS 对象引用链。
 
-## 10.2 分代 GC 为什么有效
+### 10.2 分代 GC 为什么有效
 
 多数对象朝生夕死。V8 将堆大体分为 young generation 与 old generation：新对象先在新生代，使用复制/Scavenge 快速回收；存活多次后晋升老生代，老生代回收更昂贵，可能有增量/并发标记以减少长停顿。GC 不等于“内存立刻还给 OS”，空闲堆容量可留作后续分配。
 
 降低 GC 压力的真正方法通常是：减少不必要对象/字符串/Buffer 分配，使用流限制在途数据，限制缓存且有 TTL/容量，避免把请求上下文、闭包或 listener 意外长期保留。
 
-## 10.3 常见泄漏模式
+### 10.3 常见泄漏模式
 
 ```js
 // 每次请求注册一次全局 listener，从不移除
@@ -581,7 +634,7 @@ app.get('/', (req, res) => {
 
 还包括无限 `Map` 缓存、未清理 timer、全局数组累积请求数据、未消费/未销毁 stream、连接/句柄泄漏。`MaxListenersExceededWarning` 是值得调查的预警，不是通过 `setMaxListeners(0)` 消掉即可。
 
-## 10.4 先分类，后优化
+### 10.4 先分类，后优化
 
 | 现象 | 常见根因 | 首选手段 |
 | --- | --- | --- |
@@ -592,7 +645,7 @@ app.get('/', (req, res) => {
 
 内置 `perf_hooks.monitorEventLoopDelay()` 可观测事件循环延迟；`node --inspect` 连接 DevTools 取 heap snapshot / CPU profile；`node --trace-gc` 用于验证 GC 假设。压测必须区分 CPU、网络和下游瓶颈，不能只看 QPS。
 
-## 10.5 面试快速答
+### 10.5 高频面试题
 
 **问：怎么定位 Node 内存泄漏？**
 
@@ -600,13 +653,13 @@ app.get('/', (req, res) => {
 
 ---
 
-# 第十一章：Express、Koa、Nest 的底层原理
+## 11. Express、Koa、Nest 的底层原理
 
-## 11.1 三者共同的地基
+### 11.1 三者共同的地基
 
 最终都是 Node 原生 HTTP server 的请求回调。框架的价值是将 `(req, res)` 周围的路由、参数解析、中间件、依赖注入、错误处理标准化；它们不能绕开 Node event loop，也不能把 CPU 密集业务自动变快。
 
-## 11.2 Express：线性中间件栈
+### 11.2 Express：线性中间件栈
 
 Express 维护按注册顺序排列的 Layer。请求到达后依次匹配 path/method，调用 `(req, res, next)`；只有调用 `next()` 才向后推进。错误中间件以四参 `(err, req, res, next)` 识别。
 
@@ -618,7 +671,7 @@ app.use((err, req, res, next) => res.status(500).json({ error: 'internal' }));
 
 原因是简单、兼容 Connect 生态；代价是“返回阶段”必须由回调或包装实现，忘调 `next()` 会挂起，请求异步错误的传递需要符合所用 Express 版本/封装约定。
 
-## 11.3 Koa：洋葱模型与 `async` 组合
+### 11.3 Koa：洋葱模型与 `async` 组合
 
 Koa 中间件形如 `async (ctx, next) => { before; await next(); after; }`。框架通过 compose 把数组递归组合：进入时依次执行 before，到路由后开始栈式返回，依次执行 after。
 
@@ -633,7 +686,7 @@ app.use(async (ctx, next) => {
 
 它特别适合事务、统一错误处理、响应时间统计等需要包裹后续链路的横切逻辑。常见误区是未 `await next()`：下游可能并发执行，洋葱顺序被破坏。Koa 的 `ctx` 是对 Node req/res 的高层封装，不是摆脱底层流。
 
-## 11.4 Nest：模块、DI 与请求管线
+### 11.4 Nest：模块、DI 与请求管线
 
 Nest 主要提供架构层抽象。启动时扫描 decorators 元数据，构建 Module 图和依赖注入容器；Controller 路由最终由 HTTP adapter（默认常用 Express，也可 Fastify）注册到底层 server。一次请求典型经过：
 
@@ -645,7 +698,7 @@ middleware → guards（能否访问） → interceptors(before)
 
 Guard 与 Pipe 的差别不只是顺序：Guard 决定授权是否可进入处理器；Pipe 将输入转成符合业务类型/规则的值。Singleton provider 跨请求共享，保存请求状态会产生并发串数据；需要请求级状态才用 request-scoped provider，但会增加实例创建与 DI 成本。
 
-## 11.5 面试快速答
+### 11.5 高频面试题
 
 **问：Koa 洋葱模型如何实现？**
 
@@ -657,7 +710,7 @@ Guard 与 Pipe 的差别不只是顺序：Guard 决定授权是否可进入处�
 
 ---
 
-# 第十二章：把知识串成一次请求
+## 12. 把知识串成一次请求
 
 以“客户端上传文件，Node 转发到对象存储”为例：
 
@@ -677,7 +730,7 @@ Guard 与 Pipe 的差别不只是顺序：Guard 决定授权是否可进入处�
 
 ---
 
-# 面试收束：高频追问清单
+## 13. 大厂面试回答模板与复习路线
 
 1. Node 的“单线程”与“高并发”是否矛盾？讲清 JS 主线程、I/O 多路复用、线程池。
 2. `nextTick`、Promise、`setImmediate`、`setTimeout(0)` 的调度边界和饥饿风险是什么？
