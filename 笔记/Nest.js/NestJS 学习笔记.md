@@ -280,5 +280,8 @@ Greeter.prototype.greet = newGreet;
 
 `nest generate controller --no-spec`
 
+# 控制器
+
+
 
 
