@@ -289,18 +289,14 @@ Greeter.prototype.greet = newGreet;
 `@Controller()` 中传入路径参数，表示请求的路径
 ## 路由
 
-`@Get()`
+Nest 提供了用于所有标准 HTTP 方法的装饰器：
 
-`@Post()`
+`@Get()`、`@Post()`、`@Put()`、`@Delete()`、`@Patch()`、`@Options()`、`@Head()` 
 
-`@HttpCode()`
+`@QueryMethod()`（它对应 `QUERY` 方法，并且为了避免和 `@Query()` 参数装饰器冲突而这样命名）。
 
-Nest 提供了用于所有标准 HTTP 方法的装饰器：`@Get()`、`@Post()`、`@Put()`、`@Delete()`、`@Patch()`、`@Options()`、`@Head()` 和 `@QueryMethod()`（它对应 `QUERY` 方法，并且为了避免和 `@Query()` 参数装饰器冲突而这样命名）。另外，`@All()` 定义了一个可以处理所有这些方法的端点。
+`@All()` 定义了一个可以处理所有这些方法的端点。
 ## 请求
-
-`@Req()`
-
-`@Res()`
 
 当在方法处理器中注入 `@Res()` 或 `@Response()` 时，该处理器将进入 **特定库模式**，并且你需要自行管理响应。
 
