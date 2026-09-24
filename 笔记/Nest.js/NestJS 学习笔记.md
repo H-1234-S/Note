@@ -591,3 +591,6 @@ findOne(@Param('id') id: number) {
 默认情况下，每个路径参数和查询参数都会作为 `string` 通过网络传输。
 
 在方法签名中将 `id` 类型指定为 `number`。因此，`ValidationPipe` 会尝试自动将字符串标识符转换为数字。
+
+# API 文档
+
