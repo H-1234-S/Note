@@ -543,3 +543,20 @@ export class CreateTodoDto {
   isCompleted: boolean;
 }
 ```
+## 参数
+
+`ValidationPipe()` 可以接收一个配置对象
+
+```typescript
+app.useGlobalPipes(
+  new ValidationPipe({
+    // todo
+  }),
+);
+```
+
+`disableErrorMessages: true` 禁用详细错误；详细的错误消息不会显示在响应正文中。
+
+`whitelist: true` 过滤掉不应被方法处理器接收的属性。
+
+``
