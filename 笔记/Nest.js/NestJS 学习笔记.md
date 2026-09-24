@@ -1,5 +1,7 @@
 # Class
 
+## private
+
 ``` ts
 export class UserService { 
 	constructor( 
@@ -25,6 +27,14 @@ class UserService {
 ```
 
 > `private` 关键字**省掉了声明 + 赋值两步**
+
+## 类型限定
+
+> `Class` 为什么可以作为类型限定？
+
+**TypeScript 里的 `class` 同时可以是“值”和“类型”**；并且**运行时不会被擦除**。
+
+因为 TS 是一种结构类型系统，
 
 # 控制反转
 
