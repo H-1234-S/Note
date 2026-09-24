@@ -593,6 +593,17 @@ findOne(@Param('id') id: number) {
 默认情况下，每个路径参数和查询参数都会作为 `string` 通过网络传输。
 
 在方法签名中将 `id` 类型指定为 `number`。因此，`ValidationPipe` 会尝试自动将字符串标识符转换为数字。
+# 中间件
+
+中间件是一个在路由处理器**之前**被调用的函数。
+
+中间件函数可以访问[请求](https://express.nodejs.cn/en/4x/api.html#req)和[响应](https://express.nodejs.cn/en/4x/api.html#res)对象，以及应用请求-响应周期中的`next()`中间件函数。
+
+可以通过函数或带有 `@Injectable()` 装饰器的类来实现自定义的 Nest 中间件。
+
+类应实现 `NestMiddleware` 接口，而函数没有任何特殊要求。
+
+
 
 # API 文档
 
