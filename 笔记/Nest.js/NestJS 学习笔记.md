@@ -348,5 +348,36 @@ findOne(@Param('id', { schema: z.coerce.number().int().positive() }) id: number)
 }
 ```
 
+## 状态码
+
+响应的默认**状态码**始终是**200**，POST 请求除外，默认状态码为**201**。可以通过在处理程序级别使用 `@HttpCode(...)` 更改。
+
+``` js
+@Post()
+@HttpCode(204)
+create() {
+  return 'This action adds a new cat';
+}
+```
+
+对于对应情况产生不同的状态码，可以通过使用特定于库的 **response**（通过 `@Res()` 注入）对象更改。
+
+## 路由冲突和解决顺序
+
+Nest 会按声明顺序注册路由。
+
+在对顺序敏感的适配器上(默认的 Express 适配器)这意味着一个参数化路由可能会悄悄地覆盖一个更具体的路由：
+
+``` js
+@Controller('users')
+export class UsersController {
+  @Get(':id')
+  findOne() {}
+
+  @Get('me') // never reached: `:id` matches "me" first
+  findMe() {}
+}
+```
+
 
 
