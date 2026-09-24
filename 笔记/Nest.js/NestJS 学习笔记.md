@@ -644,5 +644,7 @@ await bootstrap();
 }
 ```
 
+> Nest 的 Swagger CLI 插件**不支持项目路径带中文**，中文路径会触发模块找不到报错。
+
 > 在 DTO 中使用 [映射类型实用工具](https://nest.nodejs.cn/openapi/mapped-types)（如 `PartialType`）时，应从 `@nestjs/swagger` 导入它们，而不是从 `@nestjs/mapped-types` 导入，以便插件能够识别模式。
 
