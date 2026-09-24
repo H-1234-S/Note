@@ -94,7 +94,20 @@ u.greet();                        // "Hi, I'm Alice"
 console.log(u.name);              // 'Alice'
 ```
 
-> zh
+> **注意：**
+
+在静态方法中，`this` 指向的是**类本身**，不是实例，所以**不能访问实例属性**：
+
+``` ts
+class Counter {
+  count = 0;              // 实例属性
+
+  static reset() {
+    // ❌ 报错：静态方法里 this 是类，不是实例，访问不到 count
+    // this.count = 0;
+  }
+}
+```
 # 控制反转
 
 `IoC(Inversion of Control)` **控制反转**是一种**设计原则**
