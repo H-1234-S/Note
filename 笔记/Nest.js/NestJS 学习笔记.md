@@ -564,7 +564,41 @@ export class CatsModule {}
 
 ## 动态模块
 
+动态模块主要式用于传参；根据参数提供灵活、可定制的模块。
 
+``` ts
+import { Module, DynamicModule } from '@nestjs/common';
+import { createDatabaseProviders } from './database.providers.js';
+import { Connection } from './connection.provider.js';
+
+@Module({
+  providers: [Connection],
+  exports: [Connection],
+})
+export class DatabaseModule {
+  static forRoot(entities = [], options?): DynamicModule {
+    const providers = createDatabaseProviders(options, entities);
+    return {
+      module: DatabaseModule,
+      providers: providers,
+      exports: providers,
+    };
+  }
+}
+```
+
+> `DatabaseModule` 可以通过以下方式导入和配置：
+
+``` ts
+import { Module } from '@nestjs/common';
+import { DatabaseModule } from './database/database.module.js';
+import { User } from './users/entities/user.entity.js';
+
+@Module({
+  imports: [DatabaseModule.forRoot([User])],
+})
+export class AppModule {}
+```
 
 # 管道
 
