@@ -678,6 +678,8 @@ export class TodoModule implements NestModule {
 
 `forRoutes()` 方法可以接受一个字符串、多个字符串、一个 `RouteInfo` 对象、一个**控制器类**，甚至多个控制器类。
 
+> 如果
+
 ## 排除路由
 
 使用 `exclude()` 方法
