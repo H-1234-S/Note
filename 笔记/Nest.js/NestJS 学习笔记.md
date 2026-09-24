@@ -108,6 +108,19 @@ class Counter {
   }
 }
 ```
+
+**实例方法可以访问静态成员**，但必须通过类名：
+
+``` ts
+class Config {
+  static version = '1.0';
+
+  showVersion() {
+    console.log(Config.version); // ✅ 通过类名访问
+    // console.log(this.version); // ❌ 实例上没有 version
+  }
+}
+```
 # 控制反转
 
 `IoC(Inversion of Control)` **控制反转**是一种**设计原则**
