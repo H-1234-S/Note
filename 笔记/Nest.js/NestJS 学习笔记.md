@@ -751,6 +751,7 @@ export class TodoMiddleware implements NestMiddleware {
     next();
   }
 }
+// res.send() 会提前返回，拦截
 ```
 
 ## 应用中间件
