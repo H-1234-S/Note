@@ -947,6 +947,10 @@ export class AuthMiddleware implements NestMiddleware {
   }
 }
 ```
+
+# 生命周期
+
+
 # API 文档
 
 ```bash
