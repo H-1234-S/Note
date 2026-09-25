@@ -490,6 +490,8 @@ const app = await NestFactory.create(AppModule, {
 
 ## 依赖注入
 
+Nest 启动时扫描 `providers`，创建 `xxxxService` 实例，然后把它注入到需要它的 `xxxxController` 构造函数中。
+
 
 
 
