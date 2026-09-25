@@ -468,10 +468,9 @@ export class UsersController {
 }
 ```
 
-
 > **`routeResolutionStrategy`** 控制注册顺序。
 
-将它设置为 `'specificity'` 会先注册最具体的路由——字面段优先于参数段，参数段优先于通配符——所以无论声明顺序如何都能正常工作：
+将它设置为 `specificity` 会先注册最具体的路由——字面段优先于参数段，参数段优先于通配符——所以无论声明顺序如何都能正常工作：
 
 ```typescript
 const app = await NestFactory.create(AppModule, {
