@@ -1018,3 +1018,21 @@ SwaggerModule.setup('swagger', app, documentFactory, {
 
 `http://localhost:3000/swagger/json`
 
+# 第三方库
+
+## dotenv
+
+`dotenv` 用于**把 `.env` 文件里的变量加载到 `process.env` 中**。
+
+Node.js 里读取环境变量是通过 `process.env`，但 `process.env` 的值来自**操作系统层面**的环境变量。
+
+``` ts
+// 必须在其他代码之前调用
+require('dotenv').config();
+
+// 之后就能用了
+console.log(process.env.DATABASE_URL); // postgres://localhost:5432/mydb
+```
+
+`config()` 默认会去项目根目录找 `.env` 文件并解析。
+
