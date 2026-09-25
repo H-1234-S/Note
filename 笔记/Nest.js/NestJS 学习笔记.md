@@ -34,6 +34,8 @@ class UserService {
 
 **TypeScript 里的 `class` 同时可以是“值”和“类型”**；并且**运行时不会被擦除**。
 
+> 不会被擦除意思是类本身还存在
+
 ## implements
 
 `implements` 是 **TypeScript** 中的一个关键字，用于表示一个类**实现**了某个接口（interface）。
