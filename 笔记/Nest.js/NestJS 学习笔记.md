@@ -492,6 +492,23 @@ const app = await NestFactory.create(AppModule, {
 
 Nest 启动时扫描 `providers`，创建 `xxxxService` 实例，然后把它注入到需要它的 `xxxxController` 构造函数中。
 
+## 作用域
+
+默认提供器是**单例（Singleton）**，整个应用共享一个实例。
+
+``` ts
+@Injectable({ scope: Scope.REQUEST })
+export class UsersService {}
+```
+
+| 作用域                  | 说明         |
+| -------------------- | ---------- |
+| `DEFAULT`（Singleton） | 全局单例（默认）   |
+| `REQUEST`            | 每个请求创建新实例  |
+| `TRANSIENT`          | 每次注入都创建新实例 |
+
+> REQUEST 适合需要请求上下文（如当前用户）的场景；但会影响性能，慎用。
+
 ## 提供器类型
 
 ### 简写形式
@@ -545,8 +562,16 @@ providers: [
 
 > 需要在 `inject` 中声明才可以在函数中使用；会自动注入到参数中
 
+### useExisting：别名
 
+``` ts
+providers: [
+  UsersService,
+  { provide: 'AliasService', useExisting: UsersService },
+]
+```
 
+给同一个实例起多个 token 名，两个 token 指向同一实例。
 
 # 模块
 
