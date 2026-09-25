@@ -784,7 +784,9 @@ app.useGlobalPipes(
 
 `disableErrorMessages: true` 禁用详细错误；详细的错误消息不会显示在响应正文中。
 
-> `whitelist: true` 过滤掉不应被方法处理器接收的属性。
+> `whitelist: true` 过滤掉不应被方法处理器接收的属性；静默处理。
+
+> `forbidNonWhitelisted: true` 将 `whitelist` 的静默处理改为抛出异常
 
 > `transform: true` 自动将有效载荷转换为根据其 DTO 类类型的对象。
 
