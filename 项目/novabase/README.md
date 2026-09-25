@@ -11,3 +11,5 @@ packages:
   - "packages/*"
 ```
 
+> 告诉 pnpm：`apps` 和 `packages` 下面的这些目录，都属于当前 Workspace。
+
