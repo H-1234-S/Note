@@ -681,6 +681,28 @@ import { User } from './users/entities/user.entity.js';
 export class AppModule {}
 ```
 
+## 补充
+
+### 环境变量全局可用
+
+``` shell
+pnpm add @nestjs/config
+```
+
+``` ts
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,  // 环境变量全局可用  不然读取到的是 undefined
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+
+export class AppModule {}
+```
+
 # 管道
 
 在 NestJS 中，**管道（Pipe）是一个实现了 `PipeTransform` 接口的类**
