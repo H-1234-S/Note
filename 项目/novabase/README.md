@@ -6,10 +6,20 @@
 
 > **用途：** 前后端共享代码
 
+``` ts
+// packages/types
+export interface User {
+  id: string
+  name: string
+  age: number
+}
+```
 
+然后：`apps/web` 和 `apps/api` 共享一份代码
+
+## pnpm-workspace.yaml
 
 > pnpm 怎么知道哪些目录属于这个 Monorepo？
-## pnpm-workspace.yaml
 
 ``` yaml
 packages:
