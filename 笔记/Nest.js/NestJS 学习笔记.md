@@ -492,6 +492,59 @@ const app = await NestFactory.create(AppModule, {
 
 Nest 启动时扫描 `providers`，创建 `xxxxService` 实例，然后把它注入到需要它的 `xxxxController` 构造函数中。
 
+## 提供器类型
+
+### 简写形式
+
+`providers: [UsersService]` 只是简写形式
+
+``` ts
+providers: [UsersService]
+// 等价于
+providers: [{ provide: UsersService, useClass: UsersService }]
+```
+### useClass：替换实现
+
+``` ts
+providers: [
+  { provide: UsersService, useClass: MockUsersService }
+]
+```
+
+`useClass: MockUsersService` 可以在这里写一些逻辑；比如根据环境进行替换
+### useValue：提供固定值
+
+``` ts
+providers: [
+  {
+    provide: 'API_KEY',
+    useValue: 'abc123',
+  },
+]
+```
+
+> **使用：**
+
+``` ts
+constructor(@Inject('API_KEY') private apiKey: string) {}
+```
+
+### useFactory：工厂函数
+
+``` ts
+providers: [
+  {
+    provide: 'DATABASE_CONNECTION',
+    useFactory: async (configService: ConfigService) => {
+      return await createConnection(configService.get('DB_URL'));
+    },
+    inject: [ConfigService],  // 声明工厂函数的依赖
+  },
+]
+```
+
+> 需要在 `inject` 中声明才可以在函数中使用；会自动注入到参数中
+
 
 
 
