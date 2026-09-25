@@ -1,4 +1,4 @@
 # Monorepo
 
-`Monorepo` 架构就是将全部应用代码放在一个文件夹中
+`Monorepo` 架构就是将多个项目/应用/包放在同一个 Git 仓库中。
 
