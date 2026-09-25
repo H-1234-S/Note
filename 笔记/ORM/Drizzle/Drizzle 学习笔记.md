@@ -12,7 +12,6 @@ pnpm add -D drizzle-kit@rc tsx @types/pg
 ``` text
 DATABASE_URL=
 ```
-
 ## 设置配置文件
 
 > `drizzle.config.ts`
