@@ -66,7 +66,21 @@ packages:
 
 ## 双 Token 机制
 
-双 Token 机制指的是
+双 Token 机制指的是服务端发送两个 Token 给客户端
+
+一个 Token 用于业务问题校验、短期；一个 Token 用于短期 Token 失效，重新刷新签发。
+
+> **完整流程：**
+
+1. 登陆时,用户输入账号密码,服务端签发**两个**令牌,都写进 Cookie
+2. 前端每次调接口,浏览器自动带上 accessToken
+3. 15 分钟后,accessToken 失效。这时前端调接口,服务端校验发现 accessToken 过期,返回 **401 Unauthorized**。
+4. 前端在请求拦截器里捕获 401,发现是 token 过期,就**自动**调刷新接口.注意:这一步浏览器自动带上 refreshToken。
+5. 服务端检查 refreshToken:
+	- **有效且没过期** → 签发一个**新的 accessToken**,通过 Set-Cookie 返回
+	- **无效或过期** → 返回 401,前端跳转登录页
+6. 前端收到新的 accessToken 后,**重新发送刚才失败的那个请求**。这次 accessToken 是新的,请求成功。
+7. 用户从头到尾**什么都没做**,页面没有跳转登录,数据正常显示。这就是"无感知"
 
 
 
