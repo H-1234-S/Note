@@ -994,14 +994,64 @@ export class UsersController {
 // 全局使用
 app.useGlobalGuards(new RolesGuard());
 ```
-## 智能守卫
+## 自定义元数据
 
 有些路由可能只对管理员用户开放，而有些则对所有人开放。
 
 > 如何以灵活且可复用的方式将角色与路由匹配起来呢？
 
+``` ts
+// roles.decorator.ts
+import { Reflector } from '@nestjs/core';
 
+export const Roles = Reflector.createDecorator<string[]>();
+```
 
+``` ts
+// cats.controller.ts
+
+@Post()
+@Roles(['admin'])
+async create(@Body() createCatDto: CreateCatDto) {
+  this.catsService.create(createCatDto);
+}
+
+// 或者使用 SetMetadata 装饰器
+
+@Post()
+@SetMetadata('role',['admin'])
+async create(@Body() createCatDto: CreateCatDto) {
+  this.catsService.create(createCatDto);
+}
+```
+
+> 获取自定义元数据：
+
+``` ts
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { Roles } from './roles.decorator.js';
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    // role 要与 SetMetadata 中传递参数一致
+    // const roles = this.reflector.get<string[]>('role', context.getHandler());
+    
+    const roles = this.reflector.get(Roles, context.getHandler());
+    if (!roles) {
+      return true;
+    }
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+    return matchRoles(roles, user.roles);
+  }
+}
+```
+
+就可以在这里做一些逻辑操作
 
 
 
