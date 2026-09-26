@@ -950,6 +950,11 @@ export class AuthMiddleware implements NestMiddleware {
 
 # 守卫
 
+守卫是一个用 `@Injectable()` 装饰器注释的类，实现了 `CanActivate` 接口。
+
+根据运行时存在的条件（如权限、角色或 ACL）来决定某个请求是否会被路由处理程序处理。
+
+常用于身份验证、权限控制
 
 
 
