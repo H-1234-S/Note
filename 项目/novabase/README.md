@@ -82,5 +82,50 @@ packages:
 6. 前端收到新的 accessToken 后,**重新发送刚才失败的那个请求**。这次 accessToken 是新的,请求成功。
 7. 用户从头到尾**什么都没做**,页面没有跳转登录,数据正常显示。这就是"无感知"
 
+## Slug
 
+Slug 是指把一段人类可读的文本（比如标题、名称、组织名）转换成一个适合放在 URL、文件名、数据库标识里的“短字符串”。
 
+> **特点是：**
+
+- 全部小写
+    
+- 空格换成连字符 `-`（有时用下划线 `_`）
+    
+- 去掉特殊符号、重音符号、标点
+    
+- 只保留字母、数字、连字符
+    
+- 简短、可读、对 SEO 友好
+
+> **示例：**
+
+``` ts
+import slugify from 'slugify';
+
+private generateOrgSlug(name: string): string {
+    const base = slugify(`${name}-org`, { lower: true, strict: true });
+    const suffix = randomBytes(3).toString('hex');
+    return `${base}-${suffix}`;
+  }
+```
+
+1. `` `${name}-org` ``  
+    把组织名后面拼上 `-org`，比如 `name = "Acme"`，就变成 `"Acme-org"`。
+    
+2. `slugify(..., { lower: true, strict: true })`  
+    用 `slugify` 库把字符串转成 slug：
+    
+    - `lower: true`：全部转小写 → `acme-org`
+        
+    - `strict: true`：只保留字母、数字、连字符，其他字符（如中文、标点、空格）都去掉或转成 `-`
+        
+    - 结果 `base` 类似 `acme-org`
+        
+3. `randomBytes(3).toString('hex')`  
+    生成 3 个随机字节，转成 16 进制字符串，长度是 6，比如 `a1b2c3`。  
+    这一步是为了**保证唯一性**，因为不同组织可能有相同的名字，只靠名字生成的 slug 会冲突。
+    
+4. `` return `${base}-${suffix}` ``  
+    拼起来 → `acme-org-a1b2c3`
+    
