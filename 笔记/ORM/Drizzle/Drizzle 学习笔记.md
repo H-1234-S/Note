@@ -3,7 +3,7 @@
 ## 安装包
 
 ``` shell
-pnpm add drizzle-orm@rc pg dotenv
+pnpm add drizzle-orm@rc pg dotenv @nestjs/drizzle @nestjs/config
 pnpm add -D drizzle-kit@rc tsx @types/pg
 ```
 
@@ -28,6 +28,28 @@ export default defineConfig({
     url: process.env.DATABASE_URL!,
   },
 });
+```
+
+## 注册数据库
+
+``` ts
+import { Module } from '@nestjs/common';
+import { DrizzleModule } from '@nestjs/drizzle';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { ConfigModule } from '@nestjs/config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+	    isGlobal: true,
+    }),
+    DrizzleModule.forRoot({
+      drizzle,
+      connection: process.env.DATABASE_URL!,
+    }),
+  ],
+})
+export class AppModule {}
 ```
 
 ## 命令
