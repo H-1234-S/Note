@@ -52,6 +52,24 @@ import { ConfigModule } from '@nestjs/config';
 export class AppModule {}
 ```
 
+## 使用
+
+模块被注册后，可以使用 `@InjectDrizzle()` 装饰器在项目的任何地方注入数据库功能，而无需导入任何其他模块。
+
+``` ts
+import { Injectable } from '@nestjs/common';
+import { InjectDrizzle } from '@nestjs/drizzle';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+
+@Injectable()
+export class AppService {
+  constructor(
+    @InjectDrizzle()
+    private readonly db: NodePgDatabase,
+  ) {}
+}
+```
+
 ## 命令
 
 ``` json
