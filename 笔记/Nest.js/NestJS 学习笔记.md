@@ -978,6 +978,8 @@ export class AuthGuard implements CanActivate {
 
 该函数应返回一个布尔值，指示当前请求是否被允许。它可以同步或异步（通过 `Promise` 或 `Observable`）返回响应。
 
+## 绑定守卫
+
 ``` ts
 @Controller('users')
 @UseGuards(AuthGuard)   // 作用于整个 Controller
@@ -989,7 +991,11 @@ export class UsersController {
     return [];
   }
 }
+// 全局使用
+app.useGlobalGuards(new RolesGuard());
 ```
+
+
 
 
 # 生命周期
