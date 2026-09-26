@@ -952,10 +952,44 @@ export class AuthMiddleware implements NestMiddleware {
 
 守卫是一个用 `@Injectable()` 装饰器注释的类，实现了 `CanActivate` 接口。
 
+
 根据运行时存在的条件（如权限、角色或 ACL）来决定某个请求是否会被路由处理程序处理。
 
 常用于身份验证、权限控制
 
+## 授权守卫
+
+``` ts
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Observable } from 'rxjs';
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const request = context.switchToHttp().getRequest();
+    return validateRequest(request);
+  }
+}
+```
+
+每个守卫都必须实现一个 `canActivate()` 函数。
+
+该函数应返回一个布尔值，指示当前请求是否被允许。它可以同步或异步（通过 `Promise` 或 `Observable`）返回响应。
+
+``` ts
+@Controller('users')
+@UseGuards(AuthGuard)   // 作用于整个 Controller
+export class UsersController {
+  
+  @Get()
+  @UseGuards(RolesGuard) // 只作用于该方法
+  findAll() {
+    return [];
+  }
+}
+```
 
 
 # 生命周期
