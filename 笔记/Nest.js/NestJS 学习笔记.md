@@ -994,6 +994,9 @@ export class UsersController {
 // 全局使用
 app.useGlobalGuards(new RolesGuard());
 ```
+## 智能守卫
+
+有些路由可能只对管理员用户开放，而有些则对所有人开放。我们如何以灵活且可复用的方式将角色与路由匹配起来呢？
 
 
 
