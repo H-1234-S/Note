@@ -446,9 +446,6 @@ export const User = createParamDecorator(
 );
 ```
 
-### 优点
-
-
 # 控制器
 
 控制器负责处理传入的**请求**并将**响应**发送回客户端。
