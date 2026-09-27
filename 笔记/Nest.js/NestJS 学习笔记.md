@@ -410,6 +410,8 @@ async findOne(@User() user: UserEntity) {
 ```
 ### 传递数据
 
+请求经过认证层，也就是 Guard，用户
+
 在自定义装饰器中提供参数
 
 ``` ts
@@ -419,7 +421,7 @@ async findOne(@User('firstName') firstName: string) {
 }
 ```
 
-自定义装饰器中使用 data 接收
+自定义装饰器中使用 `data` 接收
 
 ``` ts
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
