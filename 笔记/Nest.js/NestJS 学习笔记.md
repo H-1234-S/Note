@@ -387,6 +387,32 @@ Greeter.prototype.greet = newGreet;
 
 ## 自定义装饰器
 
+将属性附加到 **request** 对象上。然后在每个路由处理函数中手动提取
+
+``` ts
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { Request } from 'express';
+import type { JwtPayload } from '@novabase/types';
+
+export const CurrentUser = createParamDecorator(
+  (_data: unknown, ctx: ExecutionContext): JwtPayload => {
+    const request = ctx.switchToHttp().getRequest<Request>();
+    // return request['user'] as JwtPayload;
+    return (request as Request & { user: JwtPayload })['user'];
+  },
+);
+```
+
+> **使用：**
+
+``` ts
+@Get('me')
+  me(@CurrentUser() user: JwtPayload) {
+    return user;
+  }
+```
+### 传递数据
+
 
 
 
