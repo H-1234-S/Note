@@ -410,13 +410,28 @@ async findOne(@User() user: UserEntity) {
 ```
 ### 传递数据
 
-在自定义装饰器中传递data
+在自定义装饰器中提供参数，自定义装饰器中使用 data 接收
 
 ``` ts
 @Get()
 async findOne(@User('firstName') firstName: string) {
   console.log(`Hello ${firstName}`);
 }
+```
+
+
+
+``` ts
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+
+export const User = createParamDecorator(
+  (data: string, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    const user = request.user;
+
+    return data ? user?.[data] : user;
+  },
+);
 ```
 
 
