@@ -1135,7 +1135,24 @@ export class RolesGuard implements CanActivate {
 
 `SetMetadata(key, value)` 返回一个装饰器，这个装饰器把 `key → value` 这组信息“贴”到被装饰的类或方法上，供运行时读取。
 
+> **示例：**
 
+``` ts
+export const ORG_ROLE_KEY = 'orgRole';
+export const RequireOrgRole = (role: OrgRole) => SetMetadata(ORG_ROLE_KEY, role);
+```
+
+``` ts
+@RequireOrgRole('admin')
+@Delete(':id')
+remove() { ... }
+```
+
+**守卫读取：**
+
+``` ts
+const role = this.reflector.get(ORG_ROLE_KEY, context.getHandler());
+```
 
 # 生命周期
 
