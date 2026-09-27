@@ -1145,7 +1145,7 @@ export class RolesGuard implements CanActivate {
 getSettings() { ... }
 ```
 
-
+**`SetMetadata` 就是那个“提前存起来”的工具。** 把 `'admin'` 这个值挂在方法上，守卫再用 `Reflector` 把它读出来。
 
 ### 示例讲解
 
