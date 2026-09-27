@@ -1129,6 +1129,10 @@ export class RolesGuard implements CanActivate {
 
 就可以在这里做一些逻辑操作
 
+## setMetadata
+
+
+
 # 生命周期
 
 中间件 → 守卫 → 拦截器(前) → 管道 → 控制器方法 → 拦截器(后) → 异常过滤器
