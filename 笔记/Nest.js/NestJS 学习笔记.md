@@ -1131,12 +1131,15 @@ export class RolesGuard implements CanActivate {
 
 ## setMetadata
 
+`SetMetadata` 是 NestJS 提供的一个**工具函数**，用来在**类或方法上附加元数据（metadata）**
+
+`SetMetadata(key, value)` 返回一个装饰器，这个装饰器把 `key → value` 这组信息“贴”到被装饰的类或方法上，供运行时读取。
+
 
 
 # 生命周期
 
 中间件 → 守卫 → 拦截器(前) → 管道 → 控制器方法 → 拦截器(后) → 异常过滤器
-
 
 # API 文档
 
