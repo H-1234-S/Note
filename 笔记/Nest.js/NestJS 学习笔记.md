@@ -391,28 +391,33 @@ Greeter.prototype.greet = newGreet;
 
 ``` ts
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { Request } from 'express';
-import type { JwtPayload } from '@novabase/types';
 
-export const CurrentUser = createParamDecorator(
-  (_data: unknown, ctx: ExecutionContext): JwtPayload => {
-    const request = ctx.switchToHttp().getRequest<Request>();
-    // return request['user'] as JwtPayload;
-    return (request as Request & { user: JwtPayload })['user'];
-  },
+export const User = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return request.user;
+  },
 );
 ```
 
 > **使用：**
 
 ``` ts
-@Get('me')
-  me(@CurrentUser() user: JwtPayload) {
-    return user;
-  }
+@Get()
+async findOne(@User() user: UserEntity) {
+  console.log(user);
+}
 ```
 ### 传递数据
 
+在自定义装饰器中传递data
+
+``` ts
+@Get()
+async findOne(@User('firstName') firstName: string) {
+  console.log(`Hello ${firstName}`);
+}
+```
 
 
 
