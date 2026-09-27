@@ -412,9 +412,17 @@ async findOne(@User() user: UserEntity) {
 
 请求经过认证层，也就是 `Guard`，用户的实体已经被挂载到请求对象身上；从请求对象中提取属性
 
+```json
+{
+  "id": 101,
+  "firstName": "Alan",
+  "lastName": "Turing",
+  "email": "alan@email.com",
+  "roles": ["admin"]
+}
+```
 
-
-在自定义装饰器中提供参数
+在自定义装饰器中提供参数，提取 `firstName`
 
 ``` ts
 @Get()
@@ -438,7 +446,7 @@ export const User = createParamDecorator(
 );
 ```
 
-
+### 优点
 
 
 # 控制器
