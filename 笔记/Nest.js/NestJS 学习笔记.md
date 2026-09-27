@@ -369,6 +369,28 @@ Greeter.prototype.greet = newGreet;
 
 `nest generate controller --no-spec`
 
+# Nest中装饰器
+
+## 参数装饰器
+
+| `@Request(), @Req()`       | `req`                                |
+| -------------------------- | ------------------------------------ |
+| `@Response(), @Res()`      | `res`                                |
+| `@Next()`                  | `next`                               |
+| `@Session()`               | `req.session`                        |
+| `@Param(param?: string)`   | `req.params` / `req.params[param]`   |
+| `@Body(param?: string)`    | `req.body` / `req.body[param]`       |
+| `@Query(param?: string)`   | `req.query` / `req.query[param]`     |
+| `@Headers(param?: string)` | `req.headers` / `req.headers[param]` |
+| `@Ip()`                    | `req.ip`                             |
+| `@HostParam()`             | `req.hosts`                          |
+
+## 自定义装饰器
+
+
+
+
+
 # 控制器
 
 控制器负责处理传入的**请求**并将**响应**发送回客户端。
@@ -1051,11 +1073,6 @@ export class RolesGuard implements CanActivate {
 ```
 
 就可以在这里做一些逻辑操作
-
-# 自定义装饰器
-
-
-
 
 # 生命周期
 
