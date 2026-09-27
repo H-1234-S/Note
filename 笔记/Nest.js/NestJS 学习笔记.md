@@ -975,7 +975,7 @@ export class AuthGuard implements CanActivate {
 
 每个守卫都必须实现一个 `canActivate()` 函数。
 
-该函数应返回一个布尔值，指示当前请求是否被允许。它可以同步或异步（通过 `Promise` 或 `Observable`）返回响应。
+该函数应返回一个布尔值，**指示当前请求是否被允许**。它可以同步或异步（通过 `Promise` 或 `Observable`）返回响应。
 
 ## 绑定守卫
 
