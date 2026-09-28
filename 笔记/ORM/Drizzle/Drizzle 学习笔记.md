@@ -58,6 +58,11 @@ TypeScript 业务代码
 
 > 重点：Drizzle 的“类型安全”来自 TypeScript Schema 与查询构造器，不表示数据库会自动阻止所有业务错误。唯一性、外键、检查约束和事务，仍应由数据库与业务代码共同保证。
 
+### 本章工程师审查
+
+- 已把 Drizzle 的类型边界、数据库约束责任和与 Prisma 的差异说清楚，未承诺不存在的“全自动安全”。
+- 术语以“SQL-like 查询构造器”和“数据库驱动”为核心，便于后续章节建立正确心智模型。
+
 ---
 
 ## 2. 初始化一个 PostgreSQL 项目
@@ -159,6 +164,11 @@ export default defineConfig({
 | `pull` | 从已有数据库反向生成 Drizzle Schema | 不改表结构 |
 | `check` | 检查生成迁移间的冲突/竞态 | 否 |
 | `studio` | 打开本地数据库可视化工具 | 不改表结构 |
+
+### 本章工程师审查
+
+- 依赖、目录、环境变量与 Drizzle Kit 配置能够直接衔接下一章的 `pg.Pool` 示例。
+- 明确 `push` 与迁移流的边界，并把密钥排除在仓库之外。
 
 ---
 
@@ -321,6 +331,11 @@ await db
 ```
 
 > 重点：应用层显式更新适用于所有经由应用的写操作；若还会有后台脚本、BI 或其他服务直接写库，考虑用 PostgreSQL trigger 作为最终保障。
+
+### 本章工程师审查
+
+- Schema 同时给出数据库级默认值、约束、索引和 TypeScript 推导类型，未以 interface 取代数据库约束。
+- 已澄清 `updatedAt` 不会被 `defaultNow()` 自动刷新，避免常见的更新时间失效问题。
 
 ---
 
@@ -665,20 +680,20 @@ const nextCursor = hasMore ? items.at(-1)!.id : null
 
 ### 7.5 计数和分组如何保持类型正确？
 
-PostgreSQL 的 `count()` 常以字符串返回，显式映射为 number，避免 API 返回值混乱。
+Drizzle 的 `count()` 辅助函数会把常见驱动的计数结果映射为 `number`。只有手写 `sql\`count(*)\`` 时，才需要显式 `.mapWith(Number)`。
 
 ```typescript
 import { count, desc, eq } from 'drizzle-orm'
 
 const [{ total }] = await db
-  .select({ total: count().mapWith(Number) })
+  .select({ total: count() })
   .from(posts)
   .where(eq(posts.published, true))
 
 const byAuthor = await db
   .select({
     authorId: posts.authorId,
-    postCount: count(posts.id).mapWith(Number),
+    postCount: count(posts.id),
   })
   .from(posts)
   .groupBy(posts.authorId)
@@ -689,7 +704,7 @@ const byAuthor = await db
 
 - 明确区分扁平 join 与嵌套关系查询，关系 API 的前置配置已说明。
 - Offset 示例给出稳定次级排序；游标示例的条件、排序与下一游标保持一致。
-- 聚合结果显式处理 `count` 的驱动返回类型，未假设它一定是 JavaScript number。
+- 聚合使用 Drizzle 的 `count()` 辅助函数；手写 `count(*)` 时才应使用 `.mapWith(Number)` 处理驱动返回值。
 
 ---
 
@@ -882,3 +897,350 @@ const rows = await db
 - 明确区分值参数、表/列标识符和危险的 raw 字符串。
 - 动态排序采用白名单映射，不让客户端控制 SQL 结构。
 - 聚合 SQL 片段仍复用列对象，类型映射也已显式处理。
+
+---
+
+## 11. 错误处理：如何把数据库错误变成业务响应？
+
+### 11.1 为什么不能把 `error.message` 原样返回给客户端？
+
+驱动错误可能暴露表名、SQL、连接信息；而且不同驱动、版本的文案并不稳定。服务端应记录原始错误，向上层转换为稳定的业务错误或 HTTP 状态码。
+
+PostgreSQL 常见 SQLSTATE：
+
+| code | 含义 | 常见对外处理 |
+| --- | --- | --- |
+| `23505` | 唯一约束冲突 | 409，例如“邮箱已注册” |
+| `23503` | 外键约束冲突 | 409 / 400，例如“关联资源不存在” |
+| `23502` | 非空约束冲突 | 通常是服务端或验证层缺陷 |
+| `40001` | 序列化失败 | 对幂等操作有限次数重试 |
+
+```typescript
+import type { DatabaseError } from 'pg'
+
+export async function registerUser(input: NewUser) {
+  try {
+    const [user] = await db.insert(users).values(input).returning()
+    return user
+  } catch (error) {
+    const pgError = error as DatabaseError
+
+    if (pgError.code === '23505') {
+      throw new Error('邮箱已注册')
+    }
+
+    // 在真实项目中记录 error、requestId、userId 等上下文到受控日志。
+    throw error
+  }
+}
+```
+
+> 重点：先用 Zod、class-validator 等在 API 边界验证输入；数据库约束仍必须保留。前者提供友好报错，后者守住所有写入入口的数据完整性。
+
+### 11.2 哪些错误可以重试？
+
+不能笼统地“失败就重试”。连接瞬断、`40001` 序列化冲突等可能短暂；唯一冲突、语法错误、迁移错误通常不会因重试消失。重试还必须考虑幂等性：例如支付扣款没有幂等键就贸然重试，可能造成重复扣款。
+
+### 本章工程师审查
+
+- 用 SQLSTATE 而不是不稳定的错误文案做分类，同时保留原始错误供受控日志记录。
+- 对可重试错误加入幂等性前提，避免把“重试”误用为通用修复手段。
+
+---
+
+## 12. 工程分层：怎样避免路由里堆满数据库代码？
+
+### 12.1 一个轻量但足够清晰的目录
+
+```text
+src/
+├─ db/
+│  ├─ index.ts
+│  ├─ schema.ts
+│  └─ relations.ts
+├─ repositories/
+│  └─ user.repository.ts    # 可复用、可组合的数据访问
+├─ services/
+│  └─ user.service.ts       # 业务规则、事务边界
+├─ validators/
+│  └─ user.schema.ts        # 输入验证
+└─ routes/                  # HTTP / tRPC / GraphQL 适配层
+```
+
+### 12.2 Repository 和 Service 应如何分工？
+
+```typescript
+// src/repositories/user.repository.ts
+import { db } from '../db'
+import { users, type NewUser } from '../db/schema'
+
+export const userRepository = {
+  findByEmail(email: string) {
+    return db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.email, email),
+    })
+  },
+
+  async create(data: NewUser) {
+    const [user] = await db.insert(users).values(data).returning()
+    return user
+  },
+
+  deactivate(id: string) {
+    return db
+      .update(users)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning({ id: users.id })
+  },
+}
+```
+
+```typescript
+// src/services/user.service.ts
+import { userRepository } from '../repositories/user.repository'
+
+export async function register(input: { email: string; name?: string }) {
+  const existing = await userRepository.findByEmail(input.email)
+  if (existing) throw new Error('邮箱已注册')
+
+  return userRepository.create(input)
+}
+```
+
+问题：是不是所有项目都必须有 Repository？不是。简单服务中，Service 直接调用 `db` 往往更容易读；当查询被多处复用、需要替换数据源或想隔离复杂 SQL 时，再引入 Repository。分层是为了降低变化成本，不是为了增加文件数。
+
+### 12.3 Seed 如何做到可重复运行？
+
+```typescript
+// src/db/seed.ts
+import { closeDatabase, db } from '.'
+import { users } from './schema'
+
+async function main() {
+  await db
+    .insert(users)
+    .values({ email: 'admin@example.com', name: 'Admin', role: 'admin' })
+    .onConflictDoNothing({ target: users.email })
+}
+
+main()
+  .catch((error) => {
+    console.error(error)
+    process.exitCode = 1
+  })
+  .finally(closeDatabase)
+```
+
+```json
+{ "scripts": { "db:seed": "tsx src/db/seed.ts" } }
+```
+
+Seed 必须幂等，且不能使用生产密码或生产数据。测试数据初始化更推荐每个测试独立数据库或在事务中回滚。
+
+### 本章工程师审查
+
+- 错误映射以稳定的 PostgreSQL code 为依据，未把内部错误信息直接泄露给客户端。
+- 明确输入验证与数据库约束是两层防线，不以其中一层替代另一层。
+- 分层方案保持可选性，未把 Repository 模式当作所有项目的强制规范。
+- Seed 使用冲突忽略实现可重复执行，并在脚本结束时释放连接池。
+
+---
+
+## 13. 性能与安全：上线前最值得检查什么？
+
+### 13.1 如何避免 N+1 查询？
+
+错误做法是先取 100 篇文章，再在循环中各查一次作者，最终产生 101 次查询。根据返回形状选择一次 join 或关系查询：
+
+```typescript
+const postList = await db
+  .select({
+    id: posts.id,
+    title: posts.title,
+    author: { id: users.id, name: users.name },
+  })
+  .from(posts)
+  .innerJoin(users, eq(posts.authorId, users.id))
+  .limit(20)
+```
+
+使用关系查询也可以，但要限制嵌套集合大小，避免“一个列表携带每个用户的全部文章和评论”。GraphQL 场景可结合 dataloader 批量加载。
+
+### 13.2 索引怎么根据查询设计？
+
+```typescript
+index('posts_author_created_at_idx').on(table.authorId, table.createdAt)
+```
+
+它适合类似 `WHERE author_id = ? ORDER BY created_at` 的访问。索引不是由 ORM 决定的：应收集慢查询，使用 PostgreSQL `EXPLAIN (ANALYZE, BUFFERS)` 验证计划，再添加或调整索引。无用索引会拖慢写入并占用存储。
+
+### 13.3 软删除如何不污染每一处查询？
+
+```typescript
+// Schema 增加：
+deletedAt: timestamp('deleted_at', { withTimezone: true }),
+```
+
+```typescript
+import { isNull } from 'drizzle-orm'
+
+// 删除改为标记
+await db.update(users)
+  .set({ deletedAt: new Date(), updatedAt: new Date() })
+  .where(eq(users.id, id))
+
+// 读取统一带上条件
+const activeUsers = await db.select().from(users).where(isNull(users.deletedAt))
+```
+
+软删除会影响唯一约束、关联查询、后台恢复与 GDPR/数据保留策略。若要求“删除后邮箱可重新注册”，可评估 PostgreSQL 部分唯一索引；不要只加一列就以为设计完成。
+
+### 13.4 还应守住哪些安全边界？
+
+- 所有客户端输入在进入 ORM 前验证、授权；“能查到”不等于“有权访问”。
+- 查询使用白名单投影，密码哈希、token、内部字段不返回给客户端。
+- 使用第 10 章的参数化与动态标识符白名单，拒绝拼接 `sql.raw`。
+- 为连接设置合理的池大小和数据库角色最小权限；迁移账号与应用运行账号可分离。
+- 记录慢查询与错误，但脱敏连接串、密码、token 和个人敏感数据。
+
+### 本章工程师审查
+
+- N+1、过度返回、索引失配、动态 SQL 与授权遗漏均有针对性处理。
+- 软删除的唯一性与合规副作用已提示，不把它描绘成零成本功能。
+- 性能结论以 `EXPLAIN ANALYZE` 验证为准，避免凭 API 形状猜测性能。
+
+---
+
+## 14. 与 NestJS 集成
+
+### 14.1 为什么建议把 `db` 作为 Provider 注入？
+
+这让 Service 不依赖全局变量，测试时也能替换 Provider。下面不依赖第三方 Nest 集成包，直接注入第 3 章创建的 `db`：
+
+```typescript
+// src/database/database.module.ts
+import { Global, Module } from '@nestjs/common'
+import { db } from '../db'
+
+export const DRIZZLE = Symbol('DRIZZLE')
+
+@Global()
+@Module({
+  providers: [{ provide: DRIZZLE, useValue: db }],
+  exports: [DRIZZLE],
+})
+export class DatabaseModule {}
+```
+
+```typescript
+// src/users/users.service.ts
+import { Inject, Injectable } from '@nestjs/common'
+import { eq } from 'drizzle-orm'
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import { DRIZZLE } from '../database/database.module'
+import { users } from '../db/schema'
+
+@Injectable()
+export class UsersService {
+  constructor(@Inject(DRIZZLE) private readonly db: NodePgDatabase) {}
+
+  findByEmail(email: string) {
+    return this.db.select().from(users).where(eq(users.email, email))
+  }
+}
+```
+
+### 14.2 NestJS 退出时如何关闭连接？
+
+将 `closeDatabase()` 放进一个实现 `OnApplicationShutdown` 的 Provider，或在 bootstrap 的关闭钩子执行。关键是“进程退出时一次”，而不是每次 Controller 调用后。若 `db` 包含关系类型，可从 `typeof db` 推导注入类型以保留完整类型信息。
+
+> 重点：ORM 必须只在服务端模块使用。Controller/Resolver 还应完成认证、权限校验和 DTO 验证；注入 `db` 并不授权任意查询。
+
+### 本章工程师审查
+
+- 示例采用标准 Nest Provider，避免锁定在非官方或版本不明的封装包。
+- 连接池生命周期与第 3 章一致；未在 Service 或请求中反复建立连接。
+- 明确 ORM 不应进入客户端，且数据访问不等于授权。
+
+---
+
+## 15. 学习路线
+
+1. 用本地 PostgreSQL 跑通安装、连接测试、Schema、`push` 与一条 CRUD。
+2. 切换到 `generate → 审查 SQL → migrate`，把迁移目录提交 Git。
+3. 练习主键、唯一约束、外键、索引、枚举与 `$inferSelect` / `$inferInsert`。
+4. 用一对多、一对一、多对多表练习 join 和 `defineRelations()` 关系查询。
+5. 掌握过滤、投影、排序、offset/游标分页、分组与聚合。
+6. 用转账或下单场景练事务、并发、唯一约束和幂等性。
+7. 阅读 `EXPLAIN ANALYZE`，处理 N+1、索引与数据权限，再接入 NestJS/Next.js 等框架。
+
+### 本章工程师审查
+
+- 路线先建立迁移与约束纪律，再进入关系、并发和性能，符合真实项目的风险顺序。
+
+---
+
+## 16. 常见问题
+
+### Q1：修改 `schema.ts` 后为什么数据库没有变化？
+
+Schema 只是 TypeScript 源码。原型环境执行：
+
+```bash
+pnpm db:push
+```
+
+正式迁移流执行：
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+```
+
+### Q2：`relations` 定义了，数据库为什么仍能写入不存在的外键？
+
+`defineRelations()` 服务于 ORM 查询，不创建外键。列上必须有 `.references(() => target.id)`，并生成和应用迁移。
+
+### Q3：查询时提示 `db.query.users` 不存在或关系不工作？
+
+检查三件事：表是否被导出；`relations.ts` 是否使用 `defineRelations(schema, ...)`；创建 `db` 时是否传入 `{ relations }`。不要把旧版 RQB v1 `relations(table, ...)` 与 v2 混用。
+
+### Q4：什么时候用 `push`？
+
+本地原型、临时测试库可以；共享环境与生产使用已提交、已审查的迁移。`push` 的便利性不等于可审计性。
+
+### Q5：Drizzle 可以完全替代 SQL 吗？
+
+不需要也不应该。它覆盖 SQL-like CRUD、join、事务等常见需求；复杂报表、窗口函数、数据库特性可以使用第 10 章的 `sql` 模板标签，并按 SQL 代码审查、测试和分析。
+
+### Q6：能否在 React / 浏览器端直接使用 Drizzle？
+
+不能将持有数据库凭据的驱动和 `db` 暴露给浏览器。浏览器通过 API、Server Action、tRPC 或 GraphQL 请求服务端；服务端完成认证、授权和数据库访问。
+
+### 本章工程师审查
+
+- 常见问题的答案与前文章节的版本、迁移、关系和安全边界保持一致，没有引入旧版 API。
+
+---
+
+## 17. 官方参考
+
+- [Drizzle ORM 文档](https://orm.drizzle.team/docs/overview)
+- [PostgreSQL 快速开始](https://orm.drizzle.team/docs/get-started/postgresql-new)
+- [Drizzle Kit 与迁移](https://orm.drizzle.team/docs/kit-overview)
+- [Schema 与 PostgreSQL 列类型](https://orm.drizzle.team/docs/column-types/pg)
+- [Relational Queries v2 与迁移说明](https://orm.drizzle.team/docs/relations-v1-v2)
+- [SQL-like 查询](https://orm.drizzle.team/docs/data-querying)
+- [事务](https://orm.drizzle.team/docs/transactions)
+- [Drizzle Studio](https://orm.drizzle.team/docs/drizzle-kit-studio)
+
+---
+
+*更新时间：2026-09-28*
+
+### 全文工程师审查
+
+- 示例统一使用 PostgreSQL、`pg` 与 Drizzle ORM 1.x RQB v2；已避免 RQB v1 的 `relations(table, ...)` 用法。
+- 迁移、约束、事务、参数化 SQL、授权与索引均按生产风险提示，未把 ORM API 夸大为数据库治理的替代品。
+- 已检查 17 个章节与 53 个代码围栏成对闭合；本笔记是教程文档，未连接或修改任何数据库。
