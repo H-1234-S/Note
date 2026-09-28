@@ -350,6 +350,21 @@ export const posts = pgTable(
 )
 ```
 
+后续联表统计会使用评论表：
+
+```typescript
+export const comments = pgTable(
+  'comments',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    postId: uuid('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('comments_post_id_idx').on(table.postId)],
+)
+```
+
 `onDelete: 'cascade'` 表示删除用户时由数据库删除其文章。它适合“文章绝不脱离作者存在”的模型；审计数据、订单等通常不应贸然级联删除，可能更适合 `restrict`、`set null` 或软删除。
 
 ### 5.2 一对一如何保证真的是“一”？
@@ -410,7 +425,11 @@ export const relations = defineRelations(schema, (r) => ({
   },
   posts: {
     author: r.one.users({ from: r.posts.authorId, to: r.users.id }),
+    comments: r.many.comments(),
     postTags: r.many.postTags(),
+  },
+  comments: {
+    post: r.one.posts({ from: r.comments.postId, to: r.posts.id }),
   },
   tags: {
     postTags: r.many.postTags(),
@@ -549,3 +568,317 @@ const [user] = await db
 - Upsert 依赖真实唯一约束，避免并发下“先查询再插入”的错误实现。
 - 读取示例只投影所需字段，写入示例都带条件；全表写入风险已明确说明。
 - 对模糊搜索的索引局限作出提示，避免把 ORM API 当成性能保证。
+
+---
+
+## 7. 联表、关系查询、分页与聚合
+
+### 7.1 什么时候用 `join`，什么时候用关系查询？
+
+问题：想得到“文章及作者名”，是 `with` 还是 `join`？
+
+- 需要扁平结果、聚合、精确控制 SQL 时，用 `join`。
+- 需要按对象嵌套读取关系时，用 Relational Queries v2 的 `db.query`。
+
+`join` 示例：
+
+```typescript
+import { desc, eq } from 'drizzle-orm'
+
+const rows = await db
+  .select({
+    postId: posts.id,
+    title: posts.title,
+    authorName: users.name,
+  })
+  .from(posts)
+  .innerJoin(users, eq(posts.authorId, users.id))
+  .where(eq(posts.published, true))
+  .orderBy(desc(posts.createdAt))
+```
+
+`innerJoin` 会排除找不到作者的行；如果外键允许为空或要保留左表全部记录，用 `leftJoin`，右表字段的类型也会相应变为可空。
+
+### 7.2 怎样得到嵌套对象而不手工分组？
+
+前提是第 5 章已将 `relations` 传入 `drizzle()`：
+
+```typescript
+const usersWithPosts = await db.query.users.findMany({
+  columns: {
+    id: true,
+    email: true,
+    name: true,
+  },
+  with: {
+    posts: {
+      columns: { id: true, title: true, createdAt: true },
+      where: (posts, { eq }) => eq(posts.published, true),
+      orderBy: (posts, { desc }) => [desc(posts.createdAt)],
+      limit: 10,
+    },
+  },
+})
+```
+
+关系查询减少了应用层的拼装工作，但不是逃避理解 SQL 的理由。对大列表的深层嵌套，要检查生成 SQL、返回大小和索引，而不是默认它一定比 join 更快。
+
+### 7.3 Offset 分页有什么陷阱？
+
+后台页码列表常用 offset：
+
+```typescript
+const page = 2
+const pageSize = 20
+
+const pageRows = await db
+  .select()
+  .from(posts)
+  .orderBy(desc(posts.createdAt), desc(posts.id))
+  .limit(pageSize)
+  .offset((page - 1) * pageSize)
+```
+
+它简单，但页数很深时数据库仍要跳过前面大量行；数据在翻页期间新增/删除时也可能重复或漏项。
+
+### 7.4 时间线为什么更适合游标分页？
+
+游标必须与稳定排序一致。下面以唯一 UUID `id` 升序为例，适合追加型数据；生产时间线更常以 `(createdAt, id)` 这样的复合游标排序，并建立同顺序的复合索引。
+
+```typescript
+import { asc, gt } from 'drizzle-orm'
+
+const limit = 20
+const rows = await db
+  .select()
+  .from(posts)
+  .where(cursor ? gt(posts.id, cursor) : undefined)
+  .orderBy(asc(posts.id))
+  .limit(limit + 1)
+
+const hasMore = rows.length > limit
+const items = hasMore ? rows.slice(0, limit) : rows
+const nextCursor = hasMore ? items.at(-1)!.id : null
+```
+
+> 重点：不能只按 `createdAt` 做游标，因为多个行可能同一时间戳。排序字段组合必须唯一且有确定顺序。
+
+### 7.5 计数和分组如何保持类型正确？
+
+PostgreSQL 的 `count()` 常以字符串返回，显式映射为 number，避免 API 返回值混乱。
+
+```typescript
+import { count, desc, eq } from 'drizzle-orm'
+
+const [{ total }] = await db
+  .select({ total: count().mapWith(Number) })
+  .from(posts)
+  .where(eq(posts.published, true))
+
+const byAuthor = await db
+  .select({
+    authorId: posts.authorId,
+    postCount: count(posts.id).mapWith(Number),
+  })
+  .from(posts)
+  .groupBy(posts.authorId)
+  .orderBy(desc(count(posts.id)))
+```
+
+### 本章工程师审查
+
+- 明确区分扁平 join 与嵌套关系查询，关系 API 的前置配置已说明。
+- Offset 示例给出稳定次级排序；游标示例的条件、排序与下一游标保持一致。
+- 聚合结果显式处理 `count` 的驱动返回类型，未假设它一定是 JavaScript number。
+
+---
+
+## 8. 迁移：怎样让数据库变更可审查、可部署？
+
+### 8.1 为什么不要只用 `push`？
+
+`push` 很适合原型与本地测试：它直接把当前 Schema 同步到数据库。但它没有留下团队可审查、可复现的正式变更历史。生产项目的主线应是：改 Schema → 生成 SQL 迁移 → 审查 SQL → 提交 Git → 部署时执行迁移。
+
+```bash
+# 1. 修改 src/db/schema.ts 后生成迁移
+pnpm db:generate
+
+# 2. 审查 drizzle/*.sql，确认数据迁移与锁风险
+# 3. 本地应用
+pnpm db:migrate
+```
+
+生成目录通常包含 SQL 文件与 `meta` 快照；二者都应提交。不要手工删除历史快照来“重来”，已被其他环境应用的迁移记录必须保留。
+
+### 8.2 开发、测试、生产分别如何使用？
+
+| 环境 | 推荐策略 |
+| --- | --- |
+| 原型 / 临时本地库 | `db:push`，快速迭代 |
+| 团队开发 | `generate` → 审查 → `migrate` |
+| CI | 在空数据库执行全部迁移；运行 `db:check` |
+| 生产 | 只运行已经提交和审查过的 `db:migrate` |
+
+问题：Schema 改了但迁移已经生成，能直接改旧 SQL 吗？若迁移从未分享、从未在任何环境应用，可以整理；一旦进入共享环境，应新建一条后续迁移，保证所有环境沿同一历史前进。
+
+### 8.3 破坏性变更怎样做才不会丢数据？
+
+“把 `name` 改为非空”不能只改 `.notNull()`：旧数据可能存在 `NULL`。应使用 expand / migrate / contract 的分阶段策略。
+
+```text
+阶段 1：新增可空列或兼容代码，同时双写
+阶段 2：回填历史数据，验证无 NULL / 无异常
+阶段 3：添加 NOT NULL、切换读取
+阶段 4：确认没有旧版本服务后再删除旧列
+```
+
+对大表的索引、列类型变更尤其要在预发估算锁表和执行时间；ORM 能生成 DDL，不会消除 PostgreSQL DDL 的运行风险。
+
+### 8.4 如何接入已有数据库？
+
+```bash
+pnpm db:pull
+```
+
+`pull` 会检查数据库并生成/更新 Schema。首次接入后应人工审查命名、外键、枚举、索引和自定义类型，再决定如何将现有结构纳入迁移基线。它不是“运行一次后永远不用审查”的代码生成器。
+
+### 8.5 `studio` 是否可以当生产管理后台？
+
+```bash
+pnpm db:studio
+```
+
+Studio 默认在本机启动代理（官方文档默认 `127.0.0.1:4983`），适合开发排查。不要把它直接暴露到公网，也不要用共享生产凭据随意编辑线上数据。
+
+### 本章工程师审查
+
+- 明确生产迁移使用已审查 SQL，而不是运行时 `push`。
+- 覆盖了迁移历史不可改写、CI 验证和大表 DDL 锁风险。
+- 对破坏性变更提供分阶段路径，避免 Schema 语句正确但线上数据不兼容。
+
+---
+
+## 9. 事务与并发：如何确保多步写入要么全成、要么全败？
+
+### 9.1 转账为什么不能拆成两次独立更新？
+
+两条独立 SQL 之间发生异常，会出现“扣款成功、入账失败”。把它们放进 `db.transaction`：回调正常结束时提交，抛错时回滚。
+
+```typescript
+import { eq, sql } from 'drizzle-orm'
+
+await db.transaction(async (tx) => {
+  const [from] = await tx
+    .select({ balance: users.balance })
+    .from(users)
+    .where(eq(users.id, fromUserId))
+    .for('update')
+
+  if (!from || Number(from.balance) < amount) {
+    throw new Error('余额不足或账户不存在')
+  }
+
+  await tx
+    .update(users)
+    .set({ balance: sql`${users.balance} - ${amount}`, updatedAt: new Date() })
+    .where(eq(users.id, fromUserId))
+
+  await tx
+    .update(users)
+    .set({ balance: sql`${users.balance} + ${amount}`, updatedAt: new Date() })
+    .where(eq(users.id, toUserId))
+})
+```
+
+这里 `for('update')` 锁住被读取的付款账户，避免两个并发请求都根据同一个旧余额判断“余额充足”。实际金额应使用最小货币单位整数或精确 Decimal 策略，示例的 `Number` 仅用于说明流程。
+
+### 9.2 嵌套事务会怎样？
+
+Drizzle 的嵌套 `tx.transaction(...)` 使用 savepoint。内层失败可回滚到保存点，外层仍能决定是否继续；不要把它误认为独立数据库事务。
+
+```typescript
+await db.transaction(async (tx) => {
+  await tx.insert(posts).values({ title: '事务文章', authorId: userId })
+
+  await tx.transaction(async (tx2) => {
+    await tx2.insert(tags).values({ name: 'drizzle' })
+  })
+})
+```
+
+### 9.3 事务中最重要的性能原则是什么？
+
+- 不要在事务中调用第三方 HTTP、发送邮件、上传文件或等待用户输入。
+- 先校验输入，再尽可能短地执行数据库读写。
+- 并发竞争业务要用数据库条件更新、唯一约束、锁或合适的隔离级别，而不只靠内存变量。
+- 捕获错误后不要吞掉；要么重新抛出使其回滚，要么明确处理。
+
+### 本章工程师审查
+
+- 转账操作被包在同一事务中，并展示行锁以应对读-判定-写竞争。
+- 金额精度和长事务风险已说明，未把示例误导为可直接用于金融系统的完整方案。
+- 嵌套事务准确描述为 savepoint，不夸大其隔离性。
+
+---
+
+## 10. 原始 SQL：如何保持能力与安全？
+
+### 10.1 `sql` 模板标签为什么比字符串拼接安全？
+
+插值的普通值会被参数化：
+
+```typescript
+import { sql } from 'drizzle-orm'
+
+const domain = '%@example.com'
+const result = await db.execute(
+  sql`select id, email from ${users} where ${users.email} ilike ${domain}`,
+)
+```
+
+Drizzle 会把表/列对象作为标识符处理，把 `domain` 作为参数传给驱动；用户输入不会变成 SQL 语法的一部分。
+
+### 10.2 什么时候应该使用 `sql.raw()`？
+
+几乎只在 SQL 片段完全由开发者固定控制时。下面是错误示例：
+
+```typescript
+// ❌ 绝不能这样做：sortFromUser 可能注入 SQL
+const unsafe = sql.raw(`order by ${sortFromUser}`)
+```
+
+正确办法是把外部输入映射到固定的列对象与排序函数：
+
+```typescript
+import { asc, desc } from 'drizzle-orm'
+
+const orderBy = sortFromUser === 'oldest'
+  ? asc(posts.createdAt)
+  : desc(posts.createdAt)
+
+const safeRows = await db.select().from(posts).orderBy(orderBy)
+```
+
+### 10.3 能否将 SQL 片段嵌入查询构造器？
+
+可以。这正是 Drizzle 适合复杂场景的原因：
+
+```typescript
+const rows = await db
+  .select({
+    id: posts.id,
+    title: posts.title,
+    commentCount: sql<number>`count(${comments.id})`.mapWith(Number),
+  })
+  .from(posts)
+  .leftJoin(comments, eq(comments.postId, posts.id))
+  .groupBy(posts.id)
+```
+
+原则很简单：值用参数化插值；标识符使用 Schema 对象；只有受控常量才可能使用 `sql.raw`。原始 SQL 不是失败方案，而是要接受和测试的数据库代码。
+
+### 本章工程师审查
+
+- 明确区分值参数、表/列标识符和危险的 raw 字符串。
+- 动态排序采用白名单映射，不让客户端控制 SQL 结构。
+- 聚合 SQL 片段仍复用列对象，类型映射也已显式处理。
