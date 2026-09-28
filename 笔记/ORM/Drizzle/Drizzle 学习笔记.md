@@ -76,6 +76,12 @@ pnpm add drizzle-orm@rc pg dotenv
 pnpm add -D drizzle-kit@rc tsx @types/pg typescript
 ```
 
+如果项目使用 NestJS，再安装官方集成包：
+
+```bash
+pnpm add @nestjs/drizzle @nestjs/config
+```
+
 | 包 | 用途 |
 | --- | --- |
 | `drizzle-orm` | 查询、Schema、事务等运行时 API |
@@ -1114,54 +1120,164 @@ const activeUsers = await db.select().from(users).where(isNull(users.deletedAt))
 
 ## 14. 与 NestJS 集成
 
-### 14.1 为什么建议把 `db` 作为 Provider 注入？
+### 14.1 Nest 官方集成解决了什么问题？
 
-这让 Service 不依赖全局变量，测试时也能替换 Provider。下面不依赖第三方 Nest 集成包，直接注入第 3 章创建的 `db`：
+Nest 官方维护的 `@nestjs/drizzle` 会为每个 Nest 应用实例创建并注册 Drizzle 数据库，还负责在应用关闭时释放底层客户端。这样不需要自己声明 Symbol Provider，也不会把第 3 章的全局 `db` 实例误用到多个 e2e 应用中。
+
+### 14.2 如何在 `AppModule` 注册 PostgreSQL？
 
 ```typescript
-// src/database/database.module.ts
-import { Global, Module } from '@nestjs/common'
-import { db } from '../db'
+// src/app.module.ts
+import { Module } from '@nestjs/common'
+import { DrizzleModule } from '@nestjs/drizzle'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { relations } from './db/relations'
 
-export const DRIZZLE = Symbol('DRIZZLE')
-
-@Global()
 @Module({
-  providers: [{ provide: DRIZZLE, useValue: db }],
-  exports: [DRIZZLE],
+  imports: [
+    DrizzleModule.forRoot({
+      drizzle,
+      connection: process.env.DATABASE_URL!,
+      relations,
+      // 默认 true：app.close() / 启用 shutdown hooks 后会关闭连接池。
+      autoCloseConnection: true,
+    }),
+  ],
 })
-export class DatabaseModule {}
+export class AppModule {}
+```
+
+`forRoot()` 的关键选项：
+
+| 选项 | 作用 |
+| --- | --- |
+| `drizzle` | 所选驱动导出的 `drizzle()` 函数 |
+| `connection` | 连接字符串或驱动连接配置 |
+| `relations` | RQB v2 的关系定义 |
+| `db` | 已自行创建的数据库实例，与 `drizzle`/`connection` 二选一 |
+| `autoCloseConnection` | 是否在应用关闭时关闭 `db.$client`，默认 `true` |
+
+> `forRoot()` 在 `AppModule` 导入时求值，`process.env.DATABASE_URL` 必须已经存在。若希望通过 `ConfigService` 读取配置，应使用下一节的 `forRootAsync()`。
+
+### 14.3 如何使用 `ConfigModule` 异步配置？
+
+```typescript
+// src/app.module.ts
+import { Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { DrizzleModule } from '@nestjs/drizzle'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { relations } from './db/relations'
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DrizzleModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        drizzle,
+        connection: config.getOrThrow<string>('DATABASE_URL'),
+        relations,
+      }),
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+`forRootAsync()` 也支持 `useClass`、`useExisting`，适合把数据库配置放进独立配置模块。不要在 `useFactory` 中创建一个全局共享 `db` 再交给多个测试应用；让 `DrizzleModule` 为每个应用实例创建连接，e2e 测试更安全。
+
+### 14.4 如何注入数据库并保留关系查询类型？
+
+```typescript
+// src/db/database.ts
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import type { relations } from './relations'
+
+export type Database = NodePgDatabase<typeof relations>
 ```
 
 ```typescript
 // src/users/users.service.ts
-import { Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
+import { InjectDrizzle } from '@nestjs/drizzle'
 import { eq } from 'drizzle-orm'
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
-import { DRIZZLE } from '../database/database.module'
-import { users } from '../db/schema'
+import type { Database } from '../db/database'
+import { users, type NewUser, type User } from '../db/schema'
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject(DRIZZLE) private readonly db: NodePgDatabase) {}
+  constructor(@InjectDrizzle() private readonly db: Database) {}
 
-  findByEmail(email: string) {
-    return this.db.select().from(users).where(eq(users.email, email))
+  findAll(): Promise<User[]> {
+    return this.db.select().from(users)
+  }
+
+  async findOne(id: string): Promise<User | undefined> {
+    const [user] = await this.db.select().from(users).where(eq(users.id, id))
+    return user
+  }
+
+  async findOneWithPosts(id: string) {
+    return this.db.query.users.findFirst({
+      where: { id },
+      with: { posts: true },
+    })
+  }
+
+  async create(input: NewUser): Promise<User> {
+    const [created] = await this.db.insert(users).values(input).returning()
+    return created
   }
 }
 ```
 
-### 14.2 NestJS 退出时如何关闭连接？
+和 TypeORM 不同，Drizzle 没有 `forFeature()` 步骤；表对象是普通 TypeScript 导出，可以在 Service 或自定义 Repository 中直接导入。`@InjectDrizzle()` 默认注入名为 `default` 的数据库。
 
-将 `closeDatabase()` 放进一个实现 `OnApplicationShutdown` 的 Provider，或在 bootstrap 的关闭钩子执行。关键是“进程退出时一次”，而不是每次 Controller 调用后。若 `db` 包含关系类型，可从 `typeof db` 推导注入类型以保留完整类型信息。
+### 14.5 事务和 Repository 有什么 Nest 特有的坑？
+
+事务中的所有查询都必须使用回调提供的 `tx`，不能在事务里继续使用注入的 `db`：
+
+```typescript
+async deactivate(id: string) {
+  await this.db.transaction(async (tx) => {
+    await tx.update(users)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(users.id, id))
+    await tx.delete(posts).where(eq(posts.authorId, id))
+  })
+}
+```
+
+如果 Repository 方法内部固定使用注入的 `db`，它不会自动加入外层事务，连接池甚至可能把它安排到另一条连接。需要事务时，让 Repository 接收 `tx` 参数，或使用 Nest 官方文档提到的 `AsyncLocalStorage` / `nestjs-cls` 事务方案。
+
+### 14.6 多数据库、测试和迁移应该怎样处理？
+
+多数据库为非默认连接指定 `name`，注入时使用 `@InjectDrizzle('analytics')`；不要注册两个同名或都未命名的连接。
+
+单元测试可用 `getDrizzleToken()` 提供 `useValue: mockDb`，但链式查询需要完整 mock。复杂查询更适合自定义 Repository 后 mock Repository，或使用真实测试数据库。
+
+迁移仍由 Drizzle Kit 在 Nest 应用之外执行：
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+```
+
+不建议让每个生产实例启动时同时执行迁移；多实例发布应把 `drizzle-kit migrate` 作为单独的 release step。只有明确需要启动时迁移时，才在 `forRootAsync()` 工厂中调用 `migrate()`，并评估并发启动风险。
+
+### 14.7 NestJS 退出时如何关闭连接？
+
+`@nestjs/drizzle` 默认在 `app.close()` 或启用 shutdown hooks 后关闭客户端；无需再给第 3 章手写的 `closeDatabase()` 添加一个重复 Provider。若传入的是自行创建、被多个应用共享的 `db`，应设置 `autoCloseConnection: false`，并自行管理它的生命周期。
 
 > 重点：ORM 必须只在服务端模块使用。Controller/Resolver 还应完成认证、权限校验和 DTO 验证；注入 `db` 并不授权任意查询。
 
 ### 本章工程师审查
 
-- 示例采用标准 Nest Provider，避免锁定在非官方或版本不明的封装包。
-- 连接池生命周期与第 3 章一致；未在 Service 或请求中反复建立连接。
-- 明确 ORM 不应进入客户端，且数据访问不等于授权。
+- 已按 Nest 官方 `@nestjs/drizzle` 使用 `forRoot()` / `forRootAsync()` / `@InjectDrizzle()`，移除自定义 Symbol Provider 作为主示例。
+- 已覆盖关系类型、自动关闭连接、事务必须使用 `tx`、多数据库命名、测试 mock 和迁移发布边界。
+- `ConfigService` 读取连接串时使用 `getOrThrow()`；未把 Nest 的 `ConfigModule` 与 Drizzle Kit CLI 配置混为一谈。
 
 ---
 
