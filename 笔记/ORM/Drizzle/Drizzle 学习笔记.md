@@ -229,3 +229,323 @@ pnpm tsx src/index.ts
 - 使用 `Pool` 与进程级实例，未在请求处理函数中创建连接池。
 - 密码只出现在环境变量示例中，生产 SSL 是否开启需按供应商要求配置，不能机械复制 `rejectUnauthorized: false`。
 - 首条 SQL 使用 `sql` 模板标签而非拼接字符串，后续安全章节会说明边界。
+
+---
+
+## 4. 用 TypeScript 设计数据模型
+
+### 4.1 一张表如何同时成为数据库定义和类型来源？
+
+问题：既想让数据库有约束，又不想手写两遍 interface，怎么做？把表声明为唯一事实来源（source of truth）。例如下面的 `users` 同时决定迁移 SQL、插入类型和查询结果类型。
+
+```typescript
+// src/db/schema.ts
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  numeric,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core'
+
+export const roleEnum = pgEnum('role', ['user', 'admin'])
+
+export const users = pgTable(
+  'users',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    email: text('email').notNull(),
+    name: text('name'),
+    age: integer('age'),
+    role: roleEnum('role').notNull().default('user'),
+    isActive: boolean('is_active').notNull().default(true),
+    balance: numeric('balance', { precision: 12, scale: 2 }).notNull().default('0'),
+    preferences: jsonb('preferences').$type<{ theme?: 'light' | 'dark' }>(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('users_email_unique').on(table.email),
+    index('users_created_at_idx').on(table.createdAt),
+  ],
+)
+
+export type User = typeof users.$inferSelect
+export type NewUser = typeof users.$inferInsert
+```
+
+### 4.2 常用列类型该怎么选？
+
+| PostgreSQL / Drizzle 列 | 适用问题 | 注意 |
+| --- | --- | --- |
+| `uuid().defaultRandom()` | 不想暴露连续自增 ID、分布式生成 ID | PostgreSQL 需要具备生成 UUID 的能力 |
+| `integer()` / `bigint()` | 年龄、计数、金额最小单位 | `bigint` 的 JS 返回类型要按驱动配置确认 |
+| `text()` / `varchar()` | 普通字符串 | `varchar` 的长度不是业务校验的替代品 |
+| `numeric(precision, scale)` | 金额、精确小数 | `pg` 常以字符串返回，避免 JS 浮点误差 |
+| `boolean()` | 开关状态 | 用 `.notNull().default(...)` 定义明确默认值 |
+| `timestamp(..., { withTimezone: true })` | 绝对时间点 | 服务端统一使用 UTC，展示层再转换时区 |
+| `jsonb()` | 低频变动的扩展属性 | 高频筛选字段通常应独立成列并建立索引 |
+
+### 4.3 `.notNull()`、`.default()` 和 `$inferInsert` 有何关系？
+
+```typescript
+const draft: NewUser = {
+  email: 'zhangsan@example.com',
+  name: '张三',
+  // id、role、isActive、balance、createdAt、updatedAt 都可省略：由数据库默认值提供。
+}
+```
+
+- `.notNull()`：数据库禁止 `NULL`；它不等于“插入时必填”。
+- `.default(...)` / `.defaultNow()`：由数据库默认值补齐，因此插入类型中通常可选。
+- 没有默认值且 `.notNull()` 的列：在 `$inferInsert` 中必须提供。
+- `$inferSelect` 描述从数据库读出的行；`$inferInsert` 描述可插入的数据。不要把查询结果类型直接用作创建 DTO。
+
+### 4.4 数据库默认值能自动更新 `updatedAt` 吗？
+
+不能。`defaultNow()` 只在 `INSERT` 时生效；PostgreSQL 没有通用的列级 “on update now” 语法。要么每次更新时显式设置，要么写数据库 trigger。
+
+```typescript
+import { eq } from 'drizzle-orm'
+
+await db
+  .update(users)
+  .set({ name: '张三丰', updatedAt: new Date() })
+  .where(eq(users.id, userId))
+```
+
+> 重点：应用层显式更新适用于所有经由应用的写操作；若还会有后台脚本、BI 或其他服务直接写库，考虑用 PostgreSQL trigger 作为最终保障。
+
+---
+
+## 5. 关系建模：外键与关系查询不是一回事
+
+### 5.1 一对多要写什么？
+
+问题：`posts.authorId` 写了以后，为什么还要定义 relations？因为外键负责数据库完整性，`defineRelations` 负责 Drizzle 关系查询的对象导航；两者职责不同，通常都要有。
+
+```typescript
+// 追加到 src/db/schema.ts
+import { primaryKey } from 'drizzle-orm/pg-core'
+
+export const posts = pgTable(
+  'posts',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    title: text('title').notNull(),
+    content: text('content'),
+    published: boolean('published').notNull().default(false),
+    authorId: uuid('author_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('posts_author_created_at_idx').on(table.authorId, table.createdAt)],
+)
+```
+
+`onDelete: 'cascade'` 表示删除用户时由数据库删除其文章。它适合“文章绝不脱离作者存在”的模型；审计数据、订单等通常不应贸然级联删除，可能更适合 `restrict`、`set null` 或软删除。
+
+### 5.2 一对一如何保证真的是“一”？
+
+```typescript
+export const profiles = pgTable(
+  'profiles',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    bio: text('bio'),
+  },
+  (table) => [uniqueIndex('profiles_user_id_unique').on(table.userId)],
+)
+```
+
+只有外键仍是一对多；外键列上的唯一约束才让每个用户最多对应一条 profile。
+
+### 5.3 多对多为什么必须有中间表？
+
+关系型数据库没有“数组外键”。当文章可有多个标签、标签可属于多篇文章时，显式中间表能存储关联本身的创建时间、排序或权限等信息。
+
+```typescript
+export const tags = pgTable('tags', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull().unique(),
+})
+
+export const postTags = pgTable(
+  'post_tags',
+  {
+    postId: uuid('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
+    tagId: uuid('tag_id').notNull().references(() => tags.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.postId, table.tagId], name: 'post_tags_pk' }),
+    index('post_tags_tag_id_idx').on(table.tagId),
+  ],
+)
+```
+
+复合主键阻止重复的 `(postId, tagId)` 关联，`tagId` 单列索引优化“一个标签有哪些文章”的反向查询。
+
+### 5.4 Relational Queries v2 应怎样定义？
+
+```typescript
+// src/db/relations.ts
+import { defineRelations } from 'drizzle-orm'
+import * as schema from './schema'
+
+export const relations = defineRelations(schema, (r) => ({
+  users: {
+    posts: r.many.posts(),
+    profile: r.one.profiles({ from: r.users.id, to: r.profiles.userId }),
+  },
+  posts: {
+    author: r.one.users({ from: r.posts.authorId, to: r.users.id }),
+    postTags: r.many.postTags(),
+  },
+  tags: {
+    postTags: r.many.postTags(),
+  },
+  postTags: {
+    post: r.one.posts({ from: r.postTags.postId, to: r.posts.id }),
+    tag: r.one.tags({ from: r.postTags.tagId, to: r.tags.id }),
+  },
+}))
+```
+
+随后将关系提供给 `db`：
+
+```typescript
+// src/db/index.ts：在第 3 章代码的基础上补充
+import { relations } from './relations'
+
+export const db = drizzle({ client: pool, relations })
+```
+
+> 重点：不要将 Drizzle 的软关系（relations）误当成数据库外键。前者帮助查询，后者才会阻止无效 `author_id` 写入。生产模型应以数据库约束为准。
+
+### 本章工程师审查
+
+- 每个被高频过滤、排序或关联的字段均从实际访问方向考虑索引；没有把索引当作“越多越好”的装饰。
+- `numeric` 的返回值和时区语义已明确，避免金额浮点与本地时间两个高频事故点。
+- 一对一包含唯一约束，多对多包含显式中间表与复合主键，关系基数与数据库约束一致。
+- 使用 `defineRelations()`、`from`、`to` 的 RQB v2 API；未混用已移除的 RQB v1 API。
+
+---
+
+## 6. CRUD：把常见业务操作翻译成 SQL
+
+以下示例假定已从 `src/db/schema.ts` 导入 `users`、`posts`，并从 `src/db/index.ts` 导入 `db`。
+
+### 6.1 如何创建并只返回需要的字段？
+
+PostgreSQL 支持 `returning()`；如果不写它，`insert` 的结果不等于新行对象。
+
+```typescript
+const [user] = await db
+  .insert(users)
+  .values({
+    email: 'zhangsan@example.com',
+    name: '张三',
+  })
+  .returning({
+    id: users.id,
+    email: users.email,
+    createdAt: users.createdAt,
+  })
+```
+
+批量插入只需传数组：
+
+```typescript
+await db.insert(users).values([
+  { email: 'a@example.com', name: 'A' },
+  { email: 'b@example.com', name: 'B' },
+])
+```
+
+### 6.2 如何按条件读取，而不是把整张表搬回应用？
+
+```typescript
+import { and, desc, eq, gte, ilike } from 'drizzle-orm'
+
+const activeAdults = await db
+  .select({
+    id: users.id,
+    email: users.email,
+    name: users.name,
+  })
+  .from(users)
+  .where(and(
+    eq(users.isActive, true),
+    gte(users.age, 18),
+    ilike(users.name, '%张%'),
+  ))
+  .orderBy(desc(users.createdAt))
+  .limit(20)
+```
+
+`select({ ... })` 是白名单投影：它减少传输，也避免把 `passwordHash`、内部备注等敏感列意外返回给 API。
+
+### 6.3 更新和删除为什么必须有 `where`？
+
+```typescript
+const [updated] = await db
+  .update(users)
+  .set({ name: '张三丰', updatedAt: new Date() })
+  .where(eq(users.email, 'zhangsan@example.com'))
+  .returning({ id: users.id, name: users.name })
+
+const deleted = await db
+  .delete(posts)
+  .where(eq(posts.id, postId))
+  .returning({ id: posts.id })
+```
+
+没有 `.where(...)` 的 `update` / `delete` 是全表操作。类型系统无法判断“你是不是忘了条件”，因此应将写操作封装在语义明确的函数中，并在测试中覆盖它。
+
+### 6.4 “不存在则创建、存在则更新”怎样写？
+
+PostgreSQL 用唯一约束做冲突仲裁，避免“先查后插”在并发下产生竞态。
+
+```typescript
+const [user] = await db
+  .insert(users)
+  .values({ email: 'zhangsan@example.com', name: '张三' })
+  .onConflictDoUpdate({
+    target: users.email,
+    set: { name: '张三', updatedAt: new Date() },
+  })
+  .returning()
+```
+
+`target` 必须对应实际唯一约束或唯一索引。对于“只想忽略重复导入”，使用 `.onConflictDoNothing()`。
+
+### 6.5 过滤条件怎样组合？
+
+| 目标 | API 示例 |
+| --- | --- |
+| 相等 / 不等 | `eq(users.role, 'admin')` / `ne(...)` |
+| 范围 | `gt`、`gte`、`lt`、`lte` |
+| 多个候选值 | `inArray(users.id, ids)` |
+| 空值判断 | `isNull(users.deletedAt)` |
+| 模糊查询（PostgreSQL） | `ilike(users.name, '%关键字%')` |
+| 逻辑组合 | `and(...)`、`or(...)`、`not(...)` |
+
+> 重点：`ilike` 的前导 `%` 往往无法使用普通 B-tree 索引。搜索量上来后，应评估 `pg_trgm`、全文检索或专用搜索服务，而不是只给该列加一个普通索引。
+
+### 本章工程师审查
+
+- 插入、更新、删除示例都明确处理了 PostgreSQL 的 `returning()` 语义。
+- Upsert 依赖真实唯一约束，避免并发下“先查询再插入”的错误实现。
+- 读取示例只投影所需字段，写入示例都带条件；全表写入风险已明确说明。
+- 对模糊搜索的索引局限作出提示，避免把 ORM API 当成性能保证。
