@@ -1264,7 +1264,11 @@ export function UserProfile({ userId }: { userId: string }) {
 export async function updateUser(userId: string, formData: FormData) {}
 ```
 
-利用 `useActionState` 的闭包能力传递参数
+> 其实**服务器操作**本质上是 RPC 格式的 POST 请求
+
+在表单 action 之外使用服务器操作直接传递参数即可，不需要使用 bind
+
+> 利用 `useActionState` 的闭包能力传递参数
 
 ``` ts
 // 在客户端组件中
