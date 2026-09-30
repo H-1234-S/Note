@@ -1171,6 +1171,27 @@ constructor(
 const role = this.reflector.get(ORG_ROLE_KEY, context.getHandler());
 ```
 
+# 网关
+
+在 Nest 中，网关是一种通过 `@WebSocketGateway()` 装饰器进行注解的类。
+
+Nest 默认支持两种 WebSocket 平台：socket.io 和 ws。
+
+> 构建基于 WebSockets 的应用程序
+
+``` sh
+npm i --save @nestjs/websockets @nestjs/platform-socket.io
+```
+
+## 概述
+
+```typescript
+@WebSocketGateway(80, { namespace: 'events' })
+```
+
+端口号作为装饰器的第一个参数；namespace命名空间
+
+
 # 生命周期
 
 中间件 → 守卫 → 拦截器(前) → 管道 → 控制器方法 → 拦截器(后) → 异常过滤器
