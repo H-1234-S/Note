@@ -137,3 +137,29 @@ private generateOrgSlug(name: string): string {
 > **命名空间作用：** 同一个数据库里，不同 schema 可以有同名表
 
 在项目中用于处理多租户、不同项目的数据隔离
+
+**所有租户共用一个物理数据库，靠 schema 分区**。
+
+所有 SQL 都带 `"${schema}"."${tableName}"` 前缀
+
+# 参数化查询
+
+参数化查询就是：**写 SQL 时用占位符 `?`（或 `$1`），把真正的值单独传进去**，而不是把值拼进 SQL 字符串里。
+
+``` ts
+const id = req.body.id;
+db.execute(`SELECT * FROM users WHERE id = ?`, [id]);  // 值单独传
+```
+
+现在用户传 `"5 OR 1=1"`，数据库也会把它**整个当成一个值**去比较
+
+``` sql
+SELECT * FROM users WHERE id = '5 OR 1=1'   -- 就是找个 id 字面等于这串字符的行，查不到，安全
+```
+
+先把 SQL 结构（`SELECT ... WHERE id = ?`）发给数据库编译好，**结构就固定死了**
+
+然后再传值。值永远只能填进那个 `?` 的坑里当"数据"，没有机会改变 SQL 的"结构"。
+
+> 对于值来说，可用使用**参数化查询**；但是对于列名、表名没办法使用
+
