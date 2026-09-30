@@ -1173,7 +1173,7 @@ const role = this.reflector.get(ORG_ROLE_KEY, context.getHandler());
 
 # 网关
 
-在 Nest 中，网关是一种通过 `@WebSocketGateway()` 装饰器进行注解的类。
+在 Nest 中，网关是一种通过 `@WebSocketGateway()` 装饰器进行注解的类；本质是一个 `Provider`
 
 Nest 默认支持两种 WebSocket 平台：socket.io 和 ws。
 
@@ -1191,7 +1191,37 @@ npm i --save @nestjs/websockets @nestjs/platform-socket.io
 
 端口号作为装饰器的第一个参数；`namespace` 为命名空间
 
+## 订阅消息
 
+用 `@SubscribeMessage()` 监听客户端发来的消息
+
+``` ts
+@SubscribeMessage('events')
+handleEvent(@MessageBody() data: string): string {
+  return data;  // 返回值会作为确认发送回客户端
+}
+```
+
+> `@SubscribeMessage()` 和 `@MessageBody()` 这些装饰器是从 `@nestjs/websockets` 包中导入的。
+
+## 获取客户端实例
+
+用 `@ConnectedSocket()` 拿到当前连接的 socket，可以直接用 `client.emit()` 主动推送
+
+``` ts
+@SubscribeMessage('events')
+handleEvent(@ConnectedSocket() client: Socket) {
+  client.emit('message', { hello: 'world' });
+}
+```
+
+## 生命周期钩子
+
+|接口|方法|时机|
+|---|---|---|
+|`OnGatewayInit`|`afterInit()`|网关初始化后|
+|`OnGatewayConnection`|`handleConnection()`|客户端连接时|
+|`OnGatewayDisconnect`|`handleDisconnect()`|客户端断开时|
 
 
 # 生命周期
