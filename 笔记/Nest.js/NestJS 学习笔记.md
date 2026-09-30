@@ -1189,7 +1189,9 @@ npm i --save @nestjs/websockets @nestjs/platform-socket.io
 @WebSocketGateway(80, { namespace: 'events' })
 ```
 
-端口号作为装饰器的第一个参数；namespace命名空间
+端口号作为装饰器的第一个参数；`namespace` 为命名空间
+
+
 
 
 # 生命周期
