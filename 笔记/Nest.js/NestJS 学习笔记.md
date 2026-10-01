@@ -1217,12 +1217,40 @@ handleEvent(@ConnectedSocket() client: Socket) {
 
 ## 生命周期钩子
 
-|接口|方法|时机|
-|---|---|---|
-|`OnGatewayInit`|`afterInit()`|网关初始化后|
-|`OnGatewayConnection`|`handleConnection()`|客户端连接时|
-|`OnGatewayDisconnect`|`handleDisconnect()`|客户端断开时|
+| 接口                    | 方法                   | 时机     |
+| --------------------- | -------------------- | ------ |
+| `OnGatewayInit`       | `afterInit()`        | 网关初始化后 |
+| `OnGatewayConnection` | `handleConnection()` | 客户端连接时 |
+| `OnGatewayDisconnect` | `handleDisconnect()` | 客户端断开时 |
 
+``` ts
+import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+} from '@nestjs/websockets';
+
+export class RealtimeGateway
+  implements OnGatewayConnection, OnGatewayDisconnect {
+  
+  async handleConnection(client){}
+  
+  async handleDisconnect(client){}
+  }
+```
+
+`OnGatewayConnection` 和 `OnGatewayDisconnect`，在客户端连接上自动触发对应函数
+
+``` ts
+interface OnGatewayConnection {
+  handleConnection(client: any, ...args: any[]): void;
+}
+
+interface OnGatewayDisconnect {
+  handleDisconnect(client: any): void;
+}
+```
+
+> **方法名是固定的、约定俗成的**。写了 `handleConnection`，NestJS 就会在连接时自动调用它。
 
 # 生命周期
 
