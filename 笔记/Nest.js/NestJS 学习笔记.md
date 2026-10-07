@@ -1256,6 +1256,32 @@ interface OnGatewayDisconnect {
 
 中间件 → 守卫 → 拦截器(前) → 管道 → 控制器方法 → 拦截器(后) → 异常过滤器
 
+## OnModuleDestroy
+
+`OnModuleDestroy` 是 NestJS **生命周期钩子**之一。它是一个接口，定义在 `@nestjs/common` 中：
+
+``` ts
+export interface OnModuleDestroy {
+  onModuleDestroy(): any;
+}
+```
+
+任何 Provider（Service、Gateway、Guard 等）只要实现了这个接口，Nest 就会在**该模块被销毁之前**调用它的 `onModuleDestroy()` 方法。
+
+``` ts
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
+@Injectable()
+export class UserService implements OnModuleDestroy {
+  onModuleDestroy() {
+    console.log('UserService 即将销毁，清理资源...');
+  }
+}
+```
+
+> **触发：**
+
+
+
 # API 文档
 
 ```bash
