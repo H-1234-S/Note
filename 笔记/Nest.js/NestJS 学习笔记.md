@@ -1177,7 +1177,7 @@ const role = this.reflector.get(ORG_ROLE_KEY, context.getHandler());
 
 Nest 默认支持两种 WebSocket 平台：socket.io 和 ws。
 
-> 构建基于 WebSockets 的应用程序
+> 用于构建基于 WebSockets 的应用程序
 
 ``` sh
 npm i --save @nestjs/websockets @nestjs/platform-socket.io
