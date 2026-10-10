@@ -130,6 +130,13 @@ private generateOrgSlug(name: string): string {
     拼起来 → `acme-org-a1b2c3`
     
 
+# OAuth
+
+
+
+
+
+
 # Schema
 
 `projects` 表的 `dbschema` 字段存放着**命名空间**
