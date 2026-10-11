@@ -29,6 +29,8 @@ const http = require('node:http')
 const data = require('./data.json')
 ```
 
+> 会自动转为**对象格式**
+
 ### module.exports
 
 ## ESModule
