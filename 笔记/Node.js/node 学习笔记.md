@@ -345,6 +345,8 @@ console.log(process.memoryUsage());
 | `external`     | 绑定到 V8 的 **C++ 对象**占用的内存（如 Buffer、原生模块）                               |
 | `arrayBuffers` | 所有 `ArrayBuffer` 和 `SharedArrayBuffer` 占用的内存（Buffer 底层也是 ArrayBuffer） |
 
+可以计算内存的占用率做cdn
+
 ## exit
 
 `process.exit()` 用于**退出一个进程**
