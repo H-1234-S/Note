@@ -1173,6 +1173,8 @@ const role = this.reflector.get(ORG_ROLE_KEY, context.getHandler());
 
 # 网关
 
+> Gateway 是 Nest 对 Websocket 的封装；用于处理 Websocket 连接
+
 在 Nest 中，网关是一种通过 `@WebSocketGateway()` 装饰器进行注解的类；本质是一个 `Provider`
 
 Nest 默认支持两种 WebSocket 平台：socket.io 和 ws。
