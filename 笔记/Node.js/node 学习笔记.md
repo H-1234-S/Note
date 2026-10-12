@@ -791,6 +791,8 @@ fs.writeFileSync("../index.txt", "append", {
 
 `fs.writeFile` 用法同 `fs.writeFileSync`；都没有返回值
 
+> 会覆盖之前的旧内容
+
 ## appendFileSync
 
 `fs.appendFileSync` 用于追加添加
