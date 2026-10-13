@@ -387,6 +387,10 @@ Greeter.prototype.greet = newGreet;
 
 ## 自定义装饰器
 
+> 自定义装饰器主要用于**把重复的逻辑从业务代码里抽出来**
+
+### 参数装饰器
+
 将属性附加到 **request** 对象上。然后在每个路由处理函数中手动提取
 
 ``` ts
@@ -408,6 +412,35 @@ async findOne(@User() user: UserEntity) {
   console.log(user);
 }
 ```
+
+### 组合装饰器
+
+> 组合装饰器主要借助于 `applyDecorators` 实现
+
+``` ts
+// auth.decorator.ts
+import { applyDecorators, UseGuards } from '@nestjs/common';
+import { AuthGuard } from './auth.guard';
+import { RolesGuard } from './roles.guard';
+import { Roles } from './roles.decorator';
+
+export function Auth(...roles: string[]) {
+  return applyDecorators(
+    Roles(...roles),
+    UseGuards(AuthGuard, RolesGuard),
+    ApiBearerAuth(), // Swagger 文档标注
+  );
+}
+```
+
+**使用：**
+
+``` ts
+@Get('admin')
+@Auth('admin')
+getAdminData() { ... }
+```
+
 ### 传递数据
 
 请求经过认证层，也就是 `Guard`，用户的实体已经被挂载到请求对象身上；从请求对象中提取属性
