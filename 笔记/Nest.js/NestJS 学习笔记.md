@@ -1320,12 +1320,120 @@ intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
 
 ### 全局注册
 
-**方式一：在 main.ts 中注册**
+> **方式一：在 main.ts 中注册**
 
 ``` ts
 const app = await NestFactory.create(AppModule);
 app.useGlobalInterceptors(new LoggingInterceptor());
 ```
+
+为 `useGlobalInterceptors()` 是在模块系统之外调用的（在 `main.ts` 里，此时应用刚创建），Nest 的依赖注入容器还没有接管这个实例。
+
+如果 `LoggingInterceptor` 的构造函数里需要注入其他服务，比如：
+
+``` ts
+@Injectable()
+export class LoggingInterceptor implements NestInterceptor {
+  constructor(private readonly loggerService: LoggerService) {} // 需要注入
+  // ...
+}
+```
+
+那么 `new LoggingInterceptor()` 就没办法自动注入 `LoggerService`，会报错。
+
+> **方式二：从模块内部注册全局拦截器**
+
+``` ts
+import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+
+@Module({
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,      // 用特殊 token 标识
+      useClass: LoggingInterceptor,  // 指定拦截器类
+    },
+  ],
+})
+export class AppModule {}
+```
+
+`APP_INTERCEPTOR` 是NestJS 提供的一个特殊令牌（token），用来告诉框架"这是一个全局拦截器"
+
+> NestJS 还有几个同类的令牌，用法完全一致：
+
+- `APP_GUARD` —— 全局守卫
+    
+- `APP_PIPE` —— 全局管道
+    
+- `APP_FILTER` —— 全局异常过滤器
+    
+- `APP_INTERCEPTOR` —— 全局拦截器（本段代码）
+    
+
+它们都遵循同一个设计思路：**在模块内注册，享受依赖注入**。
+
+## 示例
+
+### 记录请求耗时
+
+``` ts
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+
+@Injectable()
+export class LoggingInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const now = Date.now();
+    console.log('请求开始...');
+
+    return next.handle().pipe(
+      tap(() => console.log(`请求耗时: ${Date.now() - now}ms`))
+    );
+  }
+}
+```
+
+**执行流程：**
+
+1. 请求进来，打印“请求开始...”
+    
+2. `next.handle()` 执行路由处理函数
+    
+3. 处理函数返回结果后，`tap` 里的回调执行，打印耗时
+    
+4. 结果返回给客户端
+    
+
+`tap` 操作符的特点是：**不改变数据流的值，只做副作用操作**（如日志）。
+
+### 统一响应格式
+
+假设所有接口都返回 `{ code: 0, data: ..., message: 'success' }` 这种格式：
+
+``` ts
+@Injectable()
+export class TransformInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    return next.handle().pipe(
+      map(data => ({
+        code: 0,
+        data,
+        message: 'success',
+      }))
+    );
+  }
+}
+```
+
+`map` 操作符会**改变数据流的值**。
+
+
+
+
+
+
 
 
 
