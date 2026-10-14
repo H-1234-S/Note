@@ -1429,12 +1429,64 @@ export class TransformInterceptor implements NestInterceptor {
 
 `map` 操作符会**改变数据流的值**。
 
+### 缓存响应
 
+``` ts
+@Injectable()
+export class CacheInterceptor implements NestInterceptor {
+  private cache = new Map();
 
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const key = context.switchToHttp().getRequest().url;
 
+    if (this.cache.has(key)) {
+      console.log('命中缓存');
+      return of(this.cache.get(key)); // 直接返回缓存，不执行路由处理函数
+    }
 
+    return next.handle().pipe(
+      tap(data => this.cache.set(key, data)) // 首次请求后存入缓存
+    );
+  }
+}
+```
 
+如果直接返回 `of(缓存数据)`，就不会调用 `next.handle()`，路由处理函数根本不会执行。
 
+### 处理超时
+
+``` ts
+@Injectable()
+export class TimeoutInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    return next.handle().pipe(
+      timeout(5000), // 5 秒没返回就抛错
+      catchError(err => {
+        if (err instanceof TimeoutError) {
+          return throwError(() => new RequestTimeoutException());
+        }
+        return throwError(() => err);
+      })
+    );
+  }
+}
+```
+
+同时用到了 `timeout` 和 `catchError`
+
+## 执行顺序
+
+``` ts
+@UseInterceptors(LoggingInterceptor, TransformInterceptor)
+```
+
+> **执行：**
+
+```
+请求 → Logging前 → Transform前 → 路由处理函数
+                                        ↓
+响应 ← Logging后 ← Transform后 ← 返回值
+```
 
 
 # 生命周期
