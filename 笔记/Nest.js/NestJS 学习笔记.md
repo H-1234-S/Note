@@ -1287,6 +1287,48 @@ interface OnGatewayDisconnect {
 
 > **方法名是固定的、约定俗成的**。写了 `handleConnection`，NestJS 就会在连接时自动调用它。
 
+# 拦截器
+
+> 
+
+拦截器是一个通过 `@Injectable()` 装饰器进行注解的类，该类实现了 `NestInterceptor` 接口。
+
+## 基础知识
+
+拦截器的 `intercept` 方法接收两个参数：
+
+- `ExecutionContext`：当前执行上下文（能拿到请求、响应、handler 等）
+    
+- `CallHandler`：调用下一个环节（最终会执行到路由处理函数）
+
+``` ts
+intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  // 1. 在 next.handle() 之前的代码 → 请求处理前执行
+  return next.handle().pipe(
+    // 2. 在 pipe 里的操作符 → 请求处理后执行
+  );
+}
+```
+
+`intercept` 必须返回一个 `Observable`。`CallHandler` 的 `handle()` 方法也返回 `Observable`，代表路由处理函数的执行结果。
+
+> **使用拦截器：** 与管道和守卫类似，拦截器可以是控制器级、方法级，或者全局级。
+
+```typescript
+@UseInterceptors(LoggingInterceptor)
+```
+
+### 全局注册
+
+**方式一：在 main.ts 中注册**
+
+``` ts
+const app = await NestFactory.create(AppModule);
+app.useGlobalInterceptors(new LoggingInterceptor());
+```
+
+
+
 # 生命周期
 
 中间件 → 守卫 → 拦截器(前) → 管道 → 控制器方法 → 拦截器(后) → 异常过滤器
