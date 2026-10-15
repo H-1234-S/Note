@@ -107,6 +107,9 @@ NestFactory.create(AppModule)
 
 > 源码分析：不同 Nest 版本内部类的细节可能变化，但面试应抓住稳定职责：`NestFactory` 负责启动，`DependenciesScanner` 负责发现依赖和元数据，`Container` 保存模块，`Injector` 解析并创建实例，`RouterExplorer`/`RoutesResolver` 负责路由映射。
 
+
+
+
 ### 1.4 常见误区 ⚠️
 
 - **Nest 不是替代 Node.js event loop 的运行时。** Controller 中执行 CPU 密集同步计算，仍然会阻塞所有请求。
