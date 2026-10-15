@@ -326,7 +326,8 @@ class Greeter {
   greet(name: string) { ... }
 }
 
-// 等价于
+// 等价于------
+
 class Greeter {
   greet(name: string) { ... }
 }
