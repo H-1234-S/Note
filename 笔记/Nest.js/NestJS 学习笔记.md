@@ -777,7 +777,19 @@ providers: [
 ]
 ```
 
-给同一个实例起多个 token 名，两个 token 指向同一实例。
+给同一个实例起多个 token 名，两个 token **指向同一实例**
+
+``` ts
+providers: [
+  ConsoleLogger,
+  {
+    provide: 'LOGGER',
+    useClass: ConsoleLogger,
+  },
+]
+```
+
+注册了两个提供器：`ConsoleLogger` 和 `LOGGER`。在默认的单例作用域下，通常会各自创建一个实例。
 
 # 模块
 
