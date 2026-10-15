@@ -36,6 +36,42 @@ class UserService {
 
 > 不会被擦除意思是类本身还存在
 
+**示例：**
+
+``` ts
+class Person {
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  sayHi() {
+    console.log(this.name);
+  }
+}
+```
+
+例如这个类，作为值：
+
+``` ts
+const p = new Person("张三");
+p.sayHi();
+```
+
+作为类型：
+
+``` ts
+const p: Person = {
+  name: "张三",
+  sayHi() {
+    console.log(this.name);
+  },
+};
+```
+
+被修饰的对象只需要包含这个类中的属性和方法即可
+
 ## implements
 
 `implements` 是 **TypeScript** 中的一个关键字，用于表示一个类**实现**了某个接口（interface）。
