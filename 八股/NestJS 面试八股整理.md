@@ -136,7 +136,7 @@ const context =
 
 第二种创建的是独立应用上下文，核心是 Nest 的 IoC 容器，没有 HTTP 监听器，适合 CLI、定时任务脚本等场景。
 
-#### 1.3.3 创建 `NestContainer` 与 `ModuleCompiler`
+#### 1.3.3 `NestContainer` 与 `ModuleCompiler`
 
 `NestContainer` 可以理解为 NestJS 应用的**依赖关系注册中心**
 
@@ -154,6 +154,17 @@ export class UsersModule {}
 Nest 需要记录哪个模块包含 `UsersController`、哪个模块注册了 `UsersService`、`UsersService` 是否允许其他模块通过模块导出机制访问等内容
 
 > 注意，容器不仅是一个简单的 `Map<Class, Instance>`。因为Nest 还要处理模块边界、作用域、动态模块、循环依赖和自定义 Provider 等情况。
+
+`ModuleCompiler` 用于把普通模块、动态模块等不同形式的输入，转换成可以注册到容器中的内部表示
+
+#### 1.3.4 `DependenciesScanner` 扫描 `AppModule`
+
+
+
+
+
+
+
 
 ### 1.4 常见误区 ⚠️
 
