@@ -1397,8 +1397,6 @@ interface OnGatewayDisconnect {
 
 # 拦截器
 
-> 
-
 拦截器是一个通过 `@Injectable()` 装饰器进行注解的类，该类实现了 `NestInterceptor` 接口。
 
 ## 基础知识
