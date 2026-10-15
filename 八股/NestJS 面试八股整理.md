@@ -107,6 +107,19 @@ NestFactory.create(AppModule)
 
 > 源码分析：不同 Nest 版本内部类的细节可能变化，但面试应抓住稳定职责：`NestFactory` 负责启动，`DependenciesScanner` 负责发现依赖和元数据，`Container` 保存模块，`Injector` 解析并创建实例，`RouterExplorer`/`RoutesResolver` 负责路由映射。
 
+#### 1.3.1 create 创建了什么？
+
+`NestContainer` 保存模块结构、Provider、Controller 等注册信息
+
+`ModuleCompiler` 编译或归一化模块定义，处理动态模块等情况
+
+`DependenciesScanner` 递归扫描模块及其元数据
+
+`InstanceLoader` 协调创建模块中的各类实例
+
+`Injector` 解析依赖并完成实例化、属性注入等工作
+
+`NestApplication` 对外提供 `get()`、`use()`、`listen()` 等应用能力
 
 
 
