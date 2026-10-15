@@ -744,6 +744,8 @@ constructor(@Inject('API_KEY') private apiKey: string) {}
 
 ### useFactory：工厂函数
 
+> 常用于读取配置、异步初始化、根据参数动态配置
+
 ``` ts
 providers: [
   {
