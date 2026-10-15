@@ -742,6 +742,8 @@ providers: [
 constructor(@Inject('API_KEY') private apiKey: string) {}
 ```
 
+适用于不需要 Nest 创建实例；常用于注入配置项
+
 ### useFactory：工厂函数
 
 > 常用于读取配置、异步初始化、根据参数动态配置
