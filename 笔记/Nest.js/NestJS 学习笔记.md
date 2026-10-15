@@ -457,6 +457,8 @@ Greeter.prototype.greet = newGreet;
 
 # Nest中装饰器
 
+> Nest 核心思想就是：**装饰器负责声明信息，框架负责读取信息并执行。**
+
 ## 参数装饰器
 
 | `@Request(), @Req()`       | `req`                                |
@@ -564,6 +566,8 @@ export const User = createParamDecorator(
   },
 );
 ```
+
+
 
 # 控制器
 
