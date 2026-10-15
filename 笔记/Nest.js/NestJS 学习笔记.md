@@ -690,7 +690,7 @@ Nest 启动时扫描 `providers`，创建 `xxxxService` 实例，然后把它注
 
 ## 作用域
 
-默认提供器是**单例（Singleton）**，整个应用共享一个实例。
+默认提供器是**单例（Singleton）**，整个 Module 共享一个实例。
 
 ``` ts
 @Injectable({ scope: Scope.REQUEST })
