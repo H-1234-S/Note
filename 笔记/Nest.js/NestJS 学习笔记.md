@@ -1104,7 +1104,7 @@ export class TodoModule implements NestModule {
 
 > 如果使用多个中间件，只需要在 `apply` 中用逗号隔开
 
-## 排除路由
+### 排除路由
 
 使用 `exclude()` 方法
 
