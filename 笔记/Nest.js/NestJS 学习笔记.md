@@ -859,7 +859,7 @@ export class CatsModule {}
 
 `@Global()` 装饰器使模块具有全局作用域。全局模块应**只注册一次**，通常由根模块或核心模块注册。
 
-在上述示例中，`CatsService` 提供者将无处不在，而希望注入该服务的模块无需在其 imports 数组中导入 `CatsModule`
+`@Global()` 并不是让所有地方的所有同名 Provider 自动变成同一个实例；它是让该模块导出的 Provider 在其他模块中可以全局使用。
 
 ## 动态模块
 
