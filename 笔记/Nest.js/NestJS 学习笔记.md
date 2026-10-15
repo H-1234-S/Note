@@ -323,7 +323,6 @@ class UserController {
 | `parameterIndex` | 参数在方法参数列表中的位置           |
 
 
-
 ## 示例讲解
 
 为 `greet` 方法添加一个日志功能
