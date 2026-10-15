@@ -121,7 +121,39 @@ NestFactory.create(AppModule)
 
 `NestApplication` 对外提供 `get()`、`use()`、`listen()` 等应用能力
 
+#### 1.3.2 NestApplicationContext / NestApplication
 
+``` ts
+// HTTP Web 应用
+const app = await NestFactory.create(AppModule);
+
+// 不需要 HTTP 服务器的独立应用
+const context =
+  await NestFactory.createApplicationContext(AppModule);
+```
+
+第一种通常返回实现 `INestApplication` 的 `NestApplication` 实例。它需要 HTTP Adapter，最终可以监听端口。
+
+第二种创建的是独立应用上下文，核心是 Nest 的 IoC 容器，没有 HTTP 监听器，适合 CLI、定时任务脚本等场景。
+
+#### 1.3.3 创建 `NestContainer` 与 `ModuleCompiler`
+
+`NestContainer` 可以理解为 NestJS 应用的**依赖关系注册中心**
+
+**例如：**
+
+``` ts
+@Module({
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService],
+})
+export class UsersModule {}
+```
+
+Nest 需要记录哪个模块包含 `UsersController`、哪个模块注册了 `UsersService`、`UsersService` 是否允许其他模块通过模块导出机制访问等内容
+
+> 注意，容器不仅是一个简单的 `Map<Class, Instance>`。因为Nest 还要处理模块边界、作用域、动态模块、循环依赖和自定义 Provider 等情况。
 
 ### 1.4 常见误区 ⚠️
 
