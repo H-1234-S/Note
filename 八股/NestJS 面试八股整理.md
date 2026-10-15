@@ -159,6 +159,8 @@ Nest 需要记录哪个模块包含 `UsersController`、哪个模块注册了 `U
 
 #### 1.3.4 `DependenciesScanner` 扫描 `AppModule`
 
+`DependenciesScanner` 用于读取模块元数据，建立整个应用的模块图和注册关系
+
 
 
 
