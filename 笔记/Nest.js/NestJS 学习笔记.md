@@ -239,6 +239,7 @@ userService.register("test@example.com")
 装饰器是**一种在不修改原代码的前提下，给类、方法、属性、参数"附加功能"的语法**。
 
 > 装饰器本质是一个**函数**，它接收被装饰的目标，对它进行包装、修改或添加元数据，然后返回（或就地修改）。
+## 方法装饰器
 
 ``` js
 function decorator(value, context) {
@@ -273,6 +274,55 @@ class UserService {
 //   access: { has: [Function (anonymous)], get: [Function (anonymous)] }
 // }
 ```
+
+创建类时，方法装饰器执行一次
+
+## 类装饰器
+
+``` ts
+function LogClass(target: Function) {
+  console.log(`类 ${target.name} 已定义`);
+}
+
+@LogClass
+class UserService {
+  getUser() {
+    return "张三";
+  }
+}
+```
+
+当 JavaScript 加载并定义 `UserService` 类时，装饰器会执行
+
+## 属性装饰器
+
+``` ts
+function LogParam(
+  target: object,
+  propertyKey: string | symbol,
+  parameterIndex: number,
+) {
+  console.log("所属类：", target.constructor.name);
+  console.log("方法名：", propertyKey);
+  console.log("参数位置：", parameterIndex);
+}
+
+class UserController {
+  getUser(@LogParam id: number) {
+    return `用户 ${id}`;
+  }
+}
+```
+
+参数装饰器通常接收三个参数：
+
+| 参数               | 含义                      |
+| ---------------- | ----------------------- |
+| `target`         | 实例方法对应的原型对象；静态方法则对应类构造器 |
+| `propertyKey`    | 被装饰的方法名                 |
+| `parameterIndex` | 参数在方法参数列表中的位置           |
+
+
 
 ## 示例讲解
 
