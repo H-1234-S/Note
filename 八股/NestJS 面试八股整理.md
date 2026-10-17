@@ -294,7 +294,18 @@ findAll() {
 
 > 因此需要通过内部路由处理机制，将请求生命周期与控制器方法连接起来。
 
+``` ts
+// 伪代码
+const handler = async (req, res) => {
+  // 1. 提取请求参数
+  // 2. 执行相关的 Nest 请求处理逻辑
+  // 3. 调用控制器方法
+  const result = controller.findAll();
 
+  // 4. 将结果写入响应
+  res.json(result);
+};
+```
 
 ### 1.4 常见误区 ⚠️
 
