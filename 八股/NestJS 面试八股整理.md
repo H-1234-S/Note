@@ -307,7 +307,11 @@ const handler = async (req, res) => {
 };
 ```
 
-#### 1.3.7 将路由注册到底层 HTTP Adapter？
+#### 1.3.7 将路由注册到底层 HTTP Adapter
+
+NestJS 为什么能同时支持 Express 和 Fastify？答案就是 HTTP Adapter 这一层抽象。
+
+
 
 
 
