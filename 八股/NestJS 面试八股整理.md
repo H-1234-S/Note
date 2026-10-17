@@ -446,7 +446,7 @@ const paramTypes = Reflect.getMetadata(
 console.log(paramTypes[0] === UserService); // true
 ```
 
-**重要限制：TypeScript 运行时类型信息并不完整。** `string`、`number` 等可能只得到构造函数；interface、type alias、union、泛型通常会丢失，运行时不存在对应的 JavaScript constructor。因此 Nest 遇到接口型依赖时需要显式 token：`@Inject('USER_REPOSITORY')`。
+**重要限制：TypeScript 运行时类型信息并不完整。** `string`、`number` 等可能只得到构造函数；interface、type alias、union、泛型通常会丢失，运行时不存在对应的 JavaScript constructor。因此 Nest 遇到**接口型依赖**时需要显式 token：`@Inject('USER_REPOSITORY')`。
 
 ### 2.3 reflect-metadata 的存储模型
 
