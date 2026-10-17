@@ -369,6 +369,9 @@ Nest 的 RouterExplorer / RoutesResolver
 
 **例如：** `onModuleInit()` 和 `onApplicationBootstrap()` 等初始化钩子会在应用初始化期间执行，并且在开始监听连接前完成相应阶段
 
+##### 1.3.8.1 `await app.listen()` 为什么需要 `await`？
+
+
 
 
 ### 1.4 常见误区 ⚠️
