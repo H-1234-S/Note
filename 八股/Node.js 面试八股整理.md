@@ -228,8 +228,15 @@ Node 的 JS 层通过 `internalBinding('fs')` 调用到 C++ 层（`node_file.cc`
 
 #### 3.1.3 libuv 把阻塞操作排到 work queue
 
+ibuv 收到 `uv_fs_open(...)` 后：
 
+- 把请求**塞进线程池的任务队列**（work queue）
+    
+- 立即返回（`uv_fs_*` 调用本身不阻塞）
 
+> 主线程已经返回，继续执行 JS/事件循环；线程池中某个空闲工作线程从队列里取到这个任务
+
+#### 3.1.4 工作线程执行 open/read/close
 
 
 
