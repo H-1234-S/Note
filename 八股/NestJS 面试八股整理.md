@@ -311,7 +311,55 @@ const handler = async (req, res) => {
 
 NestJS 为什么能同时支持 Express 和 Fastify？答案就是 HTTP Adapter 这一层抽象。
 
+**两层架构：**
 
+```
+┌─────────────────────────────────────────
+│  NestJS 核心层                            
+│  Controller / RoutesResolver / RouterExplorer 
+│  （只认 Nest 自己的统一接口，不认 Express/Fastify）
+└──────────────────┬──────────────────────
+                   │  统一的 Adapter 接口
+        ┌──────────┴──────────┐
+        ▼                     ▼
+┌───────────────┐     ┌───────────────┐
+│ ExpressAdapter│     │ FastifyAdapter│
+└───────┬───────┘     └───────┬───────┘
+        ▼                     ▼
+   Express 路由 API       Fastify 路由 API
+```
+
+**核心思想**：
+
+Nest 的核心逻辑（Controller、路由解析）**不直接调用 Express 的 API**，而是调用 Adapter 暴露的统一接口。
+
+真正的"底层框架调用"被隔离在 Adapter 内部。
+
+> 其实就是对两个框架都实现了 **Adapter** ，Nest 的核心逻辑不依赖第三方库的 API，只调用 Adapter 对外暴露的统一接口
+
+##### 1.3.7.1  一个 @Get() 到底发生了什么？
+
+``` ts
+@Get()
+findAll() {
+  return [];
+}
+```
+
+**映射过程：**
+
+```
+@Get() 装饰器
+   │  记录元数据：这个方法是 GET 请求处理函数
+   ▼
+Nest 的 RouterExplorer / RoutesResolver
+   │  读取元数据，整理出「GET /users -> findAll」的映射表
+   ▼
+调用 Adapter 的统一接口（比如 adapter.get('/users', handler)）
+   │
+   ├─ ExpressAdapter → 转成 expressApp.get('/users', handler)
+   └─ FastifyAdapter → 转成 fastify.get('/users', handler)
+```
 
 
 
