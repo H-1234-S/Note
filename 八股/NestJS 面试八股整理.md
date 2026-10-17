@@ -361,6 +361,11 @@ Nest 的 RouterExplorer / RoutesResolver
    └─ FastifyAdapter → 转成 fastify.get('/users', handler)
 ```
 
+#### 1.3.8 `app.listen()` 真正启动服务器
+
+主要任务是启动底层 HTTP 服务器，让服务器监听指定端口。
+
+真实的 `NestApplication.listen()` 还会处理应用初始化、生命周期钩子、监听地址以及错误等情况，并非只是简单转发一次 `listen()` 调用。
 
 
 ### 1.4 常见误区 ⚠️
