@@ -109,6 +109,8 @@ NestFactory.create(AppModule)
 
 #### 1.3.1 create 创建了什么？
 
+> 工具的创建，保存了一些元数据
+
 `NestContainer` 保存模块结构、Provider、Controller 等注册信息
 
 `ModuleCompiler` 编译或归一化模块定义，处理动态模块等情况
