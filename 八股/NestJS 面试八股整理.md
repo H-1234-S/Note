@@ -307,6 +307,10 @@ const handler = async (req, res) => {
 };
 ```
 
+#### 1.3.7 将路由注册到底层 HTTP Adapter？
+
+
+
 ### 1.4 常见误区 ⚠️
 
 - **Nest 不是替代 Node.js event loop 的运行时。** Controller 中执行 CPU 密集同步计算，仍然会阻塞所有请求。
