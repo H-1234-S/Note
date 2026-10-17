@@ -365,7 +365,10 @@ Nest 的 RouterExplorer / RoutesResolver
 
 主要任务是启动底层 HTTP 服务器，让服务器监听指定端口。
 
-真实的 `NestApplication.listen()` 还会处理应用初始化、生命周期钩子、监听地址以及错误等情况，并非只是简单转发一次 `listen()` 调用。
+但是真实的 `NestApplication.listen()` 还会**处理应用初始化、生命周期钩子、监听地址以及错误等情况**，并非只是简单转发一次 `listen()` 调用。
+
+**例如：** `onModuleInit()` 和 `onApplicationBootstrap()` 等初始化钩子会在应用初始化期间执行，并且在开始监听连接前完成相应阶段
+
 
 
 ### 1.4 常见误区 ⚠️
