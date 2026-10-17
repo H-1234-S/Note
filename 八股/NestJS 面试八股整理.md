@@ -271,6 +271,15 @@ Injector 解析 UsersService 的依赖
 
 Nest 还需要读取控制器和方法上的路由元数据，把它们转换成 HTTP 服务器能识别的处理函数。
 
+##### 1.3.6.1 `RoutesResolver` 和 `RouterExplorer` 的职责区别
+
+> RoutesResolver：从模块中组织控制器路由
+
+遍历模块中的控制器，并协调对应的路由解析工作，同时考虑模块路径和全局前缀等信息。
+
+> RouterExplorer：探索控制器中的路由方法
+
+发现 HTTP 方法对应的路由元数据，生成请求处理代理，并将路由映射到 HTTP Adapter。
 
 
 
