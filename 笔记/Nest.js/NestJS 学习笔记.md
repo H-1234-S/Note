@@ -692,6 +692,14 @@ const app = await NestFactory.create(AppModule, {
 
 Nest 启动时扫描 `providers`，创建 `xxxxService` 实例，然后把它注入到需要它的 `xxxxController` 构造函数中。
 
+**注意：**
+
+默认作用域的实例通常按模块内的 Provider 注册进行共享，不是全应用里只要类名相同，就必然共享同一个实例。
+
+在同一个 Module 中 Provider 是单例的；但如果在两个不同模块中分别注册同一个类，可能形成两个不同的 Provider 注册及实例
+
+因此建议导入 Module，在 Module 里 export 该 Provider
+
 ## 作用域
 
 默认提供器是**单例（Singleton）**，整个 Module 共享一个实例。
@@ -1636,6 +1644,82 @@ const app = await NestFactory.create(AppModule);
 app.enableShutdownHooks();
 await app.listen(3000);
 ```
+
+# 依赖注入机制
+
+``` ts
+constructor(private userService: UserService) {}
+```
+
+构造函数编译后 TS 类型信息全部被擦除，也就是编译后的 JS 为：
+
+``` js
+constructor(userService) { this.userService = userService; }
+```
+
+> 运行时根本不知道参数是什么类型的，那 Nest 怎么知道该依赖注入谁？
+
+**但是** `TypeScript` **在编译时把类型信息「写进」产物里**，通过装饰器 + 元数据。
+
+**`tsconfig.json` 里：**
+
+``` json
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
+
+开启 `emitDecoratorMetadata` 后，TypeScript 会为**被装饰器修饰的类/方法**自动生成元数据，其中就包括 `design:paramtypes`
+
+> **构造函数编译后**，会多出一段：
+
+``` js
+Xxx = __decorate([
+  Injectable(),
+  __metadata("design:paramtypes", [UserService])
+], Xxx);
+```
+
+`design:paramtypes` 这个数组，就是**构造函数参数的类型列表**。
+
+Nest 在运行时通过 `Reflect.getMetadata('design:paramtypes', Xxx)` 拿到它，得到 `[UserService]`，于是知道该依赖注入谁
+
+> **注意：**
+
+1. `emitDecoratorMetadata` 只在**有装饰器**的地方生成元数据
+
+2. 接口 `interface` 无法被依赖注入；因为编译后类型被擦除了
+
+``` ts
+interface IUserService {}
+
+constructor(private svc: IUserService) {} // ❌
+```
+
+但是可以在 `Module` 中注册对应的 `Provider`，之后使用 `@Inject(Token)` 显示使用
+
+``` ts
+export const CONFIG = Symbol('CONFIG');
+
+@Injectable()
+class AppService {
+  constructor(
+    @Inject(CONFIG) private config: Config,
+  ) {}
+}
+
+//------
+// Module 中注册即可
+{
+  provide: CONFIG,
+  useValue: { port: 3000 },
+}
+```
+
+
 
 # 元数据
 

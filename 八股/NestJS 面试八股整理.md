@@ -161,11 +161,93 @@ Nest 需要记录哪个模块包含 `UsersController`、哪个模块注册了 `U
 
 `DependenciesScanner` 用于读取模块元数据，建立整个应用的模块图和注册关系
 
-使用 
+**递归扫描** 的核心逻辑：**先深度优先地遍历模块树，把遇到的每一个模块都登记到容器里，同时记录它们之间的引用关系**
 
+**例子：**
 
+``` ts
+// app.module.ts
+@Module({
+  imports: [AnimalsModule], // 1. 从 AppModule 开始
+})
+export class AppModule {}
 
+// animals.module.ts
+@Module({
+  imports: [CatsModule], // 3. 深入扫描 AnimalsModule 时，发现了 CatsModule
+})
+export class AnimalsModule {}
 
+// cats.module.ts
+@Module({})
+export class CatsModule {}
+```
+
+`DependenciesScanner.scan(AppModule)` 的执行路径大概是：
+
+- 第一步：`scanForModules(AppModule)`。把 `AppModule` 注册进容器，读它的 `imports`，发现 `AnimalsModule`。
+    
+- 第二步：对 `AnimalsModule` **递归**调用扫描。把 `AnimalsModule` 注册进容器，读它的 `imports`，发现 `CatsModule`。
+    
+- 第三步：对 `CatsModule` 再次**递归**。把 `CatsModule` 注册进容器，它的 `imports` 是空的，递归触底，开始逐层返回。
+
+> `DependenciesScanner` 不关心模块内部具体有哪些 `Provider` 或 `Controller`，只负责把“模块”这个层级的结构理清楚。
+
+之后 `scanModulesForDependencies` 才会去细看每个已注册模块里的 `providers`、`controllers` 和 `exports`
+
+#### 1.3.5 `InstanceLoader + Injector` 实例化 Provider 和 Controller
+
+`InstanceLoader` 负责遍历容器中的模块，**协调创建**各模块中注册的 Provider、Controller 等**实例**。
+
+`Injector` 负责解析注入令牌、查找依赖、处理构造函数参数、**实例化对象**，以及处理相关**注入逻辑**。
+
+**示例：**
+
+``` ts
+@Injectable()
+export class UsersService {
+  constructor() {
+    console.log('UsersService 创建了');
+  }
+
+  findAll() {
+    return [];
+  }
+}
+
+//-----------
+
+@Controller('users')
+export class UsersController {
+  constructor(
+    private readonly usersService: UsersService,
+  ) {
+    console.log('UsersController 创建了');
+  }
+}
+```
+
+``` text
+扫描模块
+  ↓
+注册 UsersService 和 UsersController 的定义
+  ↓
+InstanceLoader 协调实例创建
+  ↓
+Injector 解析 UsersService 的依赖
+  ↓
+创建 UsersService 实例
+  ↓
+解析 UsersController 的构造函数依赖
+  ↓
+将 UsersService 实例注入 Controller
+  ↓
+创建 UsersController 实例
+```
+
+##### 13.5.1 `Injector` 如何知道该注入哪个 Service
+
+[[NestJS 学习笔记#依赖注入机制]]
 
 
 ### 1.4 常见误区 ⚠️
