@@ -1607,7 +1607,8 @@ export class TimeoutInterceptor implements NestInterceptor {
 
 # 生命周期
 
-中间件 → 守卫 → 拦截器(前) → 管道 → 控制器方法 → 拦截器(后) → 异常过滤器
+> 中间件 → 守卫 → 拦截器(前) → 管道 → 控制器方法 → 拦截器(后) → 异常过滤器
+
 ## OnModuleDestroy
 
 `OnModuleDestroy` 是 NestJS **生命周期钩子**之一。它是一个接口，定义在 `@nestjs/common` 中：
