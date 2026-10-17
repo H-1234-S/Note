@@ -226,7 +226,7 @@ Node 的 JS 层通过 `internalBinding('fs')` 调用到 C++ 层（`node_file.cc`
 
 > C++ 层的作用是**把 JS 世界的数据翻译成 libuv 能理解的 C 结构**。这一步依然在主线程上。
 
-
+#### 3.1.3 libuv 把阻塞操作排到 work queue
 
 
 
