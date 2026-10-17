@@ -390,7 +390,7 @@ Nest 的 RouterExplorer / RoutesResolver
 
 **问：NestJS 为什么适合大型项目？**
 
-答：它用 Module 和 DI 约束依赖边界，用 Guard/Pipe/Interceptor/Filter 把横切逻辑结构化，并提供统一的生命周期和测试替换点，降低多人协作和长期维护成本。
+答：它用 Module 和 DI 约束依赖边界，**用 Guard/Pipe/Interceptor/Filter 把逻辑结构化**，并提供统一的生命周期和测试替换点，降低多人协作和长期维护成本。
 
 可能被追问：Fastify adapter 的收益和兼容性代价是什么？Nest 启动扫描发生在什么时候？Controller 方法最终如何成为 Express handler？
 
