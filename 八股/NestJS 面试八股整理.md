@@ -279,7 +279,7 @@ Nest 还需要读取**控制器和方法上的路由元数据**，把它们转�
 
 > RouterExplorer：探索控制器中的路由方法
 
-发现 HTTP 方法对应的路由元数据，**生成请求处理代理**，并将路由映射到 HTTP Adapter。
+发现 HTTP 方法对应的**路由元数据**，**生成请求处理代理**，并将路由映射到 HTTP Adapter。
 
 ##### 1.3.6.2 为什么需要生成请求处理代理？
 
@@ -1028,4 +1028,38 @@ class OrderController {
 - 能解释 Interceptor 为什么依赖 Observable，以及订阅时机为什么重要。
 - 能把 Nest 的 DI、AOP、Express/Fastify middleware 和 Node event loop 串成一条链。
 - 能在回答中主动提到可测试性、模块边界、作用域性能和 adapter 耦合，而不是只背 API。
+
+
+## 10. 源码
+
+建议按以下顺序阅读：
+
+1. `packages/core/nest-factory.ts`：看 `NestFactory.create()` 如何创建应用，以及调用链如何进入初始化流程。
+    
+2. `packages/core/scanner.ts`：重点追踪 `scan()`、模块扫描和 Provider 注册过程。
+    
+3. `packages/core/injector/instance-loader.ts`：观察它如何遍历模块并协调实例加载。
+    
+4. `packages/core/injector/injector.ts`：研究构造函数依赖如何被解析，以及实例如何被创建。
+    
+5. `packages/core/router/routes-resolver.ts` 和 `router-explorer.ts`：追踪 Controller 的方法如何成为真实 HTTP 路由。
+    
+6. `packages/core/nest-application.ts`：查看 `init()`、`listen()` 如何把初始化流程和底层 HTTP 服务器连接起来。
+    
+
+源码入口：
+
+- [`NestFactory`](https://github.com/nestjs/nest/blob/master/packages/core/nest-factory.ts?utm_source=chatgpt.com)
+    
+- [`DependenciesScanner`](https://github.com/nestjs/nest/blob/master/packages/core/scanner.ts?utm_source=chatgpt.com)
+    
+- [`InstanceLoader`](https://github.com/nestjs/nest/blob/master/packages/core/injector/instance-loader.ts?utm_source=chatgpt.com)
+    
+- [`Injector`](https://github.com/nestjs/nest/blob/master/packages/core/injector/injector.ts?utm_source=chatgpt.com)
+    
+- [`RoutesResolver`](https://github.com/nestjs/nest/blob/master/packages/core/router/routes-resolver.ts?utm_source=chatgpt.com)
+    
+- [`RouterExplorer`](https://github.com/nestjs/nest/blob/master/packages/core/router/router-explorer.ts?utm_source=chatgpt.com)
+    
+- [`NestApplication`](https://github.com/nestjs/nest/blob/master/packages/core/nest-application.ts?utm_source=chatgpt.com)
 
