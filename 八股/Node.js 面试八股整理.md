@@ -214,11 +214,17 @@ JS 调用 fs/promises
     
 3. 调用底层 C++ binding 去**登记该任务**
 
-#### 3.1.2 
+#### 3.1.2 Node C++ binding 创建 FS request
 
+Node 的 JS 层通过 `internalBinding('fs')` 调用到 C++ 层（`node_file.cc` 等）。C++ 层会：
 
+- 用 `FSReqCallback` / `FSReqPromise` 之类的对象**封装这次请求**：路径字符串、buffer、回调、Promise 的 resolve/reject 引用等
+    
+- 把这些数据放进一个"请求结构体"
+    
+- 然后调用 libuv 的接口，比如 `uv_fs_open()` / `uv_fs_read()`
 
-
+> C++ 层的作用是**把 JS 世界的数据翻译成 libuv 能理解的 C 结构**。这一步依然在主线程上。
 
 
 
