@@ -269,7 +269,7 @@ Injector 解析 UsersService 的依赖
 
 因为普通的 JavaScript 类方法，不会自动成为 HTTP 路由。
 
-Nest 还需要读取控制器和方法上的路由元数据，把它们转换成 HTTP 服务器能识别的处理函数。
+Nest 还需要读取**控制器和方法上的路由元数据**，把它们转换成 HTTP 服务器能识别的处理函数。
 
 ##### 1.3.6.1 `RoutesResolver` 和 `RouterExplorer` 的职责区别
 
@@ -279,7 +279,16 @@ Nest 还需要读取控制器和方法上的路由元数据，把它们转换成
 
 > RouterExplorer：探索控制器中的路由方法
 
-发现 HTTP 方法对应的路由元数据，生成请求处理代理，并将路由映射到 HTTP Adapter。
+发现 HTTP 方法对应的路由元数据，**生成请求处理代理**，并将路由映射到 HTTP Adapter。
+
+##### 1.3.6.2 为什么需要生成请求处理代理？
+
+``` ts
+@Get()
+findAll() {
+  return this.usersService.findAll();
+}
+```
 
 
 
