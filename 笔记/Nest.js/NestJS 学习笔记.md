@@ -711,10 +711,9 @@ export class UsersService {}
 
 | 作用域                  | 说明         |
 | -------------------- | ---------- |
-| `DEFAULT`（Singleton） | 全局单例（默认）   |
+| `DEFAULT`（Singleton） | 模块单例（默认）   |
 | `REQUEST`            | 每个请求创建新实例  |
 | `TRANSIENT`          | 每次注入都创建新实例 |
-
 > REQUEST 适合需要请求上下文（如当前用户）的场景；但会影响性能，慎用。
 
 ## 提供器类型

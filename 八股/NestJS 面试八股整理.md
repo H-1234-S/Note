@@ -251,6 +251,28 @@ Injector 解析 UsersService 的依赖
 
 [[NestJS 学习笔记#依赖注入机制]]
 
+##### 13.5.2 为什么默认 Provider 是单例？
+
+默认作用域的实例通常按模块内的 Provider 注册进行共享，不是全应用里只要类名相同，就必然共享同一个实例。
+
+如果在两个不同模块中分别注册同一个类，可能形成两个不同的 Provider 注册及实例。模块导入、导出与共享方式都会影响最终结果。
+
+另外，`REQUEST` 作用域和 `TRANSIENT` 作用域会改变实例生命周期，因此不能把所有 Provider 都理解成全局单例。
+
+[[NestJS 学习笔记#作用域]]
+
+#### 1.3.6 `RoutesResolver + RouterExplorer` 扫描控制器路由
+
+> 到这里，Nest 已经完成主要的**模块注册**和**实例化**工作。
+
+但 HTTP 请求依然不能自动找到 `UsersController.findAll()`。
+
+因为普通的 JavaScript 类方法，不会自动成为 HTTP 路由。
+
+Nest 还需要读取控制器和方法上的路由元数据，把它们转换成 HTTP 服务器能识别的处理函数。
+
+
+
 
 ### 1.4 常见误区 ⚠️
 
