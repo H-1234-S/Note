@@ -559,6 +559,8 @@ await atomicWrite(
 
 它还没有执行 `fsync()`，所以不能将其当成断电后一定能恢复新配置的完整持久性方案。
 
+> `ENOENT` 是 `Error No Entry` 的省略写法
+
 ### 5.2 文件描述符与资源释放
 
 每次 `open` 都消耗 OS 文件描述符；泄漏后会出现 `EMFILE`。尽量使用带自动关闭语义的 API/流，或在 `finally` 中关闭：
