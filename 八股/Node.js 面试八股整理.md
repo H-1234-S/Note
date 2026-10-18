@@ -496,9 +496,62 @@ createConfig().catch((error) => {
 
 ---
 
-写入关键配置可采用：写临时文件 → `fsync`（视持久性需求）→ 同目录 `rename` 替换。许多文件系统中同文件系统、同目录的 rename 是原子可见切换；跨文件系统则不保证。不要把 `writeFile` 当作事务或断电持久性保证。
+写入关键配置可采用：写临时文件 → `fsync`（视持久性需求）→ 同目录 `rename` 替换。
 
+许多文件系统中同文件系统、同目录的 rename 是原子可见切换；跨文件系统则不保证。
 
+不要把 `writeFile` 当作事务或断电持久性保证。
+
+``` ts
+import { open, rename, unlink } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { dirname, join, basename } from 'node:path';
+
+async function atomicWrite(
+  targetPath: string,
+  content: string,
+) {
+  const dir = dirname(targetPath);
+
+  // 临时文件放在目标文件的同一目录
+  const tempPath = join(
+    dir,
+    `.${basename(targetPath)}.${randomUUID()}.tmp`,
+  );
+
+  let file;
+
+  try {
+    // wx：独占创建，避免覆盖已经存在的临时文件
+    file = await open(tempPath, 'wx');
+
+    // 写入新内容
+    await file.writeFile(content, 'utf8');
+
+    // 关闭文件
+    await file.close();
+    file = undefined;
+
+    // 用临时文件替换目标文件
+    await rename(tempPath, targetPath);
+  } catch (error) {
+    await file?.close().catch(() => {});
+
+    // 尝试清理未成功替换的临时文件
+    await unlink(tempPath).catch(() => {});
+
+    throw error;
+  }
+}
+
+await atomicWrite(
+  './config.json',
+  JSON.stringify({
+    port: 4000,
+    database: 'new_db',
+  }, null, 2),
+);
+```
 
 ### 5.2 文件描述符与资源释放
 
