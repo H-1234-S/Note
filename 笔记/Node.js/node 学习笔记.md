@@ -1736,7 +1736,7 @@ console.log(canContinue);  // Boolean
 `write()` 返回 `true`，表示内部缓冲状态尚未达到需要暂停写入的阈值；
 
 返回 `false`，表示应该暂缓继续写入，等待 `drain` 事件。
-
+## pipe
 
 
 
