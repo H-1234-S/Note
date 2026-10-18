@@ -1821,7 +1821,7 @@ for await (const chunk of stream) {
 }
 ```
 
-写法会在每次循环中等待 `saveToDatabase()` 完成，因此不会无节制地同时启动大量写入任务
+在每次循环中等待 `saveToDatabase()` 完成，因此不会无节制地同时启动大量写入任务
 
 
 
