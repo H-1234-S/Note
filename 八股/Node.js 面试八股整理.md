@@ -399,6 +399,21 @@ destination.end();
 
 > HTTP 响应 `res` 也是 Writable。向慢客户端持续 `res.write` 而忽略 `false`，是 Node 服务内存上涨的经典原因。
 
+因为 res 是一个 Writable 流，当调用`res.write(chunk)` 时，数据**不一定立刻发到网络**，而是：
+
+1. 先进入 Node 内部的一个**缓冲区**（buffer）
+    
+2. 由底层 socket 慢慢把缓冲区里的数据发出去
+
+`res.write()` 的返回值告诉你**缓冲区的情况**：
+
+|返回值|含义|
+|---|---|
+|`true`|缓冲区还没满，**可以继续写**|
+|`false`|缓冲区**已经达到上限**（highWaterMark），你应该**停下来**，等 `'drain'` 事件再继续|
+
+> **注意：`false` 不是"写失败了"**，数据仍然被接收了。它只是一个 **"慢点写"的背压信号**。
+
 
 
 ### 4.4 `pipe`、`pipeline` 与错误
