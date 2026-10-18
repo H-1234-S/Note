@@ -466,9 +466,39 @@ await pipeline(Readable.from(generateData()), res);
 
 ### 5.1 原子性与竞态
 
-“先 `access` 判断存在，再 `writeFile`”是 TOCTOU（check 与 use 之间状态被其他进程改变）竞态。直接执行目标操作并处理 `ENOENT`、`EEXIST` 等错误更可靠。
+“先 `access` 判断存在，再 `writeFile`”是 TOCTOU（check 与 use 之间状态被其他进程改变）竞态。
+
+直接执行目标操作并处理 `ENOENT`、`EEXIST` 等错误更可靠。**示例：**
+
+``` ts
+import { open } from 'node:fs/promises';
+
+async function createConfig() {
+  let file;
+
+  try {
+    file = await open('./config.json', 'wx');  // wx 表示以独占创建方式打开文件。
+    await file.writeFile('{"port":3000}');
+  } finally {
+    await file?.close();
+  }
+}
+
+createConfig().catch((error) => {
+  if (error.code === 'EEXIST') {  // 如果目标文件已经存在，操作会失败，通常得到 EEXIST
+    console.log('文件已经存在，不能重复创建');
+    return;
+  }
+
+  console.error(error);
+});
+```
+
+---
 
 写入关键配置可采用：写临时文件 → `fsync`（视持久性需求）→ 同目录 `rename` 替换。许多文件系统中同文件系统、同目录的 rename 是原子可见切换；跨文件系统则不保证。不要把 `writeFile` 当作事务或断电持久性保证。
+
+
 
 ### 5.2 文件描述符与资源释放
 

@@ -928,7 +928,35 @@ stat.isCharacterDevice(); // 字符设备
 
 > `fs.access()` 适用于**你确实只想知道状态，而不打算立刻使用该文件**的场景。
 
+| 常量                  | 含义                          |
+| ------------------- | --------------------------- |
+| `fs.constants.F_OK` | 文件存在（默认值）                   |
+| `fs.constants.R_OK` | 可读                          |
+| `fs.constants.W_OK` | 可写                          |
+| `fs.constants.X_OK` | 可执行（Windows 上无效，行为同 `F_OK`） |
 
+可以用按位或（`|`）组合多个检查。例如，同时检查读写权限：
+
+``` ts
+import { access, constants } from 'node:fs/promises';
+
+try {
+  await access('/etc/passwd', constants.R_OK | constants.W_OK);
+  console.log('可读写');
+} catch {
+  console.error('不可访问');
+}
+```
+
+> **注意：** **不要在调用 `fs.open()`、`fs.readFile()` 或 `fs.writeFile()` 之前用它来检查文件是否可操作**。
+
+因为**竞争条件**（Race Condition）。从调用 `access()` 检查完毕，到真正调用 `open()` 或 `readFile()` 之间，存在一个时间窗口。
+
+其他进程可能在这个窗口内删除文件、修改权限或替换文件。基于一个**可能已经过时的检查结果去操作**，会导致不可预期的失败。
+
+**正确的做法**是直接尝试操作文件，并捕获可能抛出的错误。
+
+例如，想以独占方式创建文件，直接使用 `fs.open(path, 'wx')`，如果文件已存在，它会抛出 `EEXIST` 错误，你处理这个错误即可，无需先 `access` 再 `open`
 
 ---
 ## 注意
