@@ -398,6 +398,8 @@ for await (const chunk of source) {
 destination.end();
 ```
 
+
+
 > **方式二：**
 
 ``` ts
