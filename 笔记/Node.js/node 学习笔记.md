@@ -1648,7 +1648,7 @@ console.log(__dirname);
 
 因为 ESM 中没有 `__filename` 和 `__dirname` 
 
-# stream
+# stream api
 
 Stream 是 Node.js 处理大量数据的一种方式
 
@@ -1861,6 +1861,56 @@ for await (const chunk of stream) {
 
 
 
+
+
+# events api
+
+## once
+
+``` ts
+//   EventEmitter  事件名  可选的配置项
+once(emitter,name[,options])
+```
+
+等待某个 `EventEmitter` 触发指定事件，**返回一个 Promise**，事件触发时 `Promise resolve`。
+
+``` ts
+import { once } from 'node:events';
+
+await once(res, 'drain');
+```
+
+> 自动处理 `error` 事件
+
+`events.once` 会自动**同时监听 `'error'`**，一旦 error 先到，Promise 就 **reject**：
+
+``` ts
+try {
+  await once(res, 'drain');
+} catch (err) {
+  // res 出错了，这里能捕获到，而不是永远挂着
+}
+```
+
+> 自动清理监听器
+
+事件触发后，`once()` 会把临时注册的 `'drain'` 和 `'error'` 监听器都**移除**，不会残留、不会泄漏。
+
+> 支持 `AbortSignal`
+
+``` ts
+import { once } from 'node:events';
+
+const ac = new AbortController();
+// 比如 5 秒超时后取消
+setTimeout(() => ac.abort(), 5000);
+
+try {
+  await once(res, 'drain', { signal: ac.signal });
+} catch (err) {
+  // AbortError
+}
+```
 
 
 

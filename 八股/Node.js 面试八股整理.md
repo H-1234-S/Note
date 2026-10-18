@@ -415,8 +415,7 @@ import { once } from 'node:events';
 await once(res, 'drain');   // 等价于上面的 Promise 包装，但更健壮
 ```
 
-
-
+详细见 [[node 学习笔记#once]]
 
 > **方式二：**
 
