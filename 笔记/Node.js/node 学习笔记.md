@@ -823,13 +823,6 @@ try {
 }
 ```
 
-
-
-
-
-
-
-
 ## renameSync
 
 `fs.renameSync` 用于将文件重命名
@@ -839,6 +832,8 @@ const fs = require('node:fs')
 
 fs.renameSync('./test.txt','./test2.txt')
 ```
+
+**注意：** 会替换同一目录下的同名文件
 
 ## watch
 
