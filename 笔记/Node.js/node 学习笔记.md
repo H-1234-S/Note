@@ -1178,6 +1178,8 @@ readStream.pipe(zlib.createGunzip()).pipe(writeStream);
 
 > **流式压缩：**
 
+**pipe 自动处理了背压机制**
+
 ``` node
 const readStream = fs.createReadStream("../index.txt");
 const writeStream = fs.createWriteStream("../index.txt.deflate");
