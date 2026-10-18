@@ -1841,6 +1841,24 @@ for await (const chunk of stream) {
 }
 ```
 
+也可以接收一个**生成器**
+
+``` ts
+import { Readable } from 'node:stream';
+
+async function* generateData() {
+  for (let i = 1; i <= 3; i++) {
+    yield `第 ${i} 条数据\n`;
+  }
+}
+
+const stream = Readable.from(generateData());
+
+for await (const chunk of stream) {
+  console.log(chunk);
+}
+```
+
 
 
 
