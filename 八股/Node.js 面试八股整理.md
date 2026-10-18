@@ -466,7 +466,7 @@ await pipeline(Readable.from(generateData()), res);
 
 ### 5.1 原子性与竞态
 
-“先 `access` 判断存在，再 `writeFile`”是 TOCTOU（check 与 use 之间状态被其他进程改变）竞态。
+“先 `access` 判断存在，再 `writeFile`”是 TOCTOU（check 与 use 之间状态被其他进程改变）**竞态**。
 
 直接执行目标操作并处理 `ENOENT`、`EEXIST` 等错误更可靠。**示例：**
 
@@ -496,7 +496,7 @@ createConfig().catch((error) => {
 
 ---
 
-写入关键配置可采用：写临时文件 → `fsync`（视持久性需求）→ 同目录 `rename` 替换。
+> **写入关键配置可采用：** 写临时文件 → `fsync`（视持久性需求）→ 同目录 `rename` 替换。
 
 许多文件系统中同文件系统、同目录的 rename 是原子可见切换；跨文件系统则不保证。
 
@@ -552,6 +552,18 @@ await atomicWrite(
   }, null, 2),
 );
 ```
+
+这个例子主要展示“临时文件 → rename”的思路。
+
+实际使用前，需要考虑平台上的替换行为、目标路径是否存在、文件权限以及并发写入策略。
+
+它还没有执行 `fsync()`，所以不能将其当成断电后一定能恢复新配置的完整持久性方案。
+
+
+
+
+
+
 
 ### 5.2 文件描述符与资源释放
 
