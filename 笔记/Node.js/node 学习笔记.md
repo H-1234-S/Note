@@ -1107,7 +1107,21 @@ Node.js 读取文件的时候是使用 libuv 进行调度的
 
 它最显著的特点是默认会将分配的内存**全部填充为零**，从而避免泄露内存中残留的旧数据。
 
+> 方法签名是 `Buffer.alloc(size[, fill[, encoding]])`。
 
+- **`size`**：必填，Buffer 的期望长度（字节数）。如果传入的不是数字会抛 `TypeError`；如果小于 0 或超过上限会抛 `ERR_OUT_OF_RANGE`。
+
+- **`fill`**：可选，用于预填充的值。如果不传，默认填充 `0`，这就是它“安全”的原因。你可以传入字符串、Buffer 或整数来初始化内容。
+    
+- **`encoding`**：可选，当 `fill` 是字符串时指定编码，默认 `utf8`。
+
+**示例：**
+
+``` ts
+// 先按 base64 解码 'aGVsbG8gd29ybGQ=' 得到 'hello world'，再填充
+const buf = Buffer.alloc(11, 'aGVsbG8gd29ybGQ=', 'base64');
+console.log(buf); // 输出: <Buffer 68 65 6c 6c 6f 20 77 6f 72 6c 64>
+```
 
 ## concat
 
