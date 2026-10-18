@@ -1825,7 +1825,7 @@ for await (const chunk of stream) {
 
 ## Readable.from
 
-> 将现有数据转换成可读流；接收一个可迭代的对象
+> 将现有数据转换成可读流；**接收一个可迭代的对象**
 
 ``` ts
 import { Readable } from 'node:stream';
