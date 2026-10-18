@@ -1813,6 +1813,15 @@ async function readFile() {
 readFile().catch(console.error);
 ```
 
+因为它能自然地配合 `async/await`，例如每次收到一块数据后，还需要等待异步数据库写入或网络操作。
+
+``` ts
+for await (const chunk of stream) {
+  await saveToDatabase(chunk);
+}
+```
+
+写法会在每次循环中等待 `saveToDatabase()` 完成，因此不会无节制地同时启动大量写入任务
 
 
 
