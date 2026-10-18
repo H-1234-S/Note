@@ -398,7 +398,7 @@ for await (const chunk of source) {
 destination.end();
 ```
 
-
+`new Promise()` 接收一个 executor，向 destination 注册一个 `drain` 事件，回调是 resolve
 
 > **方式二：**
 
