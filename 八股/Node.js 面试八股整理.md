@@ -398,17 +398,25 @@ for await (const chunk of source) {
 destination.end();
 ```
 
-`new Promise()` 立刻执行 executor，向 destination 注册一个 `drain` 事件，回调是 resolve
+**执行流程：**
 
-此时 Promise 处于 **pending** 状态
+- `new Promise()` 立刻执行 executor，向 destination 注册一个 `drain` 事件，回调是 resolve
+- 此时 Promise 处于 **pending** 状态
+- 外层 `await` 让当前 `async` 函数**在这里暂停**，交出控制 
+- 等到 socket 把缓冲区里的数据发完，`res` 发出 `'drain'` 事 件
+- 事件触发 → 调用 `resolve()` → Promise 变成 **fulfilled**
+- `await` 恢复执行，代码继续往下走（下一个 chunk，或者 `res.end()`）
 
-外层 `await` 让当前 `async` 函数**在这里暂停**，交出控制 
+> **等价于：**
 
-等到 socket 把缓冲区里的数据发完，`res` 发出 `'drain'` 事 件
+``` ts
+import { once } from 'node:events';
 
-事件触发 → 调用 `resolve()` → Promise 变成 **fulfilled**
+await once(res, 'drain');   // 等价于上面的 Promise 包装，但更健壮
+```
 
-`await` 恢复执行，代码继续往下走（下一个 chunk，或者 `res.end()`）
+
+
 
 > **方式二：**
 
