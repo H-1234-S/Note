@@ -1769,7 +1769,15 @@ async function copyFile() {
 copyFile().catch(console.error);
 ```
 
+`pipeline()` 有什么优势？
 
+- 把多个流连接起来。
+    
+- 传播处理链中的错误。
+    
+- 在错误发生时协调销毁相关流。
+    
+- Promise 版本可以直接配合 `async/await`。
 
 ``` ts
 import { createReadStream, createWriteStream } from 'node:fs';
@@ -1781,6 +1789,28 @@ await pipeline(
   createGzip(),
   createWriteStream('./input.txt.gz'),
 );
+```
+
+## for await...of
+
+除了事件和 `pipe()`，现代 Node.js 还支持把可读流作为异步可迭代对象使用。
+
+``` ts
+import { createReadStream } from 'node:fs';
+
+async function readFile() {
+  const stream = createReadStream('./input.txt', {
+    encoding: 'utf8',
+  });
+
+  for await (const chunk of stream) {
+    console.log(chunk);
+  }
+
+  console.log('读取结束');
+}
+
+readFile().catch(console.error);
 ```
 
 
