@@ -1825,7 +1825,21 @@ for await (const chunk of stream) {
 
 ## Readable.from
 
-> 将
+> 将现有数据转换成可读流
+
+``` ts
+import { Readable } from 'node:stream';
+
+const stream = Readable.from([
+  'Hello ',
+  'Node ',
+  'Stream!',
+]);
+
+for await (const chunk of stream) {
+  console.log(chunk);
+}
+```
 
 
 
