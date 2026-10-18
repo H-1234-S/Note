@@ -386,16 +386,26 @@ Readable 推送 chunk
 
 `highWaterMark` 是缓冲阈值而非严格单块大小；对象模式按对象计数，字节模式按字节计。背压降低峰值内存，但不能让慢磁盘/慢客户端变快。
 
-手写时必须尊重 `write()` 的返回值：
+> **方式一：** 
 
 ```js
+// 手写时必须尊重 write() 的返回值
 for await (const chunk of source) {
-  // 
   if (!destination.write(chunk)) {
     await new Promise(resolve => destination.once('drain', resolve));
   }
 }
 destination.end();
+```
+
+> **方式二：**
+
+``` ts
+import { pipeline } from 'node:stream/promises';
+import { Readable } from 'node:stream';
+
+// 生成器/文件流 → 直接管道到 res，pipe 内部自动处理背压
+await pipeline(Readable.from(generateData()), res);
 ```
 
 > HTTP 响应 `res` 也是 Writable。向慢客户端持续 `res.write` 而忽略 `false`，是 Node 服务内存上涨的经典原因。
