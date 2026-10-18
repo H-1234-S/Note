@@ -1771,6 +1771,18 @@ copyFile().catch(console.error);
 
 
 
+``` ts
+import { createReadStream, createWriteStream } from 'node:fs';
+import { createGzip } from 'node:zlib';
+import { pipeline } from 'node:stream/promises';
+
+await pipeline(
+  createReadStream('./input.txt'),
+  createGzip(),
+  createWriteStream('./input.txt.gz'),
+);
+```
+
 
 
 
