@@ -763,6 +763,73 @@ fs.rm("../node", { recursive: true }, () => {});
     
 - **`force: true`**：路径不存在时**不报错**（类似 `rm -f`）。
 
+## unLink
+
+`fs.unlink` 是 Node.js 中用于**删除文件或符号链接**的核心方法；不能删除目录，删除目录使用 `fs.rm`
+
+``` ts
+// 异步回调
+const fs = require('node:fs');
+
+fs.unlink('/path/to/file.txt', (err) => {
+  if (err) {
+    console.error('删除失败:', err);
+    return;
+  }
+  console.log('文件已删除');
+});
+
+// 同步
+const fs = require('node:fs');
+
+try {
+  fs.unlinkSync('/path/to/file.txt');
+  console.log('文件已删除');
+} catch (err) {
+  console.error('删除失败:', err);
+}
+
+// promise
+import { unlink } from 'node:fs/promises';
+
+try {
+  await unlink('/path/to/file.txt');
+  console.log('文件已删除');
+} catch (err) {
+  console.error('删除失败:', err);
+}
+```
+
+> **错误处理：**
+
+| 错误码      | 含义    | 处理建议                           |
+| -------- | ----- | ------------------------------ |
+| `ENOENT` | 文件不存在 | 如果"文件已不在"符合预期，可以忽略此错误；否则需要排查路径 |
+| `EACCES` | 权限不足  | 检查运行进程的用户是否有目标目录的写权限           |
+
+``` ts
+import { unlink } from 'node:fs/promises';
+
+try {
+  await unlink(filePath);
+} catch (err) {
+  if (err.code === 'ENOENT') {
+    // 文件本就不存在，视为成功（幂等删除）
+  } else if (err.code === 'EACCES') {
+    console.error('没有权限删除该文件');
+  } else {
+    throw err;
+  }
+}
+```
+
+
+
+
+
+
+
+
 ## renameSync
 
 `fs.renameSync` 用于将文件重命名
