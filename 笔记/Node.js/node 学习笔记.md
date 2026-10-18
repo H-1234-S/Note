@@ -1692,6 +1692,55 @@ stream.on('error', (err) => {
 | `read()`                | 从内部缓冲区主动读取数据            |
 | `pipe(destination)`     | 将数据输送到另一个可写流            |
 | `destroy()`             | 销毁流，通常用于主动终止处理          |
+## createWriteStream
+
+> **创建可写流**
+
+``` ts
+import { createWriteStream } from 'node:fs';
+
+const stream = createWriteStream('./output.txt');
+
+stream.write('Hello ');
+stream.write('Node.js');
+stream.end('!');
+
+stream.on('finish', () => {
+  console.log('写入完成');
+});
+
+stream.on('error', (err) => {
+  console.error('写入失败：', err);
+});
+```
+
+> 常用的事件和方法
+
+| API                      | 作用                              |
+| ------------------------ | ------------------------------- |
+| `write(chunk)`           | 向可写流提交数据                        |
+| `end([chunk])`           | 表示不再写入新数据，并完成收尾                 |
+| `on('drain', callback)`  | 缓冲区排空到可以继续写入的状态时触发              |
+| `on('finish', callback)` | 调用 `end()` 后，所有写入数据都已交给底层写入流程处理 |
+| `destroy()`              | 销毁流                             |
+| `cork()` / `uncork()`    | 暂存写入，随后批量处理写操作，适用于特定优化场景        |
+
+> **注意：**
+
+``` ts
+const canContinue = stream.write('some data');
+
+console.log(canContinue);  // Boolean
+```
+
+`write()` 返回 `true`，表示内部缓冲状态尚未达到需要暂停写入的阈值；
+
+返回 `false`，表示应该暂缓继续写入，等待 `drain` 事件。
+
+
+
+
+
 
 
 
