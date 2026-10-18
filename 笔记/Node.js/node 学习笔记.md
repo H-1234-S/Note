@@ -660,6 +660,52 @@ util.format('%s 的得分是 %d', '李四', 95);
     
 - fs 返回的是一个 buffer 二进制数据，每两个十六进制数字表示一个字节
     
+## open
+
+`s.open` 的核心作用是**获取文件描述符（File Descriptor，简称 `fd`）**
+
+它是一个底层方法，是许多高层文件操作（如 `fs.read`、`fs.write`）的基础
+
+``` ts
+import { open } from 'node:fs/promises';
+
+await open(path,flags)
+```
+
+**示例：**
+
+``` ts
+import { open } from 'node:fs/promises';
+
+let filehandle;
+try {
+  filehandle = await open('/path/to/file', 'r');
+  console.log(filehandle.fd); // 文件描述符
+  // 使用 filehandle 进行读写...
+} finally {
+  await filehandle?.close(); // 必须手动关闭
+}
+```
+
+**核心参数 `Flags`** 
+
+`flags` 决定了文件如何被打开，是 `open` 方法最需要留意的部分。常用字符串标志如下：
+
+|标志|含义|文件不存在时是否创建|对已有文件的影响|
+|---|---|---|---|
+|`'r'`|只读|否（报错）|无|
+|`'r+'`|读写|否（报错）|无|
+|`'w'`|只写|**是**|**清空内容**|
+|`'w+'`|读写|**是**|**清空内容**|
+|`'a'`|追加写|**是**|在末尾追加|
+|`'a+'`|读取 + 追加|**是**|在末尾追加|
+
+**关键点**：`'w'` 和 `'w+'` 会**截断（清空）** 已存在的文件。如果你只想修改文件而非替换它，应使用 `'r+'` 而不是 `'w'`。
+
+**排他标志 `'x'`**：在上述标志后加上 `x`（如 `'wx'`），如果路径已存在，操作会直接失败，这常用于安全地创建新文件，避免覆盖
+
+> **注意：** 通过 `fs.open` 或 `fs.promises.open` 拿到的文件描述符/句柄**不会自动关闭**。需要在 `finally` 中调用 `close`
+
 
 ## readFile
 
