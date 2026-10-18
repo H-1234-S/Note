@@ -397,7 +397,9 @@ for await (const chunk of source) {
 destination.end();
 ```
 
-HTTP 响应 `res` 也是 Writable。向慢客户端持续 `res.write` 而忽略 `false`，是 Node 服务内存上涨的经典原因。
+> HTTP 响应 `res` 也是 Writable。向慢客户端持续 `res.write` 而忽略 `false`，是 Node 服务内存上涨的经典原因。
+
+
 
 ### 4.4 `pipe`、`pipeline` 与错误
 
