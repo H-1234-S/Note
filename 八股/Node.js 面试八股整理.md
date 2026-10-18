@@ -390,6 +390,7 @@ Readable 推送 chunk
 
 ```js
 for await (const chunk of source) {
+  // 
   if (!destination.write(chunk)) {
     await new Promise(resolve => destination.once('drain', resolve));
   }
