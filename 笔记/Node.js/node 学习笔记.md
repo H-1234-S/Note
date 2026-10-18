@@ -1101,6 +1101,14 @@ Node.js 读取文件的时候是使用 libuv 进行调度的
 
 ## from
 
+## alloc
+
+`Buffer.alloc()` 的核心作用是**安全地分配一个指定大小的 Buffer**。
+
+它最显著的特点是默认会将分配的内存**全部填充为零**，从而避免泄露内存中残留的旧数据。
+
+
+
 ## concat
 
 `Buffer.concat` 是 Node.js 里用来**把多个 Buffer 合并成一个 Buffer** 的方法。
