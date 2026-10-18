@@ -1738,6 +1738,36 @@ console.log(canContinue);  // Boolean
 返回 `false`，表示应该暂缓继续写入，等待 `drain` 事件。
 ## pipe
 
+``` ts
+import { createReadStream, createWriteStream } from 'node:fs';
+
+const source = createReadStream('./input.txt');
+const destination = createWriteStream('./copy.txt');
+
+source.pipe(destination);
+```
+
+相比自己监听 `data` 再调用 `write()`，`pipe()` 的优势是：它会根据目标可写流的处理能力，自动协调数据流动，避免无节制地写入。
+
+但是`pipe()` 的错误处理和整条链路的清理并不够完整，尤其是多段流连接时
+
+## pipeline
+
+``` ts
+import { createReadStream, createWriteStream } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
+
+async function copyFile() {
+  await pipeline(
+    createReadStream('./input.txt'),
+    createWriteStream('./copy.txt'),
+  );
+
+  console.log('复制完成');
+}
+
+copyFile().catch(console.error);
+```
 
 
 
