@@ -446,8 +446,6 @@ await pipeline(Readable.from(generateData()), res);
 
 但是如果忽略这个信号，socket 发送数据也发不出去，那么数据就会一直积压在缓冲区中，导致内存持续上涨
 
-
-
 ### 4.4 `pipe`、`pipeline` 与错误
 
 `readable.pipe(writable)` 会建立数据和基本背压传递，但复杂链中错误、销毁与资源关闭容易遗漏。`pipeline` 将一条管道视为整体：任一环错误时销毁相关流并以 reject/callback 交付错误，推荐用于生产文件/压缩/代理链路。
