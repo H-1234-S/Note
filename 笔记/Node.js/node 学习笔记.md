@@ -1650,7 +1650,48 @@ console.log(__dirname);
 
 # stream
 
-## 
+Stream 是 Node.js 处理大量数据的一种方式
+
+它在文件上传下载、HTTP 请求与响应、文件读写、数据压缩等场景中都非常重要。
+
+## createReadStream
+
+> **创建可写流**
+
+``` ts
+import { createReadStream } from 'node:fs';
+
+const stream = createReadStream('./input.txt', {
+  encoding: 'utf8',
+  highWaterMark: 4,  // 设置缓冲区大小
+});
+
+stream.on('data', (chunk) => {
+  console.log('数据块：', chunk);
+});
+
+stream.on('end', () => {
+  console.log('读取结束');
+});
+
+stream.on('error', (err) => {
+  console.error('读取失败：', err);
+});
+```
+
+> 常用的事件和方法：
+
+| API                     | 作用                      |
+| ----------------------- | ----------------------- |
+| `on('data', callback)`  | 有数据可供消费时触发              |
+| `on('end', callback)`   | 数据读取完毕时触发               |
+| `on('error', callback)` | 流发生错误时触发                |
+| `on('close', callback)` | 流关联的底层资源关闭时触发，具体时机取决于实现 |
+| `pause()`               | 暂停流的数据流动                |
+| `resume()`              | 恢复流的数据流动                |
+| `read()`                | 从内部缓冲区主动读取数据            |
+| `pipe(destination)`     | 将数据输送到另一个可写流            |
+| `destroy()`             | 销毁流，通常用于主动终止处理          |
 
 
 
