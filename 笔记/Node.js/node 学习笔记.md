@@ -1841,7 +1841,7 @@ for await (const chunk of stream) {
 }
 ```
 
-也可以接收一个**生成器**
+也可以接收一个**生成器**；适合流式输出
 
 ``` ts
 import { Readable } from 'node:stream';
