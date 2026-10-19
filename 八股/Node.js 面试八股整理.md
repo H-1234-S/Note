@@ -783,7 +783,7 @@ const response = await fetch('https://api.example.com/data', {
 });
 ```
 
-首次执行结果按解析后的绝对路径缓存在 `require.cache`；后续 `require` 返回相同的 `module.exports` 引用。因此模块顶层副作用通常只发生一次，也意味着可变导出是共享状态。
+首次执行结果按解析后的绝对路径缓存在 `require.cache`；后续 `require` 返回相同的 `module.exports` 引用。**因此模块顶层副作用通常只发生一次**，也意味着可变导出是共享状态。
 
 循环依赖时，Node 为了打破递归会先把尚未执行完的 `exports` 放进缓存，另一方拿到的可能是不完整对象。解决方式是减少循环、延迟访问，或抽取共同依赖；不要依赖某个偶然加载顺序。
 
