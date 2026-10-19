@@ -2094,7 +2094,23 @@ try {
 
 `net` 模块是 Node.js 处理 **TCP 和 IPC（进程间通信）** 的核心基础。
 
+## net.Server
 
+使用 `net.createServer()` 创建监听，传入的回调函数会自动成为 `connection` 事件的监听器。
+
+``` ts
+const net = require('node:net');
+
+const server = net.createServer((socket) => {
+  // 每当有客户端连进来，这个 socket 就是与那个客户端的专用通道
+  console.log('客户端已连接');
+  socket.end('你好，客户端\n');
+});
+
+server.listen(3000, '127.0.0.1', () => {
+  console.log('服务器正在监听 3000 端口');
+});
+```
 
 
 
