@@ -706,7 +706,17 @@ try {
 
 > **注意：** 通过 `fs.open` 或 `fs.promises.open` 拿到的文件描述符/句柄**不会自动关闭**。需要在 `finally` 中调用 `close`
 
+也可以使用 `using` 语法
 
+``` ts
+import { open } from 'node:fs/promises';
+
+{
+  await using handle = await open('data.txt', 'r');  // 离开作用域自动 close
+  const buf = Buffer.alloc(1024);
+  await handle.read(buf, 0, buf.length, 0);
+}  // 这里自动 await handle.close()
+```
 ## readFile
 
 `fs.readFile` 读取文件内容
@@ -758,7 +768,8 @@ newFn("../index.txt")
   });
 ```
 
-## createReadStream
+> **注意：** readFile 中自动处理了 `open` 和 `colse`
+## createReadStream 
 
 `fs.createReadStream` 是 Node.js 中**流式读取文件**的方法。
 
