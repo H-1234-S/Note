@@ -2094,6 +2094,9 @@ try {
 
 `net` 模块是 Node.js 处理 **TCP 和 IPC（进程间通信）** 的核心基础。
 
+模块的所有功能都围绕两个类展开：**`net.Server`** 负责“听”，**`net.Socket`** 负责“说”。
+
+`http` 模块的服务器底层就是继承自 `net.Server`。
 ## net.Server
 
 使用 `net.createServer()` 创建监听，传入的回调函数会自动成为 `connection` 事件的监听器。
@@ -2111,6 +2114,8 @@ server.listen(3000, '127.0.0.1', () => {
   console.log('服务器正在监听 3000 端口');
 });
 ```
+
+s
 
 
 
