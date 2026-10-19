@@ -2175,6 +2175,25 @@ client.on('data', (data) => {
     
 - **`socket.setKeepAlive(true)`**：开启 TCP 保活探测，用于检测死连接。
 
+## 发送响应
+
+1. **JavaScript 层**：`socket.write()` 将数据交给 `net.Socket` 的**可写流（Writable Stream）** 侧。
+    
+2. **Node.js/libuv 层**：Node.js 为这个数据块创建一个**原生写请求（native write request）**，并交给 `libuv`。
+    
+3. **libuv/操作系统层**：`libuv` 调用操作系统提供的 `write()` 系统调用，将数据提交给**内核的 socket 缓冲区**。
+    
+4. **内核/网络层**：内核的 TCP 协议栈负责将数据打包、分段，并通过网卡发送出去。
+
+## 接收请求
+
+1. **操作系统/内核**：网卡收到数据，内核 TCP 栈处理后放入 socket 的接收缓冲区。
+    
+2. **libuv**：检测到 socket 可读，从内核缓冲区读取字节到内存中。
+    
+3. **Node.js**：将读到的字节包装成 `Buffer`，推入 `net.Socket` 的**可读流（Readable Stream）** 侧。
+    
+4. **JavaScript 层**：触发 **`'data'` 事件**，你的回调函数拿到 `Buffer`。
 
 
 # express
