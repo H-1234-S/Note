@@ -814,12 +814,12 @@ setMode('prod'); console.log(mode); // prod
 
 ### 8.1 三种并行单元的选择
 
-| 机制 | 内存/Isolate | 通信 | 适用场景 |
-| --- | --- | --- | --- |
-| 主 event loop | 一个进程一个主 JS 线程 | 无 | I/O 编排、短逻辑 |
-| `worker_threads` | 每 Worker 独立 V8 Isolate，可共享 SAB | `postMessage` / Transfer / SharedArrayBuffer | CPU 密集计算、图像/加密 |
-| `child_process` | 独立进程和内存 | IPC/stdio/socket | 强隔离、运行外部命令 |
-| `cluster` | 多个 Node 进程 | 主进程调度连接/IPC | 多核扩展 HTTP（部署层常用多副本替代） |
+| 机制               | 内存/Isolate                     | 通信                                           | 适用场景                  |
+| ---------------- | ------------------------------ | -------------------------------------------- | --------------------- |
+| 主 event loop     | 一个进程一个主 JS 线程                  | 无                                            | I/O 编排、短逻辑            |
+| `worker_threads` | 每 Worker 独立 V8 Isolate，可共享 SAB | `postMessage` / Transfer / SharedArrayBuffer | CPU 密集计算、图像/加密        |
+| `child_process`  | 独立进程和内存                        | IPC/stdio/socket                             | 强隔离、运行外部命令            |
+| `cluster`        | 多个 Node 进程                     | 主进程调度连接/IPC                                  | 多核扩展 HTTP（部署层常用多副本替代） |
 
 ### 8.2 Worker Threads 的真实成本与通信
 
