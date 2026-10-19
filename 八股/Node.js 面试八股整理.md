@@ -640,6 +640,8 @@ TCP 三次握手建立双方初始序号与收发能力；四次挥手允许两�
 
 > TCP 只保证交付的字节流顺序正确，并不保证一次 `send()` 对应一次 `data` 事件。
 
+这就是 TCP 粘包与拆包问题。
+
 ```js
 import net from 'node:net';
 const server = net.createServer(socket => {
@@ -648,8 +650,9 @@ const server = net.createServer(socket => {
 server.listen(9000);
 ```
 
-应用协议必须定义 framing，例如固定头中携带 length、换行分隔，或使用 HTTP 自身的 Content-Length/chunked 编码。把一次 `data` 当成一次完整 JSON 是高频 bug。
+**解决：** 应用协议必须定义 framing，例如固定头中携带 length、换行分隔，或使用 HTTP 自身的 Content-Length/chunked 编码。
 
+把一次 `data` 当成一次完整 JSON 是高频 bug。
 
 ### TCP 相关高频点
 
@@ -657,6 +660,11 @@ server.listen(9000);
 - **流控**由接收窗口避免压垮接收端；**拥塞控制**根据网络状况限速，二者不同。
 - `TIME_WAIT` 常出现在主动关闭方，用于处理网络中延迟报文并确保对方收到最终确认；盲目调内核参数不是首选，优先复用连接、正确关闭。
 - keep-alive 有两层：TCP keepalive 是内核探测死连接；HTTP keep-alive 是复用同一 TCP 连接，语义/配置不同。
+
+### 6.2 Socket：Node.js 如何真正收发网络数据？
+
+
+
 
 ### 6.2 HTTP：在 TCP 字节流之上定义消息
 
