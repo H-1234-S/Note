@@ -633,6 +633,8 @@ server.listen(9000);
 
 应用协议必须定义 framing，例如固定头中携带 length、换行分隔，或使用 HTTP 自身的 Content-Length/chunked 编码。把一次 `data` 当成一次完整 JSON 是高频 bug。
 
+> TCP 只保证交付的字节流顺序正确
+
 ### TCP 相关高频点
 
 - **粘包/拆包不是 TCP 出错**，而是应用把流误当消息。
