@@ -2131,8 +2131,23 @@ server.listen(3000, '127.0.0.1', () => {
     
 - **`server.maxConnections`**：设置最大连接数。达到上限后，默认行为是**直接关闭**新到来的连接
 
-## net.
+## net.Socket
 
+`net.Socket` 是一个**双工流（Duplex Stream）**，既可以读（接收数据）也可以写（发送数据）。
+
+可以由服务器的 `connection` 事件创建（服务端侧），或者自己主动连接服务器时创建（客户端侧）。
+
+``` ts
+const client = net.createConnection({ port: 3000, host: '127.0.0.1' }, () => {
+  console.log('已连接到服务器');
+  client.write('你好，服务器！');
+});
+
+client.on('data', (data) => {
+  console.log('收到回复:', data.toString());
+  client.end(); // 收到回复后主动关闭
+});
+```
 
 
 
