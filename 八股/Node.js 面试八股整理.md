@@ -663,6 +663,10 @@ server.listen(9000);
 
 ### 6.2 Socket：Node.js 如何真正收发网络数据？
 
+TCP 连接其实就是一条通道，通道中是源源不断的数据；而 Socket 是程序操作这条通道的接口
+
+在 node 中，Socket 是来自于 node:net 模块
+
 
 
 
