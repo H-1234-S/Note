@@ -667,8 +667,55 @@ TCP 连接其实就是一条通道，通道中是源源不断的数据；而 Soc
 
 在 node 中，Socket 是来自于 node:net 模块
 
+#### Socket、端口与连接的关系
 
+一个服务端只有一个 3000 端口，那怎么服务成千上万个客户端？
 
+TCP 连接通常由四元组区分：
+
+`源 IP + 源端口 + 目标 IP + 目标端口`
+
+因此，**同一个服务端 IP 和端口可以同时对应许多客户端连接。**
+
+在 Node.js 中，`net.createServer()` 的回调参数 `socket` 就是一个具体连接对应的 Socket。每个客户端连接都会获得自己的 Socket 对象。
+
+> 一个 TCP 连接通常对应操作系统中的一个 Socket 资源，并消耗文件描述符。
+> 这和你前面学习的 `EMFILE`、文件描述符泄漏是相通的——Socket 不及时关闭，也可能导致资源耗尽。
+
+#### 换行符解决 TCP 粘包问题
+
+``` ts
+import net from 'node:net';
+
+const server = net.createServer((socket) => {
+  let buffer = '';
+
+  socket.setEncoding('utf8');
+
+  socket.on('data', (chunk) => {
+    buffer += chunk;
+
+    let index;
+
+    // 一次可能收到多条消息
+    while ((index = buffer.indexOf('\n')) !== -1) {
+      const message = buffer.slice(0, index);
+      buffer = buffer.slice(index + 1);
+
+      console.log('完整消息：', message);
+      socket.write(`收到：${message}\n`);
+    }
+  });
+
+  socket.on('error', (err) => {
+    console.error(err.message);
+  });
+});
+
+server.listen(3000, '127.0.0.1');
+```
+
+但是这个方案还需要考虑缓冲区上限、编码与连接异常等问题；真实协议也经常使用长度前缀。
 
 ### 6.2 HTTP：在 TCP 字节流之上定义消息
 
