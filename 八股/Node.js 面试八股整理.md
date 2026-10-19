@@ -166,7 +166,15 @@ bad(); // event loop 无法到 poll
 
 ### 2.3 “微任务在何时清空”为什么重要
 
-浏览器通常在一个宏任务结束后清空微任务；Node 除此之外还在 JS 回调边界处理 `nextTick` 与微任务。因此一个 I/O 回调中创建的 Promise 不必等到下一轮 I/O。顺序优先级可记成：**当前同步栈 > nextTick > Promise 微任务 > 进入下一事件循环阶段**。
+浏览器通常在一个宏任务结束后清空微任务；
+
+> Node 在"每个 JS 回调执行完"的边界上，会先处理 `process.nextTick` 队列，再处理 Promise 微任务
+
+```
+同步代码 > process.nextTick > Promise.then > setImmediate / 下一轮事件循环
+```
+
+因此一个 I/O 回调中创建的 Promise 不必等到下一轮 I/O。顺序优先级可记成：**当前同步栈 > nextTick > Promise 微任务 > 进入下一事件循环阶段**。
 
 Node 版本会优化 event loop 的具体 timer 行为，面试不要死背阶段细枝末节；不变的原理是：回调不能打断当前 JS 栈，微任务在回到事件循环前被耗尽，高优先级队列滥用会饿死 I/O。
 
