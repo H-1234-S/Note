@@ -2092,6 +2092,10 @@ try {
 ```
 
 
+# net api
+
+`net` 模块是 Node.js 处理 **TCP 和 IPC（进程间通信）** 的核心基础。
+
 
 
 
