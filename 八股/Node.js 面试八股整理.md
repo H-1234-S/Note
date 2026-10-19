@@ -571,7 +571,12 @@ await atomicWrite(
 
 ### 5.2 文件描述符与资源释放
 
-每次 `open` 都消耗 OS 文件描述符；泄漏后会出现 `EMFILE`。尽量使用带自动关闭语义的 API/流，或在 `finally` 中关闭：
+每次 `open` 都消耗 OS 文件描述符；泄漏后会出现 `EMFILE`。
+
+> **文件描述符：** 
+
+
+尽量使用带自动关闭语义的 API/流，或在 `finally` 中关闭：
 
 ```js
 import { open } from 'node:fs/promises';
