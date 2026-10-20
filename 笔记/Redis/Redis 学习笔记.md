@@ -513,7 +513,17 @@ XCLAIM image:stream workers worker-2 60000 1700000000000-0
 
 # 补充
 
+
+
+
+
+
 # 通用命令
+
+
+
+
+
 
 # Redis 复制
 
@@ -579,6 +589,19 @@ services:
 
 这里的 `redis-master` 是 Compose 中定义的服务名，Docker 内部网络会自动把它解析到主节点的容器 IP，无需手动写死 IP 地址。
 
+> **验证：**
+
+``` bash
+# 查看主节点复制状态
+docker exec -it redis-master redis-cli
+127.0.0.1:6379> info replication
+```
+
+``` bash
+# 查看从节点状态
+docker exec -it redis-slave1 redis-cli
+127.0.0.1:6379> info replication
+```
 
 # Redis 哨兵
 
