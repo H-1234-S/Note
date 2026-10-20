@@ -539,3 +539,37 @@ Redis 哨兵（Sentinel）是 Redis 官方提供的**高可用性解决方案**�
 
 哨兵通常以集群方式部署，为了避免单点误判，**建议至少部署 3 个哨兵节点**（奇数个）。
 
+> **核心配置：**
+
+``` conf
+# sentinel.conf
+# 监控名为 mymaster 的主节点，IP 为 127.0.0.1，端口 6379
+# 最后的数字 2 是 quorum（法定票数），表示至少需要 2 个哨兵认为主节点挂了，才算“客观下线”
+sentinel monitor mymaster 127.0.0.1 6379 2
+
+# 判定主观下线的超时时间（毫秒），即多久没响应 PING 就认为可能挂了
+sentinel down-after-milliseconds mymaster 30000
+
+# 故障转移超时时间
+sentinel failover-timeout mymaster 180000
+
+# 故障转移时，最多允许多少个从节点同时向新主节点发起同步
+sentinel parallel-syncs mymaster 1
+```
+
+每个哨兵节点都需要一个配置文件（如 `sentinel.conf`）
+
+> **启动与验证：**
+
+使用 `redis-sentinel` 命令或 `redis-server` 加 `--sentinel` 参数启动。启动后，可以通过哨兵端口（默认 26379）进行查询验证：[](https://raw.githubusercontent.com/dunwu/db-tutorial/master/docs/12.%E6%95%B0%E6%8D%AE%E5%BA%93/05.KV%E6%95%B0%E6%8D%AE%E5%BA%93/01.Redis/06.Redis%E5%93%A8%E5%85%B5.md#1)
+``` bash
+redis-cli -p 26379
+> sentinel masters              # 查看监控的主节点状态
+> sentinel get-master-addr-by-name mymaster  # 获取当前主节点的 IP 和端口
+```
+
+> **客户端连接：**
+
+在代码中，不要直接连接 Redis 的 6379 端口，而应该配置**哨兵节点的地址列表**。
+
+客户端（如 Jedis、Lettuce）会向哨兵询问当前主节点地址，并在收到故障转移通知后自动重连新的主节点。
