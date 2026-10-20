@@ -175,3 +175,26 @@ Set 是无序且元素唯一的字符串集合。
 | `SPOP`        | 随机移除并返回元素    |
 | `SRANDMEMBER` | 随机获取元素，不一定删除 |
 | `SSCAN`       | 增量遍历集合       |
+
+## 实现点赞
+
+```
+SADD article:1001:likes user:1
+SADD article:1001:likes user:2
+SADD article:1001:likes user:1
+
+SCARD article:1001:likes
+SISMEMBER article:1001:likes user:1
+SREM article:1001:likes user:1
+```
+
+执行两次 `SADD` 添加 `user:1`，集合中仍然只有一个 `user:1`。
+
+- `SCARD`：统计点赞人数。
+    
+- `SISMEMBER`：判断某个用户是否已经点赞。
+    
+- `SREM`：取消点赞。
+
+## 集合运算：共同好友
+
