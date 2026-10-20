@@ -423,3 +423,22 @@ XRANGE orders - +
 ```
 
 > `-` 和 `+` 分别表示最小与最大 ID
+
+**创建消费者组：**
+
+```
+// XGROUP CREATE key group id|$ [MKSTREAM] [ENTRIESREAD n]
+
+XGROUP CREATE orders order-workers 0 MKSTREAM
+```
+
+> MKSTREAM 表示流不存在时创建空流；0 表示从头消费全部消息；$ 表示只消费新建消息
+
+**消费者组读取消息：**
+
+```
+XREADGROUP GROUP order-workers worker-1
+  COUNT 10
+  BLOCK 5000
+  STREAMS orders >
+```
