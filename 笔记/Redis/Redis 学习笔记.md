@@ -393,20 +393,19 @@ Redis Stream 是带有消息 ID 的追加式消息流，适合事件记录、任
 
 ## 常用命令
 
-|命令|作用|
-|---|---|
-|`XADD`|添加一条消息|
-|`XRANGE`|按 ID 范围查询消息|
-|`XREVRANGE`|按 ID 逆序查询消息|
-|`XLEN`|获取消息数量|
-|`XREAD`|从指定位置读取消息|
-|`XGROUP CREATE`|创建消费者组|
-|`XREADGROUP`|消费者组读取消息|
-|`XACK`|确认消息已处理|
-|`XPENDING`|查看待确认消息|
-|`XCLAIM` / `XAUTOCLAIM`|接管符合条件的待处理消息|
-|`XTRIM`|修剪 Stream 长度|
-
+| 命令                      | 作用           |
+| ----------------------- | ------------ |
+| `XADD`                  | 添加一条消息       |
+| `XRANGE`                | 按 ID 范围查询消息  |
+| `XREVRANGE`             | 按 ID 逆序查询消息  |
+| `XLEN`                  | 获取消息数量       |
+| `XREAD`                 | 从指定位置读取消息    |
+| `XGROUP CREATE`         | 创建消费者组       |
+| `XREADGROUP`            | 消费者组读取消息     |
+| `XACK`                  | 确认消息已处理      |
+| `XPENDING`              | 查看待确认消息      |
+| `XCLAIM` / `XAUTOCLAIM` | 接管符合条件的待处理消息 |
+| `XTRIM`                 | 修剪 Stream 长度 |
 ## 示例
 
 **创建消息：**
@@ -448,6 +447,21 @@ XREADGROUP GROUP order-workers worker-1
 ```
 XACK orders order-workers id
 ```
+## 与 List 的区别
+
+如果用最简单的 List（`LPUSH` + `BRPOP`）
+
+```
+生产者：LPUSH image:queue "{imageId:123}"
+消费者：BRPOP image:queue  → 拿到任务 → 处理
+```
+**`BRPOP` 一弹出，消息就从 List 里没了。** 如果 worker 拿到任务后、还没处理完就崩溃了 —— **这条消息彻底丢了**
+
+> 如果用 Redis Stream
+
+Stream 的核心改进：**消息不会"取出即消失"，而是"处理完并确认后才算完成"。**
+
+
 
 # 补充
 
