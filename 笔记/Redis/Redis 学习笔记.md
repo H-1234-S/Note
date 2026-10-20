@@ -461,7 +461,57 @@ XACK orders order-workers id
 
 Stream 的核心改进：**消息不会"取出即消失"，而是"处理完并确认后才算完成"。**
 
+> **具体流程：**
 
+**1. 生产者丢消息**
+
+```
+XADD image:stream * imageId 123 task "process"
+```
+
+**2. 消费者组读取**
+
+先建一个消费者组 `workers`：
+
+```
+XGROUP CREATE image:stream workers $ MKSTREAM
+```
+
+然后每个 worker 这样读：
+
+```
+XREADGROUP GROUP workers worker-1 COUNT 1 BLOCK 5000 STREAMS image:stream >
+```
+
+意思是："我是 `workers` 组里的 `worker-1`，给我一条还没被这个组处理过的消息。"
+
+**关键点**：消息读出来后，**并不会从 Stream 里删掉**，而是进入这个组的"待确认列表（PEL）"。
+
+同一组的**其他 worker 不会再拿到这条消息**（组内互斥，天然负载均衡）。
+
+**3. 处理完，发确认（ACK）**
+
+```
+XACK image:stream workers 1700000000000-0
+```
+
+只有 ACK 之后，这条消息才算"这个组处理完了"。
+
+**4. 崩溃了怎么办？**
+
+假设 `worker-1` 拿到消息、还没 ACK 就崩了。这条消息会一直躺在 `workers` 组的 PEL 里，状态是"已投递未确认"。
+
+别的 worker（或重启后的 worker-1）可以用：
+
+```
+XPENDING image:stream workers        # 查看有哪些"卡住"的待确认消息
+XCLAIM image:stream workers worker-2 60000 1700000000000-0
+                                     # 把这条超时60秒还没确认的消息，转给我处理
+```
+
+这样，**崩溃 worker 手里的任务会被别人接手，不会丢**。
 
 # 补充
+
+# 通用命令
 
