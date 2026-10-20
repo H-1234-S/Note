@@ -158,6 +158,8 @@ Set 是无序且元素唯一的字符串集合。
 
 相当于 JS 中的 Set，去重，不会重复添加
 
+> Set 最值得掌握的地方不只是增删查，而是**去重与集合运算**。
+
 ## 常用命令
 
 | 命令            | 作用           |
@@ -196,5 +198,43 @@ SREM article:1001:likes user:1
     
 - `SREM`：取消点赞。
 
-## 集合运算：共同好友
+## 集合运算
 
+```
+SADD user:1:friends A B C D
+SADD user:2:friends B C E
+```
+
+**共同好友：**
+
+```
+SINTER user:1:friends user:2:friends
+```
+
+则输出：B、C
+
+# Sorted Set（ZSet）
+
+Sorted Set 是 Redis 中非常重要的一种类型：**每个元素唯一**，并且每个元素都有一个 Score（分数），Redis 根据 Score 维护排序。
+
+与 Set 不同，Sorted Set 支持按分数查询、排名和范围检索。
+
+## 常用命令
+
+|命令|作用|
+|---|---|
+|`ZADD`|添加成员并设置分数|
+|`ZREM`|删除成员|
+|`ZSCORE`|查询成员分数|
+|`ZCARD`|获取成员数量|
+|`ZINCRBY`|增加成员分数|
+|`ZRANK`|查询升序排名，从 0 开始|
+|`ZREVRANK`|查询降序排名，从 0 开始|
+|`ZRANGE`|按升序获取成员范围|
+|`ZREVRANGE`|按降序获取成员范围|
+|`ZRANGEBYSCORE`|按分数范围查询（旧式命令）|
+|`ZRANGESTORE`|将查询结果存入另一个 ZSet|
+|`ZCOUNT`|统计分数区间内的成员数量|
+|`ZPOPMIN`|弹出分数最低的成员|
+|`ZPOPMAX`|弹出分数最高的成员|
+|`ZSCAN`|增量遍历成员|
