@@ -541,7 +541,43 @@ Redis 复制是一种**单向**的数据同步机制。
     
 4. **故障恢复**：当主节点故障时，从节点可以继续提供读服务（如果配合哨兵，则可以接管写服务），缩短服务不可用的时间。
 
+## 使用
 
+> `docker-compose.yaml` 文件
+
+``` yaml
+version: '3.8'
+
+services:
+  redis-master:
+    image: redis:7-alpine
+    container_name: redis-master
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+
+  redis-slave1:
+    image: redis:7-alpine
+    container_name: redis-slave1
+    ports:
+      - "6380:6379"
+    command: redis-server --replicaof redis-master 6379 --appendonly yes
+    depends_on:
+      - redis-master
+
+  redis-slave2:
+    image: redis:7-alpine
+    container_name: redis-slave2
+    ports:
+      - "6381:6379"
+    command: redis-server --replicaof redis-master 6379 --appendonly yes
+    depends_on:
+      - redis-master
+```
+
+从节点的 `command` 中使用了 `--replicaof redis-master 6379`。
+
+这里的 `redis-master` 是 Compose 中定义的服务名，Docker 内部网络会自动把它解析到主节点的容器 IP，无需手动写死 IP 地址。
 
 
 # Redis 哨兵
