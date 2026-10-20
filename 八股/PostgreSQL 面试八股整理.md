@@ -1,0 +1,1310 @@
+## PostgreSQL 面试八股整理
+
+> 面向后端开发、数据库开发和全栈开发的大厂 PostgreSQL 面试手册。重点不是记住一串参数，而是沿着“SQL 如何执行、事务如何并发、数据如何落盘、故障如何恢复、性能如何定位”这条主线，把 PostgreSQL 的能力边界和生产实践讲清楚。
+
+## 目录
+
+1. PostgreSQL 全景：定位、架构与一次请求
+2. 数据类型、表设计与 SQL 基础
+3. 事务、ACID 与 MVCC
+4. 锁、并发控制与死锁
+5. WAL、Checkpoint 与崩溃恢复
+6. 索引：B-Tree、Hash、GIN、GiST、BRIN
+7. 查询优化器与 EXPLAIN
+8. VACUUM、统计信息与膨胀
+9. JOIN、聚合、排序与高级 SQL
+10. 分区表、约束与大表治理
+11. 连接、内存、并发与性能调优
+12. 复制、读写分离与高可用
+13. 逻辑复制、CDC 与数据迁移
+14. 安全、权限与数据库对象
+15. 生产监控、故障排查与备份恢复
+16. 大厂综合场景题与回答框架
+17. 高频命令速查与复习路线
+
+---
+
+## 0. 知识地图与推荐顺序
+
+PostgreSQL 是一个**进程模型、MVCC、WAL、可扩展类型系统和成本优化器**组成的关系型数据库。它既能承担强一致的 OLTP，也能通过 JSONB、全文检索、分区和扩展能力覆盖一部分搜索、地理信息和分析场景，但它不是所有场景的默认答案。
+
+```text
+业务服务 / ORM / psql
+          │ SQL、事务、连接池
+PostgreSQL Backend Process
+          │ parser → analyzer → rewriter → planner → executor
+          │
+共享内存：shared buffers / WAL buffers / 锁表 / 进程间通信
+          │
+数据目录：heap table / index / WAL / FSM / VM / catalog
+          │
+操作系统页缓存、文件系统、磁盘或云存储
+```
+
+建议按下面的依赖关系学习：
+
+1. 先理解表、类型、约束和 SQL，知道“正确查询”长什么样。
+2. 再理解事务、MVCC 和锁，这是 PostgreSQL 并发模型的核心。
+3. 接着理解 WAL、Checkpoint、崩溃恢复，回答“宕机后数据会不会丢”。
+4. 再学索引和优化器，回答“为什么走索引、为什么不走、怎样验证”。
+5. 最后覆盖 VACUUM、分区、复制、备份、高可用和排障，这些是生产面试的主要追问。
+
+面试回答建议固定使用：**先给结论，再讲机制，再给 SQL 或流程，最后说明边界与监控指标**。例如回答“PostgreSQL 为什么需要 VACUUM”，不能只说“回收空间”，还应说明 MVCC 旧版本、可见性判断、冻结 xid、表膨胀、autovacuum 和索引膨胀之间的关系。
+
+---
+
+## 1. PostgreSQL 全景：定位、架构与一次请求
+
+### 1.1 PostgreSQL 是什么
+
+PostgreSQL 是开源对象关系型数据库，支持标准 SQL、事务、MVCC、复杂查询、窗口函数、CTE、丰富数据类型、扩展、逻辑复制和物理复制。它的价值不只是“一个能执行 SQL 的服务”，还在于：
+
+- **数据正确性**：事务、约束、外键、唯一性、CHECK 和可序列化隔离。
+- **复杂查询能力**：JOIN、聚合、窗口函数、递归 CTE、JSONB、全文检索。
+- **可扩展性**：自定义类型、函数、操作符、索引访问方法和扩展。
+- **可观测性**：`EXPLAIN`、系统目录、统计视图、慢查询和锁视图。
+
+它的典型边界是：连接数非常高但没有连接池、单表写入极端集中、跨地域强同步写入、超大规模键值访问等场景，需要结合架构设计，不能只靠 PostgreSQL 参数解决。
+
+### 1.2 进程模型与连接模型
+
+PostgreSQL 通常采用“主进程 + 多个后台进程 + 每连接一个 backend 进程”的模型：
+
+| 角色 | 作用 |
+| --- | --- |
+| postmaster / postgres 主进程 | 监听连接、启动和管理后台进程 |
+| backend process | 处理一个客户端会话的 SQL、事务和执行计划 |
+| checkpointer | 负责 checkpoint 相关工作 |
+| background writer | 提前把共享缓冲区中的脏页写出 |
+| WAL writer | 将 WAL 缓冲区内容写入 WAL 文件 |
+| autovacuum launcher/worker | 调度和执行 VACUUM、ANALYZE |
+| startup process | 备库回放 WAL |
+| wal sender/receiver | 主库发送、备库接收 WAL |
+
+一个连接通常对应一个服务端进程，因此连接数不是越多越好。连接过多会消耗内存、进程调度和锁管理资源。生产环境常用 PgBouncer 等连接池，把大量短连接复用到有限数据库连接上。
+
+### 1.3 一条 SQL 的生命周期
+
+以 `SELECT name FROM users WHERE id = 1;` 为例：
+
+```text
+客户端发送 SQL
+  → Parse：词法/语法分析，生成语法树
+  → Analyze：解析表、列、类型和权限
+  → Rewrite：应用视图、规则等重写
+  → Plan：生成候选计划并按成本选择
+  → Execute：扫描、过滤、连接、聚合、返回结果
+  → 事务结束：提交或回滚；需要时写 WAL
+```
+
+常见误区：
+
+- `EXPLAIN` 只展示计划，不真正执行；`EXPLAIN ANALYZE` 会执行 SQL，写操作必须谨慎。
+- 同一条 SQL 每次都不一定使用同一个计划，表统计信息、参数、数据分布和 prepared statement 都可能影响计划。
+- 数据库执行快不等于接口快，网络传输、连接池等待、应用反序列化和锁等待也可能占大头。
+
+### 1.4 Schema、database 与 search_path
+
+一个 PostgreSQL 实例可以有多个 database；一个 database 中可以有多个 schema。Schema 类似命名空间，表名解析会受 `search_path` 影响：
+
+```sql
+CREATE SCHEMA app;
+CREATE TABLE app.users (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name text NOT NULL
+);
+
+SET search_path TO app, public;
+SELECT * FROM users;       -- 可能解析为 app.users
+SELECT * FROM app.users;   -- 推荐在重要 SQL 中明确限定
+```
+
+生产实践中通常避免让业务依赖不透明的 `search_path`，防止同名对象遮蔽、权限绕过或迁移环境行为不一致。
+
+### 1.5 高频面试题
+
+| 问题 | 标准回答思路 | 可能追问 |
+| --- | --- | --- |
+| PostgreSQL 为什么支持复杂查询？ | 优化器、丰富类型、表达式、窗口函数、CTE、扩展和成熟执行器共同提供能力。 | 复杂查询慢了如何定位？ |
+| PostgreSQL 是多线程还是多进程？ | 主要是多进程模型，一个连接通常对应一个 backend 进程，后台工作由不同进程承担。 | 为什么连接数不能无限增加？ |
+| `EXPLAIN` 和 `EXPLAIN ANALYZE` 区别？ | 前者只生成计划，后者实际执行并记录运行统计；写 SQL 要注意副作用。 | `BUFFERS` 看什么？ |
+| Schema 和 database 的区别？ | database 是隔离更强的数据库容器，schema 是其中的命名空间；跨 database 查询不是普通 SQL JOIN 的默认能力。 | 如何跨库同步？ |
+
+---
+
+## 2. 数据类型、表设计与 SQL 基础
+
+### 2.1 常用数据类型选择
+
+| 类型 | 适用场景 | 注意事项 |
+| --- | --- | --- |
+| `smallint/int/bigint` | 整数 ID、计数 | 预估增长量；主键常用 `bigint` |
+| `numeric(p,s)` | 金额、精确小数 | 精确但通常比浮点慢，金额不要用 `float` |
+| `real/double precision` | 科学计算、近似值 | 存在舍入误差，不适合账务 |
+| `text/varchar` | 文本 | PostgreSQL 中无长度需求时 `text` 通常更自然 |
+| `timestamp` | 不带时区的时间 | 它不保存时区语义 |
+| `timestamptz` | 绝对时间点 | 内部按 UTC 语义保存，展示受时区影响 |
+| `jsonb` | 半结构化、需要索引查询的 JSON | 不要把所有关系数据都塞进 JSONB |
+| `uuid` | 分布式生成 ID | 随机 UUID 可能带来索引局部性问题 |
+| `bytea` | 二进制 | 大文件更适合对象存储，库中保存元数据 |
+| `array` | 小规模同质列表 | 复杂多值关系优先考虑关联表 |
+
+### 2.2 `timestamp` 与 `timestamptz`
+
+`timestamp without time zone` 只是一个“墙上时间”，不会自动记录它来自哪个时区；`timestamptz` 表示时间点，输入时会按会话时区转换，输出时按当前时区展示：
+
+```sql
+SET TIME ZONE 'Asia/Shanghai';
+SELECT TIMESTAMP '2026-10-20 10:00:00';
+SELECT TIMESTAMPTZ '2026-10-20 10:00:00+08';
+```
+
+订单创建时间、支付时间、日志时间一般用 `timestamptz`；如果业务含义是“门店每天 09:00 开门”，才可能用不带时区的本地时间，并额外保存地区规则。
+
+### 2.3 主键、唯一约束与外键
+
+```sql
+CREATE TABLE orders (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id bigint NOT NULL,
+  order_no text NOT NULL,
+  status text NOT NULL CHECK (status IN ('pending', 'paid', 'cancelled')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT uq_orders_order_no UNIQUE (order_no)
+);
+```
+
+- 主键表达“行的稳定身份”，隐含 `NOT NULL` 和唯一性。
+- 唯一约束表达业务唯一性，比应用层“先查再插”可靠。
+- 外键保证引用完整性，但会带来写入检查和锁开销；高吞吐场景要结合索引和删除策略设计。
+- `CHECK` 约束防止非法状态进入数据库；复杂跨行规则不能只靠普通 `CHECK`，可考虑唯一索引、排他约束、触发器或事务逻辑。
+
+### 2.4 `NULL` 不是空字符串也不是 0
+
+SQL 使用三值逻辑：`TRUE`、`FALSE`、`UNKNOWN`。`NULL = NULL` 不是 `TRUE`，而是 `UNKNOWN`：
+
+```sql
+SELECT * FROM users WHERE deleted_at = NULL;       -- 错误写法
+SELECT * FROM users WHERE deleted_at IS NULL;      -- 正确
+SELECT * FROM users WHERE deleted_at IS NOT NULL;
+```
+
+`COUNT(*)` 统计行数，`COUNT(column)` 不统计该列为 `NULL` 的行。使用 `COALESCE` 可以提供默认值：
+
+```sql
+SELECT user_id, COALESCE(SUM(amount), 0)
+FROM payments
+GROUP BY user_id;
+```
+
+### 2.5 UPSERT：`INSERT ... ON CONFLICT`
+
+```sql
+INSERT INTO user_settings(user_id, theme, updated_at)
+VALUES (42, 'dark', now())
+ON CONFLICT (user_id) DO UPDATE
+SET theme = EXCLUDED.theme,
+    updated_at = EXCLUDED.updated_at;
+```
+
+`EXCLUDED` 表示本次尝试插入但发生冲突的那一行。UPSERT 依赖唯一约束或唯一索引，避免了“先 SELECT 判断，再 INSERT/UPDATE”的竞态。若更新条件不满足，可以写 `DO UPDATE ... WHERE ...`，此时可能发生冲突但没有实际更新。
+
+### 2.6 高频 SQL 规范
+
+- 不使用 `SELECT *` 作为长期接口契约，避免列变更增加网络和反序列化成本。
+- 分页优先使用基于索引的 Keyset Pagination：
+
+```sql
+SELECT id, created_at, title
+FROM posts
+WHERE (created_at, id) < ($1, $2)
+ORDER BY created_at DESC, id DESC
+LIMIT 20;
+```
+
+- `OFFSET` 越大通常越慢，因为数据库仍需要扫描并丢弃前面的行。
+- 动态 SQL 使用参数化查询，防止 SQL 注入并提高计划复用机会。
+- 用 `IS DISTINCT FROM` 做能正确处理 `NULL` 的比较：
+
+```sql
+WHERE old_value IS DISTINCT FROM new_value
+```
+
+---
+
+## 3. 事务、ACID 与 MVCC
+
+### 3.1 ACID 在 PostgreSQL 中如何落地
+
+| 特性 | PostgreSQL 机制 |
+| --- | --- |
+| Atomicity | WAL、事务状态、提交/回滚和子事务 |
+| Consistency | 约束、触发器、事务隔离和业务规则 |
+| Isolation | MVCC 快照、锁、隔离级别 |
+| Durability | WAL 持久化、`fsync`、checkpoint、备份和复制 |
+
+“开启事务”不意味着所有读写都互相阻塞。PostgreSQL 通过 MVCC 让读看到符合快照的数据版本，读写多数情况下可以并发；需要保护同一业务资源时，仍要使用锁或提高隔离级别。
+
+### 3.2 MVCC 的基本思想
+
+PostgreSQL 的堆表不是简单地原地覆盖一行。更新通常创建新版本，旧版本保留一段时间，行版本中包含事务可见性信息（可理解为创建事务和删除事务标记）：
+
+```text
+UPDATE id=1
+旧版本：(xmin=T10, xmax=T20, value=old)
+新版本：(xmin=T20, xmax=..., value=new)
+```
+
+某个事务根据自己的快照判断版本是否可见：
+
+- 创建该版本的事务已提交，且在快照允许范围内；
+- 删除该版本的事务尚未提交或不在快照可见范围内；
+- 当前事务自己的修改通常对自己可见。
+
+旧版本不会立即从物理文件中消失，因此更新和删除会制造 dead tuples，需要 VACUUM 清理或回收空间。
+
+### 3.3 四种隔离级别
+
+PostgreSQL 支持 `Read Committed`、`Repeatable Read`、`Serializable`；SQL 标准的 `Read Uncommitted` 在 PostgreSQL 中按 `Read Committed` 处理：
+
+| 隔离级别 | 快照特点 | 典型现象/代价 |
+| --- | --- | --- |
+| Read Committed | 每条语句开始时获得快照 | 同一事务两次查询可能看到不同已提交结果 |
+| Repeatable Read | 事务开始时获得稳定快照 | 事务内重复读稳定；并发冲突可能在提交/写入时报错 |
+| Serializable | 在可串行化语义下执行 | 可能出现 serialization failure，需要重试 |
+
+```sql
+BEGIN;
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+SELECT ...;
+COMMIT;
+```
+
+Read Committed 不是“没有隔离”。它阻止读到未提交数据，但不能保证一个长事务内多次查询结果一致。Serializable 也不是“绝对不报错”，应用必须捕获 `serialization_failure` 并重试整个事务。
+
+### 3.4 快照与可见性示例
+
+会话 A：
+
+```sql
+BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+-- 未提交
+```
+
+会话 B：
+
+```sql
+SELECT balance FROM accounts WHERE id = 1;
+```
+
+在普通隔离级别下，会话 B 不会读到 A 的未提交修改，而是读到旧版本。若 B 对该行执行更新，通常会等待 A 提交/回滚，然后根据新的行版本重新判断条件。
+
+### 3.5 事务边界与长事务
+
+应用层事务应尽量短，并且只覆盖必须原子化的操作：
+
+```text
+开启事务
+  → 校验/锁定必要资源
+  → 写入业务数据
+  → 写入 outbox 事件
+  → 提交
+  → 事务外异步投递或消费事件
+```
+
+长事务会：
+
+- 保留旧快照，使 VACUUM 无法清理部分 dead tuples；
+- 增加锁持有时间和死锁风险；
+- 让复制回放、DDL、连接池资源受到影响；
+- 在 `idle in transaction` 时尤其危险：业务没有执行 SQL，却仍保持事务快照。
+
+排查：
+
+```sql
+SELECT pid, usename, state, xact_start, query_start,
+       now() - xact_start AS xact_age, wait_event_type, wait_event, query
+FROM pg_stat_activity
+WHERE xact_start IS NOT NULL
+ORDER BY xact_start;
+```
+
+### 3.6 事务异常必须重试什么
+
+通常需要重试整个事务，而不是只重试最后一条 SQL：
+
+- `serialization_failure`：串行化冲突；
+- `deadlock_detected`：死锁被检测并取消一个事务；
+- 临时网络断开或主备切换导致的连接异常。
+
+重试必须有次数上限、指数退避和幂等设计。已经提交成功但客户端没收到响应时，不能盲目重试非幂等操作，应使用业务唯一号或请求幂等键。
+
+---
+
+## 4. 锁、并发控制与死锁
+
+### 4.1 锁的分类
+
+PostgreSQL 有表级锁、行级锁、页级/内部锁、谓词锁和 advisory lock。常见表锁模式包括 `ACCESS SHARE`、`ROW SHARE`、`ROW EXCLUSIVE`、`SHARE`、`SHARE ROW EXCLUSIVE`、`EXCLUSIVE`、`ACCESS EXCLUSIVE`。`ACCESS EXCLUSIVE` 冲突范围最大，很多 DDL 会持有它。
+
+行锁常见语义：
+
+```sql
+SELECT * FROM inventory
+WHERE sku = 'A-1'
+FOR UPDATE;
+```
+
+`FOR UPDATE` 表示锁住选中的行，其他事务对这些行做冲突更新或再次加冲突锁时需要等待。`FOR NO KEY UPDATE`、`FOR SHARE`、`FOR KEY SHARE` 适用于更细粒度的保护需求。
+
+### 4.2 `FOR UPDATE` 与库存扣减
+
+```sql
+BEGIN;
+SELECT stock
+FROM inventory
+WHERE sku = 'A-1'
+FOR UPDATE;
+
+-- 应用检查 stock > 0 后更新
+UPDATE inventory
+SET stock = stock - 1
+WHERE sku = 'A-1';
+COMMIT;
+```
+
+更简洁的方式是把条件放进 UPDATE，让数据库原子判断：
+
+```sql
+UPDATE inventory
+SET stock = stock - 1
+WHERE sku = 'A-1' AND stock > 0
+RETURNING stock;
+```
+
+应用根据 `RETURNING` 是否返回行判断扣减成功。高并发下后者通常减少一次往返，但仍要结合订单、幂等和库存超卖规则设计。
+
+### 4.3 死锁是如何产生的
+
+事务 A 先锁行 1，再等待行 2；事务 B 先锁行 2，再等待行 1，形成环路：
+
+```text
+A 持有 row-1 ──等待──> row-2
+B 持有 row-2 ──等待──> row-1
+```
+
+PostgreSQL 的死锁检测器会发现环路，取消其中一个事务并返回 `deadlock_detected`。预防手段：
+
+- 所有业务以一致顺序访问资源，例如按主键升序加锁；
+- 减少事务范围和锁持有时间；
+- 为过滤条件提供索引，避免锁等待期间扫描大量数据；
+- 对可重试异常实现完整事务重试；
+- 使用 `lock_timeout` 防止无限等待，但它不是死锁解决方案。
+
+### 4.4 查看锁等待
+
+```sql
+SELECT blocked.pid AS blocked_pid,
+       blocked.query AS blocked_query,
+       blocking.pid AS blocking_pid,
+       blocking.query AS blocking_query,
+       now() - blocked.query_start AS blocked_for
+FROM pg_stat_activity blocked
+JOIN pg_stat_activity blocking
+  ON blocking.pid = ANY(pg_blocking_pids(blocked.pid));
+```
+
+查看当前事务和锁：
+
+```sql
+SELECT pid, locktype, mode, granted, relation::regclass, page, tuple
+FROM pg_locks
+ORDER BY granted, pid;
+```
+
+### 4.5 Advisory Lock
+
+Advisory lock 是应用自定义语义的锁，数据库不会理解它保护了什么：
+
+```sql
+SELECT pg_advisory_xact_lock(12345); -- 事务结束自动释放
+```
+
+适合协调数据库内不存在明确行的任务，例如同一租户的单实例任务。它不会自动保护普通行，必须保证所有参与者都遵守同一把 advisory lock；否则它只是一个没有约束力的约定。
+
+---
+
+## 5. WAL、Checkpoint 与崩溃恢复
+
+### 5.1 WAL 是什么
+
+WAL（Write-Ahead Logging）核心规则是：**数据页落盘之前，描述这次修改的 WAL 记录必须先持久化**。因此数据库崩溃后可以通过重放 WAL，把数据页恢复到一致状态，而不必在每次事务提交时同步写所有数据页。
+
+```text
+事务修改
+  → 共享缓冲区中的数据页变脏
+  → 生成 WAL record
+  → WAL writer / commit flush 将 WAL 写入并按策略持久化
+  → 提交成功
+  → 之后 checkpoint/background writer 再把数据页写回
+```
+
+WAL 记录通常是物理或逻辑层面的修改描述，不等价于“保存了每条 SQL 文本”。
+
+### 5.2 `fsync`、`synchronous_commit` 与持久性
+
+- `fsync=on` 是生产环境保证崩溃一致性的基础，关闭可能造成不可恢复的数据损坏风险。
+- `synchronous_commit=on` 通常要求本地 WAL 达到相应持久化条件后再向客户端确认提交。
+- `synchronous_commit=off` 可以降低提交延迟，但数据库崩溃时可能丢失最近已向客户端确认的事务；一般是“可接受少量数据丢失”的性能换取。
+- `full_page_writes` 用于降低部分页写入（如 torn page）造成的恢复问题，通常不应随意关闭。
+
+面试回答不能把“WAL 开启”直接等同于“永不丢数据”。数据丢失窗口还受提交策略、磁盘、复制确认、备份和故障类型影响。
+
+### 5.3 Checkpoint
+
+Checkpoint 将某个时刻之前的脏数据页尽量写回，并在 WAL 中记录恢复起点。崩溃恢复从最近 checkpoint 开始重放后续 WAL。
+
+Checkpoint 太频繁：
+
+- 写放大、磁盘 IO 峰值增加；
+- 可能造成业务延迟抖动。
+
+Checkpoint 间隔太长：
+
+- WAL 占用增长；
+- 崩溃恢复需要重放更多 WAL，恢复时间变长。
+
+现代版本通常使用 `max_wal_size`、`checkpoint_timeout`、`checkpoint_completion_target` 等参数协调吞吐和恢复时间，并观察 checkpoint 写入、WAL 生成速率和磁盘延迟。
+
+### 5.4 崩溃恢复流程
+
+数据库异常退出后：
+
+1. 启动进程定位最近的 checkpoint。
+2. 从 checkpoint 记录开始读取 WAL。
+3. 重放必要的 WAL，使数据页达到一致状态。
+4. 清理未完成事务的影响，恢复到最后一个一致状态。
+5. 数据库进入可接受连接的状态。
+
+如果是用户误删、逻辑错误或坏数据，WAL 恢复只能恢复到某个时间点，不能自动告诉你“哪一行误删了”。这类问题需要基础备份、归档 WAL、PITR 和审计方案。
+
+### 5.5 面试题：WAL 为什么能提升性能
+
+因为随机更新数据页可以延后并合并，而提交时主要保证顺序追加的 WAL 达到持久化条件。顺序写通常比大量随机写更高效；但 WAL 也会增加写入量，索引越多、更新越多、同步复制越严格，WAL 压力越大。
+
+---
+
+## 6. 索引：B-Tree、Hash、GIN、GiST、BRIN
+
+### 6.1 索引的本质与代价
+
+索引是额外的数据结构，用空间、写入成本和维护成本，换取更快的定位或排序。索引不是越多越好：
+
+- INSERT/UPDATE/DELETE 需要维护相关索引；
+- 索引占磁盘和缓存，可能挤压热数据；
+- 优化器需要在多个索引和计划间选择；
+- 低选择性列或极少使用的索引可能不值得保留。
+
+### 6.2 B-Tree
+
+B-Tree 是默认索引，适合等值、范围、排序和前缀匹配：
+
+```sql
+CREATE INDEX idx_orders_user_created
+ON orders (user_id, created_at DESC);
+```
+
+适合：
+
+```sql
+WHERE user_id = 42
+WHERE user_id = 42 AND created_at >= now() - interval '7 days'
+ORDER BY user_id, created_at DESC
+```
+
+联合索引遵循左前缀和排序匹配原则，但不是机械的“必须使用第一列过滤”。优化器会结合选择性、扫描成本和排序成本决定计划。索引列顺序应围绕高频查询、等值条件、范围条件和排序需求设计。
+
+### 6.3 部分索引与表达式索引
+
+部分索引只索引满足谓词的行：
+
+```sql
+CREATE INDEX idx_orders_pending
+ON orders (created_at)
+WHERE status = 'pending';
+```
+
+适合“活跃数据远少于全表”的场景。查询条件需要能被优化器证明与谓词匹配，否则可能无法使用。
+
+表达式索引：
+
+```sql
+CREATE INDEX idx_users_lower_email ON users (lower(email));
+SELECT * FROM users WHERE lower(email) = lower($1);
+```
+
+表达式中的函数必须稳定到足以保证索引语义；查询写法也要与索引表达式一致。不要为了每个可能的函数调用都建立索引。
+
+### 6.4 覆盖索引与 `INCLUDE`
+
+```sql
+CREATE INDEX idx_orders_user_created_cover
+ON orders (user_id, created_at DESC) INCLUDE (status, amount);
+```
+
+`INCLUDE` 列主要用于覆盖查询，不参与索引排序和搜索键。满足条件时可能使用 Index Only Scan，但是否真的不访问堆表还取决于 visibility map：如果页面的可见性信息不满足，仍需回表确认。
+
+### 6.5 GIN：多值和全文检索
+
+GIN 适合数组、JSONB、全文检索等“一个文档对应多个索引键”的场景：
+
+```sql
+CREATE INDEX idx_products_attrs ON products USING gin (attrs jsonb_path_ops);
+SELECT * FROM products WHERE attrs @> '{"brand":"acme"}';
+```
+
+GIN 读取可能很快，但写入和索引体积通常更重。高频写表要评估 pending list、批量写入、autovacuum 和查询模式。
+
+### 6.6 GiST：范围、空间和相似结构
+
+GiST 是可扩展的通用索引框架，常见于几何对象、范围类型、全文检索等。范围防重叠可以使用排他约束：
+
+```sql
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+ALTER TABLE room_bookings
+ADD CONSTRAINT no_overlap
+EXCLUDE USING gist (
+  room_id WITH =,
+  booked_range WITH &&
+);
+```
+
+这比应用层“先查有没有重叠，再插入”更能抵抗并发竞态。
+
+### 6.7 BRIN：物理顺序相关的大表
+
+BRIN 不记录每一行，而记录数据块范围摘要。适合按时间近似递增写入、物理顺序与查询条件相关的超大表：
+
+```sql
+CREATE INDEX idx_events_created_brin
+ON events USING brin (created_at);
+```
+
+它体积小、维护成本低，但只适合数据相关性较好的列；随机分布数据可能收益很差。可以用 `pg_stats.correlation` 辅助判断。
+
+### 6.8 为什么有索引却不用
+
+常见原因：
+
+- 返回行比例太高，顺序扫描更便宜；
+- 条件选择性低；
+- 对列做了未匹配的函数或隐式类型转换；
+- 统计信息过期，优化器误判基数；
+- 表太小，扫描成本低；
+- 参数化查询生成了不适合当前参数的 generic plan；
+- 排序、回表、随机 IO 的综合成本超过顺序扫描。
+
+不要直接 `SET enable_seqscan = off` 当成修复方案。它只适合诊断“如果强制走索引会怎样”，生产应修正统计信息、SQL、索引或数据分布问题。
+
+---
+
+## 7. 查询优化器与 EXPLAIN
+
+### 7.1 成本优化器在估算什么
+
+优化器根据统计信息估算每个候选计划的：
+
+- 扫描行数（cardinality）；
+- CPU 运算成本；
+- 随机/顺序 IO 成本；
+- 排序、哈希、连接和并行执行成本。
+
+它不是测量真实执行时间，而是根据统计信息和成本参数做选择。因此“计划不符合直觉”常常意味着统计信息或数据相关性与优化器假设不一致。
+
+### 7.2 常用 EXPLAIN
+
+```sql
+EXPLAIN (ANALYZE, BUFFERS, VERBOSE, SETTINGS)
+SELECT o.id, o.amount
+FROM orders o
+WHERE o.user_id = 42
+  AND o.created_at >= now() - interval '30 days';
+```
+
+重点关注：
+
+| 字段 | 含义 |
+| --- | --- |
+| `cost=start..total` | 优化器估算成本，不是毫秒 |
+| `rows` | 估算输出行数 |
+| `actual time` | 实际运行时间，通常为节点启动/完成时间 |
+| `loops` | 节点重复执行次数 |
+| `Buffers: shared hit/read` | 缓存命中和从磁盘读取情况 |
+| `Rows Removed by Filter` | 扫描后被过滤的行 |
+| `Planning Time/Execution Time` | 规划和执行耗时 |
+
+真正要比较的是估算 rows 与 actual rows 的偏差、热点节点、循环次数、回表数量和 IO，而不是看到“Index Scan”就认为一定快。
+
+### 7.3 常见扫描节点
+
+- `Seq Scan`：顺序扫描表，适合小表或返回大量行。
+- `Index Scan`：走索引后回表取数据，选择性高时常见。
+- `Index Only Scan`：尽量只读索引，依赖覆盖索引和 visibility map。
+- `Bitmap Index Scan + Bitmap Heap Scan`：先批量收集 TID，再按数据页访问，适合中等选择性。
+- `Tid Scan`：按物理 TID 定位，业务 SQL 中少见。
+
+### 7.4 JOIN 计划
+
+- `Nested Loop`：外表行少、内表有索引时非常有效；外表大时可能灾难性放大。
+- `Hash Join`：构建哈希表后匹配，适合等值连接和中等数据量；受 `work_mem` 影响。
+- `Merge Join`：两边按连接键有序时高效，可能需要排序。
+
+示例：若计划显示 `Nested Loop` 的外层实际输出 100 万行，内层节点 loops 100 万次，即使单次只需 1 ms 也可能很慢。应先检查连接顺序、过滤是否下推、内层索引和基数估算。
+
+### 7.5 排序、哈希与 `work_mem`
+
+`work_mem` 是**每个操作节点、每个并发执行实例**可能使用的内存，不是整个连接只使用一次。一个查询有多个排序、哈希和并行 worker 时，实际内存可能是参数值的多倍。
+
+判断是否落盘：
+
+```sql
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT * FROM events ORDER BY created_at DESC;
+```
+
+若看到 external merge、临时文件或大量 temp read/write，说明排序/哈希可能溢出磁盘。提高 `work_mem` 要限定作用域并评估并发峰值：
+
+```sql
+BEGIN;
+SET LOCAL work_mem = '128MB';
+-- 单个已确认的大查询
+...
+COMMIT;
+```
+
+### 7.6 优化 SQL 的通用流程
+
+1. 记录真实 SQL、参数和线上耗时，不凭感觉改索引。
+2. 用 `EXPLAIN (ANALYZE, BUFFERS)` 获取真实计划。
+3. 找估算行数与实际行数偏差最大的节点。
+4. 检查过滤下推、连接条件、索引、排序和回表。
+5. 更新统计信息或调整统计目标，重新执行对比。
+6. 在接近生产数据量和并发的环境验证，关注 p95/p99，不只看单次平均时间。
+
+---
+
+## 8. VACUUM、统计信息与膨胀
+
+### 8.1 为什么需要 VACUUM
+
+因为 MVCC 的 UPDATE/DELETE 会留下旧行版本。VACUUM 的主要职责包括：
+
+- 标记 dead tuples 可复用的空间；
+- 更新 visibility map 和 free space map；
+- 帮助 Index Only Scan 判断页面是否全可见；
+- 冻结旧事务 ID，防止 XID wraparound；
+- 配合 autovacuum 维护表和索引健康。
+
+普通 VACUUM 通常不把文件缩回操作系统，而是让空间在表内复用。需要物理重写的 `VACUUM FULL` 会持有更强锁、需要额外磁盘空间并造成较大影响，不能当作日常维护。
+
+### 8.2 VACUUM 与 ANALYZE 的区别
+
+- `VACUUM` 处理旧版本、可见性和空间复用。
+- `ANALYZE` 采样数据并更新列统计信息，帮助优化器估算选择性和基数。
+- `VACUUM ANALYZE` 同时执行二者，但并不意味着每次都必须手动跑。
+
+高频批量导入、批量删除或数据分布突变后，应考虑手动 `ANALYZE` 或调整自动分析策略。
+
+### 8.3 Autovacuum 为什么可能追不上
+
+常见原因：
+
+- 表更新/删除频率高，触发阈值太高；
+- autovacuum worker 数量或 cost delay 不适合负载；
+- 长事务阻止旧版本清理；
+- 大表默认阈值按比例增长，实际需要清理很多行后才触发；
+- 磁盘 IO 受限或索引维护成本高。
+
+可以按表设置：
+
+```sql
+ALTER TABLE orders SET (
+  autovacuum_vacuum_scale_factor = 0.02,
+  autovacuum_analyze_scale_factor = 0.01
+);
+```
+
+不要盲目把全局 scale factor 调到极小；高频写表可按表定制，并配合监控 dead tuples、最后一次 vacuum/analyze、表大小和长事务。
+
+### 8.4 XID wraparound
+
+事务 ID 是有限宽度的，过旧的事务 ID 需要冻结，否则会出现可见性判断回绕风险。PostgreSQL 会对接近 wraparound 的表提高维护优先级；如果系统进入 wraparound 风险，可能强制阻止新事务。
+
+生产监控至少关注：
+
+```sql
+SELECT datname, age(datfrozenxid) AS xid_age
+FROM pg_database
+ORDER BY xid_age DESC;
+```
+
+表级别可结合 `pg_class.relfrozenxid`、`pg_stat_all_tables` 分析。处理此类告警时应立即排查长事务、autovacuum 阻塞和磁盘空间，而不是简单重启。
+
+### 8.5 表膨胀与索引膨胀
+
+膨胀来自频繁更新删除、长事务、autovacuum 不及时、索引页分裂和填充模式。影响包括：
+
+- 扫描更多数据页；
+- 缓存命中率下降；
+- 备份、VACUUM 和恢复时间增加。
+
+处理要先确认问题：`pg_stat_user_tables`、`pgstattuple`（扩展）、表/索引大小和执行计划。普通 VACUUM 适合回收可复用空间；`REINDEX CONCURRENTLY` 可减少业务阻塞地重建索引；`VACUUM FULL` 或表重写需要安排窗口。
+
+---
+
+## 9. JOIN、聚合、排序与高级 SQL
+
+### 9.1 JOIN 的语义
+
+```sql
+SELECT u.id, u.name, o.id AS order_id
+FROM users u
+LEFT JOIN orders o ON o.user_id = u.id
+WHERE u.status = 'active';
+```
+
+`LEFT JOIN` 会保留左表没有匹配的行；如果把右表条件写在 `WHERE` 中，可能把它变成类似 INNER JOIN：
+
+```sql
+-- 会过滤掉没有已支付订单的用户
+WHERE o.status = 'paid'
+```
+
+如果希望保留没有已支付订单的用户，应将条件放到 `ON`：
+
+```sql
+LEFT JOIN orders o
+  ON o.user_id = u.id AND o.status = 'paid'
+```
+
+### 9.2 聚合与窗口函数
+
+聚合会把多行压缩成分组结果；窗口函数保留原始行，并在窗口上计算：
+
+```sql
+SELECT user_id,
+       order_id,
+       amount,
+       ROW_NUMBER() OVER (
+         PARTITION BY user_id ORDER BY created_at DESC, order_id DESC
+       ) AS rn
+FROM orders;
+```
+
+查询每个用户最新一条订单：
+
+```sql
+SELECT *
+FROM (
+  SELECT o.*, ROW_NUMBER() OVER (
+    PARTITION BY user_id ORDER BY created_at DESC, id DESC
+  ) AS rn
+  FROM orders o
+) t
+WHERE rn = 1;
+```
+
+也可以使用 PostgreSQL 的 `DISTINCT ON`：
+
+```sql
+SELECT DISTINCT ON (user_id) *
+FROM orders
+ORDER BY user_id, created_at DESC, id DESC;
+```
+
+`DISTINCT ON` 必须注意 `ORDER BY` 的前缀匹配，适合 PostgreSQL 特有场景；跨数据库可移植性不如窗口函数。
+
+### 9.3 CTE 与递归查询
+
+CTE 提升复杂 SQL 可读性，也可以用于递归树结构：
+
+```sql
+WITH RECURSIVE org AS (
+  SELECT id, parent_id, name, 0 AS depth
+  FROM departments
+  WHERE id = 1
+  UNION ALL
+  SELECT d.id, d.parent_id, d.name, o.depth + 1
+  FROM departments d
+  JOIN org o ON d.parent_id = o.id
+)
+SELECT * FROM org ORDER BY depth, id;
+```
+
+不要简单认为 CTE 一定会物化或一定会优化展开，具体行为与 PostgreSQL 版本、`MATERIALIZED/NOT MATERIALIZED` 和查询形态有关。需要控制重复计算或稳定执行顺序时再显式指定。
+
+### 9.4 `EXISTS` 与 `IN`
+
+判断是否存在关联数据时，`EXISTS` 通常表达得更清晰，并且找到一条匹配即可停止：
+
+```sql
+SELECT u.*
+FROM users u
+WHERE EXISTS (
+  SELECT 1 FROM orders o
+  WHERE o.user_id = u.id AND o.status = 'paid'
+);
+```
+
+`NOT IN` 遇到子查询返回 `NULL` 可能产生反直觉结果，反连接更稳妥：
+
+```sql
+SELECT u.*
+FROM users u
+WHERE NOT EXISTS (
+  SELECT 1 FROM blacklist b WHERE b.user_id = u.id
+);
+```
+
+---
+
+## 10. 分区表、约束与大表治理
+
+### 10.1 为什么需要分区
+
+分区把逻辑大表拆成多个物理分区，收益包括：
+
+- 分区裁剪减少扫描范围；
+- 按时间归档和删除更简单；
+- 不同分区可使用不同存储和维护策略；
+- 降低单次 VACUUM、索引维护和备份管理压力。
+
+分区不是自动性能优化。分区键、查询条件、分区数量和写入热点设计不当，可能带来规划开销、跨分区扫描、全局唯一性限制和运维复杂度。
+
+### 10.2 RANGE 分区示例
+
+```sql
+CREATE TABLE events (
+  id bigint NOT NULL,
+  occurred_at timestamptz NOT NULL,
+  payload jsonb NOT NULL
+) PARTITION BY RANGE (occurred_at);
+
+CREATE TABLE events_2026_10 PARTITION OF events
+FOR VALUES FROM ('2026-10-01') TO ('2026-11-01');
+
+CREATE TABLE events_default PARTITION OF events DEFAULT;
+```
+
+时间范围采用左闭右开，避免边界重复。生产中要提前创建未来分区并监控 default 分区，否则新数据落入 default 后，后续创建目标分区可能需要先迁移数据。
+
+### 10.3 分区裁剪与索引
+
+```sql
+SELECT count(*)
+FROM events
+WHERE occurred_at >= '2026-10-01'
+  AND occurred_at <  '2026-11-01';
+```
+
+如果条件可被优化器识别，计划中只访问目标分区。对每个分区建立本地索引是常见方案；跨分区唯一约束通常需要分区键参与，若业务要求全局唯一，必须额外设计全局序列/ID 服务或其他约束机制。
+
+### 10.4 分区、分表、分库的区别
+
+| 方式 | 解决的问题 | 复杂度 |
+| --- | --- | --- |
+| 分区 | 单库内大表管理、裁剪、归档 | 中 |
+| 分表 | 应用或中间层拆成多张表 | 高，SQL/路由复杂 |
+| 分库 | 跨实例扩容、隔离租户/业务 | 更高，事务和查询受限 |
+
+优先从单库分区和合理索引开始，只有单实例容量、写入或隔离需求真正超过边界时再分库分片。
+
+---
+
+## 11. 连接、内存、并发与性能调优
+
+### 11.1 连接池
+
+数据库连接不是轻量协程。高并发服务若每个请求都直接创建连接，会出现连接风暴。连接池要设置：
+
+- 最大连接数和每个服务的配额；
+- 获取连接超时；
+- 空闲连接回收；
+- 事务状态重置，例如 `DISCARD ALL` 或池化模式对应的清理；
+- 与数据库 `max_connections`、副本数、后台维护连接预留相匹配。
+
+连接池不能掩盖慢 SQL。池中连接全被长查询占满时，应用表现为“数据库连接超时”，根因仍可能是锁、IO、计划或事务设计。
+
+### 11.2 内存参数的边界
+
+- `shared_buffers` 是 PostgreSQL 自己管理的共享缓存，不是越大越好，还要给 OS 页缓存、连接和后台进程留空间。
+- `work_mem` 按执行节点/并发实例消耗，不能按“总内存除连接数”简单估算。
+- `maintenance_work_mem` 影响 VACUUM、CREATE INDEX 等维护操作，autovacuum 还涉及单独的 worker 使用。
+- `effective_cache_size` 是给优化器的缓存可用量估计，不是实际分配的内存。
+
+### 11.3 并行查询
+
+PostgreSQL 可为大表扫描、聚合、部分连接使用并行 worker。是否并行取决于成本、SQL 类型、表大小、参数和并行度限制。并行不是免费加速：
+
+- worker 启动和协调有开销；
+- 并行 worker 消耗 CPU、内存和连接资源；
+- 小查询可能因并行反而变慢；
+- 写操作和某些函数/扩展可能不适合并行。
+
+应通过 `EXPLAIN` 观察 `Gather/Gather Merge`，结合 CPU 利用率和 p95 验证，不要只提高 `max_parallel_workers`。
+
+### 11.4 延迟排查四象限
+
+接口变慢时先区分：
+
+```text
+连接池等待？ → pg_stat_activity 看 active/idle、应用池指标
+锁等待？     → pg_blocking_pids、pg_locks、wait_event
+CPU/计划？    → EXPLAIN ANALYZE、CPU、rows 估算偏差
+IO/存储？     → BUFFERS、temp 文件、WAL、磁盘延迟
+```
+
+SQL 本身的 `Execution Time` 不包含所有应用端等待，因此要关联 trace、连接池、数据库等待事件和宿主机指标。
+
+---
+
+## 12. 复制、读写分离与高可用
+
+### 12.1 物理流复制
+
+物理复制从主库发送 WAL，备库接收并回放，通常要求主备数据库大版本兼容、数据目录级别一致。备库可以用于只读查询、备份和故障切换。
+
+```text
+Primary
+  └─ WAL sender → network → WAL receiver
+                              └─ startup/replay → standby data files
+```
+
+物理复制复制的是数据库页面变化语义，不是单条 SQL，因此可以保持较完整的物理一致性，但通常不能跨大版本直接复制。
+
+### 12.2 异步与同步复制
+
+- 异步复制：主库提交不等待备库确认，延迟低；主库故障时可能丢失尚未到达备库的 WAL。
+- 同步复制：提交等待一个或多个同步备库达到确认条件，数据丢失风险更低，但受网络和备库性能影响。
+
+同步复制也要明确确认的是“收到 WAL”“写入 WAL”还是“回放完成”，不同配置对应不同 RPO/RTO。高可用设计必须把业务能接受的数据丢失窗口说清楚。
+
+### 12.3 读写分离的一致性陷阱
+
+主库刚写入后立即读备库，可能由于复制延迟读不到刚提交的数据。解决思路：
+
+- 写后短时间强制读主库；
+- 根据 LSN 等待备库追上目标位置；
+- 对强一致读取建立路由标记；
+- 对最终一致页面接受短暂旧数据。
+
+不能把“SELECT 都发备库”当作读写分离的完整方案。还要处理事务、会话粘滞、故障切换、备库只读错误和连接池路由。
+
+### 12.4 高可用组件与脑裂
+
+PostgreSQL 自身提供复制原语，但自动选主、健康检查、VIP/DNS、fencing、配置管理和客户端路由通常需要 Patroni、repmgr、云厂商服务或自研控制面。关键是防止两个节点同时认为自己是主库，即脑裂。切换前要确认旧主已隔离或 fencing，不能只修改一个 DNS 记录。
+
+### 12.5 复制监控
+
+主库：
+
+```sql
+SELECT application_name, client_addr, state, sync_state,
+       write_lag, flush_lag, replay_lag
+FROM pg_stat_replication;
+```
+
+备库：
+
+```sql
+SELECT pg_is_in_recovery(),
+       pg_last_wal_receive_lsn(),
+       pg_last_wal_replay_lsn(),
+       now() - pg_last_xact_replay_timestamp() AS replay_delay;
+```
+
+还要监控 replication slot 的 WAL 保留量。slot 长期不消费会让主库 WAL 持续增长，最终打满磁盘。
+
+---
+
+## 13. 逻辑复制、CDC 与数据迁移
+
+### 13.1 逻辑复制是什么
+
+逻辑复制基于发布者/订阅者，发送表级别的行变更语义，允许选择表、过滤对象，并支持跨大版本迁移等场景：
+
+```sql
+CREATE PUBLICATION app_pub FOR TABLE users, orders;
+-- 订阅端创建 subscription，连接到发布端
+```
+
+它通常不复制所有 DDL、序列状态、用户权限和数据库级对象，迁移方案必须单独处理 schema、sequence、扩展和大对象。
+
+### 13.2 CDC 的可靠性问题
+
+CDC 消费者要考虑：
+
+- 位点保存与重复消费；
+- 事务边界和提交顺序；
+- schema 变更兼容；
+- 大事务导致延迟和内存压力；
+- 下游失败时 WAL/slot 保留增长；
+- “数据库已提交但消息未发送”的一致性。
+
+Outbox 模式是常见方案：业务数据和事件写入同一个数据库事务，再由 CDC 或后台任务投递消息：
+
+```sql
+BEGIN;
+INSERT INTO orders(...);
+INSERT INTO outbox_events(event_id, aggregate_id, payload)
+VALUES ($1, $2, $3);
+COMMIT;
+```
+
+这不是 exactly-once 的万能保证，下游仍要用事件 ID 幂等处理。
+
+---
+
+## 14. 安全、权限与数据库对象
+
+### 14.1 角色与最小权限
+
+PostgreSQL 使用 role 统一表示用户和角色：
+
+```sql
+CREATE ROLE app_reader NOLOGIN;
+CREATE ROLE app_user LOGIN PASSWORD 'use-secret-manager';
+GRANT app_reader TO app_user;
+GRANT CONNECT ON DATABASE appdb TO app_user;
+GRANT USAGE ON SCHEMA app TO app_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA app TO app_reader;
+```
+
+生产应用账户不应拥有超级用户、任意建库、任意扩展和全库 DDL 权限。迁移账户和运行时账户分离，密码放在密钥系统中，定期轮换。
+
+### 14.2 默认权限与行级安全
+
+默认权限用于约束未来创建的对象：
+
+```sql
+ALTER DEFAULT PRIVILEGES IN SCHEMA app
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO app_user;
+```
+
+RLS（Row-Level Security）可让不同租户只看到自己的行：
+
+```sql
+ALTER TABLE tenant_orders ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON tenant_orders
+USING (tenant_id = current_setting('app.tenant_id')::bigint);
+```
+
+RLS 设计要验证连接池中的 session 参数是否正确清理，避免租户上下文串线；同时关注策略对查询计划和索引使用的影响。
+
+### 14.3 SQL 注入与参数化
+
+不要拼接用户输入：
+
+```js
+// 错误：`SELECT * FROM users WHERE id = ${id}`
+// 正确：使用驱动提供的参数绑定：SELECT ... WHERE id = $1
+```
+
+表名、列名不能简单用值参数绑定，需要白名单映射并使用驱动的 identifier 转义能力。数据库权限是最后一道防线，不替代应用层参数化。
+
+---
+
+## 15. 生产监控、故障排查与备份恢复
+
+### 15.1 关键系统视图
+
+当前连接、查询和等待：
+
+```sql
+SELECT pid, usename, application_name, client_addr, state,
+       wait_event_type, wait_event, xact_start, query_start, query
+FROM pg_stat_activity
+WHERE pid <> pg_backend_pid();
+```
+
+表访问和死元组：
+
+```sql
+SELECT relname, seq_scan, idx_scan, n_live_tup, n_dead_tup,
+       last_vacuum, last_autovacuum, last_analyze, last_autoanalyze
+FROM pg_stat_user_tables
+ORDER BY n_dead_tup DESC;
+```
+
+索引使用和扫描：
+
+```sql
+SELECT relname, indexrelname, idx_scan, idx_tup_read, idx_tup_fetch
+FROM pg_stat_user_indexes
+ORDER BY idx_scan;
+```
+
+配合 `pg_stat_statements` 关注总耗时、平均耗时、调用次数、共享块读写、临时块和 WAL；不要只按单次耗时排序，高频中等慢 SQL 可能贡献更多总耗时。
+
+### 15.2 慢查询排查清单
+
+1. 确认慢的是数据库执行、锁等待、连接池等待还是网络。
+2. 拿到真实 SQL 和绑定参数，避免只看 ORM 模板。
+3. 使用 `EXPLAIN (ANALYZE, BUFFERS)`，注意写操作副作用。
+4. 比较 estimated rows 与 actual rows，检查统计信息。
+5. 检查索引、过滤下推、JOIN 顺序、排序/哈希是否落盘。
+6. 检查长事务、锁等待、IO、CPU、WAL 和 autovacuum 竞争。
+7. 修改后在近似生产数据和并发下验证，并保留回滚方案。
+
+### 15.3 备份类型与 PITR
+
+- 逻辑备份：`pg_dump/pg_restore`，粒度灵活，适合对象迁移和小中型库；大库恢复速度和一致性窗口需评估。
+- 物理基础备份：复制数据库集群目录，适合快速恢复和搭建备库。
+- WAL 归档 + 基础备份：支持 PITR（Point-in-Time Recovery），可恢复到某个时间点。
+
+PITR 的基本链路：
+
+```text
+基础备份 + 连续归档 WAL
+        → 恢复基础备份
+        → 按顺序重放 WAL
+        → 在目标时间点停止恢复
+```
+
+备份是否可靠必须通过定期恢复演练证明。只看“备份任务成功”不够，还要验证恢复时长、备份可读性、权限、扩展、序列和业务验收。
+
+### 15.4 故障场景回答模板
+
+**磁盘快满**：先确认数据目录、WAL、归档、临时文件还是日志占用；保护系统可用性，停止非必要写入或扩容；检查 replication slot、长事务、失败归档；清理必须可回溯，不能直接删除数据库目录文件。
+
+**数据库连接打满**：区分真实活跃查询、锁等待、idle in transaction、连接池泄漏和短连接风暴；先止血限流/终止明确异常会话，再修复连接池、超时和慢 SQL。
+
+**主库延迟/备库落后**：比较 WAL 生成、发送、接收、回放各阶段，检查网络、备库 IO、长查询阻塞回放和 slot；不要只看一个 replay timestamp。
+
+**表突然变慢**：先看计划是否变化、统计信息、表膨胀、缓存命中、锁和磁盘延迟；不要一上来重启或强制索引。
+
+---
+
+## 16. 大厂综合场景题与回答框架
+
+### 16.1 设计一个高并发扣库存接口
+
+推荐回答顺序：
+
+1. 用数据库约束和原子更新保证不超卖：
+
+```sql
+UPDATE inventory
+SET stock = stock - $1, version = version + 1
+WHERE sku = $2 AND stock >= $1
+RETURNING stock, version;
+```
+
+2. 用请求号/订单号建立唯一约束实现幂等。
+3. 库存扣减、订单和 outbox 事件放进同一事务。
+4. 冲突异常、序列化失败和死锁按策略重试。
+5. 热点 SKU 若单行锁成为瓶颈，再评估库存分桶、预扣减、队列化和最终一致性方案。
+6. 监控锁等待、更新冲突、事务耗时、库存不一致和补偿任务。
+
+### 16.2 设计订单查询与分页
+
+- 订单号精确查询使用唯一索引。
+- 用户订单列表建立 `(user_id, created_at DESC, id DESC)` 联合索引。
+- 使用 Keyset Pagination，不使用大 OFFSET。
+- 游标中携带上页最后的 `(created_at, id)`，排序字段必须有稳定的唯一 tie-breaker。
+- 读写分离时，对刚下单用户保持读主或等待复制位点。
+
+### 16.3 为什么线上出现大量 dead tuples
+
+先解释 MVCC：更新删除制造旧版本；再按证据排查：
+
+- 是否有长事务或 `idle in transaction`；
+- autovacuum 是否触发、是否被锁或 IO 拖慢；
+- 表是否高频更新，阈值是否过大；
+- 大事务是否一次修改过多行；
+- 是否需要按表设置参数或分区归档。
+
+最后选择普通 VACUUM、调整 autovacuum、终止异常长事务、索引重建或窗口期表重写，而不是默认执行 `VACUUM FULL`。
+
+### 16.4 PostgreSQL 与 Redis 如何配合
+
+- PostgreSQL 是订单、余额、权限等权威数据源。
+- Redis 适合缓存、计数、短期状态和热点读取。
+- Cache Aside 下先读缓存，未命中读库并回填；更新时先提交数据库，再删除/失效缓存。
+- 热点、穿透、雪崩、双写不一致要有过期、随机抖动、空值缓存、消息补偿和监控。
+- 不能因为 Redis 读快就绕过 PostgreSQL 的约束和事务；关键状态最终必须可审计、可恢复。
+
+### 16.5 如何回答“PostgreSQL 和 MySQL 怎么选”
+
+不要回答成绝对优劣，按约束比较：
+
+| 维度 | PostgreSQL 常见优势 | 需要评估 |
+| --- | --- | --- |
+| SQL 能力 | 复杂查询、窗口、类型、扩展丰富 | 团队学习和运维经验 |
+| 一致性 | 强大的 MVCC、约束、隔离语义 | 长事务和 VACUUM 治理 |
+| 半结构化 | JSONB、数组、范围、全文 | 仍要保持数据模型清晰 |
+| 生态 | 云服务、扩展和工具成熟 | 与现有中间件兼容性 |
+| 运维 | 备份、复制、监控工具完善 | 高可用方案需完整设计 |
+
+最终依据查询模型、数据规模、SLA、团队能力、云平台和迁移成本做决定。
+
+---
+
+## 17. 高频命令速查与复习路线
+
+### 17.1 连接与对象
+
+```sql
+\l                         -- psql 列出数据库
+\c appdb                   -- 切换数据库
+\dt app.*                  -- 查看表
+\d+ app.orders             -- 查看表结构和存储信息
+\du                        -- 查看角色
+SELECT version();
+SHOW server_version;
+SHOW ALL;
+```
+
+### 17.2 事务与诊断
+
+```sql
+BEGIN;
+SET LOCAL lock_timeout = '2s';
+SET LOCAL statement_timeout = '10s';
+COMMIT;
+
+EXPLAIN (ANALYZE, BUFFERS, SETTINGS) ...;
+SELECT * FROM pg_stat_activity;
+SELECT * FROM pg_locks;
+SELECT pg_blocking_pids(<pid>);
+```
+
+### 17.3 DDL 与维护
+
+```sql
+CREATE INDEX CONCURRENTLY idx_name ON table_name (column_name);
+REINDEX INDEX CONCURRENTLY idx_name;
+VACUUM (ANALYZE, VERBOSE) table_name;
+ANALYZE table_name;
+```
+
+`CREATE INDEX CONCURRENTLY` 和 `REINDEX CONCURRENTLY` 可以降低对写入的阻塞，但会执行更久、产生更多资源消耗，且不能放在普通事务块中。生产执行前要确认失败清理、磁盘空间和锁影响。
+
+### 17.4 建议复习顺序
+
+1. 能解释一次 SQL 从连接到执行计划的完整链路。
+2. 能用自己的话讲清 MVCC、Read Committed、Repeatable Read 和 Serializable。
+3. 能说明 WAL、checkpoint、崩溃恢复与备份的关系。
+4. 能独立阅读 `EXPLAIN ANALYZE`，定位行数估算、索引、JOIN、排序和 IO 问题。
+5. 能解释 VACUUM、autovacuum、膨胀和 XID wraparound。
+6. 能设计索引、Keyset 分页、库存扣减和 outbox。
+7. 能说清物理复制、同步/异步、读写分离延迟、slot 和故障切换。
+8. 最后结合真实业务练习：连接打满、锁等待、慢查询、磁盘打满和主备延迟。
+
+### 17.5 面试总结句
+
+如果只能记住一条主线，可以这样总结 PostgreSQL：
+
+> PostgreSQL 用 MVCC 解决读写并发，用锁和隔离级别表达更强的业务保护，用 WAL 保证崩溃恢复和复制基础，用成本优化器选择执行计划，用索引、VACUUM、统计信息和分区治理性能；生产可用性则依赖连接池、监控、备份恢复、复制、高可用和应用层幂等共同完成。
+
