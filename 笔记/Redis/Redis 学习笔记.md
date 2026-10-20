@@ -324,6 +324,14 @@ BITCOUNT sign:1001
 
 HyperLogLog 使用概率算法来估算不同元素的数量，牺牲少量精度换取很低的内存开销。
 
+> 什么时候用 HyperLogLog，什么时候用 Set？
+
+- 必须知道具体用户列表：Set 或数据库。
+    
+- 只关心大规模 UV 估算：HyperLogLog。
+    
+- 需要精确去重计数：选择能够精确维护成员信息的数据结构。
+
 ## 常用命令
 
 |命令|作用|
@@ -331,3 +339,28 @@ HyperLogLog 使用概率算法来估算不同元素的数量，牺牲少量精�
 |`PFADD`|添加待统计元素|
 |`PFCOUNT`|估算不同元素数量|
 |`PFMERGE`|合并多个 HyperLogLog|
+## 示例
+
+```
+PFADD uv:2026-10-19 user:1 user:2 user:3
+PFADD uv:2026-10-19 user:1 user:2 user:4
+
+PFCOUNT uv:2026-10-19
+```
+
+结果为 `4`。
+
+上面的数据量很小，结果恰好准确，但 HyperLogLog **本质上是近似统计结构**，**大规模情况下不保证精确结果**。
+
+合并两个日期的统计：
+
+```
+PFADD uv:2026-10-18 user:1 user:2
+PFADD uv:2026-10-19 user:2 user:3
+
+PFMERGE uv:two-days uv:2026-10-18 uv:2026-10-19
+PFCOUNT uv:two-days
+```
+
+结果是 `3` 的估算值，因为两个日期中共有三个不同用户。
+
