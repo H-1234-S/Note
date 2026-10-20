@@ -25,3 +25,26 @@ String 是 Redis 最基本的数据类型，可以存储文本、数字、**序�
 | `APPEND` | 追加字符串     | `APPEND name Lee` |
 | `STRLEN` | 获取字符串字节长度 | `STRLEN name`     |
 
+## 过期时间
+
+Redis 可以给键设置过期时间，到期后键会失效。
+
+``` redis
+SET captcha:1001 836291 EX 300
+TTL captcha:1001
+GET captcha:1001
+```
+
+| 命令                         | 作用               |
+| -------------------------- | ---------------- |
+| `EXPIRE key seconds`       | 设置秒级过期时间         |
+| `PEXPIRE key milliseconds` | 设置毫秒级过期时间        |
+| `TTL key`                  | 查看剩余秒数           |
+| `PTTL key`                 | 查看剩余毫秒数          |
+| `PERSIST key`              | 移除过期时间           |
+| `EXPIREAT key timestamp`   | 设置 Unix 秒级绝对过期时间 |
+| `SET ... EX ...`           | 设置值并同时指定过期时间     |
+
+`TTL` 的返回值需要特别注意：大于等于 `0`：剩余时间。`-1`：键存在，但没有过期时间。`-2`：键不存在。
+
+验证码就可以用 Redis 实现：**设置验证码时指定有效期**，验证后再删除或采用原子校验与消费方案。
