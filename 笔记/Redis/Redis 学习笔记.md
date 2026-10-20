@@ -442,3 +442,12 @@ XREADGROUP GROUP order-workers worker-1
   BLOCK 5000
   STREAMS orders >
 ```
+
+**读取并成功处理消息：**
+
+```
+XACK orders order-workers id
+```
+
+# 补充
+
