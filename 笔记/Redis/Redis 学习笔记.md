@@ -406,3 +406,20 @@ Redis Stream 是带有消息 ID 的追加式消息流，适合事件记录、任
 |`XPENDING`|查看待确认消息|
 |`XCLAIM` / `XAUTOCLAIM`|接管符合条件的待处理消息|
 |`XTRIM`|修剪 Stream 长度|
+
+## 示例
+
+**创建消息：**
+```
+XADD orders * orderId 1001 amount 99
+```
+
+> `*` 表示由 Redis 自动生成消息 ID。
+
+**读取消息：**
+
+```
+XRANGE orders - +
+```
+
+> `-` 和 `+` 分别表示最小与最大 ID
