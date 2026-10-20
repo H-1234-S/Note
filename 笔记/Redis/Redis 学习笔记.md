@@ -147,3 +147,31 @@ RPUSH queue A
 RPUSH queue B
 LPOP queue
 ```
+
+# Set
+
+Set 是无序且元素唯一的字符串集合。
+
+```
+{user:1, user:2, user:3}
+```
+
+相当于 JS 中的 Set，去重，不会重复添加
+
+## 常用命令
+
+| 命令            | 作用           |
+| ------------- | ------------ |
+| `SADD`        | 添加元素         |
+| `SREM`        | 删除元素         |
+| `SISMEMBER`   | 判断元素是否存在     |
+| `SMEMBERS`    | 获取所有元素       |
+| `SCARD`       | 获取集合元素数量     |
+| `SINTER`      | 求交集          |
+| `SUNION`      | 求并集          |
+| `SDIFF`       | 求差集          |
+| `SINTERSTORE` | 将交集存入新集合     |
+| `SUNIONSTORE` | 将并集存入新集合     |
+| `SPOP`        | 随机移除并返回元素    |
+| `SRANDMEMBER` | 随机获取元素，不一定删除 |
+| `SSCAN`       | 增量遍历集合       |
