@@ -135,3 +135,15 @@ tasks = [task:C, task:B, task:A]
 ## 栈与队列
 
 栈是后进先出；队列是先进先出
+
+```
+// 栈
+LPUSH stack A
+LPUSH stack B
+LPOP stack
+
+// 队列
+RPUSH queue A
+RPUSH queue B
+LPOP queue
+```
