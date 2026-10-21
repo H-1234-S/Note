@@ -727,9 +727,129 @@ cluster-announce-ip 192.168.1.100   # 宿主机 IP（或容器固定 IP）
 cluster-announce-port 7001
 cluster-announce-bus-port 17001
 ```
-
 ## 使用
 
+#### 1. 创建自定义网络
+
+为了让容器拥有固定 IP，避免重启后 IP 变动导致集群崩溃，首先创建一个指定子网的桥接网络：
+
+``` bash
+docker network create --subnet=172.28.0.0/16 redis-cluster-net
+```
+
+> **Why？**
+
+Docker 默认的 `bridge` 网络有个限制：**容器 IP 是动态分配的**，容器一重启，IP 可能就变了
+
+比如从 `172.17.0.5` 变成 `172.17.0.8`
+
+而 Redis 集群里，每个节点都**记死了其他节点的 IP**（通过 `cluster-announce-ip` 和 cluster 配置）。
+
+如果某个节点重启后 IP 变了就连不上了，可能触发故障转移。
+
+#### 2. 编写 Docker Compose 文件
+
+以下 `docker-compose.yml` 定义了 6 个节点，分别映射到宿主机的 7001-7006 端口。
+
+**注意**：`cluster-announce-ip` 需填写你**宿主机**的局域网 IP（例如 `192.168.1.100`），或者是容器在自定义网络中的固定 IP。
+
+如果是本地开发且客户端也在宿主机，填宿主机 IP 最方便。
+
+``` yaml
+version: '3.8'
+services:
+  redis-7001:
+    image: redis:7.2
+    container_name: redis-7001
+    command: redis-server --port 7001 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.28.0.11 --cluster-announce-port 7001 --cluster-announce-bus-port 17001
+    ports:
+      - "7001:7001"
+      - "17001:17001"
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.11
+  redis-7002:
+    image: redis:7.2
+    container_name: redis-7002
+    command: redis-server --port 7002 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.28.0.12 --cluster-announce-port 7002 --cluster-announce-bus-port 17002
+    ports:
+      - "7002:7002"
+      - "17002:17002"
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.12
+  redis-7003:
+    image: redis:7.2
+    container_name: redis-7003
+    command: redis-server --port 7003 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.28.0.13 --cluster-announce-port 7003 --cluster-announce-bus-port 17003
+    ports:
+      - "7003:7003"
+      - "17003:17003"
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.13
+  redis-7004:
+    image: redis:7.2
+    container_name: redis-7004
+    command: redis-server --port 7004 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.28.0.14 --cluster-announce-port 7004 --cluster-announce-bus-port 17004
+    ports:
+      - "7004:7004"
+      - "17004:17004"
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.14
+  redis-7005:
+    image: redis:7.2
+    container_name: redis-7005
+    command: redis-server --port 7005 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.28.0.15 --cluster-announce-port 7005 --cluster-announce-bus-port 17005
+    ports:
+      - "7005:7005"
+      - "17005:17005"
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.15
+  redis-7006:
+    image: redis:7.2
+    container_name: redis-7006
+    command: redis-server --port 7006 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes --cluster-announce-ip 172.28.0.16 --cluster-announce-port 7006 --cluster-announce-bus-port 17006
+    ports:
+      - "7006:7006"
+      - "17006:17006"
+    networks:
+      redis-cluster-net:
+        ipv4_address: 172.28.0.16
+networks:
+  redis-cluster-net:
+    external: true
+
+```
+#### 3. 启动并创建集群
+
+**启动容器：**
+
+``` bash
+docker-compose up -d
+```
+
+**创建集群：**  
+
+进入任意一个容器（如 redis-7001），执行 `redis-cli --cluster create` 命令。这里使用容器内的 IP 进行握手，确保集群内部通信正常：
+
+``` bash
+docker exec -it redis-7001 redis-cli --cluster create \
+  172.28.0.11:7001 172.28.0.12:7002 172.28.0.13:7003 \
+  172.28.0.14:7004 172.28.0.15:7005 172.28.0.16:7006 \
+  --cluster-replicas 1
+```
+
+#### 4. 验证与使用
+
+**查看集群状态：**
+
+``` bash
+docker exec -it redis-7001 redis-cli -p 7001 cluster info
+docker exec -it redis-7001 redis-cli -p 7001 cluster nodes
+```
 
 ## 缺点
 
