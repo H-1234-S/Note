@@ -717,6 +717,17 @@ Redis 集群有个特性叫 **MOVED 重定向**
 
 **示例：** 客户端连到节点 A，要读一个 key，但这个 key 其实存在节点 B 上。节点 A 会返回节点 **B 的对外通告 IP**
 
+Docker 容器内部有自己的 IP（比如 `172.17.0.5`），这个 IP **只有 Docker 内部网络能访问**，宿主机外面的客户端根本连不上。
+
+因此需要给每个节点明确配置**外部能访问到的地址**：
+
+``` conf
+# redis.conf 里
+cluster-announce-ip 192.168.1.100   # 宿主机 IP（或容器固定 IP）
+cluster-announce-port 7001
+cluster-announce-bus-port 17001
+```
+
 ## 使用
 
 
