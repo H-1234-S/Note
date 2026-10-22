@@ -1707,10 +1707,10 @@ timeout
 */
 ```
 
-queueMicrotask 将一个函数推入微任务队列中
+`queueMicrotask` 将一个函数推入微任务队列中
 
-MutationObserver 是浏览器提供的一个 **DOM 变化监听器**
-	返回一个observer实例对象，第一个参数为监听的DOM，第二个为配置参数。例如：可以监听子元素增删、属性变化
+`MutationObserver` 是浏览器提供的一个 **DOM 变化监听器**
+	返回一个 `observer` 实例对象，第一个参数为监听的 DOM，第二个为配置参数。例如：可以监听子元素增删、属性变化
 
 ### 6.2 底层原理
 
