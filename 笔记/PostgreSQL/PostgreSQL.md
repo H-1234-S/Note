@@ -73,18 +73,55 @@ metadata JSONB
 
 它的核心目的是**把业务规则下沉到数据库层**，防止脏数据进入表里
 
-### 列出的几个约束
-
-|约束|作用|作用层级|
-|---|---|---|
-|`PRIMARY KEY`|唯一标识一行，隐含 `NOT NULL` + `UNIQUE`|表级（可单列也可多列组合）|
-|`NOT NULL`|该列不允许为 `NULL`|列级|
-|`UNIQUE`|该列（或列组合）的值不能重复，但允许多个 `NULL`|列级或表级|
-|`CHECK`|值必须满足指定布尔表达式，如 `CHECK (age >= 0)`|列级或表级|
-|`DEFAULT`|插入时未指定该列，则自动填入默认值|列级|
+| 约束            | 作用                                | 作用层级          |
+| ------------- | --------------------------------- | ------------- |
+| `PRIMARY KEY` | 唯一标识一行，隐含 `NOT NULL` + `UNIQUE`   | 表级（可单列也可多列组合） |
+| `NOT NULL`    | 该列不允许为 `NULL`                     | 列级            |
+| `UNIQUE`      | 该列（或列组合）的值不能重复，但允许多个 `NULL`       | 列级或表级         |
+| `CHECK`       | 值必须满足指定布尔表达式，如 `CHECK (age >= 0)` | 列级或表级         |
+| `DEFAULT`     | 插入时未指定该列，则自动填入默认值                 | 列级            |
 
 严格来说，`DEFAULT` 和 `NOT NULL` 更常被称为**列约束**
 
 而 `PRIMARY KEY`、`UNIQUE`、`CHECK`、`FOREIGN KEY` 既可以写在列后面，也可以写成表级约束（尤其是多列组合时）。
 
 `FOREIGN KEY` 也是约束家族的重要成员，用于保证一个表中的值在另一个表中存在（引用完整性）。
+
+## 主键
+
+PRIMARY KEY
+
+每张表只能定义一个主键约束，但这个主键可以由多个列组成，称为复合主键。
+
+``` sql
+PRIMARY KEY (organization_id, user_id)
+```
+
+## 外键
+
+FOREIGN KEY 主要用来保持**引用完整性**
+
+``` sql
+CREATE TABLE projects (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id UUID NOT NULL REFERENCES users(id),
+  name TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+其中
+
+``` sql
+owner_id UUID NOT NULL REFERENCES users(id)
+```
+
+### 删除策略
+
+| 策略            | 行为                  | 常见适用场景        |
+| ------------- | ------------------- | ------------- |
+| `NO ACTION`   | 如果仍有引用记录，拒绝删除（默认行为） | 不允许轻易删除父记录    |
+| `RESTRICT`    | 有引用记录时阻止删除          | 明确禁止删除被引用的记录  |
+| `CASCADE`     | 删除用户时自动删除关联项目       | 子记录确实应该随父记录删除 |
+| `SET NULL`    | 将关联列设为 `NULL`       | 项目允许没有所有者     |
+| `SET DEFAULT` | 将关联列设置为默认值          | 默认值本身符合外键约束   |
