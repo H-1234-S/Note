@@ -66,3 +66,10 @@ id UUID PRIMARY KEY DEFAULT gen_random_uuid()
 ``` sql
 metadata JSONB
 ```
+
+# SQL 约束
+
+约束是加在表或列上的规则，数据库在插入、更新数据时会自动检查，不满足就报错并拒绝操作。
+
+它的核心目的是**把业务规则下沉到数据库层**，防止脏数据进入表里
+
