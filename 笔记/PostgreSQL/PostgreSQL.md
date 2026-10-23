@@ -125,3 +125,13 @@ owner_id UUID NOT NULL REFERENCES users(id)
 | `CASCADE`     | 删除用户时自动删除关联项目       | 子记录确实应该随父记录删除 |
 | `SET NULL`    | 将关联列设为 `NULL`       | 项目允许没有所有者     |
 | `SET DEFAULT` | 将关联列设置为默认值          | 默认值本身符合外键约束   |
+
+**例如：**
+
+``` sql
+owner_id UUID NOT NULL
+  REFERENCES users(id)
+  ON DELETE CASCADE
+```
+
+表示当用户被删除时，相关的项目也会自动删除；按照业务来设置删除策略
