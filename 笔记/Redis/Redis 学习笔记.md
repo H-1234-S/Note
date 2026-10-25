@@ -992,7 +992,11 @@ async function payOrder(orderId: string) {
 }
 ```
 
+**问题：**
 
+- 业务执行时间超过 TTL
+- Redis 主从切换导致锁失效
+- 
 
 
 
