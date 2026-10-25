@@ -137,5 +137,51 @@ owner_id UUID NOT NULL
 表示当用户被删除时，相关的项目也会自动删除；按照业务来设置删除策略
 
 
-# 事务
+# 数据库事务
+
+数据库事务（Transaction）是一组被数据库**作为一个整体管理**的操作。
+
+> 事务的**核心思想**是：
+
+- 所有操作成功：提交事务，保存结果。
+    
+- 任意操作失败：回滚事务，撤销本事务尚未提交的修改。
+
+## 示例
+
+``` sql
+-- 1. A 的余额减少 100 元
+UPDATE accounts
+SET balance = balance - 100
+WHERE user_id = 'A';
+
+-- 2. B 的余额增加 100 元
+UPDATE accounts
+SET balance = balance + 100
+WHERE user_id = 'B';
+```
+
+转账需要执行两个操作；但是存在问题：如果操作 A 成功，操作 B 失败。最终：A 少了 100 元，B 却没有收到钱。
+
+这就是典型的**数据一致性问题**
+
+而使用数据库事务：
+
+``` sql
+BEGIN;
+
+UPDATE accounts
+SET balance = balance - 100
+WHERE user_id = 'A';
+
+UPDATE accounts
+SET balance = balance + 100
+WHERE user_id = 'B';
+
+COMMIT;
+```
+
+注意：事务只能回滚它所管理的数据库操作，不能自动撤销已经发送的短信、外部支付请求等副作用。
+
+## 特性 ACID
 
