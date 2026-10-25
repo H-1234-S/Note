@@ -930,7 +930,8 @@ redis.on("error", (err) => {
 });
   
 await redis.connect();
-  
+
+// 获取锁方法，返回 boolean
 async function acquireLock(
   lockKey: string,
   token: string,
@@ -943,7 +944,8 @@ async function acquireLock(
   
   return result === "OK";
 }
-  
+
+// token 唯一，防止时间过期后删除请求 B 的锁
 const token = randomUUID();
   
 const acquired = await acquireLock("lock:order:123", token, 30_000);
@@ -996,15 +998,11 @@ async function payOrder(orderId: string) {
 
 - 业务执行时间超过 TTL
 - Redis 主从切换导致锁失效
-- 
 
+**应用：**
 
-
-
-
-
-
-
-
-
+1. 防止重复处理订单
+2. 秒杀与库存处理
+3. 定时任务防重
+4. 防止缓存击穿
 # Lua 脚本
