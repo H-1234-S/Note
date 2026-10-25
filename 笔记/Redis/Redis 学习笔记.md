@@ -915,6 +915,82 @@ end
 
 Lua 脚本在 Redis 内部**原子执行比较和删除**，不会出现竞争窗口
 
+> **实现：**
+
+``` ts
+import { randomUUID } from "node:crypto";
+import { createClient } from "redis";
+  
+const redis = createClient({
+  url: "redis://localhost:6379",
+});
+  
+redis.on("error", (err) => {
+  console.error("Redis error:", err);
+});
+  
+await redis.connect();
+  
+async function acquireLock(
+  lockKey: string,
+  token: string,
+  ttlMs = 30_000,
+): Promise<boolean> {
+  const result = await redis.set(lockKey, token, {
+    NX: true,
+    PX: ttlMs,
+  });
+  
+  return result === "OK";
+}
+  
+const token = randomUUID();
+  
+const acquired = await acquireLock("lock:order:123", token, 30_000);
+  
+if (acquired) {
+  console.log("获取锁成功");
+} else {
+  console.log("获取锁失败");
+}
+  
+const RELEASE_LOCK_SCRIPT = `
+  if redis.call("GET", KEYS[1]) == ARGV[1] then
+    return redis.call("DEL", KEYS[1])
+  end
+  
+  return 0
+`;
+  
+async function releaseLock(lockKey: string, token: string): Promise<boolean> {
+  const result = await redis.eval(RELEASE_LOCK_SCRIPT, {
+    keys: [lockKey],
+    arguments: [token],
+  });
+  
+  return result === 1;
+}
+  
+async function payOrder(orderId: string) {
+  const lockKey = `lock:order:${orderId}`;
+  const token = randomUUID();
+  
+  const acquired = await acquireLock(lockKey, token);
+  
+  if (!acquired) {
+    throw new Error("订单正在处理中，请稍后重试");
+  }
+  
+  try {
+    // 这里执行受保护的业务逻辑
+    // 例如检查订单状态、执行扣款流程等
+    // await processPayment(orderId);
+  } finally {
+    // 无论业务成功还是抛出异常，都尝试释放自己的锁
+    await releaseLock(lockKey, token);
+  }
+}
+```
 
 
 
