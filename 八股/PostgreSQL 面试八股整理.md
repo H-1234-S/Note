@@ -77,7 +77,7 @@ PostgreSQL 通常采用“主进程 + 多个后台进程 + **每连接一个 bac
 | backend process            | 处理一个客户端会话的 SQL、事务和执行计划          |
 | wal sender/receiver        | 主库发送、备库接收 WAL                   |
 
-主进程会启动一组常驻的后台辅助进程，各司其职，例如：
+主进程会启动一组常驻的后台辅助进程，**例如：**
 
 |进程|作用|
 |---|---|
@@ -128,7 +128,9 @@ PostgreSQL 通常采用“主进程 + 多个后台进程 + **每连接一个 bac
 
 ### 1.4 Schema、database 与 search_path
 
-一个 PostgreSQL 实例可以有多个 database；一个 database 中可以有多个 schema。Schema 类似命名空间，表名解析会受 `search_path` 影响：
+一个 PostgreSQL 实例可以有多个 database；一个 database 中可以有多个 schema。
+
+Schema 类似命名空间，表名解析会受 `search_path` 影响：
 
 ```sql
 CREATE SCHEMA app;
