@@ -189,9 +189,18 @@ COMMIT;
 
 要让**先查再改**安全，必须让**查询阶段就锁住目标行**，迫使**并发事务排队**。
 
+``` sql
+BEGIN;
+SELECT balance FROM accounts WHERE user_id = 'A' FOR UPDATE;
+-- 此时其他事务对同一行的 FOR UPDATE 或 UPDATE 会等待
+-- 应用计算 newBalance
+UPDATE accounts SET balance = 20 WHERE user_id = 'A';
+COMMIT;
+```
+
 > InnoDB 悲观锁，**排他行锁（X 锁）**，只在事务内生效，事务`COMMIT/ROLLBACK`才释放锁
 
-
+第一个事务锁住行后，第二个事务在 `SELECT ... FOR UPDATE` 处就会阻塞，直到第一个提交，它才能读到更新后的余额。
 
 ## 特性 ACID
 
