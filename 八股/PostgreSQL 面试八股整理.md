@@ -176,7 +176,9 @@ SELECT * FROM app.users;   -- 推荐在重要 SQL 中明确限定
 
 ### 2.2 `timestamp` 与 `timestamptz`
 
-`timestamp without time zone` 只是一个“墙上时间”，不会自动记录它来自哪个时区；`timestamptz` 表示时间点，输入时会按会话时区转换，输出时按当前时区展示：
+`timestamp without time zone` 只是一个“墙上时间”，不会自动记录它来自哪个时区
+
+`timestamptz` 表示时间点，输入时会按会话时区转换，**输出时按当前时区展示**：
 
 ```sql
 SET TIME ZONE 'Asia/Shanghai';
@@ -184,7 +186,9 @@ SELECT TIMESTAMP '2026-10-20 10:00:00';
 SELECT TIMESTAMPTZ '2026-10-20 10:00:00+08';
 ```
 
-订单创建时间、支付时间、日志时间一般用 `timestamptz`；如果业务含义是“门店每天 09:00 开门”，才可能用不带时区的本地时间，并额外保存地区规则。
+订单创建时间、支付时间、日志时间一般用 `timestamptz`；
+
+如果业务含义是“门店每天 09:00 开门”，才可能用不带时区的本地时间，并额外保存地区规则。
 
 ### 2.3 主键、唯一约束与外键
 
