@@ -116,7 +116,7 @@ CREATE TABLE projects (
 owner_id UUID NOT NULL REFERENCES users(id)
 ```
 
-### 删除策略
+## 删除策略
 
 | 策略            | 行为                  | 常见适用场景        |
 | ------------- | ------------------- | ------------- |
@@ -135,6 +135,18 @@ owner_id UUID NOT NULL
 ```
 
 表示当用户被删除时，相关的项目也会自动删除；按照业务来设置删除策略
+
+## 检查约束
+
+``` sql
+ALTER TABLE products
+ADD CONSTRAINT products_stock_nonnegative
+CHECK (stock >= 0);
+```
+
+给 `products` 表加一条名为 `products_stock_nonnegative` 的检查约束，要求 `stock` 列的值必须大于等于 0。
+
+任何试图让 `stock` 变成负数的 `INSERT` 或 `UPDATE`，都会被数据库直接拒绝，并报错回滚该语句。
 
 
 # 数据库事务
