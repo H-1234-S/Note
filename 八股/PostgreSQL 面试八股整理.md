@@ -289,7 +289,9 @@ SET theme = EXCLUDED.theme,
     updated_at = EXCLUDED.updated_at;
 ```
 
-`EXCLUDED` 表示本次尝试插入但发生冲突的那一行。UPSERT 依赖唯一约束或唯一索引，避免了“先 SELECT 判断，再 INSERT/UPDATE”的竞态。若更新条件不满足，可以写 `DO UPDATE ... WHERE ...`，此时可能发生冲突但没有实际更新。
+`EXCLUDED` 表示本次尝试插入但发生冲突的那一行。UPSERT 依赖唯一约束或唯一索引，避免了“先 SELECT 判断，再 INSERT/UPDATE”的竞态。
+
+若更新条件不满足，可以写 `DO UPDATE ... WHERE ...`，此时可能发生冲突但没有实际更新。
 
 ### 2.6 高频 SQL 规范
 
