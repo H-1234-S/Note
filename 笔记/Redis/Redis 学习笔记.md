@@ -859,7 +859,7 @@ docker exec -it redis-7001 redis-cli -p 7001 cluster nodes
 Redis Cluster 使用 gossiping 来确定整个集群的健康状况。
 
 # Redis 分布式锁
-
++
 ## 锁
 
 > 锁是用来**协调多个执行者**对同一资源的访问，让同一时刻只有获得锁的执行者可以进入受保护的业务区间。
