@@ -221,8 +221,6 @@ WHERE user_id = 'A'
   AND balance >= 80;
 ```
 
-
-
 PostgreSQL 会通过**行级并发控制**协调对同一行的并发更新。
 
 在 `READ COMMITTED` 下，如果另一个事务先修改了该行，后续更新会等待，并根据更新后的行重新检查 `WHERE` 条件。
