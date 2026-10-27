@@ -286,16 +286,28 @@ COALESCE(a,b,c,...,d)
 ```sql
 INSERT INTO user_settings(user_id, theme, updated_at)
 VALUES (42, 'dark', now())
+
 ON CONFLICT (user_id) DO UPDATE
 SET theme = EXCLUDED.theme,
     updated_at = EXCLUDED.updated_at;
 ```
 
-`EXCLUDED` 表示本次尝试插入但发生冲突的那一行。
+`EXCLUDED` 表示本次尝试插入但发生冲突的那一行；`DO UPDATE` 表示**改为更新已有那行**（而不是 `DO NOTHING` 忽略）
 
 UPSERT 依赖唯一约束或唯一索引，避免了“先 SELECT 判断，再 INSERT/UPDATE”的**竞态**。
 
 若更新条件不满足，可以写 `DO UPDATE ... WHERE ...`，此时可能发生冲突但没有实际更新。
+
+#### 2.5.1 补充
+
+`ON CONFLICT (user_id)` 的意思是：**当插入违反了 `user_id` 上的唯一约束时，不要报错，改为执行后面的动作**。
+
+``` sql
+ON CONFLICT (user_id) DO UPDATE
+```
+
+> 前提：`user_settings` 表上 `user_id` 必须有 **唯一约束或主键**（比如 `PRIMARY KEY (user_id)` 或 `UNIQUE (user_id)`）
+> 否则 `ON CONFLICT (user_id)` 会报错说找不到匹配的唯一约束/索引。
 
 ### 2.6 高频 SQL 规范
 
