@@ -241,6 +241,27 @@ PostgreSQL 会通过**行级并发控制**协调对同一行的并发更新。
 
 注意：在 `REPEATABLE READ` 或 `SERIALIZABLE` 隔离级别下，如果锁定的行在事务开始后被修改过，`SELECT FOR UPDATE` 会直接报错，而不是等待
 
+### 示例
+
+假设商品库存为 10 件，两个用户同时购买 7 件。
+
+如果使用“先查询库存，再更新”的方式，两个请求都可能读到 10 件，并认为库存充足。
+
+``` sql
+UPDATE products
+SET stock = stock - 7
+WHERE id = 1001
+  AND stock >= 7
+RETURNING stock;
+```
+
+添加约束，进一步防止非法库存：
+
+``` sql
+ALTER TABLE products
+ADD CONSTRAINT products_stock_nonnegative
+CHECK (stock >= 0);
+```
 
 ## 特性 ACID
 
