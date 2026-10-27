@@ -253,7 +253,9 @@ INSERT INTO orders (id, user_id, ...) OVERRIDING SYSTEM VALUE VALUES (100, 1, ..
 
 ### 2.4 `NULL` 不是空字符串也不是 0
 
-SQL 使用三值逻辑：`TRUE`、`FALSE`、`UNKNOWN`。`NULL = NULL` 不是 `TRUE`，而是 `UNKNOWN`：
+SQL 使用三值逻辑：`TRUE`、`FALSE`、`UNKNOWN`。
+
+`NULL = NULL` 不是 `TRUE`，而是 `UNKNOWN`：
 
 ```sql
 SELECT * FROM users WHERE deleted_at = NULL;       -- 错误写法
