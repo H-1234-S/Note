@@ -239,7 +239,7 @@ PostgreSQL 会通过**行级并发控制**协调对同一行的并发更新。
 
 你之前说的安全写法 `UPDATE ... SET balance = balance - 80 WHERE ... AND balance >= 80`，在 PG 里之所以安全，就是因为第二个 `UPDATE` 会在这个行级锁上**等待**，等第一个改完后，它再基于**新的、已提交的版本**重新评估条件并扣减。
 
-PG 的行级锁有几种模式，其中和你场景最相关的是 `FOR UPDATE` 和 `FOR NO KEY UPDATE`。`SELECT ... FOR UPDATE` 会主动对读到的行加排他锁，阻止其他事务修改这些行，直到当前事务结束。但要注意，在 `REPEATABLE READ` 或 `SERIALIZABLE` 隔离级别下，如果锁定的行在事务开始后被修改过，`SELECT FOR UPDATE` 会直接报错，而不是等待
+注意：在 `REPEATABLE READ` 或 `SERIALIZABLE` 隔离级别下，如果锁定的行在事务开始后被修改过，`SELECT FOR UPDATE` 会直接报错，而不是等待
 
 
 ## 特性 ACID
