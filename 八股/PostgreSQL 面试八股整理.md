@@ -292,9 +292,11 @@ SET theme = EXCLUDED.theme,
     updated_at = EXCLUDED.updated_at;
 ```
 
-`EXCLUDED` 表示本次尝试插入但发生冲突的那一行；`DO UPDATE` 表示**改为更新已有那行**（而不是 `DO NOTHING` 忽略）
+`EXCLUDED` 代表**本次 `INSERT` 原本想插入的那行数据**（即 `VALUES` 里的 `(42, 'dark', now())`）。
 
-UPSERT 依赖唯一约束或唯一索引，避免了“先 SELECT 判断，再 INSERT/UPDATE”的**竞态**。
+`DO UPDATE` 表示**改为更新已有那行**（而不是 `DO NOTHING` 忽略）
+
+UPSERT **依赖唯一约束或唯一索引**，避免了“先 SELECT 判断，再 INSERT/UPDATE”的**竞态**。
 
 若更新条件不满足，可以写 `DO UPDATE ... WHERE ...`，此时可能发生冲突但没有实际更新。
 
