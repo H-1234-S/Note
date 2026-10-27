@@ -208,6 +208,23 @@ CREATE TABLE orders (
 - 外键保证引用完整性，但会带来写入检查和锁开销；高吞吐场景要结合索引和删除策略设计。
 - `CHECK` 约束防止非法状态进入数据库；复杂跨行规则不能只靠普通 `CHECK`，可考虑唯一索引、排他约束、触发器或事务逻辑。
 
+#### 2.3.1 补充
+
+声明一个唯一性约束；**给唯一性约束起名字写法**
+
+``` sql
+CONSTRAINT uq_orders_order_no UNIQUE (order_no)
+```
+
+数据库会自动为这个唯一约束**创建一个唯一索引**（默认名字 `uq_orders_order_no`），既能保证唯一性，也能加速按 `order_no` 的查询。
+
+**类似于：**
+
+``` sql
+order_no text NOT NULL UNIQUE
+```
+
+
 ### 2.4 `NULL` 不是空字符串也不是 0
 
 SQL 使用三值逻辑：`TRUE`、`FALSE`、`UNKNOWN`。`NULL = NULL` 不是 `TRUE`，而是 `UNKNOWN`：
