@@ -69,20 +69,42 @@ PostgreSQL 是开源对象关系型数据库，支持标准 SQL、事务、MVCC�
 
 ### 1.2 进程模型与连接模型
 
-PostgreSQL 通常采用“主进程 + 多个后台进程 + 每连接一个 backend 进程”的模型：
+PostgreSQL 通常采用“主进程 + 多个后台进程 + **每连接一个 backend 进程**”的模型：
 
 | 角色                         | 作用                              |
 | -------------------------- | ------------------------------- |
 | postmaster / postgres 主进程  | 监听连接、启动和管理后台进程；本身不处理sql，只做调度和守护 |
 | backend process            | 处理一个客户端会话的 SQL、事务和执行计划          |
-| checkpointer               | 负责 checkpoint 相关工作              |
-| background writer          | 提前把共享缓冲区中的脏页写出                  |
-| WAL writer                 | 将 WAL 缓冲区内容写入 WAL 文件            |
-| autovacuum launcher/worker | 调度和执行 VACUUM、ANALYZE            |
-| startup process            | 备库回放 WAL                        |
 | wal sender/receiver        | 主库发送、备库接收 WAL                   |
 
-一个连接通常对应一个服务端进程，因此连接数不是越多越好。连接过多会消耗内存、进程调度和锁管理资源。生产环境常用 PgBouncer 等连接池，把大量短连接复用到有限数据库连接上。
+主进程会启动一组常驻的后台辅助进程，各司其职，例如：
+
+|进程|作用|
+|---|---|
+|`checkpointer`|定期执行检查点，把脏页刷盘|
+|`background writer`|持续把共享缓冲区中的脏页写回磁盘|
+|`wal writer`|把 WAL 日志缓冲写入 WAL 文件|
+|`autovacuum launcher`|启动自动清理工作进程|
+|`stats collector` / `logical replication launcher` 等|统计、逻辑复制等|
+
+这些进程在数据库运行期间一直存在，是“**共享的基础设施**”。
+
+#### 1.2.1 每连接一个 backend 进程
+
+这是 PostgreSQL 与 MySQL 等数据库的**关键区别**：
+
+- 客户端每建立一个连接，postmaster 就 **fork 一个新进程**（叫 backend 进程）
+    
+- 这个进程**专门服务这一个连接**，负责解析 SQL、执行查询、返回结果
+    
+- 连接断开，该进程退出
+    
+
+一个连接通常对应一个服务端进程，因此连接数不是越多越好。
+
+连接过多会消耗内存、进程调度和锁管理资源。
+
+> 生产环境常用 `PgBouncer` 等连接池，把大量短连接复用到有限数据库连接上。
 
 ### 1.3 一条 SQL 的生命周期
 
