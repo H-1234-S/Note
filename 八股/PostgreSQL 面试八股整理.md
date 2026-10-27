@@ -268,7 +268,15 @@ SELECT * FROM users WHERE deleted_at IS NOT NULL;
 ```sql
 SELECT user_id, COALESCE(SUM(amount), 0)
 FROM payments
+
+-- 按照 user_id 分组，每个 user_id 为一组
 GROUP BY user_id;
+```
+
+> 返回列表中第一个非 `NULL` 的值
+
+``` sql
+COALESCE(a,b,c,...,d)
 ```
 
 ### 2.5 UPSERT：`INSERT ... ON CONFLICT`
