@@ -351,7 +351,7 @@ WHERE old_value IS DISTINCT FROM new_value
 
 ### 3.2 MVCC 的基本思想
 
-PostgreSQL 的 MVCC（多版本并发控制）是一种核心的并发控制机制。
+PostgreSQL 的 MVCC（多版本并发控制）是一种核心的**并发控制机制**。
 
 **当数据被修改时，不直接覆盖原数据，而是创建一个新版本，同时保留旧版本**。
 
