@@ -345,7 +345,9 @@ WHERE old_value IS DISTINCT FROM new_value
 | Isolation | MVCC 快照、锁、隔离级别 |
 | Durability | WAL 持久化、`fsync`、checkpoint、备份和复制 |
 
-“开启事务”不意味着所有读写都互相阻塞。PostgreSQL 通过 MVCC 让读看到符合快照的数据版本，读写多数情况下可以并发；需要保护同一业务资源时，仍要使用锁或提高隔离级别。
+“开启事务”不意味着所有读写都互相阻塞。PostgreSQL 通过 MVCC 让读看到符合快照的数据版本，读写多数情况下可以并发
+
+需要保护同一业务资源时，仍要使用锁或提高隔离级别。
 
 ### 3.2 MVCC 的基本思想
 
