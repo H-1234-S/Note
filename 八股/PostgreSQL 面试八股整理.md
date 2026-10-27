@@ -222,8 +222,34 @@ CONSTRAINT uq_orders_order_no UNIQUE (order_no)
 
 ``` sql
 order_no text NOT NULL UNIQUE
+
+/* 删除 orders 表中名为 uq_orders_order_no 的约束 */
+ALTER TABLE orders DROP CONSTRAINT uq_orders_order_no;
 ```
 
+---
+
+这一列的值**由数据库自动生成**，底层通过一个**序列（sequence）** 实现，每插入一行自动递增。
+
+``` sql
+id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY
+```
+
+`GENERATED ALWAYS` 表示：**不能手动给这一列插值**
+
+``` sql
+-- 报错：cannot insert a non-DEFAULT value into column "id"
+INSERT INTO orders (id, user_id, ...) VALUES (100, 1, ...);
+
+-- 正确：不写 id，让它自动生成
+INSERT INTO orders (user_id, order_no, status) VALUES (1, 'NO001', 'pending');
+```
+
+如果想手动指定，必须显式写 `OVERRIDING SYSTEM VALUE`：
+
+``` sql
+INSERT INTO orders (id, user_id, ...) OVERRIDING SYSTEM VALUE VALUES (100, 1, ...);
+```
 
 ### 2.4 `NULL` 不是空字符串也不是 0
 
