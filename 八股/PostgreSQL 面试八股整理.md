@@ -509,7 +509,7 @@ FOR UPDATE;
 
 `ROW SHARE` 作用是允许其他事务同时读取和写入，但阻止有人对整个表做**排他性操作**。
 
-`ROW EXCLUSIVE` 作用是允许多个事务同时写不同行，但阻止对整张表做需要数据稳定的操作；例如添加索引
+`ROW EXCLUSIVE` 作用是**锁定修改的行**，允许多个事务**同时写不同行**，但阻止对整张表做需要数据稳定的操作；例如添加索引
 
 ``` text
 事务A: UPDATE orders SET status='paid' WHERE id=100;  -- 自动加 ROW EXCLUSIVE
@@ -520,6 +520,8 @@ FOR UPDATE;
 事务A: UPDATE orders SET status='paid' WHERE id=100;  -- ROW EXCLUSIVE
 事务B: CREATE INDEX ON orders(status);                 -- 需要 SHARE
 ```
+
+`SHARE` 作用是
 
 ### 4.2 `FOR UPDATE` 与库存扣减
 
