@@ -146,6 +146,8 @@ SELECT * FROM app.users;   -- 推荐在重要 SQL 中明确限定
 
 生产实践中通常避免让业务依赖不透明的 `search_path`，防止同名对象遮蔽、权限绕过或迁移环境行为不一致。
 
+> **注意：** `search_path` 并不是强制限定查询范围，如果指定到具体路径，会跳过 `search_path`
+
 ### 1.5 高频面试题
 
 | 问题 | 标准回答思路 | 可能追问 |
@@ -161,18 +163,18 @@ SELECT * FROM app.users;   -- 推荐在重要 SQL 中明确限定
 
 ### 2.1 常用数据类型选择
 
-| 类型 | 适用场景 | 注意事项 |
-| --- | --- | --- |
-| `smallint/int/bigint` | 整数 ID、计数 | 预估增长量；主键常用 `bigint` |
-| `numeric(p,s)` | 金额、精确小数 | 精确但通常比浮点慢，金额不要用 `float` |
-| `real/double precision` | 科学计算、近似值 | 存在舍入误差，不适合账务 |
-| `text/varchar` | 文本 | PostgreSQL 中无长度需求时 `text` 通常更自然 |
-| `timestamp` | 不带时区的时间 | 它不保存时区语义 |
-| `timestamptz` | 绝对时间点 | 内部按 UTC 语义保存，展示受时区影响 |
-| `jsonb` | 半结构化、需要索引查询的 JSON | 不要把所有关系数据都塞进 JSONB |
-| `uuid` | 分布式生成 ID | 随机 UUID 可能带来索引局部性问题 |
-| `bytea` | 二进制 | 大文件更适合对象存储，库中保存元数据 |
-| `array` | 小规模同质列表 | 复杂多值关系优先考虑关联表 |
+| 类型                      | 适用场景              | 注意事项                            |
+| ----------------------- | ----------------- | ------------------------------- |
+| `smallint/int/bigint`   | 整数 ID、计数          | 预估增长量；主键常用 `bigint`             |
+| `numeric(p,s)`          | 金额、精确小数           | 精确但通常比浮点慢，金额不要用 `float`         |
+| `real/double precision` | 科学计算、近似值          | 存在舍入误差，不适合账务                    |
+| `text/varchar`/`char`   | 文本                | PostgreSQL 中无长度需求时 `text` 通常更自然 |
+| `timestamp`             | 不带时区的时间           | 它不保存时区语义                        |
+| `timestamptz`           | 绝对时间点             | 内部按 UTC 语义保存，展示受时区影响            |
+| `jsonb`                 | 半结构化、需要索引查询的 JSON | 不要把所有关系数据都塞进 JSONB              |
+| `uuid`                  | 分布式生成 ID          | 随机 UUID 可能带来索引局部性问题             |
+| `bytea`                 | 二进制               | 大文件更适合对象存储，库中保存元数据              |
+| `array`                 | 小规模同质列表           | 复杂多值关系优先考虑关联表                   |
 
 ### 2.2 `timestamp` 与 `timestamptz`
 
