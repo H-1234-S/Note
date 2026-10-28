@@ -491,7 +491,11 @@ WHERE sku = 'A-1'
 FOR UPDATE;
 ```
 
-`FOR UPDATE` 表示锁住选中的行，其他事务对这些行做冲突更新或再次加冲突锁时需要等待。`FOR NO KEY UPDATE`、`FOR SHARE`、`FOR KEY SHARE` 适用于更细粒度的保护需求。
+`FOR UPDATE` 表示锁住选中的行，其他事务对这些行做冲突更新或再次加冲突锁时需要等待。
+
+在当前事务结束后会释放改锁
+
+`FOR NO KEY UPDATE`、`FOR SHARE`、`FOR KEY SHARE` 适用于更细粒度的保护需求。
 
 ### 4.2 `FOR UPDATE` 与库存扣减
 
