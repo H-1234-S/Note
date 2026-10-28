@@ -574,7 +574,7 @@ ORDER BY granted, pid;
 
 `pg_blocking_pids()` 阻塞关系函数；函数接受一个进程 ID 作为参数，返回一个整数数组，里面包含了所有正在阻塞该指定进程的 PID。
 
-
+`ANY` 和**查询结果集**中每一个结果进行比较，有一个满足就返回 `true`
 
 ### 4.5 Advisory Lock
 
