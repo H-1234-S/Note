@@ -477,7 +477,7 @@ ORDER BY xact_start;
 
 ### 4.1 锁的分类
 
-PostgreSQL 有表级锁、行级锁、页级/内部锁、谓词锁和 advisory lock。
+PostgreSQL 有**表级锁**、**行级锁**、页级/内部锁、谓词锁和 advisory lock。
 
 常见表锁模式包括 `ACCESS SHARE`、`ROW SHARE`、`ROW EXCLUSIVE`、`SHARE`、`SHARE ROW EXCLUSIVE`、`EXCLUSIVE`、`ACCESS EXCLUSIVE`。
 
@@ -496,6 +496,13 @@ FOR UPDATE;
 在当前事务结束后会释放改锁
 
 `FOR NO KEY UPDATE`、`FOR SHARE`、`FOR KEY SHARE` 适用于更细粒度的保护需求。
+
+#### 4.1.1 表级锁
+
+表级锁作用是协调多个事务对**整张表**的**并发访问**；PG 会在执行 SQL 时自动获取相应的表锁，也可以通过 `LOCK TABLE` 显式指定。
+
+`ACCESS SHARE` 作用是在读取改表时，表不会被**删除/修改结构**
+
 
 ### 4.2 `FOR UPDATE` 与库存扣减
 
