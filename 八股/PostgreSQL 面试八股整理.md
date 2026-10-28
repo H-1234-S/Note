@@ -197,7 +197,7 @@ SELECT TIMESTAMPTZ '2026-10-20 10:00:00+08';
 ```sql
 CREATE TABLE orders (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  user_id bigint NOT NULL,
+  user_id bigint NOT NULL, 
   order_no text NOT NULL,
   status text NOT NULL CHECK (status IN ('pending', 'paid', 'cancelled')),
   created_at timestamptz NOT NULL DEFAULT now(),
