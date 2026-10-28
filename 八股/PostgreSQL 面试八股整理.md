@@ -521,7 +521,7 @@ FOR UPDATE;
 事务B: CREATE INDEX ON orders(status);                 -- 需要 SHARE
 ```
 
-`SHARE` 作用是在 `CREATE INDEX` 时需要表
+`SHARE` 作用是在 `CREATE INDEX` 时需要表数据稳定、不被修改
 
 ```
 事务A: CREATE INDEX ON orders(status);   -- 自动加 SHARE
@@ -632,7 +632,9 @@ SELECT pg_advisory_xact_lock(12345); -- 事务结束自动释放
 
 ### 5.1 WAL 是什么
 
-WAL（Write-Ahead Logging）核心规则是：**数据页落盘之前，描述这次修改的 WAL 记录必须先持久化**。因此数据库崩溃后可以通过重放 WAL，把数据页恢复到一致状态，而不必在每次事务提交时同步写所有数据页。
+WAL（Write-Ahead Logging）核心规则是：**数据页落盘之前，描述这次修改的 WAL 记录必须先持久化**。
+
+因此数据库崩溃后可以通过重放 WAL，把数据页恢复到一致状态，而不必在每次事务提交时同步写所有数据页。
 
 ```text
 事务修改
