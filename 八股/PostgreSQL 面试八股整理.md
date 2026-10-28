@@ -477,7 +477,11 @@ ORDER BY xact_start;
 
 ### 4.1 锁的分类
 
-PostgreSQL 有表级锁、行级锁、页级/内部锁、谓词锁和 advisory lock。常见表锁模式包括 `ACCESS SHARE`、`ROW SHARE`、`ROW EXCLUSIVE`、`SHARE`、`SHARE ROW EXCLUSIVE`、`EXCLUSIVE`、`ACCESS EXCLUSIVE`。`ACCESS EXCLUSIVE` 冲突范围最大，很多 DDL 会持有它。
+PostgreSQL 有表级锁、行级锁、页级/内部锁、谓词锁和 advisory lock。
+
+常见表锁模式包括 `ACCESS SHARE`、`ROW SHARE`、`ROW EXCLUSIVE`、`SHARE`、`SHARE ROW EXCLUSIVE`、`EXCLUSIVE`、`ACCESS EXCLUSIVE`。
+
+`ACCESS EXCLUSIVE` 冲突范围最大，很多 DDL 会持有它。
 
 行锁常见语义：
 
