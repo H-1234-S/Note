@@ -340,12 +340,12 @@ WHERE old_value IS DISTINCT FROM new_value
 
 ### 3.1 ACID 在 PostgreSQL 中如何落地
 
-| 特性 | PostgreSQL 机制 |
-| --- | --- |
-| Atomicity | WAL、事务状态、提交/回滚和子事务 |
-| Consistency | 约束、触发器、事务隔离和业务规则 |
-| Isolation | MVCC 快照、锁、隔离级别 |
-| Durability | WAL 持久化、`fsync`、checkpoint、备份和复制 |
+| 特性          | PostgreSQL 机制                    |
+| ----------- | -------------------------------- |
+| Atomicity   | WAL、事务状态、提交/回滚和子事务               |
+| Consistency | 约束、触发器、事务隔离和业务规则                 |
+| Isolation   | MVCC 快照、锁、隔离级别                   |
+| Durability  | WAL 持久化、`fsync`、checkpoint、备份和复制 |
 
 “开启事务”不意味着所有读写都互相阻塞。PostgreSQL 通过 MVCC 让读看到符合快照的数据版本，读写多数情况下可以并发
 
