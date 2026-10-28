@@ -545,14 +545,16 @@ PostgreSQL 的**死锁检测器**会发现环路，取消其中一个事务并�
 
 ### 4.4 查看锁等待
 
+找出数据库中谁被阻塞的了；列出所有正在等待锁的会话，以及阻塞它们的会话
+
 ```sql
 SELECT blocked.pid AS blocked_pid,
        blocked.query AS blocked_query,
        blocking.pid AS blocking_pid,
        blocking.query AS blocking_query,
        now() - blocked.query_start AS blocked_for
-FROM pg_stat_activity blocked
-JOIN pg_stat_activity blocking
+FROM pg_stat_activity blocked  --  被阻塞的进程
+JOIN pg_stat_activity blocking  --  正在阻塞别人的进程；也就是持有锁
   ON blocking.pid = ANY(pg_blocking_pids(blocked.pid));
 ```
 
@@ -573,6 +575,8 @@ ORDER BY granted, pid;
 ---
 
 `pg_blocking_pids()` 阻塞关系函数；函数接受一个进程 ID 作为参数，返回一个整数数组，里面包含了所有正在阻塞该指定进程的 PID。
+
+`pg_terminate_backend(blocking_pid)` 终止阻塞者
 
 `ANY` 和**查询结果集**中每一个结果进行比较，有一个满足就返回 `true`
 
