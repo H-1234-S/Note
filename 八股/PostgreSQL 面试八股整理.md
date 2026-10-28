@@ -521,7 +521,17 @@ FOR UPDATE;
 事务B: CREATE INDEX ON orders(status);                 -- 需要 SHARE
 ```
 
-`SHARE` 作用是
+`SHARE` 作用是在 `CREATE INDEX` 时需要表
+
+```
+事务A: CREATE INDEX ON orders(status);   -- 自动加 SHARE
+事务B: UPDATE orders SET status='paid' WHERE id=100;  -- 需要 ROW EXCLUSIVE
+
+但
+
+事务A: CREATE INDEX ON orders(status);   -- SHARE
+事务B: SELECT * FROM orders WHERE id=100; -- ACCESS SHARE
+```
 
 ### 4.2 `FOR UPDATE` 与库存扣减
 
