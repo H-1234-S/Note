@@ -564,6 +564,18 @@ FROM pg_locks
 ORDER BY granted, pid;
 ```
 
+#### 4.4.1 补充
+
+`pg_stat_activity` 进程活动视图；为每个服务器进程显示一行，记录其关联的用户会话和查询状态；用于排查数据库问题
+
+可以从中看到进程 ID（`pid`）、当前执行的查询（`query`）、查询开始时间（`query_start`）、连接状态（`state`）等信息。
+
+---
+
+`pg_blocking_pids()` 阻塞关系函数；函数接受一个进程 ID 作为参数，返回一个整数数组，里面包含了所有正在阻塞该指定进程的 PID。
+
+
+
 ### 4.5 Advisory Lock
 
 Advisory lock 是应用自定义语义的锁，数据库不会理解它保护了什么：
