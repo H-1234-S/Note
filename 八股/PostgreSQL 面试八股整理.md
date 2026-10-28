@@ -671,9 +671,16 @@ WAL 记录通常是物理或逻辑层面的修改描述，不等价于“保存�
 
 ### 5.2 `fsync`、`synchronous_commit` 与持久性
 
+`fsync` 和 `synchronous_commit` 是 PostgreSQL 控制“数据到底有多安全”的两个关键参数。
+
+**`fsync` 决定数据库整体有没有“损坏”的风险，而 `synchronous_commit` 决定提交事务时要不要“等”数据落盘。**
+
 - `fsync=on` 是生产环境保证崩溃一致性的基础，关闭可能造成不可恢复的数据损坏风险。
+	
 - `synchronous_commit=on` 通常要求本地 WAL 达到相应持久化条件后再向客户端确认提交。
+	
 - `synchronous_commit=off` 可以降低提交延迟，但数据库崩溃时可能丢失最近已向客户端确认的事务；一般是“可接受少量数据丢失”的性能换取。
+	
 - `full_page_writes` 用于降低部分页写入（如 torn page）造成的恢复问题，通常不应随意关闭。
 
 面试回答不能把“WAL 开启”直接等同于“永不丢数据”。数据丢失窗口还受提交策略、磁盘、复制确认、备份和故障类型影响。
