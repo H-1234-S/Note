@@ -47,3 +47,4 @@ volumes:       # 可选：命名数据卷
 Compose 支持在 YAML 中使用 `${VAR}` 引用变量，配合项目根目录下的 `.env` 文件使用。
 
 例如 `.env` 中写 `TAG=v1.5`，在 compose 文件中写 `image: "webapp:${TAG}"`，执行 `docker compose up` 时会自动替换为 `webapp:v1.5`。
+
