@@ -17,12 +17,14 @@
 ``` yml
 version: 2
 updates:
+	# 检测 docker-compose 文件
   - package-ecosystem: docker-compose
+    # 从根目录下开始找
     directory: /
     schedule:
       interval: weekly
       day: tuesday
-  
+	# 检测 github-actions
   - package-ecosystem: github-actions
     directory: /
     schedule:
