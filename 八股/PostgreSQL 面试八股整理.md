@@ -829,6 +829,8 @@ CREATE INDEX idx_products_attrs ON products USING gin (attrs jsonb_path_ops);
 SELECT * FROM products WHERE attrs @> '{"brand":"acme"}';
 ```
 
+> `@>` 是"左侧 JSONB 是否包含右侧 JSONB"。注意语义是**结构包含**，不是字符串匹配：
+
 GIN 读取可能很快，但写入和索引体积通常更重。高频写表要评估 pending list、批量写入、autovacuum 和查询模式。
 
 ### 6.6 GiST：范围、空间和相似结构
