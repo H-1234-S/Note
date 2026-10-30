@@ -820,6 +820,11 @@ ON orders (user_id, created_at DESC) INCLUDE (status, amount);
 
 ### 6.5 GIN：多值和全文检索
 
+GIN(Generalized Inverted Index，通用倒排索引)本质上就是**将一行数据拆成多个键**，每个键都指向包含它的行。
+
+
+
+
 GIN 适合数组、JSONB、全文检索等“一个文档对应多个索引键”的场景：
 
 ```sql
