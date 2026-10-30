@@ -61,11 +61,11 @@ id UUID PRIMARY KEY DEFAULT gen_random_uuid()
 
 `JSONB` 适合保存字段结构灵活、经常需要按键查询的 JSON 数据。
 
-**例如：**
+PG 将 JSON 数据去除空格、换行等冗余信息，转为二进制数据，这种数据就叫 JSONB 数据
 
-``` sql
-metadata JSONB
-```
+PG 将 JSONB 里的键值对拆分**生成二进制哈希**，构建倒排索引
+
+当 PG 查询某一个键值对时，会将键值对数据转为二进制哈希，然后在 GIN 倒排索引中查找这个哈希值
 
 # SQL 约束
 

@@ -833,6 +833,8 @@ SELECT * FROM products WHERE attrs @> '{"brand":"acme"}';
 
 GIN 读取可能很快，但写入和索引体积通常更重。高频写表要评估 pending list、批量写入、autovacuum 和查询模式。
 
+[[PostgreSQL 学习笔记#JSONB]]
+
 ### 6.6 GiST：范围、空间和相似结构
 
 GiST 是可扩展的通用索引框架，常见于几何对象、范围类型、全文检索等。范围防重叠可以使用排他约束：
