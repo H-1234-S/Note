@@ -1005,3 +1005,6 @@ async function payOrder(orderId: string) {
 3. 定时任务防重
 4. 防止缓存击穿
 # Lua 脚本
+
+# 持久化
+
