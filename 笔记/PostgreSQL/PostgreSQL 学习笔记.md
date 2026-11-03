@@ -368,7 +368,43 @@ REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC;
 ```
 
 这一步就是撤销默认的权限；对于我之前的项目，只给项目角色访问自己 Schema 的权限
-## 授权规则
+
+
+# 权限管理
+
+## `GRANT ALL ON ALL TABLES` 
+
+批量授权操作
+
+作用是将指定模式下**当前已经存在**的所有表的全部权限（如 SELECT, INSERT, UPDATE, DELETE 等），一次性授予给某个用户或角色
+
+**缺点：**
+
+它只对执行命令那一刻已经存在的表生效。如果之后在该模式下新建了表，该用户默认是**没有**权限访问新表的，除非再次手动执行授权
+
+**示例：**
+
+``` sql
+GRANT ALL ON ALL TABLES IN SCHEMA ${schemaIdent} TO ${roleIdent}
+
+GRANT ALL ON ALL SEQUENCES IN SCHEMA ${schemaIdent} TO ${roleIdent}
+```
+
+## `ALTER DEFAULT PRIVILEGES`
+
+配置**未来对象的默认权限**
+
+提前设定好规则，让**以后**创建的对象自动带上指定的权限。
+
+它可以针对特定模式（`IN SCHEMA`）或特定角色（`FOR ROLE`）来设定。
+
+``` sql
+ALTER DEFAULT PRIVILEGES IN SCHEMA ${schemaIdent} GRANT ALL ON TABLES TO ${roleIdent}
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA ${schemaIdent} GRANT ALL ON SEQUENCES TO ${roleIdent}
+```
+
+**具体讲解：**
 
 ``` sql
 ALTER DEFAULT PRIVILEGES   -- ① 动词：修改"默认权限"配置
@@ -376,11 +412,6 @@ ALTER DEFAULT PRIVILEGES   -- ① 动词：修改"默认权限"配置
   GRANT ALL ON TABLES           -- ③④ 对象类型 + 授权动作
   TO "proj_9f3a1c02_usr";       -- ⑤ 受益者：项目角色
 ```
-
-# 权限管理
-
-
-
 
 # RSL
 
