@@ -357,7 +357,6 @@ CREATE ROLE "proj_9f3a1c02_usr" NOLOGIN
 ```
 
 `NOLOGIN` 表示不能登录数据库；`NOINHERIT` 表示**不继承**
-
 ## 注意
 
 PostgreSQL 默认给 `PUBLIC`（所有角色的集合）授予 `public` schema 的 `USAGE`，这意味着任何角色都能看到 public 里的表。
@@ -369,6 +368,17 @@ REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC;
 ```
 
 这一步就是撤销默认的权限；对于我之前的项目，只给项目角色访问自己 Schema 的权限
+## 授权规则
+
+``` sql
+ALTER DEFAULT PRIVILEGES   -- ① 动词：修改"默认权限"配置
+  IN SCHEMA "proj_9f3a1c02"     -- ② 作用域：只针对该 schema 内新建的对象
+  GRANT ALL ON TABLES           -- ③④ 对象类型 + 授权动作
+  TO "proj_9f3a1c02_usr";       -- ⑤ 受益者：项目角色
+```
+
+
+
 
 # RSL
 
