@@ -316,10 +316,23 @@ CHECK (stock >= 0);
 | `READ COMMITTED`   | 每条语句读取开始时可见的已提交数据                  |
 | `REPEATABLE READ`  | 同一事务内的查询保持一致的快照；并发写入冲突可能导致事务失败     |
 | `SERIALIZABLE`     | 检测可能导致不可串行化结果的并发执行，必要时中止事务，应用需要重试  |
+# Schema
+
+PostgreSQL 中，一个 Database 下可以再划分多个 Schema（模式）
+
+Schema 是表、序列、视图、函数等对象的组织容器，相当于数据库里的 "文件夹"。
+
+``` sql
+CREATE SCHEMA IF NOT EXISTS "proj_9f3a1c02"
+```
+
+Schema 中
 
 # 数据库角色
 
 PostgreSQL 数据库里的角色是**用户身份** + **权限**的集合
+
+**角色是集群级的**—— 它不属于某个数据库，而是整个 PostgreSQL 实例（集群）全局存在，`pg_roles` 系统视图能看到全部角色。
 
 每个数据库连接**必然以某个角色登录**，之后所有操作都以这个角色名义执行。
 
@@ -332,6 +345,8 @@ PostgreSQL 数据库里的角色是**用户身份** + **权限**的集合
 - RLS 策略**只看 current_role**，不看 session_user。
 
 角色就是连接后是谁，决定了能动什么；而 `SET LOCAL ROLE` 就是**在事务内临时换一个身份**。
+
+
 
 
 # RSL
