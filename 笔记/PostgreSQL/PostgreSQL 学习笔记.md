@@ -326,7 +326,13 @@ Schema 是表、序列、视图、函数等对象的组织容器，相当于数�
 CREATE SCHEMA IF NOT EXISTS "proj_9f3a1c02"
 ```
 
-Schema 中
+## Public Schema
+
+`public schema`（公共模式）是 PostgreSQL 数据库中的一个**默认模式（Schema）**
+
+当创建表时，如果没有指定具体的模式，那么系统就会自动放到 Public Schema 中
+
+
 
 # 数据库角色
 
