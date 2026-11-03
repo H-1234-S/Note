@@ -332,8 +332,6 @@ CREATE SCHEMA IF NOT EXISTS "proj_9f3a1c02"
 
 当创建表时，如果没有指定具体的模式，那么系统就会自动放到 Public Schema 中
 
-
-
 # 数据库角色
 
 PostgreSQL 数据库里的角色是**用户身份** + **权限**的集合
@@ -351,6 +349,10 @@ PostgreSQL 数据库里的角色是**用户身份** + **权限**的集合
 - RLS 策略**只看 current_role**，不看 session_user。
 
 角色就是连接后是谁，决定了能动什么；而 `SET LOCAL ROLE` 就是**在事务内临时换一个身份**。
+
+## 注意
+
+对于 Public Schema 所有 Role 都有访问的权限
 
 
 
