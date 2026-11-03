@@ -880,6 +880,8 @@ RSC(服务器组件)是React19`正式引入`的一种新的组件类型，它可
 
 RSC在服务端进行渲染，生成RSC Payload发送给客户端
 
+客户端通常通过 `createFromFetch` 或 `createFromReadableStream` 这类 API 来接收 RSC Payload
+
 ### 产生原因
 
 - 传统 React 应用是客户端渲染（CSR）或服务器端渲染（SSR）的混合。
