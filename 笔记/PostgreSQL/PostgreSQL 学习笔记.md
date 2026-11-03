@@ -377,6 +377,11 @@ ALTER DEFAULT PRIVILEGES   -- ① 动词：修改"默认权限"配置
   TO "proj_9f3a1c02_usr";       -- ⑤ 受益者：项目角色
 ```
 
+# 权限管理
+
+
+
+
 # RSL
 
 权限其实有两层颗粒度
