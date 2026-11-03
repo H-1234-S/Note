@@ -336,7 +336,7 @@ CREATE SCHEMA IF NOT EXISTS "proj_9f3a1c02"
 
 PostgreSQL 数据库里的角色是**用户身份** + **权限**的集合
 
-**角色是集群级的**—— 它不属于某个数据库，而是整个 PostgreSQL 实例（集群）全局存在，`pg_roles` 系统视图能看到全部角色。
+> **角色是集群级的**—— 它不属于某个数据库，而是整个 PostgreSQL 实例（集群）全局存在，`pg_roles` 系统视图能看到全部角色。
 
 每个数据库连接**必然以某个角色登录**，之后所有操作都以这个角色名义执行。
 
@@ -350,12 +350,25 @@ PostgreSQL 数据库里的角色是**用户身份** + **权限**的集合
 
 角色就是连接后是谁，决定了能动什么；而 `SET LOCAL ROLE` 就是**在事务内临时换一个身份**。
 
+> **示例：**
+
+``` sql
+CREATE ROLE "proj_9f3a1c02_usr" NOLOGIN
+```
+
+`NOLOGIN` 表示不能登录数据库；`NOINHERIT` 表示**不继承**
+
 ## 注意
 
-对于 Public Schema 所有 Role 都有访问的权限
+PostgreSQL 默认给 `PUBLIC`（所有角色的集合）授予 `public` schema 的 `USAGE`，这意味着任何角色都能看到 public 里的表。
 
+``` sql
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON ALL TABLES IN SCHEMA public FROM PUBLIC;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC;
+```
 
-
+这一步就是撤销默认的权限；对于我之前的项目，只给项目角色访问自己 Schema 的权限
 
 # RSL
 
