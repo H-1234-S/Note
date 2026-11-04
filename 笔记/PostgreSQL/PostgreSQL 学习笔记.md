@@ -332,6 +332,15 @@ CREATE SCHEMA IF NOT EXISTS "proj_9f3a1c02"
 
 当创建表时，如果没有指定具体的模式，那么系统就会自动放到 Public Schema 中
 
+# 数据库元数据
+
+
+
+
+
+
+
+
 # 数据库角色
 
 PostgreSQL 数据库里的角色是**用户身份** + **权限**的集合
