@@ -342,9 +342,19 @@ CREATE SCHEMA IF NOT EXISTS "proj_9f3a1c02"
 
 元数据存在数据库内部的**系统表 / 系统目录（system catalog）** 里，可以像查普通表一样去查它们。
 
+## information_schema
 
+`information_schema` 是 **SQL 标准**规定的一套**只读视图**的集合，专门用来暴露元数据。
 
+它本身是一个特殊的 schema（可以理解成一个"库"），里面全是视图，比如：
 
+- `information_schema.tables` —— 所有表的信息
+    
+- `information_schema.columns` —— 所有列的信息
+    
+- `information_schema.table_constraints` —— 所有约束的信息
+    
+- `information_schema.key_column_usage` —— 约束/键 与 列的对应关系
 
 
 
