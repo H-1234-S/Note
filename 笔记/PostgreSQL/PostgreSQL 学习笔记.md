@@ -356,8 +356,6 @@ CREATE SCHEMA IF NOT EXISTS "proj_9f3a1c02"
     
 - `information_schema.key_column_usage` —— 约束/键 与 列的对应关系
 
-
-
 # 数据库角色
 
 PostgreSQL 数据库里的角色是**用户身份** + **权限**的集合
