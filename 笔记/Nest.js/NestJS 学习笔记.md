@@ -1672,7 +1672,7 @@ constructor(userService) { this.userService = userService; }
 }
 ```
 
-开启 `emitDecoratorMetadata` 后，TypeScript 会为**被装饰器修饰的类/方法**自动生成元数据，其中就包括 `design:paramtypes`
+开启 `emitDecoratorMetadata` 后，TypeScript 会为**被装饰器修饰的类/方法**自动生成**元数据**，其中就包括 `design:paramtypes`
 
 > **构造函数编译后**，会多出一段：
 
