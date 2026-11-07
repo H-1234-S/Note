@@ -1615,7 +1615,7 @@ Organization
     
 - GitHub Actions。
     
-- Jest。
+- Vitest。
     
 - Supertest。
     
