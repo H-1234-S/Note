@@ -190,9 +190,9 @@ Generalized Inverted Index，通用倒排索引。
 
 它主要解决一个问题：
 
-当一个字段中包含多个元素时，如何快速查找包含某个元素的记录？
+当**一个字段中包含多个元素**时，如何快速查找包含某个元素的记录？
 
-> **示例：**
+### 示例：
 
 ``` sql
 -- 一个文章表
@@ -208,6 +208,65 @@ FROM articles
 WHERE tags @> ARRAY['后端'];
 ```
 
+如果没有 GIN 索引，那么数据库依旧全表扫描，也就是逐条检查标签是否符合条件
+
+> **GIN 如何工作：**
+
+例如：
+
+文章 1：Redis、后端
+文章 2：React、前端
+文章 3：Nest、后端
+文章 4：PostgreSQL、后端
+
+**GIN 索引**
+
+|   |   |
+|---|---|
+|索引元素|对应文章|
+|Redis|文章 1|
+|React|文章 2|
+|后端|文章 1、3、4|
+|前端|文章 2|
+|Nest|文章 3|
+|PostgreSQL|文章 4|
+
+可以快速定位包含目标元素的记录
+
+**创建 GIN 索引**
+
+``` sql
+CREATE INDEX idx_articles_tags
+ON articles USING GIN (tags);
+
+-- 查询
+SELECT *
+FROM articles
+WHERE tags @> ARRAY['后端'];
+```
+
+GIN 支持的数组操作符包括：
+
+| 操作符  | 含义      |
+| ---- | ------- |
+| `@>` | 左侧包含右侧  |
+| `<@` | 左侧被右侧包含 |
+| `&&` | 两个数组有交集 |
+| `=`  | 数组相等    |
+
+**例如：**
+
+``` sql
+-- 同时包含 Redis 和后端
+SELECT *
+FROM articles
+WHERE tags @> ARRAY['Redis', '后端'];
+
+-- 包含 Redis 或后端中的任意一个
+SELECT *
+FROM articles
+WHERE tags && ARRAY['Redis', '后端'];
+```
 
 
 
