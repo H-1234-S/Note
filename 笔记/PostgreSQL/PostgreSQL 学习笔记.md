@@ -177,6 +177,21 @@ Hash 索引主要用于**等值查询**。
 
 它的核心思想是通过哈希函数，**将数据转换成对应的哈希值**，从而帮助定位数据。
 
+``` sql
+CREATE INDEX idx_users_email_hash
+ON users USING HASH (email);
+```
+
+## GIN 索引
+
+GIN 全称：
+
+Generalized Inverted Index，通用倒排索引。
+
+它主要解决一个问题：
+
+当一个字段中包含多个元素时，如何快速查找包含某个元素的记录？
+
 
 
 
