@@ -93,6 +93,31 @@ PG 将 JSONB 里的键值对拆分**生成二进制哈希**，构建倒排索引
 
 它不改变数据本身，而是额外维护了一份“键值 → 数据物理位置”的映射表。
 
+**示例：**
+
+给 email 字段建立索引
+
+``` sql
+CREATE INDEX idx_users_email
+ON users (email);
+```
+
+索引中保存着类似这样的映射关系：
+
+| email               | 对应记录的位置 |
+| ------------------- | ------- |
+| alice@example.com   | 记录位置 A  |
+| bob@example.com     | 记录位置 B  |
+| charlie@example.com | 记录位置 C  |
+| david@example.com   | 记录位置 D  |
+
+这里的记录位置是概念上的简化，PostgreSQL 的索引实际上会保存**索引键**以及指向表中**元组的 TID**（Tuple Identifier）
+
+**执行：** 快速定位索引键，获取对应的 TID，然后定位 users 表中的记录；就不再进行全表扫描了
+
+
+
+
 ## 作用
 
 索引的核心作用是**加速查询**，尤其是当表很大、而查询只需要返回其中很少几行时，效果最明显。
