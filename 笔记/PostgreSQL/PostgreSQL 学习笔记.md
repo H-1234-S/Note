@@ -192,7 +192,21 @@ Generalized Inverted Index，通用倒排索引。
 
 当一个字段中包含多个元素时，如何快速查找包含某个元素的记录？
 
+> **示例：**
 
+``` sql
+-- 一个文章表
+CREATE TABLE articles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255),
+    tags TEXT[]
+);
+
+-- 查询包含后端标签的文章
+SELECT *
+FROM articles
+WHERE tags @> ARRAY['后端'];
+```
 
 
 
