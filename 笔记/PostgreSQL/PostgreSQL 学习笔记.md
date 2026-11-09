@@ -134,6 +134,8 @@ ON users (email);
 
 B-tree 是 PostgreSQL 默认的索引类型，也是日常业务开发中最常用的索引。
 
+**示例：**
+
 ``` sql
 CREATE INDEX idx_users_age
 ON users USING BTREE (age);
@@ -142,6 +144,10 @@ ON users USING BTREE (age);
 CREATE INDEX idx_users_age
 ON users (age);
 ```
+
+> **结构：**
+
+B-tree 是平衡的**多路搜索树**，实际节点可以包含多个键值
 
 
 
