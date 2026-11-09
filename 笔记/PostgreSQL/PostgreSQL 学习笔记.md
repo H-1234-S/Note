@@ -154,8 +154,15 @@ B-tree 是平衡的**多路搜索树**，是一个树状结构，每个节点可
 适合等值查询、范围查询、排序查询、前缀匹配
 
 ```sql
-
--- 前缀p
+-- 范围查询
+SELECT *
+FROM users
+WHERE age BETWEEN 18 AND 30;
+-- 排序查询
+SELECT *
+FROM users
+ORDER BY age ASC;
+-- 前缀匹配
 SELECT *
 FROM users
 WHERE username LIKE 'ali%';
