@@ -192,7 +192,8 @@ Generalized Inverted Index，通用倒排索引。
 
 当**一个字段中包含多个元素**时，如何快速查找包含某个元素的记录？
 
-### 示例：
+将每个字段拆分出来，组成一个键值对的集合；如果存在两个相同字段则值合并，其实也就是根据字段查 TID
+### 示例
 
 ``` sql
 -- 一个文章表
@@ -267,6 +268,70 @@ SELECT *
 FROM articles
 WHERE tags && ARRAY['Redis', '后端'];
 ```
+
+### GIN 与 JSONB
+
+假设有一张商品表：
+
+``` sql
+CREATE TABLE products (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100),
+    attributes JSONB
+);
+```
+
+存储的数据：
+
+``` json
+{
+  "brand": "Apple",
+  "color": "black",
+  "storage": "256GB"
+}
+```
+
+现在需要查找品牌为 Apple 的商品：
+
+``` sql
+SELECT *
+FROM products
+WHERE attributes @> '{"brand": "Apple"}';
+```
+
+创建 GIN 索引：
+
+``` sql
+CREATE INDEX idx_products_attributes
+ON products USING GIN (attributes);
+```
+
+这样可以帮助 JSONB 包含查询。
+
+还有一种常见的写法：
+
+``` sql
+SELECT *
+FROM products
+WHERE attributes ? 'brand';
+```
+
+> 这里 `?` 表示 JSONB 对象是否存在指定键。
+
+GIN 的重要特点：
+
+- 适合数组包含查询。
+    
+- 适合 JSONB 包含查询。
+    
+- 适合全文搜索。
+    
+- 一个字段中的多个元素可以分别建立索引。
+    
+
+
+
+
 
 
 
