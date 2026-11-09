@@ -143,6 +143,9 @@ ON users USING BTREE (age);
 -- 同
 CREATE INDEX idx_users_age
 ON users (age);
+
+-- 删除索引
+DROP INDEX idx_users_age;
 ```
 
 > **结构：**
@@ -168,7 +171,11 @@ FROM users
 WHERE username LIKE 'ali%';
 ```
 
+## 哈希索引
 
+Hash 索引主要用于**等值查询**。
+
+它的核心思想是通过哈希函数，**将数据转换成对应的哈希值**，从而帮助定位数据。
 
 
 
