@@ -716,6 +716,16 @@ export class UsersService {}
 | `TRANSIENT`          | 每次注入都创建新实例 |
 > REQUEST 适合需要请求上下文（如当前用户）的场景；但会影响性能，慎用。
 
+### 作用域冒泡
+
+**`REQUEST` 作用域会沿着注入链向上“冒泡”**。
+
+假设 `CatsController` 依赖 `CatsService`，而 `CatsService` 被标记为 `REQUEST` 作用域。
+
+由于控制器依赖了**请求作用域的服务**，**控制器本身也会被迫变成请求作用域**。
+
+这意味着每次请求都会新建一个 `CatsController` 和一个 `CatsService` 实例
+
 
 
 
