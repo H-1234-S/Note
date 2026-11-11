@@ -716,6 +716,9 @@ export class UsersService {}
 | `TRANSIENT`          | 每次注入都创建新实例 |
 > REQUEST 适合需要请求上下文（如当前用户）的场景；但会影响性能，慎用。
 
+
+
+
 ## 提供器类型
 
 ### 简写形式
