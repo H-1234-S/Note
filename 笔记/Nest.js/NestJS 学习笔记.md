@@ -714,7 +714,7 @@ export class UsersService {}
 | `DEFAULT`（Singleton） | 模块单例（默认）   |
 | `REQUEST`            | 每个请求创建新实例  |
 | `TRANSIENT`          | 每次注入都创建新实例 |
-> REQUEST 适合需要请求上下文（如当前用户）的场景；但会影响性能，慎用。
+> REQUEST 适合需要请求上下文（如当前用户）的场景；能避免请求状态串扰，但会增加实例化开销。
 
 
 ### REQUEST 示例
