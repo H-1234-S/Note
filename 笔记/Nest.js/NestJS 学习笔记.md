@@ -721,7 +721,26 @@ export class UsersService {}
 
 记录操作日志，需要知道“是哪个用户发起了这次请求”。
 
-由于用户信息存在于每个请求对象（`request`）中，单例服务无法安全地保存这种与请求绑定的数据（会发生并发覆盖）
+由于用户信息存在于每个请求对象（`request`）中，**单例服务**无法安全地保存这种与请求绑定的数据（会发生**并发覆盖**）
+
+``` ts
+@Injectable() // 单例
+export class AuditService {
+  // 用一个字段"暂存"当前请求信息
+  private currentRequest: Request;
+
+  setRequest(req: Request) {
+    this.currentRequest = req;
+  }
+
+  logAction(action: string) {
+    const userId = this.currentRequest.headers['x-user-id'];
+    console.log(`用户 ${userId} 执行了操作: ${action}`);
+  }
+}
+```
+
+这种情况会发生并发覆盖，
 
 > **原因：** Node 是单线程 + 异步非阻塞，多个请求会交错执行
 
