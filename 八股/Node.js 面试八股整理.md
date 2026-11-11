@@ -733,7 +733,11 @@ const server = http.createServer(async (req, res) => {
 server.listen(3000);
 ```
 
-HTTP/1.1 默认可持久连接，避免反复握手；但同一连接上的响应顺序约束可能造成队头阻塞。HTTP/2 在单 TCP 连接内多路复用 stream，缓解应用层 HOL，但 TCP 丢包仍可能阻塞连接中其他 stream；HTTP/3 基于 QUIC/UDP 进一步改变该层取舍。
+HTTP/1.1 默认可持久连接，避免反复握手；但同一连接上的响应顺序约束可能造成队头阻塞。
+
+HTTP/2 在单 TCP 连接内多路复用 stream，缓解应用层 HOL，但 TCP 丢包仍可能阻塞连接中其他 stream
+
+HTTP/3 基于 QUIC/UDP 进一步改变该层取舍。
 
 ### HTTP server 应有的资源边界
 
