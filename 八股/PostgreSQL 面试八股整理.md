@@ -497,8 +497,6 @@ FOR UPDATE;
 
 `FOR UPDATE` 表示**锁住选中的行**，在 A 事务提交或者回滚前，其他事务无法修改或锁定这些行。
 
-
-
 `FOR NO KEY UPDATE`、`FOR SHARE`、`FOR KEY SHARE` 适用于更细粒度的保护需求。
 
 #### 4.1.1 表级锁
@@ -561,6 +559,16 @@ RETURNING stock;
 应用根据 `RETURNING` **是否返回行**判断扣减成功。
 
 高并发下后者通常减少一次往返，但仍要结合订单、幂等和库存超卖规则设计。
+
+### FOR UPDATE SKIP LOCKED
+
+**`FOR UPDATE SKIP LOCKED`** 是 PostgreSQL 为队列场景提供的原生行锁机制
+
+能让每个 Worker 原子地锁定自己取到的行，并跳过已被其他 Worker 锁定的行。
+
+
+
+
 
 ### 4.3 死锁是如何产生的
 
