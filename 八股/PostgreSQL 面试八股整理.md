@@ -590,6 +590,15 @@ RETURNING t.*;
     
 - **原子性**：把 `SELECT ... FOR UPDATE SKIP LOCKED` 和 `UPDATE ... SET status = 'processing'` 放在**同一条 SQL**（或同一个短事务）里，从“锁定”到“标记已领取”之间没有空隙，彻底消除了“两个 Worker 都看到 pending 然后都去处理”的竞态窗口
 
+> **防御性：**
+
+**Worker 崩溃后的恢复**：
+	
+- 如果 Worker 领取任务后（状态已改为 `processing`）崩溃，事务会回滚，锁自动释放，但状态可能已经提交为 `processing`。
+	
+- 需要一个额外的“超时回收”机制，把长时间停留在 `processing` 的任务重置回 `pending`，否则这些任务会永久卡住。
+	
+- 常见的做法是加一个 `claimed_at` 或 `started_at` 字段，定期扫描超时记录并释放。
 
 
 ### 4.3 死锁是如何产生的
