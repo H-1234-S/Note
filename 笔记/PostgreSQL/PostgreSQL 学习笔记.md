@@ -570,6 +570,8 @@ CHECK (stock >= 0);
 | `SERIALIZABLE`     | 检测可能导致不可串行化结果的并发执行，必要时中止事务，应用需要重试  |
 ### SERIALIZABLE
 
+Serializable目的：**让多个并发事务的执行结果，看起来就像它们是按顺序一个接一个地串行执行一样**
+
 PostgreSQL 的 Serializable Snapshot Isolation 会追踪事务间的读写依赖。
 
 
