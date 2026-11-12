@@ -792,7 +792,7 @@ ORDER BY user_id, created_at DESC
 
 ### 6.3 部分索引与表达式索引
 
-部分索引只索引满足谓词的行：
+> **部分索引**只索引**满足谓词**的行：
 
 ```sql
 CREATE INDEX idx_orders_pending
@@ -804,7 +804,12 @@ WHERE status = 'pending';
 
 查询条件需要能被优化器证明与谓词匹配，否则可能无法使用。
 
-表达式索引：
+**示例：**
+
+要给一个大型业务表的 `status` 列加索引，取值只有 `pending`、`done`、`failed`，且绝大多数行都是 `done`。
+
+
+> **表达式索引：**
 
 ```sql
 CREATE INDEX idx_users_lower_email ON users (lower(email));
