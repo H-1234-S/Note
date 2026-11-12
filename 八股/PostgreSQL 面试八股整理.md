@@ -497,7 +497,7 @@ FOR UPDATE;
 
 `FOR UPDATE` 表示**锁住选中的行**，在 A 事务提交或者回滚前，其他事务无法修改或锁定这些行。
 
-在当前事务结束后会释放改锁
+
 
 `FOR NO KEY UPDATE`、`FOR SHARE`、`FOR KEY SHARE` 适用于更细粒度的保护需求。
 
