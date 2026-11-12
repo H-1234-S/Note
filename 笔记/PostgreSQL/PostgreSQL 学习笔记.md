@@ -568,6 +568,15 @@ CHECK (stock >= 0);
 | `READ COMMITTED`   | 每条语句读取开始时可见的已提交数据                  |
 | `REPEATABLE READ`  | **同一事务内的查询保持一致的快照**；并发写入冲突可能导致事务失败 |
 | `SERIALIZABLE`     | 检测可能导致不可串行化结果的并发执行，必要时中止事务，应用需要重试  |
+### SERIALIZABLE
+
+PostgreSQL 的 Serializable Snapshot Isolation 会追踪事务间的读写依赖。
+
+
+
+
+
+
 # Schema
 
 PostgreSQL 中，一个 Database 下可以再划分多个 Schema（模式）
