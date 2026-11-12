@@ -566,7 +566,29 @@ RETURNING stock;
 
 能让每个 Worker 原子地锁定自己取到的行，并跳过已被其他 Worker 锁定的行。
 
+> **示例：** 如果两个 Worker 同时按索引读取最早的 100 条待处理任务，如何避免它们领取到相同任务？
 
+``` sql
+WITH claimed AS (
+    SELECT id
+    FROM tableName
+    WHERE status = 'pending'
+    ORDER BY created_at
+    LIMIT 100
+    FOR UPDATE SKIP LOCKED
+)
+UPDATE tableName t
+SET status = 'processing'   -- 或你的中间状态
+FROM claimed c
+WHERE t.id = c.id
+RETURNING t.*;
+```
+
+- **`FOR UPDATE`**：Worker A 查到最早的 100 条 pending 行后，立即对这些行加行级排他锁。在 A 的事务提交或回滚之前，其他事务无法修改或锁定这些行。
+    
+- **`SKIP LOCKED`**：Worker B 同时执行同样的查询时，数据库发现那 100 行已被 A 锁定，**不会等待**，而是直接跳过它们，继续向后扫描，取走接下来的 100 条 pending 行。两个 Worker 因此拿到完全不相交的任务集合。
+    
+- **原子性**：把 `SELECT ... FOR UPDATE SKIP LOCKED` 和 `UPDATE ... SET status = 'processing'` 放在**同一条 SQL**（或同一个短事务）里，从“锁定”到“标记已领取”之间没有空隙，彻底消除了“两个 Worker 都看到 pending 然后都去处理”的竞态窗口
 
 
 
