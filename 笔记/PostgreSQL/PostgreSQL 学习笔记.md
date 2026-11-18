@@ -611,7 +611,7 @@ PostgreSQL 的 Serializable Snapshot Isolation 会追踪事务间的读写依赖
 
 当检测到可能导致数据不一致的执行顺序时，会主动回滚其中一个事务，并报出序列化失败错误（SQLSTATE `40001`）
 
-
+**写偏差：**
 
 
 
