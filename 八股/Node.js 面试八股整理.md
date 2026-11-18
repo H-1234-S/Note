@@ -372,7 +372,9 @@ console.log(b.toString('utf8'));    // 中
 
 ### 4.2 Stream：把“全量数据”改成“逐块传输”
 
-流有 Readable、Writable、Duplex、Transform 四类。核心价值不是事件 API，而是**有界缓存 + 背压（backpressure）**：生产者比消费者快时暂停生产，防止内存无限堆积。
+流有 Readable、Writable、Duplex、Transform 四类。
+
+核心价值不是事件 API，而是**有界缓存 + 背压（backpressure）**：生产者比消费者快时暂停生产，防止内存无限堆积。
 
 ```js
 import { createReadStream, createWriteStream } from 'node:fs';
@@ -475,6 +477,8 @@ await pipeline(Readable.from(generateData()), res);
 **追问：Buffer 与 Stream 关系？**
 
 答：Buffer 是一个二进制数据块；字节流通常产出和消费一系列 Buffer。
+
+
 
 Stream 解决块的生命周期、排队、背压、结束和错误传播。
 
