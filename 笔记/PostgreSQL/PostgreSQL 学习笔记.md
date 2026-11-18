@@ -576,6 +576,10 @@ Serializable目的：**让多个并发事务的执行结果，看起来就像它
 
 PostgreSQL 的 Serializable Snapshot Isolation 会追踪事务间的读写依赖。
 
+当检测到可能导致数据不一致的执行顺序时，会主动回滚其中一个事务，并报出序列化失败错误（SQLSTATE `40001`）
+
+
+
 
 
 
