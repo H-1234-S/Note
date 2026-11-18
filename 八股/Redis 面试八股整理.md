@@ -974,6 +974,15 @@ async function updateUser(id: string, patch: Patch) {
 
 互斥锁本身也要有超时、随机 token、释放校验和故障兜底。
 
+#### 互斥锁
+
+
+
+
+
+
+
+
 ### 13.3 缓存雪崩
 
 大量 Key 同时过期、Redis 故障或缓存集群整体不可用，导致请求集中打到数据库。
