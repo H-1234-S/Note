@@ -19,7 +19,13 @@
 - 队列Queue：队列是消息的接收方，它存储了待处理的消息。消费者可以从队列中获取消息并进行处理
     
 - 消费者Consumer：消费者是消息的接收方，它从队列中获取消息并进行处理
-    
+
+
+
+
+``` text
+建立连接 -> 创建频道 -> 创建交换机 -> 发送消息 -> 断开连接 -> 断开频道
+```
 # 基本使用
 
 点对点基本使用，不需要交换机
@@ -102,7 +108,7 @@ channel.consume(queueName, (msg) => {
 
 **发布订阅**就是生产者的消息通过交换机写到多个队列，不同的订阅者消费不同的队列，也就是实现了**一对多**
 
-发布订阅的模式分为四种：
+> **发布订阅的模式分为四种：**
 
 1. Direct（直连）模式：把消息放到交换机指定`key`的队列里面。
     
@@ -114,3 +120,42 @@ channel.consume(queueName, (msg) => {
     
 ## Direct
 
+> **生产者：**
+
+``` js
+import amqplib from 'amqplib'
+const connection = await amqplib.connect('amqp://localhost:5672')
+//创建一个频道
+const channel = await connection.createChannel() 
+//声明一个交换机
+/**
+ * @param {String} exchange 交换机的名称
+ * @param {String} type "direct" | "topic" | "headers" | "fanout" | "match" | 使用广播模式
+ * @param {Object} options {durable: true} //开启消息持久化
+ */
+await channel.assertExchange('logs', 'direct', {
+    durable: true
+})
+//发送消息
+/**
+ * @param {String} exchange 交换机的名称
+ * @param {String} routingKey 路由键
+ * @param {Buffer} content 消息内容
+ */
+ //这里的zs就是routingKey
+channel.publish('logs', 'zs', Buffer.from('小满direct模式发送的消息'))
+
+//断开
+await channel.close()
+await connection.close()
+process.exit(0)
+
+```
+
+**注意：** `assertExchange` 只有在没有创建交换机的时候才会执行一次
+
+> **消费者：**
+
+```
+
+```
