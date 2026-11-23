@@ -112,3 +112,5 @@ channel.consume(queueName, (msg) => {
     
 4. Fanout（广播）模式：把消息放入交换机所有的队列，实现广播
     
+## Direct
+
