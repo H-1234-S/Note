@@ -214,5 +214,12 @@ channel.consume('queue2', (msg) => {
 }, {
     noAck: true //自动确认消息被消费
 })
-
 ```
+
+## Topic
+
+
+## Headers
+
+## Fanout
+
