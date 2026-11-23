@@ -221,5 +221,7 @@ channel.consume('queue2', (msg) => {
 
 ## Headers
 
+
+
 ## Fanout
 
