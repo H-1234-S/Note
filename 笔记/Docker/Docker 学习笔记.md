@@ -1,3 +1,10 @@
+# Docker
+
+把项目运行所需要的环境和步骤统一起来
+
+
+
+
 # Docker Compose
 
 Docker Compose 本质上是一个**声明式**的编排工具。
@@ -50,4 +57,5 @@ Compose 支持在 YAML 中使用 `${VAR}` 引用变量，配合项目根目录�
 
 # Dockerfile
 
+**Dockerfile 是一个文本文件，用来描述如何构建 Docker 镜像（Image）**
 
