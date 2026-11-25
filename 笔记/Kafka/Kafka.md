@@ -49,3 +49,98 @@ volumes:
 > 使用 Kafka 的 KRaft 模式，不需要额外部署 ZooKeeper。
 
 
+## 镜像与容器
+
+``` yaml
+image: apache/kafka:4.3.1
+container_name: kafka
+```
+
+- **`image`**：使用 Apache 官方维护的 Kafka 镜像，版本 `4.3.1`。这是目前较新的稳定版。
+    
+- **`container_name`**：给容器起个固定的名字叫 `kafka`，方便后续用 `docker logs kafka` 等命令直接操作，而不用查随机生成的 ID。
+    
+## 端口映射
+
+``` yaml
+ports:
+  - "9092:9092"
+```
+
+- 将容器内部的 `9092` 端口（Kafka 对客户端提供服务的端口）映射到宿主机的 `9092` 端口。这样你本地的 Node.js 程序就能通过 `localhost:9092` 连上它。
+    
+## KRaft 模式核心配置
+
+KRaft 模式是让 Kafka 在没有 ZooKeeper 的情况下也能运行。
+
+``` yaml
+KAFKA_NODE_ID: 1
+```
+
+- 给这个节点一个唯一 ID。在单节点环境下，`1` 就可以了。
+    
+
+``` yaml
+KAFKA_PROCESS_ROLES: 'broker,controller'
+```
+
+- **关键配置**：指定这个节点同时扮演两个角色。
+    
+    - **`broker`**：负责存储消息、处理生产者和消费者的请求。
+        
+    - **`controller`**：负责集群管理（比如分区领导者选举）。在 KRaft 模式下，不再需要独立的 ZooKeeper 来承担这个职责。
+        
+
+``` yaml
+KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+```
+
+- 定义控制器选举的“投票者”列表。格式是 `节点ID@主机:端口`。
+    
+- 这里表示：节点 `1` 在 `kafka` 这个主机名（即容器自身）的 `9093` 端口上参与投票。因为只有一个节点，所以它自己就能形成“多数派”。
+    
+
+``` yaml
+KAFKA_LISTENERS: 'PLAINTEXT://:9092,CONTROLLER://:9093'
+```
+
+- 定义 Kafka 要监听哪些网络接口和端口。
+    
+    - `PLAINTEXT://:9092`：在 `9092` 端口上监听，使用不加密的 PLAINTEXT 协议，供客户端（生产者/消费者）连接。
+        
+    - `CONTROLLER://:9093`：在 `9093` 端口上监听，专门用于 KRaft 控制器之间的内部通信（虽然这里是单节点，但端口仍需定义）。
+        
+
+``` yaml
+KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092'
+```
+
+- **非常关键**：这是 Kafka **告诉客户端**应该用什么地址来连接它。
+    
+- 客户端第一次连接后，Kafka 会返回这个地址。对于你宿主机上的 Node.js 程序来说，`localhost:9092` 是正确的。如果这里写成容器内部的 `kafka:9092`，你的本地程序就会因为无法解析 `kafka` 这个主机名而连接失败。
+    
+
+``` yaml
+KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+```
+
+- 告诉 Kafka，哪个监听器的名字是用于控制器通信的。这里对应上面定义的 `CONTROLLER` 监听器（即 `9093` 端口）。
+    
+
+``` yaml
+KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+```
+
+- 将监听器名称映射到安全协议。这里 `CONTROLLER` 和 `PLAINTEXT` 两个监听器都使用不加密的 `PLAINTEXT` 协议，简化了本地开发环境。
+    
+
+``` yaml
+KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+```
+
+- Kafka 内部会创建一些主题（如 `__consumer_offsets` 用于记录消费者位移，`__transaction_state` 用于事务）。这两个配置指定这些内部主题的副本数为 `1`。
+    
+- 因为我们是**单节点**集群，副本数只能设为 `1`。如果设为大于 1 的数，Kafka 会因为找不到足够的 broker 来放置副本而报错。
+
+
