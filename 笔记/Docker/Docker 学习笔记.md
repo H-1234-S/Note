@@ -344,3 +344,38 @@ http://localhost:3000
 ```
 
 就可以访问容器中的 NestJS 服务了。
+
+## 注意
+
+**Docker 缓存机制**
+
+为什么 Dockerfile 先复制 `package.json`，再安装依赖，最后才复制源代码？
+
+因为 Docker 构建镜像时会利用缓存。假设只修改了 `src/main.ts`：
+
+```
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
+COPY . .
+RUN pnpm build
+```
+
+由于依赖文件没有改变，Docker 可以复用之前的依赖安装层，不必重新安装所有依赖。
+
+这可以显著提高构建速度。
+
+**.dockerignore 文件**
+
+类似于 `.gitignore`，用于排除不需要发送到 Docker 构建上下文中的文件。
+
+例如：
+
+```
+node_modules
+dist
+.git
+.env
+.env.*
+```
+
+避免把本地依赖、Git 历史以及敏感环境变量等不必要的内容复制进去。
