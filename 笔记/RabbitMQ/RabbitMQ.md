@@ -250,3 +250,77 @@ rabbitmq-plugins enable rabbitmq_delayed_message_exchange
 ```
     
 4. **验证**：访问管理界面（15672端口），在 Exchanges 页面尝试创建类型为 `x-delayed-message` 的交换机，若能成功则说明插件已生效。
+
+## 示例
+
+> **producer：**
+
+``` js
+import amqplib from "amqplib";
+
+// 1. 建立连接
+const connection = await amqplib.connect("amqp://admin:admin@localhost:5672");
+// 2. 创建频道
+const channel = await connection.createChannel();
+// 3. 创建交换机
+await channel.assertExchange("delay-1", "x-delayed-message", {
+  arguments: {
+    "x-delayed-type": "direct",
+  },
+});
+// 4. 发送消息
+channel.publish("delay-1", "jo", Buffer.from("延时消息"), {
+  headers: {
+    "x-delay": 5000, //延时 10秒
+  },
+});
+  
+// 清理：先关 channel 再关 connection，顺序反了会报 Channel closed
+await channel.close();
+await connection.close();
+process.exit(0);
+```
+
+**注意：** `Exchange` 的类型是 `x-delayed-message`
+
+> **consume：**
+
+``` js
+import amqplib from "amqplib";
+
+// 1. 建立连接
+const connection = await amqplib.connect("amqp://admin:admin@localhost:5672");
+// 2. 创建频道
+const channel = await connection.createChannel();
+// 3. 创建交换机
+await channel.assertExchange("delay-1", "x-delayed-message", {
+  arguments: {
+    "x-delayed-type": "direct",
+  },
+});
+// 4. 添加一个队列
+const { queue } = await channel.assertQueue("queue1", {
+  durable: true,
+});
+  
+// 5. 交换机绑定队列
+/**
+ * @param {String} queue 队列名称
+ * @param {String} exchange 交换机名称
+ * @param {String} routingKey 路由键
+ */
+// 匹配对应的 routingKey 才能收到
+await channel.bindQueue(queue, "delay-1", "jo");
+// 接收消息
+channel.consume(
+  queue,
+  (msg) => {
+    console.log(msg.content.toString());
+  },
+  {
+    noAck: true, //自动确认消息被消费
+  },
+);
+```
+
+## shi
