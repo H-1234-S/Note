@@ -225,3 +225,7 @@ channel.consume('queue2', (msg) => {
 
 ## Fanout
 
+
+
+# 延时消息
+
