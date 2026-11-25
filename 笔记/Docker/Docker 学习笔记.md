@@ -139,3 +139,208 @@ CMD ["node", "dist/main.js"]
 
 ## 指令详解
 
+**① FROM：指定基础镜像**
+
+```
+FROM node:24-alpine
+```
+
+Docker 镜像可以基于其他镜像构建。这里使用官方提供的 Node.js 24 Alpine 镜像。
+
+它已经包含：
+
+- Linux Alpine 操作系统环境。
+    
+- Node.js 24。
+    
+- npm。
+    
+
+也就是说，不需要自己在容器里安装 Node.js。
+
+**② WORKDIR：设置工作目录**
+
+```
+WORKDIR /app
+```
+
+相当于在容器内部执行：
+
+```
+mkdir -p /app
+cd /app
+```
+
+后续 Dockerfile 中的相对路径，默认都以 `/app` 为基础。
+
+**③ COPY：复制文件**
+
+```
+COPY package.json pnpm-lock.yaml ./
+```
+
+将本地项目中的两个文件复制到容器的 `/app` 目录。
+
+例如：
+
+```
+本地项目：
+my-nest-app/
+├── package.json
+└── pnpm-lock.yaml
+
+容器内部：
+/app/
+├── package.json
+└── pnpm-lock.yaml
+```
+
+**④ RUN：执行构建命令**
+
+```
+RUN corepack enable
+
+RUN pnpm install --frozen-lockfile
+```
+
+`RUN` 的作用是：在构建镜像的过程中执行命令。
+
+这里：
+
+- `corepack enable`：启用 Corepack，以便使用 pnpm。
+    
+- `pnpm install`：安装项目依赖。
+    
+- `--frozen-lockfile`：严格按照锁文件安装，不允许自动修改锁文件。
+    
+
+注意：`RUN` 是构建阶段执行，不是每次启动容器都会执行。
+
+**⑤ COPY：复制剩余代码**
+
+```
+COPY . .
+```
+
+把本地项目的剩余文件复制到容器的 `/app` 中。
+
+**⑥ RUN：编译项目**
+
+```
+RUN pnpm build
+```
+
+执行 NestJS 的编译命令，将 TypeScript 编译为 JavaScript。
+
+例如：
+
+```
+src/
+├── main.ts
+└── app.module.ts
+
+编译后：
+
+dist/
+├── main.js
+└── app.module.js
+```
+
+**⑦ EXPOSE：声明端口**
+
+```
+EXPOSE 3000
+```
+
+表示该容器中的应用预计使用 3000 端口。
+
+注意：它只是声明端口，并不会自动将容器端口映射到宿主机。
+
+**⑧ CMD：指定容器启动命令**
+
+```
+CMD ["node", "dist/main.js"]
+```
+
+当容器启动时，执行：
+
+```
+node dist/main.js
+```
+
+这时 NestJS 服务就运行起来了。
+
+## 如何使用 Dockerfile
+
+现在我们已经编写好了 Dockerfile，接下来使用 Docker 构建镜像。
+
+**第一步：构建镜像**
+
+在项目根目录执行：
+
+```
+docker build -t my-nest-app .
+```
+
+解释一下：
+
+|参数|作用|
+|---|---|
+|`docker build`|构建镜像|
+|`-t my-nest-app`|给镜像命名|
+|`.`|指定构建上下文为当前目录|
+
+Docker 会读取当前目录下的 Dockerfile，并按照指令构建镜像。
+
+**第二步：查看镜像**
+
+```
+docker images
+```
+
+你会看到类似：
+
+```
+REPOSITORY    TAG       IMAGE ID
+my-nest-app   latest    abc123
+```
+
+**第三步：运行容器**
+
+```
+docker run -d \
+  --name my-nest-container \
+  -p 3000:3000 \
+  my-nest-app
+```
+
+这里有一个非常重要的参数：
+
+```
+-p 3000:3000
+宿主机端口:容器端口
+```
+
+意味着：
+
+```
+浏览器
+  |
+  | localhost:3000
+  ↓
+宿主机 3000 端口
+  |
+  ↓
+容器 3000 端口
+  |
+  ↓
+NestJS 服务
+```
+
+现在访问：
+
+```
+http://localhost:3000
+```
+
+就可以访问容器中的 NestJS 服务了。
