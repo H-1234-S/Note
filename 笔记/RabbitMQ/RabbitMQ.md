@@ -229,3 +229,24 @@ channel.consume('queue2', (msg) => {
 
 # 延时消息
 
+Producer 将消息发送到 MQ 服务端，但并不期望这条消息立马投递，而是延迟一定时间后才投递到 Consumer 进行消费
+
+[下载地址](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases)
+
+> 延时消息的核心价值在于**将“立即执行”转化为“在未来的某个时间点执行”**，从而解耦系统、削峰填谷、提升用户体验。
+## 操作步骤
+
+1. **下载插件**：从 RabbitMQ 社区插件页面或 GitHub Releases 下载与你的 RabbitMQ 版本**严格匹配**的 `.ez` 插件文件（例如 RabbitMQ 3.9.x 对应插件 3.9.0）。
+    
+2. **挂载并启动**：在 `docker run` 或 `docker-compose.yml` 中，将下载好的 `.ez` 文件挂载到容器的 `/plugins` 目录下。
+    
+3. **进入容器启用插件**：容器启动后，必须手动执行命令来激活插件。
+    
+``` bash
+# 进入容器
+docker exec -it <容器名或ID> bash
+# 启用插件
+rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+```
+    
+4. **验证**：访问管理界面（15672端口），在 Exchanges 页面尝试创建类型为 `x-delayed-message` 的交换机，若能成功则说明插件已生效。
