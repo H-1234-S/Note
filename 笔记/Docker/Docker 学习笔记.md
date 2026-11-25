@@ -59,3 +59,20 @@ Compose 支持在 YAML 中使用 `${VAR}` 引用变量，配合项目根目录�
 
 **Dockerfile 是一个文本文件，用来描述如何构建 Docker 镜像（Image）**
 
+其实就是**自动化环境构建**；不用手动一步步敲命令（装系统、装依赖、拷代码、配环境），Dockerfile 把这些步骤固化成文件
+
+> 例如，告诉 Docker：
+
+1. 使用 Node.js 24 作为基础环境。
+    
+2. 把项目代码复制到容器中。
+    
+3. 安装项目依赖。
+    
+4. 编译 TypeScript。
+    
+5. 启动 NestJS 服务。
+    
+
+Docker 就会按照 Dockerfile 中的指令，一步一步构建出一个 Docker Image。
+
