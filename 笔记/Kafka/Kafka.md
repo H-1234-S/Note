@@ -69,7 +69,7 @@ ports:
 
 - 将容器内部的 `9092` 端口（Kafka 对客户端提供服务的端口）映射到宿主机的 `9092` 端口。这样你本地的 Node.js 程序就能通过 `localhost:9092` 连上它。
     
-## KRaft 模式核心配置
+## KRaft 模式配置
 
 KRaft 模式是让 Kafka 在没有 ZooKeeper 的情况下也能运行。
 
@@ -143,4 +143,51 @@ KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     
 - 因为我们是**单节点**集群，副本数只能设为 `1`。如果设为大于 1 的数，Kafka 会因为找不到足够的 broker 来放置副本而报错。
 
+# 基本使用
+
+### Getting Started
+
+```shell
+npm install kafkajs
+# yarn add kafkajs
+```
+### Usage
+
+```js
+const { Kafka } = require('kafkajs')
+
+const kafka = new Kafka({
+  clientId: 'my-app',
+  brokers: ['kafka1:9092', 'kafka2:9092']
+})
+
+const producer = kafka.producer()
+const consumer = kafka.consumer({ groupId: 'test-group' })
+
+const run = async () => {
+  // Producing
+  await producer.connect()
+  await producer.send({
+    topic: 'test-topic',
+    messages: [
+      { value: 'Hello KafkaJS user!' },
+    ],
+  })
+
+  // Consuming
+  await consumer.connect()
+  // fromBeginning 为 true 表示从头开始；为 false 表示从最新开始
+  await consumer.subscribe({ topic: 'test-topic', fromBeginning: true })
+
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message }) => {
+      console.log({
+        partition,
+        offset: message.offset,
+        value: message.value.toString(),
+      })
+    },
+  })
+}
+```
 
