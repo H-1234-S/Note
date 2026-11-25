@@ -76,3 +76,63 @@ Compose 支持在 YAML 中使用 `${VAR}` 引用变量，配合项目根目录�
 
 Docker 就会按照 Dockerfile 中的指令，一步一步构建出一个 Docker Image。
 
+## 示例
+
+> 假设项目结构如下：
+
+```
+my-nest-app/
+├── src/
+│   ├── main.ts
+│   └── app.module.ts
+├── package.json
+├── pnpm-lock.yaml
+├── nest-cli.json
+├── tsconfig.json
+└── Dockerfile
+```
+
+正常情况下，你在本地运行项目可能需要：
+
+``` bash
+# 安装依赖
+pnpm install
+
+# 编译 TypeScript
+pnpm build
+
+# 启动项目
+pnpm start:prod
+```
+
+现在希望 Docker 自动完成这些操作。
+## **编写 Dockerfile**
+
+``` Dockerfile
+# 1. 指定基础镜像
+FROM node:24-alpine
+
+# 2. 设置容器内的工作目录
+WORKDIR /app
+
+# 3. 复制依赖描述文件
+COPY package.json pnpm-lock.yaml ./
+
+# 4. 启用 pnpm
+RUN corepack enable
+
+# 5. 安装项目依赖
+RUN pnpm install --frozen-lockfile
+
+# 6. 复制剩余项目代码
+COPY . .
+
+# 7. 编译 NestJS 项目
+RUN pnpm build
+
+# 8. 声明容器对外提供的端口
+EXPOSE 3000
+
+# 9. 容器启动时执行的命令
+CMD ["node", "dist/main.js"]
+```
